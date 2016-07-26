@@ -1,3 +1,4 @@
+library(R6)
 GauPro <- R6Class(classname = "GauPro",
   public = list(
     X = NA,
@@ -13,9 +14,10 @@ GauPro <- R6Class(classname = "GauPro",
       self$N <- nrow(X)
       self$D <- ncol(X)
     },
-    pred = function(XX) {browser()
+    pred = function(XX) {#browser()
       if (!is.matrix(XX)) {
         if (self$D == 1) XX <- matrix(XX, ncol=1)
+        else if (length(XX) == self$D) XX <- matrix(XX, nrow=1)
         else stop('Predict input should be matrix')
       }
       #covmat <- gauss_cor(c(x, xx))
