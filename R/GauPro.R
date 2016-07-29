@@ -1,30 +1,62 @@
 library(R6)
 GauPro <- R6Class(classname = "GauPro",
   public = list(
-    X = NA,
-    Z = NA,
-    N = NA,
-    D = NA,
+    X = NULL,
+    Z = NULL,
+    N = NULL,
+    D = NULL,
     corr = "Gauss",
+    corr_func = NULL,
     nug = 1e-6,
     nug.min = 1e-8,
-    theta = 1,
-    mu_hat = NA,
-    s2_hat = NA,
-    K = NA,
-    Kchol = NA,
-    Kinv = NA,
-    fit = function(X, Z) {#browser()
+    nug.est = T,
+    theta = NULL,
+    mu_hat = NULL,
+    s2_hat = NULL,
+    K = NULL,
+    Kchol = NULL,
+    Kinv = NULL,
+    verbose = 0,
+    initialize = function(X, Z, corr="Gauss", verbose=0, ...) {#browser()
+      #for (item in list(...)) {
+      #  self$add(item)
+      #}
       self$X <- X
-      self$Z <- Z
-      self$N <- nrow(X)
-      self$D <- ncol(X)
+      self$Z <- matrix(Z, ncol=1)
+      #if (!is.null(corr)) {self$corr <- corr}
+      self$corr <- corr
+      self$verbose <- verbose
+      if (!is.matrix(self$X)) {
+        if (length(self$X) == length(self$Z)) {
+          self$X <- matrix(X, ncol=1)
+        } else {
+          stop("X and Z don't match")
+        }
+      }
+      self$N <- nrow(self$X)
+      self$D <- ncol(self$X)
+      self$theta <- rep(1, self$D)
+      if (self$corr == "Gauss") {
+        self$corr_func <- GauPro::corr_gauss_matrix
+      } else {
+        stop("corr not specified or recognized")
+      }
+
+      self$fit()
+      invisible(self)
+    },
+    fit = function(X, Z) {#browser()
+      #self$X <- if (is.matrix(X)) X else matrix(X, ncol=1)
+      #self$Z <- Z
+      #self$N <- nrow(self$X)
+      #self$D <- ncol(self$X)
+      #self$corr_func <- corr_gauss_matrix
       #self$update_params()
       #self$theta_update()
-      self$all_update()
+      self$update()
     },
     update_params = function () {#browser()
-      self$K <- corr_gauss_mat(self$X, theta=self$theta) + diag(self$nug, self$N)
+      self$K <- self$corr_func(self$X, theta=self$theta) + diag(self$nug, self$N)
       self$Kchol <- chol(self$K)
       self$Kinv <- chol2inv(self$Kchol)
       self$mu_hat <- sum(self$Kinv %*% self$Z) / sum(self$Kinv)
@@ -38,50 +70,44 @@ GauPro <- R6Class(classname = "GauPro",
       }
       #covmat <- gauss_cor(c(x, xx))
       #kx <- gauss_cor_mat(self$X) + diag(self$nug, self$N)
-      kxx <- corr_gauss_mat(XX, theta=self$theta)
-      kx.xx <- corr_gauss_mat(XX, self$X, theta=self$theta)
+      kxx <- self$corr_func(XX, theta=self$theta)
+      kx.xx <- self$corr_func(self$X, XX, theta=self$theta)
 
-      mn <- self$pred_mean(XX, kx.xx=kx.xx)#self$mu_hat + kx.xx %*% self$Kinv %*% (self$Z - self$mu_hat)
-      #s2 <- self$s2_hat * (1 - kx.xx %*% self$Kinv %*% t(kx.xx) + (1-sum(self$Kinv %*% t(kx.xx)))^2 / (sum(self$Kinv)))
-      s2 <- self$pred_var(XX, kxx=kxx, kx.xx=kx.xx) #self$s2_hat * diag(kxx - kx.xx %*% self$Kinv %*% t(kx.xx))
-      se <- sqrt(s2)
+      mn <- self$pred_mean(XX, kx.xx=kx.xx)
+      s2 <- self$pred_var(XX, kxx=kxx, kx.xx=kx.xx)
+      se <- rep(0, length(mn)) # NEG VARS will be 0 for se, NOT SURE I WANT THIS
+      se[s2>=0] <- sqrt(s2[s2>=0])
       if (covmat) return(list(mean=mn, s2=s2, se=se, cov=self$pred_var(XX, kxx=kxx, kx.xx=kx.xx, covmat=T)))
       data.frame(mean=mn, s2=s2, se=se)
     },
     pred_mean = function(XX, kx.xx) {
-      self$mu_hat + kx.xx %*% self$Kinv %*% (self$Z - self$mu_hat)
+      self$mu_hat + t(kx.xx) %*% self$Kinv %*% (self$Z - self$mu_hat)
     },
     pred_var = function(XX, kxx, kx.xx, covmat=F) {
-      if (covmat) return(self$s2_hat * (kxx - kx.xx %*% self$Kinv %*% t(kx.xx)))
-      self$s2_hat * diag(kxx - kx.xx %*% self$Kinv %*% t(kx.xx))
+      if (covmat) return(self$s2_hat * (kxx - t(kx.xx) %*% self$Kinv %*% kx.xx))
+      self$s2_hat * diag(kxx - t(kx.xx) %*% self$Kinv %*% kx.xx)
     },
-    deviance = function (theta) {
-      K <- corr_gauss_mat(self$X, theta=theta) + diag(self$nug, self$N)
-      Kchol <- chol(K)
-      Kinv <- chol2inv(Kchol)
-      mu_hat <- sum(Kinv %*% self$Z) / sum(Kinv)
-      s2_hat <- c(t(self$Z - self$mu_hat) %*% Kinv %*% (self$Z - mu_hat) / self$N)
-      detK <- prod(diag(Kchol))^2
-      log(detK) + self$N * log((self$Z - mu_hat) %*% solve(K, self$Z - mu_hat))
+    deviance_theta = function (theta) {
+      self$deviance(theta=theta, nug=self$nug)
     },
-    deviance_log = function (beta) {
+    deviance_theta_log = function (beta) {
       #points(beta,0)
       theta <- 10^beta
-      self$deviance(theta=theta)
+      self$deviance_theta(theta=theta)
     },
-    deviance_search = function () {
-      #optimize(self$deviance_log, interval = c(-10,10), maximum = F, tol=1e-3)
-      nvars <- self$D
-      suppressWarnings(
-        rgenoud::genoud(self$deviance_log, nvars=nvars,#self$D,#1,
-                      Domains = matrix(c(-10,10), nvars, 2, byrow=T), max = F,
-                      solution.tolerance=1e-3,
-                      pop.size=min(1000, 200*self$D),
-                      max.generations = min(10, 3*self$D),
-                      print.level = 0
-                      )
-      )
-    },
+    #deviance_search = function () {
+    #  #optimize(self$deviance_log, interval = c(-10,10), maximum = F, tol=1e-3)
+    #  nvars <- self$D
+    #  suppressWarnings(
+    #    rgenoud::genoud(self$deviance_log, nvars=nvars,#self$D,#1,
+    #                  Domains = matrix(c(-10,10), nvars, 2, byrow=T), max = F,
+    #                  solution.tolerance=1e-3,
+    #                  pop.size=min(1000, 200*self$D),
+    #                  max.generations = min(10, 3*self$D),
+    #                  print.level = 0
+    #                  )
+    #  )
+    #},
     theta_update = function () {
       dev <- self$deviance_search()
       #self$theta <- 10 ^ self$deviance_search()$minimum
@@ -107,53 +133,130 @@ GauPro <- R6Class(classname = "GauPro",
 
 
 
-    deviance2 = function (theta, nug) { # joint deviance
-      K <- corr_gauss_mat(self$X, theta=theta) + diag(nug, self$N)
+    deviance = function (theta=self$theta, nug=self$nug) { # joint deviance
+      K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
       Kchol <- try(chol(K))
       if (inherits(Kchol, "try-error")) {return(Inf)}
       Kinv <- chol2inv(Kchol)
       mu_hat <- sum(Kinv %*% self$Z) / sum(Kinv)
-      s2_hat <- c(t(self$Z - self$mu_hat) %*% Kinv %*% (self$Z - mu_hat) / self$N)
-      detK <- prod(diag(Kchol))^2
-      log(detK) + self$N * log((self$Z - mu_hat) %*% solve(K, self$Z - mu_hat))
+      #browser()
+      s2_hat <- c(t(self$Z - mu_hat) %*% Kinv %*% (self$Z - mu_hat) / self$N)
+      #detK <- prod(diag(Kchol))^2
+      logdetK <- 2 * sum(log(diag(Kchol)))
+      logdetK + self$N * log(t(self$Z - mu_hat) %*% solve(K, self$Z - mu_hat))
     },
-    deviance_log2 = function (params) { # joint deviance
-      beta <- params[-length(params)]
-      nug <- params[length(params)]
-      theta <- 10^beta
-      self$deviance2(theta=theta, nug=nug)
+    #deviance_log_old = function (params) { # joint deviance
+    #  beta <- params[-length(params)]
+    #  nug <- params[length(params)]
+    #  theta <- 10^beta
+    #  self$deviance(theta=theta, nug=nug)
+    #},
+    deviance_log = function (beta=NULL, nug=self$nug, joint=NULL) {#browser()  # joint deviance
+      if (!is.null(joint)) {
+        beta <- joint[-length(joint)]
+        theta <- 10^beta
+        nug <- joint[length(joint)]
+      } else {
+        if (is.null(beta)) theta <- self$theta
+        else theta <- 10^beta
+      }
+      self$deviance(theta=theta, nug=nug)
     },
-    deviance_search2 = function () {
-      # Joint MLE deviance search with genetic alg, slow and bad
-      #optimize(self$deviance_log, interval = c(-10,10), maximum = F, tol=1e-3)
-      nvars <- self$D
-      suppressWarnings(
-        rgenoud::genoud(self$deviance_log2, nvars=nvars + 1,#self$D,#1,
-                        Domains = rbind(matrix(c(-10,10), nvars, 2, byrow=T),c(0,1)), max = F,
-                        solution.tolerance=1e-3,
-                        pop.size=min(1000, 200*self$D),
-                        max.generations = min(10, 3*self$D),
-                        print.level = 0
-        )
-      )
-    },
-    deviance_search3 = function (restarts = 5) {#browser()
+    #deviance_search2 = function () {
+    #  # Joint MLE deviance search with genetic alg, slow and bad
+    #  #optimize(self$deviance_log, interval = c(-10,10), maximum = F, tol=1e-3)
+    #  nvars <- self$D
+    #  suppressWarnings(
+    #    rgenoud::genoud(self$deviance_log2, nvars=nvars + 1,#self$D,#1,
+    #                    Domains = rbind(matrix(c(-10,10), nvars, 2, byrow=T),c(0,1)), max = F,
+    #                    solution.tolerance=1e-3,
+    #                    pop.size=min(1000, 200*self$D),
+    #                    max.generations = min(10, 3*self$D),
+    #                    print.level = 0
+    #    )
+    #  )
+    #},
+    #optim_old = function (restarts = 5) {#browser()
+    #  # Joint MLE search with L-BFGS-B, with restarts
+    #  #optimize(self$deviance_log, interval = c(-10,10), maximum = F, tol=1e-3)
+    #  #nvars <- self$D
+    #  lower <- c(rep(-10, self$D), self$nug.min)
+    #  upper <- c(rep(10, self$D), Inf)
+    #  # maybe start by calculating deviance for current params
+    #  best <- try(
+    #    optim(c(log(self$theta, 10),self$nug), self$deviance_log, method="L-BFGS-B", lower=lower, upper=upper, hessian=F)
+    #  )
+    #  if (inherits(best, "try-error")) {
+    #    best <- list(par=c(log(self$theta, 10), self$nug), value = self$deviance_log(c(log(self$theta, 10))))
+    #  }
+    #  if (restarts >= 1) {
+    #    for (i in 1:restarts) {
+    #      current <- try(
+    #        optim(c(log(self$theta, 10) + rnorm(self$D,0,2),self$nug + rexp(1, 1e4)), self$deviance_log, method="L-BFGS-B", lower=lower, upper=upper, hessian=F)
+    #      )
+    #      if (!inherits(current, "try-error")) {
+    #        if (current$value < best$value) {
+    #          best <- current
+    #        }
+    #      }
+    #    }
+    #  }
+    #  best
+    #},
+    optim = function (restarts = 5, theta.update = T, nug.update = self$nug.est) {#browser()
       # Joint MLE search with L-BFGS-B, with restarts
-      #optimize(self$deviance_log, interval = c(-10,10), maximum = F, tol=1e-3)
-      #nvars <- self$D
-      lower <- c(rep(-10, self$D), self$nug.min)
-      upper <- c(rep(10, self$D), Inf)
-      # maybe start by calculating deviance for current params
-      best <- try(
-        optim(c(log(self$theta, 10),self$nug), self$deviance_log2, method="L-BFGS-B", lower=lower, upper=upper, hessian=F)
+      if (theta.update & nug.update) {
+        optim.func <- function(xx) {self$deviance_log(joint=xx)}
+      } else if (theta.update & !nug.update) {
+        optim.func <- function(xx) {self$deviance_log(beta=xx)}
+      } else if (!theta.update & nug.update) {
+        optim.func <- function(xx) {self$deviance_log(nug=xx)}
+      } else {
+        stop("Can't optimize over no variables")
+      }
+      lower <- c()
+      upper <- c()
+      start.par <- c()
+      start.par0 <- c() # Some default params
+      if (theta.update) {
+        lower <- c(lower, rep(-5, self$D))
+        upper <- c(upper, rep(7, self$D))
+        start.par <- c(start.par, log(self$theta, 10))
+        start.par0 <- c(start.par0, rep(0, length(self$theta)))
+      }
+      if (nug.update) {
+        lower <- c(lower, self$nug.min)
+        upper <- c(upper, Inf)
+        start.par <- c(start.par, self$nug)
+        start.par0 <- c(start.par0, 1e-6)
+      }
+      #lower <- c(rep(-10, self$D), self$nug.min)
+      #upper <- c(rep(10, self$D), Inf)
+
+      # Find best params with optimization, start with current params in case all give error
+      best <- list(par=c(log(self$theta, 10), self$nug), value = self$deviance_log())
+      current <- try(
+        #optim(c(log(self$theta, 10),self$nug), self$deviance_log, method="L-BFGS-B", lower=lower, upper=upper, hessian=F)
+        optim(start.par, optim.func, method="L-BFGS-B", lower=lower, upper=upper, hessian=F)
       )
-      if (inherits(best, "try-error")) {
-        best <- list(par=c(log(self$theta, 10), self$nug), value = self$deviance_log2(c(log(self$theta, 10))))
+      if (!inherits(current, "try-error")) {
+        if (current$value < best$value) {
+          best <- current
+        }
       }
       if (restarts >= 1) {
         for (i in 1:restarts) {
+          if (runif(1) < .5) { # restart near some spot to avoid getting stuck in bad spot
+            start.par.i <- start.par0
+            print("start at zero par")
+          } else { # jitter from current params
+            start.par.i <- start.par
+          }
+          if (theta.update) {start.par.i[1:self$D] <- start.par.i[1:self$D] + rnorm(self$D,0,2)} # jitter betas
+          if (nug.update) {start.par.i[length(start.par.i)] <- start.par.i[length(start.par.i)] + rexp(1,1e4)} # jitter nugget
           current <- try(
-            optim(c(log(self$theta, 10) + rnorm(self$D,0,2),self$nug + rexp(1, 1e4)), self$deviance_log2, method="L-BFGS-B", lower=lower, upper=upper, hessian=F)
+            #optim(c(log(self$theta, 10) + rnorm(self$D,0,2),self$nug + rexp(1, 1e4)), optim.func, method="L-BFGS-B", lower=lower, upper=upper, hessian=F)
+            optim(start.par.i, optim.func, method="L-BFGS-B", lower=lower, upper=upper, hessian=F)
           )
           if (!inherits(current, "try-error")) {
             if (current$value < best$value) {
@@ -164,16 +267,19 @@ GauPro <- R6Class(classname = "GauPro",
       }
       best
     },
-    all_update = function () { # update theta and nugget
-      pars <- self$deviance_search3()$par
-      #self$theta <- 10 ^ self$deviance_search()$minimum
+    update = function (Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL, restarts = 5, theta.update = T, nug.update = self$nug.est) { # update theta and nugget
+      if (!is.null(Xall)) {self$X <- Xall;self$N <- nrow(self$X)} else if (!is.null(Xnew)) {self$X <- rbind(self$X, Xnew);self$N <- nrow(self$X)}
+      if (!is.null(Zall)) {self$Z <- Zall} else if (!is.null(Znew)) {self$Z <- rbind(self$Z, Znew)}
+      #if (!is.null(Xall) | !is.null(Xnew)) {self$update_params()} # update Kinv, etc, DONT THINK I NEED IT
+
+      pars <- self$optim(restarts = restarts, theta.update = theta.update, nug.update = nug.update)$par
       self$nug <- pars[length(pars)]
       self$theta <- 10 ^ pars[-length(pars)]
       self$update_params()
     },
 
     deviance_searchnug = function() {
-      optim(self$nug, function(nnug) {self$deviance2(theta=self$theta, nug=nnug)}, method="L-BFGS-B", lower=0, upper=Inf, hessian=F)$par
+      optim(self$nug, function(nnug) {self$deviance(theta=self$theta, nug=nnug)}, method="L-BFGS-B", lower=0, upper=Inf, hessian=F)$par
     },
     nugget_update = function () {
       nug <- self$deviance_searchnug()
@@ -181,8 +287,7 @@ GauPro <- R6Class(classname = "GauPro",
       self$nug <- nug
       self$update_params()
     },
-    mean_grad = function (XX) {#browser()
-
+    grad = function (XX) {#browser()
       if (!is.matrix(XX)) {
         if (self$D == 1) XX <- matrix(XX, ncol=1)
         else if (length(XX) == self$D) XX <- matrix(XX, nrow=1)
@@ -190,44 +295,44 @@ GauPro <- R6Class(classname = "GauPro",
       } else {
         if (ncol(XX) != self$D) {stop("Wrong dimension input")}
       }
-      kx.xx <- t(corr_gauss_mat(XX, self$X, theta=self$theta))
+      kx.xx <- self$corr_func(self$X, XX, theta=self$theta)
 
-      #grad <- numeric(self$D)
-      #drdx <- matrix(NA, self$N, self$D)
-      #for (i in 1:self$N) {
-      #  for (j in 1:self$D) {
-      #    drdx[i, j] <- -2 * self$theta[j] * (XX[j, 1] - self$X[i, j]) * kx.xx[i, 1]
-      #  }
-      #}
-      #drdx <- -2 * outer(1:self$N, 1:self$D, Vectorize(function(i,j) {self$theta[j] * (XX[j, 1] - self$X[i, j]) * kx.xx[i, 1]}))
-      #t(drdx) %*% self$Kinv %*% (self$Z - self$mu_hat)
-
-      # mult points and dims
-      #drdx <- vapply(1:nrow(XX), Vectorize(function(k) -2 * outer(1:self$N, 1:self$D, Vectorize(function(i,j) {self$theta[j] * (XX[k, j] - self$X[i, j]) * kx.xx[i, k]}))), numeric(self$N))
-      #t(drdx) %*% self$Kinv %*% (self$Z - self$mu_hat)
-
-      grad <-   vapply(1:nrow(XX),
-
-                      Vectorize(
-                        function(k) {
-                          t(-2 * outer(1:self$N, 1:self$D, Vectorize(function(i,j) {self$theta[j] * (XX[k, j] - self$X[i, j]) * kx.xx[i, k]}))
-                          )  %*%self$Kinv %*% (self$Z - self$mu_hat)
-                        }
-                      )
-
-               #, matrix(0, self$N, nrow(XX)) #rep(0, self$N)
-               , numeric(self$D) #rep(0, self$N)
-
+      grad1 <-   vapply(1:nrow(XX),
+        Vectorize(
+          function(k) {
+            t(-2 * outer(1:self$N, 1:self$D, Vectorize(function(i,j) {self$theta[j] * (XX[k, j] - self$X[i, j]) * kx.xx[i, k]}))
+            )  %*%self$Kinv %*% (self$Z - self$mu_hat)
+          }
         )
-      if (self$D == 1) return(grad)
-      t(grad)
-
+        , numeric(self$D)
+      )
+      if (self$D == 1) return(grad1)
+      t(grad1)
     },
-    mean_grad_norm = function (XX) {#browser()
-      grad <- self$mean_grad(XX)
-      if (!is.matrix(grad)) return(abs(grad))
-      apply(grad,1, function(xx) {sqrt(sum(xx^2))})
-    }
+    grad_norm = function (XX) {#browser()
+      grad1 <- self$grad(XX)
+      if (!is.matrix(grad1)) return(abs(grad1))
+      apply(grad1,1, function(xx) {sqrt(sum(xx^2))})
+    }#,
+    #grad_num = function (XX) {#browser() # NUMERICAL GRAD IS OVER 10 TIMES SLOWER
+    #  if (!is.matrix(XX)) {
+    #    if (self$D == 1) XX <- matrix(XX, ncol=1)
+    #    else if (length(XX) == self$D) XX <- matrix(XX, nrow=1)
+    #    else stop('Predict input should be matrix')
+    #  } else {
+    #    if (ncol(XX) != self$D) {stop("Wrong dimension input")}
+    #  }
+    #  grad.func <- function(xx) self$pred(xx)$mean
+    #  grad.apply.func <- function(xx) numDeriv::grad(grad.func, xx)
+    #  grad1 <- apply(XX, 1, grad.apply.func)
+    #  if (self$D == 1) return(grad1)
+    #  t(grad1)
+    #},
+    #grad_num_norm = function (XX) {#browser()
+    #  grad1 <- self$grad_num(XX)
+    #  if (!is.matrix(grad1)) return(abs(grad1))
+    #  apply(grad1,1, function(xx) {sqrt(sum(xx^2))})
+    #}
   ),
   private = list(
 

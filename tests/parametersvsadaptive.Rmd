@@ -1,0 +1,46 @@
+---
+title: "Parameter vs adaptive"
+author: "Collin Erickson"
+date: "July 29, 2016"
+output: html_document
+---
+
+
+```{r}
+set.seed(0)
+x <- c(0,.1, .3,.5,.8,  1)
+x <- c(0,.1,.2,.3,1)
+f <- function(x) (sin(2*pi*x)) + rnorm(length(x), 0,.05)
+f <- function (x) (2*x) %%1
+f <- function(xx) sin(10*pi*xx)
+y <- f(x)
+plot(x,y)
+```
+
+```{r}
+library(GauPro)
+gp <- GauPro$new()
+gp$fit(X=x, Z=y)
+gp$all_update()
+gp$cool1Dplot()
+```
+
+```{r}
+thetas <- c(2,3,4,5,6,7,8,9,10)
+preds <- c()
+predat <- .5
+maxvarat <- c()
+for (theta in thetas) {
+  gp$theta <- theta
+  gp$update_params()
+  pred <- gp$pred(predat)$mean
+  preds <- c(preds, pred)
+  mv1 <- optimize(function(xx) {gp$pred(xx)$s2}, c(.4,.78), maximum = T)$max
+  maxvarat <- c(maxvarat, mv1)
+}
+preds
+maxvarat
+#curve(Vectorize(function(th){gp$theta <- th;gp$update_params();optimize(function(xx) {gp$pred(xx)$s2}, c(.4,.78), maximum = T)$max}),.5,30)
+curve(sapply(x,tc),.1,10)
+```
+
