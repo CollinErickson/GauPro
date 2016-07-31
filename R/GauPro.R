@@ -62,6 +62,9 @@ GauPro <- R6Class(classname = "GauPro",
       self$mu_hat <- sum(self$Kinv %*% self$Z) / sum(self$Kinv)
       self$s2_hat <- c(t(self$Z - self$mu_hat) %*% self$Kinv %*% (self$Z - self$mu_hat) / self$N)
     },
+    predict = function(XX, se.fit=F, covmat=F) {
+      self$pred(XX=XX, se.fit=se.fit, covmat=covmat)
+    },
     pred = function(XX, se.fit=F, covmat=F) {#browser()
       if (!is.matrix(XX)) {
         if (self$D == 1) XX <- matrix(XX, ncol=1)
@@ -235,16 +238,27 @@ GauPro <- R6Class(classname = "GauPro",
       #upper <- c(rep(10, self$D), Inf)
 
       # Find best params with optimization, start with current params in case all give error
+      # Current params
       best <- list(par=c(log(self$theta, 10), self$nug), value = self$deviance_log())
+      #if (self$verbose >= 2) {cat("Optimizing\n");cat("\tInitial values:\n");print(best)}
+      details <- data.frame(start=paste(c(self$theta,self$nug),collapse=","),end=NA,value=best$value,func_evals=1,grad_evals=NA,convergence=NA, message=NA, newbest=1)
+
+      # Run optim from current
       current <- try(
         #optim(c(log(self$theta, 10),self$nug), self$deviance_log, method="L-BFGS-B", lower=lower, upper=upper, hessian=F)
         optim(start.par, optim.func, method="L-BFGS-B", lower=lower, upper=upper, hessian=F)
       )
-      if (!inherits(current, "try-error")) {
+      if (!inherits(current, "try-error")) {#browser()
+        #if (self$verbose >= 2) {cat("\tFirst run:\n");print(current)}
+        details.new <- data.frame(start=paste(signif(c(self$theta,self$nug),3),collapse=","),end=paste(signif(current$par,3),collapse=","),value=current$value,func_evals=current$counts[1],grad_evals=current$counts[2],convergence=current$convergence, message=current$message, newbest=current$value < best$value, row.names = NULL)
         if (current$value < best$value) {
           best <- current
         }
+      } else {browser()
+        if (self$verbose >= 2) {cat("\tFirst run: try-error\n");print(current)}
+        details.new <- data.frame(start=c(self$theta,self$nug),end="try-error",value=NA,func_evals=current$counts[1],grad_evals=current$counts[2],convergence=current$convergence, message=current$message, newbest=0)
       }
+      details <- rbind(details, details.new)
       if (restarts >= 1) {
         for (i in 1:restarts) {
           if (runif(1) < .33) { # restart near some spot to avoid getting stuck in bad spot
@@ -255,17 +269,25 @@ GauPro <- R6Class(classname = "GauPro",
           }
           if (theta.update) {start.par.i[1:self$D] <- start.par.i[1:self$D] + rnorm(self$D,0,2)} # jitter betas
           if (nug.update) {start.par.i[length(start.par.i)] <- start.par.i[length(start.par.i)] + rexp(1,1e4)} # jitter nugget
+          #if (self$verbose >= 2) {cat("\tRestart",i,": starts pars =",start.par.i,"\n")}
           current <- try(
             #optim(c(log(self$theta, 10) + rnorm(self$D,0,2),self$nug + rexp(1, 1e4)), optim.func, method="L-BFGS-B", lower=lower, upper=upper, hessian=F)
             optim(start.par.i, optim.func, method="L-BFGS-B", lower=lower, upper=upper, hessian=F)
           )
           if (!inherits(current, "try-error")) {
+            #if (self$verbose >= 2) {cat("\tRestart",i,":\n");print(current)}
+            details.new <- data.frame(start=paste(signif(start.par.i,3),collapse=","),end=paste(signif(current$par,3),collapse=","),value=current$value,func_evals=current$counts[1],grad_evals=current$counts[2],convergence=current$convergence, message=current$message, newbest=current$value < best$value, row.names = NULL)
             if (current$value < best$value) {
               best <- current
             }
+          } else{browser()
+            if (self$verbose >= 2) {cat("\tRestart",i,": try-error\n");print(current)}
           }
+          details <- rbind(details, details.new)
         }
+
       }
+      if (self$verbose >= 2) {print(details)}
       best
     },
     update = function (Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL, restarts = 5, theta.update = T, nug.update = self$nug.est) { # update theta and nugget
