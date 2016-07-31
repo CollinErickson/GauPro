@@ -62,7 +62,7 @@ GauPro <- R6Class(classname = "GauPro",
       self$mu_hat <- sum(self$Kinv %*% self$Z) / sum(self$Kinv)
       self$s2_hat <- c(t(self$Z - self$mu_hat) %*% self$Kinv %*% (self$Z - self$mu_hat) / self$N)
     },
-    pred = function(XX, covmat=F) {#browser()
+    pred = function(XX, se.fit=F, covmat=F) {#browser()
       if (!is.matrix(XX)) {
         if (self$D == 1) XX <- matrix(XX, ncol=1)
         else if (length(XX) == self$D) XX <- matrix(XX, nrow=1)
@@ -74,14 +74,21 @@ GauPro <- R6Class(classname = "GauPro",
       kx.xx <- self$corr_func(self$X, XX, theta=self$theta)
 
       mn <- self$pred_mean(XX, kx.xx=kx.xx)
+      if (!se.fit & !covmat) {
+        return(mn)
+      }
       s2 <- self$pred_var(XX, kxx=kxx, kx.xx=kx.xx)
       se <- rep(0, length(mn)) # NEG VARS will be 0 for se, NOT SURE I WANT THIS
       se[s2>=0] <- sqrt(s2[s2>=0])
-      if (covmat) return(list(mean=mn, s2=s2, se=se, cov=self$pred_var(XX, kxx=kxx, kx.xx=kx.xx, covmat=T)))
+      if (covmat) {
+        covmatdat <- self$pred_var(XX, kxx=kxx, kx.xx=kx.xx, covmat=T)
+        return(list(mean=mn, s2=s2, se=se, cov=covmatdat))
+      }
+      # se.fit but not covmat
       data.frame(mean=mn, s2=s2, se=se)
     },
     pred_mean = function(XX, kx.xx) {
-      self$mu_hat + t(kx.xx) %*% self$Kinv %*% (self$Z - self$mu_hat)
+      c(self$mu_hat + t(kx.xx) %*% self$Kinv %*% (self$Z - self$mu_hat))
     },
     pred_var = function(XX, kxx, kx.xx, covmat=F) {
       if (covmat) return(self$s2_hat * (kxx - t(kx.xx) %*% self$Kinv %*% kx.xx))
@@ -108,12 +115,6 @@ GauPro <- R6Class(classname = "GauPro",
     #                  )
     #  )
     #},
-    theta_update = function () {
-      dev <- self$deviance_search()
-      #self$theta <- 10 ^ self$deviance_search()$minimum
-      self$theta <- 10 ^ self$deviance_search()$par
-      self$update_params()
-    },
     cool1Dplot = function () {#browser()
       if (self$D != 1) stop('Must be 1D')
       minx <- min(self$X)
@@ -246,9 +247,9 @@ GauPro <- R6Class(classname = "GauPro",
       }
       if (restarts >= 1) {
         for (i in 1:restarts) {
-          if (runif(1) < .5) { # restart near some spot to avoid getting stuck in bad spot
+          if (runif(1) < .33) { # restart near some spot to avoid getting stuck in bad spot
             start.par.i <- start.par0
-            print("start at zero par")
+            #print("start at zero par")
           } else { # jitter from current params
             start.par.i <- start.par
           }
@@ -277,7 +278,12 @@ GauPro <- R6Class(classname = "GauPro",
       self$theta <- 10 ^ pars[-length(pars)]
       self$update_params()
     },
-
+    update_theta = function (...) {
+      self$update(nug.update = F, ...=...)
+    },
+    update_nugget = function (...) {
+      self$update(theta.update = F, ...=...)
+    },
     deviance_searchnug = function() {
       optim(self$nug, function(nnug) {self$deviance(theta=self$theta, nug=nnug)}, method="L-BFGS-B", lower=0, upper=Inf, hessian=F)$par
     },
@@ -333,6 +339,16 @@ GauPro <- R6Class(classname = "GauPro",
     #  if (!is.matrix(grad1)) return(abs(grad1))
     #  apply(grad1,1, function(xx) {sqrt(sum(xx^2))})
     #}
+    ,
+    print = function() {
+      cat("GauPro object\n")
+      cat(paste0("\tD = ", self$D, ", N = ", self$N,"\n"))
+      cat(paste0(c("\tTheta = ", signif(self$theta, 3), "\n")))
+      cat(paste0("\tNugget = ", signif(self$nug, 3), "\n"))
+      cat("\tRun update to add data and/or optimize again\n")
+      cat("\tUse pred to get predictions at new points\n")
+      invisible(self)
+    }
   ),
   private = list(
 
