@@ -48,6 +48,7 @@ xnew <- matrix(runif(4),ncol=1)
 znew <- (2*xnew) %%1
 gp$cool1Dplot()
 gp$update(Xnew=xnew,Znew=znew)
+gp$cool1Dplot()
 
 
 
@@ -90,9 +91,9 @@ gpf$mod[[1]]
 n <- 60
 d <- 3
 x <- matrix(runif(n*d), ncol=d)
-f1 <- function(a) {sum(sin(1:d*pi*a))}
+f1 <- function(a) {sum(sin(1:d*pi/a) + (1/a))}
 y <- apply(x,1,f1)
-gp <- GauPro$new(x,y);c(gp$theta,gp$nug)
+gp <- GauPro$new(x,y, verbose=2);c(gp$theta,gp$nug)
 nn <- 20
 gp$pred(matrix(runif(nn*d),ncol=d))
 gp$grad(matrix(runif(nn*d),ncol=d))
