@@ -11,7 +11,7 @@ corr_gauss_matrix <- function(x, x2=x, theta) {
 }
 
 # corr_gauss using C++
-Rcpp::cppFunction('double corr_gaussC(NumericVector a, NumericVector b, NumericVector theta) {
+Rcpp::cppFunction('double corr_gaussC_wrongplace(NumericVector a, NumericVector b, NumericVector theta) {
   int n = a.size();
   double total = 0;
   for(int i = 0; i < n; ++i) {
@@ -26,7 +26,7 @@ if (F) {
   system.time(replicate(1e5, corr_gaussC(1:10, 6:15, 1e-2/(1:10))))
 }
 
-Rcpp::cppFunction('NumericMatrix corr_gauss_matrixC(NumericMatrix x, NumericMatrix y, NumericVector theta) {
+Rcpp::cppFunction('NumericMatrix corr_gauss_matrixC_wrongplace(NumericMatrix x, NumericMatrix y, NumericVector theta) {
   int nrow = x.nrow(), ncol = y.nrow();
   int nsum = x.ncol();
   NumericMatrix out(nrow, ncol);
