@@ -153,7 +153,7 @@ GauPro <- R6Class(classname = "GauPro",
 
 
 
-    deviance = function (theta=self$theta, nug=self$nug) { # joint deviance
+    deviance = function (theta=self$theta, nug=self$nug) { browser()# joint deviance
       K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
       Kchol <- try(chol(K))
       if (inherits(Kchol, "try-error")) {return(Inf)}
