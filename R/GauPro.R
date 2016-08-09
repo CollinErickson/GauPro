@@ -324,6 +324,70 @@ GauPro <- R6Class(classname = "GauPro",
       if (self$verbose >= 2) {print(details)}
       best
     },
+    optimBayes = function(theta.update = T, nug.update = F & self$nug.est) {#browser()
+      lower <- c()
+      upper <- c()
+      start.par <- c()
+      start.par0 <- c() # Some default params
+      if (theta.update) {
+        lower <- c(lower, rep(-5, self$theta_length))
+        upper <- c(upper, rep(7, self$theta_length))
+        start.par <- c(start.par, log(self$theta, 10))
+        start.par0 <- c(start.par0, rep(0, self$theta_length))
+      }
+      if (nug.update) {
+        lower <- c(lower, self$nug.min)
+        upper <- c(upper, Inf)
+        start.par <- c(start.par, self$nug)
+        start.par0 <- c(start.par0, 1e-6)
+      }
+      # start with spread of points
+      n0 <- 10
+      d <- self$theta_length + as.numeric(nug.update)
+      u <- matrix(start.par0,nrow=n0, ncol=d, byrow = T)
+      for(i in 1:n0){u[i,] <- u[i,] + rnorm(d,0,2)}
+      v <- apply(u,1, self$deviance_log)
+      bgp <- GauPro$new(u,v)
+      #browser()
+      #curve(bgp$predict(x),-5,7);points(u,v)
+      #curve(bgp$predict(x)+2*bgp$predict(x,se=T)$se,-5,7,add=T,col=2)
+      #curve(bgp$predict(x)-2*bgp$predict(x,se=T)$se,-5,7,add=T,col=2)
+
+      #gam <- function(uu) {
+      #  pr <- bgp$predict(uu,se=T)
+      #  (min(v) - pr$m) / pr$se
+      #}
+      #curve(gam, -5,7)
+      EI <- function(uu) {
+        pr <- bgp$predict(uu,se=T)
+        g <- (min(v) - pr$m) / pr$se
+        pr$se * (g * pnorm(g) + dnorm(g))
+      }
+      for(i in 1:10) {
+        #curve(EI, -5, 7);abline(v=u)
+        if (F) {browser()
+          curve(bgp$predict(x),-5,7);points(u,v)
+          curve(bgp$predict(x)+2*bgp$predict(x,se=T)$se,-5,7,add=T,col=2)
+          curve(bgp$predict(x)-2*bgp$predict(x,se=T)$se,-5,7,add=T,col=2)
+        }
+        #apply(u, 1, function(uuu){optim(uuu, EI, lower=-5,upper=7)})
+        #replicate(1e1, {optim(runif(1,-5,7), EI, lower=-5,upper=7,method="L-BFGS-B", control=list(fnscale=-1))$val})
+        #tmp <- replicate(1e1, {optim(runif(1,-5,7), EI, lower=-5,upper=7,method="L-BFGS-B", control=list(fnscale=-1))[[c('par','val')]]})
+        tmp <- replicate(10,{ta <- optim(runif(self$theta_length,-5,7), EI, lower=-5,upper=7,method="L-BFGS-B", control=list(fnscale=-1));c(ta$par,ta$val)})
+        best <- tmp[,which.max(tmp[self$theta_length+1,])]
+        bestu <- best[1:self$theta_length];#abline(v=bestu,col=2)
+        bestv <- self$deviance_log(beta=bestu)
+        bgp$update(Xnew = bestu, Znew = bestv, restarts = 0)
+        u <- rbind(u, bestu)
+        v <- c(v, bestv)
+      }
+      # optim from points already have, can pass grad #start at all midpoints?
+      # take next point
+      # start near that point?
+      # repeat until limit reached
+      bestu <- u[which.min(v),]
+      optim(bestu, EI, lower=-5,upper=7,method="L-BFGS-B", control=list(fnscale=-1))$par
+    },
     update = function (Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL, restarts = 5, theta.update = T, nug.update = self$nug.est) { # update theta and nugget
       #if (!is.null(Xall)) {self$X <- Xall;self$N <- nrow(self$X)} else if (!is.null(Xnew)) {self$X <- rbind(self$X, Xnew);self$N <- nrow(self$X)}
       #if (!is.null(Zall)) {self$Z <- Zall} else if (!is.null(Znew)) {self$Z <- rbind(self$Z, Znew)}

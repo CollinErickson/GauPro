@@ -5,10 +5,10 @@
 
 # 1D test
 n <- 12
-x <- matrix(seq(0,1,length.out = 12), ncol=1)
-y <- sin(2*pi*x) #+ rnorm(n,0,1e-1)
-y <- sqrt(x)-x
-y <- (2*x) %%1
+x <- matrix(seq(0,1,length.out = n), ncol=1)
+y <- sin(2*pi*x) + rnorm(n,0,1e-1)
+#y <- sqrt(x)-x
+#y <- (2*x) %%1
 y <- c(y)
 plot(x,y)
 gp <- GauPro$new(X=x, Z=y)
@@ -91,12 +91,12 @@ gpf$mod[[1]]
 
 
 # higher dim test
-n <- 120
+n <- 200
 d <- 4
 x <- matrix(runif(n*d), ncol=d)
 f1 <- function(a) {sum(sin(1:d*pi/a) + (1/a))}
 y <- apply(x,1,f1)
-gp <- GauPro$new(x,y, verbose=2);c(gp$theta,gp$nug)
+gp <- GauPro$new(x,y, verbose=0);c(gp$theta,gp$nug)
 nn <- 20
 gp$pred(matrix(runif(nn*d),ncol=d))
 gp$grad(matrix(runif(nn*d),ncol=d))
