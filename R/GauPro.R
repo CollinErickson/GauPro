@@ -19,7 +19,8 @@ GauPro <- R6Class(classname = "GauPro",
     Kchol = NULL,
     Kinv = NULL,
     verbose = 0,
-    initialize = function(X, Z, corr="Gauss", verbose=0, separable=T, ...) {#browser()
+    useC = TRUE,
+    initialize = function(X, Z, corr="Gauss", verbose=0, separable=T, useC=T, ...) {#browser()
       #for (item in list(...)) {
       #  self$add(item)
       #}
@@ -46,10 +47,13 @@ GauPro <- R6Class(classname = "GauPro",
         self$theta <- 1
       }
       if (self$corr == "Gauss") {
-        self$corr_func <- GauPro::corr_gauss_matrix
+        self$corr_func <- if (self$useC) {GauPro::corr_gauss_matrix}
+                          else {GauPro::corr_gauss_matrix_noC}
       } else {
         stop("corr not specified or recognized")
       }
+
+      self$useC <- useC
 
       self$fit()
       invisible(self)
@@ -165,6 +169,18 @@ GauPro <- R6Class(classname = "GauPro",
       logdetK <- 2 * sum(log(diag(Kchol)))
       logdetK + self$N * log(t(self$Z - mu_hat) %*% solve(K, self$Z - mu_hat))
     },
+    devianceC = function (theta=self$theta, nug=self$nug) { #browser()# joint deviance
+      K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
+      Kchol <- try(cholC(K))
+      if (inherits(Kchol, "try-error")) {return(Inf)}
+      Kinv <- chol2inv(Kchol)
+      mu_hat <- sum(Kinv %*% self$Z) / sum(Kinv)
+      #browser()
+      s2_hat <- c(t(self$Z - mu_hat) %*% Kinv %*% (self$Z - mu_hat) / self$N)
+      #detK <- prod(diag(Kchol))^2
+      logdetK <- 2 * sum(log(diag(Kchol)))
+      logdetK + self$N * log(t(self$Z - mu_hat) %*% solveC(K, self$Z - mu_hat))
+    },
     #deviance_log_old = function (params) { # joint deviance
     #  beta <- params[-length(params)]
     #  nug <- params[length(params)]
@@ -180,7 +196,7 @@ GauPro <- R6Class(classname = "GauPro",
         if (is.null(beta)) theta <- self$theta
         else theta <- 10^beta
       }
-      self$deviance(theta=theta, nug=nug)
+      (if (self$useC) self$devianceC else self$deviance)(theta=theta, nug=nug)
     },
     #deviance_search2 = function () {
     #  # Joint MLE deviance search with genetic alg, slow and bad

@@ -50,7 +50,10 @@ gp$cool1Dplot()
 gp$update(Xnew=xnew,Znew=znew)
 gp$cool1Dplot()
 
-
+# time
+library(lineprof)
+l <- lineprof(GauPro$new(X=x,Z=y))
+shine(l)
 
 
 # 2D test
@@ -71,7 +74,7 @@ gp$update()
 c(gp$theta, gp$nug)
 system.time(contourfilled::contourfilled.func(gp$pred, pts=x))
 
-gp$grad(matrix(c(.5, .75, .5, .83),2,2,byrow=T))
+p$grad(matrix(c(.5, .75, .5, .83),2,2,byrow=T))
 gp$grad(matrix(c(.5, .75),1,2,byrow=T))
 contourfilled::contourfilled.func(function(xx){gp$grad(xx)[2]})
 gp$grad_norm(matrix(c(.5, .75, .5, .83),2,2,byrow=T))
@@ -88,8 +91,8 @@ gpf$mod[[1]]
 
 
 # higher dim test
-n <- 60
-d <- 3
+n <- 120
+d <- 4
 x <- matrix(runif(n*d), ncol=d)
 f1 <- function(a) {sum(sin(1:d*pi/a) + (1/a))}
 y <- apply(x,1,f1)
