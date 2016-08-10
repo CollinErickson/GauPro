@@ -20,7 +20,9 @@ GauPro <- R6Class(classname = "GauPro",
     Kinv = NULL,
     verbose = 0,
     useC = TRUE,
-    initialize = function(X, Z, corr="Gauss", verbose=0, separable=T, useC=T, ...) {#browser()
+    parallel = FALSE,
+    initialize = function(X, Z, corr="Gauss", verbose=0, separable=T, useC=T,
+                          parallel=FALSE, ...) {#browser()
       #for (item in list(...)) {
       #  self$add(item)
       #}
@@ -58,14 +60,7 @@ GauPro <- R6Class(classname = "GauPro",
       self$fit()
       invisible(self)
     },
-    fit = function(X, Z) {#browser()
-      #self$X <- if (is.matrix(X)) X else matrix(X, ncol=1)
-      #self$Z <- Z
-      #self$N <- nrow(self$X)
-      #self$D <- ncol(self$X)
-      #self$corr_func <- corr_gauss_matrix
-      #self$update_params()
-      #self$theta_update()
+    fit = function(X, Z) {
       self$update()
     },
     update_params = function () {#browser()
@@ -118,19 +113,6 @@ GauPro <- R6Class(classname = "GauPro",
       theta <- 10^beta
       self$deviance_theta(theta=theta)
     },
-    #deviance_search = function () {
-    #  #optimize(self$deviance_log, interval = c(-10,10), maximum = F, tol=1e-3)
-    #  nvars <- self$D
-    #  suppressWarnings(
-    #    rgenoud::genoud(self$deviance_log, nvars=nvars,#self$D,#1,
-    #                  Domains = matrix(c(-10,10), nvars, 2, byrow=T), max = F,
-    #                  solution.tolerance=1e-3,
-    #                  pop.size=min(1000, 200*self$D),
-    #                  max.generations = min(10, 3*self$D),
-    #                  print.level = 0
-    #                  )
-    #  )
-    #},
     cool1Dplot = function () {#browser()
       if (self$D != 1) stop('Must be 1D')
       minx <- min(self$X)
@@ -154,9 +136,6 @@ GauPro <- R6Class(classname = "GauPro",
       points(self$X, self$Z, pch=19, col=1, cex=2)
     },
 
-
-
-
     deviance = function (theta=self$theta, nug=self$nug) { #browser()# joint deviance
       K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
       Kchol <- try(chol(K))
@@ -179,14 +158,9 @@ GauPro <- R6Class(classname = "GauPro",
       s2_hat <- c(t(self$Z - mu_hat) %*% Kinv %*% (self$Z - mu_hat) / self$N)
       #detK <- prod(diag(Kchol))^2
       logdetK <- 2 * sum(log(diag(Kchol)))
-      logdetK + self$N * log(t(self$Z - mu_hat) %*% solveC(K, self$Z - mu_hat))
+      #logdetK + self$N * log(t(self$Z - mu_hat) %*% solveC(K, self$Z - mu_hat)) # convert 1x1 matrix to num
+      logdetK + self$N * log(as.numeric(t(self$Z - mu_hat) %*% solveC(K, self$Z - mu_hat)))
     },
-    #deviance_log_old = function (params) { # joint deviance
-    #  beta <- params[-length(params)]
-    #  nug <- params[length(params)]
-    #  theta <- 10^beta
-    #  self$deviance(theta=theta, nug=nug)
-    #},
     deviance_log = function (beta=NULL, nug=self$nug, joint=NULL) {#browser()  # joint deviance
       if (!is.null(joint)) {
         beta <- joint[-length(joint)]
@@ -198,47 +172,6 @@ GauPro <- R6Class(classname = "GauPro",
       }
       (if (self$useC) self$devianceC else self$deviance)(theta=theta, nug=nug)
     },
-    #deviance_search2 = function () {
-    #  # Joint MLE deviance search with genetic alg, slow and bad
-    #  #optimize(self$deviance_log, interval = c(-10,10), maximum = F, tol=1e-3)
-    #  nvars <- self$D
-    #  suppressWarnings(
-    #    rgenoud::genoud(self$deviance_log2, nvars=nvars + 1,#self$D,#1,
-    #                    Domains = rbind(matrix(c(-10,10), nvars, 2, byrow=T),c(0,1)), max = F,
-    #                    solution.tolerance=1e-3,
-    #                    pop.size=min(1000, 200*self$D),
-    #                    max.generations = min(10, 3*self$D),
-    #                    print.level = 0
-    #    )
-    #  )
-    #},
-    #optim_old = function (restarts = 5) {#browser()
-    #  # Joint MLE search with L-BFGS-B, with restarts
-    #  #optimize(self$deviance_log, interval = c(-10,10), maximum = F, tol=1e-3)
-    #  #nvars <- self$D
-    #  lower <- c(rep(-10, self$D), self$nug.min)
-    #  upper <- c(rep(10, self$D), Inf)
-    #  # maybe start by calculating deviance for current params
-    #  best <- try(
-    #    optim(c(log(self$theta, 10),self$nug), self$deviance_log, method="L-BFGS-B", lower=lower, upper=upper, hessian=F)
-    #  )
-    #  if (inherits(best, "try-error")) {
-    #    best <- list(par=c(log(self$theta, 10), self$nug), value = self$deviance_log(c(log(self$theta, 10))))
-    #  }
-    #  if (restarts >= 1) {
-    #    for (i in 1:restarts) {
-    #      current <- try(
-    #        optim(c(log(self$theta, 10) + rnorm(self$D,0,2),self$nug + rexp(1, 1e4)), self$deviance_log, method="L-BFGS-B", lower=lower, upper=upper, hessian=F)
-    #      )
-    #      if (!inherits(current, "try-error")) {
-    #        if (current$value < best$value) {
-    #          best <- current
-    #        }
-    #      }
-    #    }
-    #  }
-    #  best
-    #},
     optim = function (restarts = 5, theta.update = T, nug.update = self$nug.est) {#browser()
       # Joint MLE search with L-BFGS-B, with restarts
       if (theta.update & nug.update) {
@@ -266,8 +199,6 @@ GauPro <- R6Class(classname = "GauPro",
         start.par <- c(start.par, self$nug)
         start.par0 <- c(start.par0, 1e-6)
       }
-      #lower <- c(rep(-10, self$D), self$nug.min)
-      #upper <- c(rep(10, self$D), Inf)
 
       # Find best params with optimization, start with current params in case all give error
       # Current params
@@ -299,23 +230,102 @@ GauPro <- R6Class(classname = "GauPro",
             #print("start at zero par")
           } else { # jitter from current params
             start.par.i <- start.par
-          }
+          } #;browser()
           if (theta.update) {start.par.i[1:self$theta_length] <- start.par.i[1:self$theta_length] + rnorm(self$theta_length,0,2)} # jitter betas
           if (nug.update) {start.par.i[length(start.par.i)] <- start.par.i[length(start.par.i)] + rexp(1,1e4)} # jitter nugget
           if (self$verbose >= 2) {cat("\tRestart",i,": starts pars =",start.par.i,"\n")}
           current <- try(
-            #optim(c(log(self$theta, 10) + rnorm(self$D,0,2),self$nug + rexp(1, 1e4)), optim.func, method="L-BFGS-B", lower=lower, upper=upper, hessian=F)
             optim(start.par.i, optim.func, method="L-BFGS-B", lower=lower, upper=upper, hessian=F)
           )
           if (!inherits(current, "try-error")) {
-            #if (self$verbose >= 2) {cat("\tRestart",i,":\n");print(current)}
             details.new <- data.frame(start=paste(signif(start.par.i,3),collapse=","),end=paste(signif(current$par,3),collapse=","),value=current$value,func_evals=current$counts[1],grad_evals=current$counts[2],convergence=current$convergence, message=current$message, newbest=current$value < best$value, row.names = NULL)
             if (current$value < best$value) {
               best <- current
             }
-          } else{#browser() # NEED TO GET THESE DETAILS
+          } else{
             details.new <- data.frame(start=paste(signif(c(self$theta,self$nug),3),collapse=","),end="try-error",value=NA,func_evals=NA,grad_evals=NA,convergence=NA, message=current[1], newbest=0)
-            #if (self$verbose >= 2) {cat("\tRestart",i,": try-error\n");print(current)}
+          }
+          details <- rbind(details, details.new)
+        }
+
+      }
+      if (self$verbose >= 2) {print(details)}
+      best
+    },
+    optimx = function (restarts = 5, theta.update = T, nug.update = self$nug.est) {#browser()
+      # Joint MLE search with L-BFGS-B, with restarts
+      if (theta.update & nug.update) {
+        optim.func <- function(xx) {self$deviance_log(joint=xx)}
+      } else if (theta.update & !nug.update) {
+        optim.func <- function(xx) {self$deviance_log(beta=xx)}
+      } else if (!theta.update & nug.update) {
+        optim.func <- function(xx) {self$deviance_log(nug=xx)}
+      } else {
+        stop("Can't optimize over no variables")
+      }
+      lower <- c()
+      upper <- c()
+      start.par <- c()
+      start.par0 <- c() # Some default params
+      if (theta.update) {
+        lower <- c(lower, rep(-5, self$theta_length))
+        upper <- c(upper, rep(7, self$theta_length))
+        start.par <- c(start.par, log(self$theta, 10))
+        start.par0 <- c(start.par0, rep(0, length(self$theta)))
+      }
+      if (nug.update) {
+        lower <- c(lower, self$nug.min)
+        upper <- c(upper, Inf)
+        start.par <- c(start.par, self$nug)
+        start.par0 <- c(start.par0, 1e-6)
+      }
+
+      # Find best params with optimization, start with current params in case all give error
+      # Current params
+      best <- list(par=c(log(self$theta, 10), self$nug), value = self$deviance_log())
+      if (self$verbose >= 2) {cat("Optimizing\n");cat("\tInitial values:\n");print(best)}
+      details <- data.frame(start=paste(c(self$theta,self$nug),collapse=","),end=NA,value=best$value,func_evals=1,grad_evals=NA,convergence=NA, message=NA, newbest=1)
+
+      # Run optim from current
+      current <- try(
+        #optim(c(log(self$theta, 10),self$nug), self$deviance_log, method="L-BFGS-B", lower=lower, upper=upper, hessian=F)
+        optimx(start.par, optim.func, method="L-BFGS-B", lower=lower, upper=upper, hessian=F)
+      )
+      if (!inherits(current, "try-error")) {#browser()
+        #if (self$verbose >= 2) {cat("\tFirst run:\n");print(current)}
+        current.par <- as.numeric((current[paste0("p",1:length(start.par))]))
+        details.new <- data.frame(start=paste(signif(c(self$theta,self$nug),3),collapse=","),end=paste(signif(current.par,3),collapse=","),value=current$value,func_evals=current$fevals,grad_evals=current$gevals,convergence=current$convcode, message=current$convcode, newbest=current$value < best$value, row.names = NULL)
+        if (current$value < best$value) {
+          best <- current
+        }
+      } else {#browser() # NEED THESE NEW DETAILS
+        if (self$verbose >= 2) {cat("\tFirst run: try-error\n");print(current)}
+        details.new <- data.frame(start=paste(signif(c(self$theta,self$nug),3),collapse=","),end="try-error",value=NA,func_evals=NA,grad_evals=NA,convergence=NA, message=current[1], newbest=0)
+      }
+      details <- rbind(details, details.new)
+      if (restarts >= 1) {
+        for (i in 1:restarts) {
+
+          if (runif(1) < .33) { # restart near some spot to avoid getting stuck in bad spot
+            start.par.i <- start.par0
+            #print("start at zero par")
+          } else { # jitter from current params
+            start.par.i <- start.par
+          } #;browser()
+          if (theta.update) {start.par.i[1:self$theta_length] <- start.par.i[1:self$theta_length] + rnorm(self$theta_length,0,2)} # jitter betas
+          if (nug.update) {start.par.i[length(start.par.i)] <- start.par.i[length(start.par.i)] + rexp(1,1e4)} # jitter nugget
+          if (self$verbose >= 2) {cat("\tRestart",i,": starts pars =",start.par.i,"\n")}
+          current <- try(
+            optimx(start.par.i, optim.func, method="L-BFGS-B", lower=lower, upper=upper, hessian=F)
+          )
+          if (!inherits(current, "try-error")) {#browser()
+            current.par <- as.numeric((current[paste0("p",1:length(start.par))]))
+            details.new <- data.frame(start=paste(signif(start.par.i,3),collapse=","),end=paste(signif(current.par,3),collapse=","),value=current$value,func_evals=current$fevals,grad_evals=current$gevals,convergence=current$convcode, message=current$convcode, newbest=current$value < best$value, row.names = NULL)
+            if (current$value < best$value) {
+              best <- current
+            }
+          } else{
+            details.new <- data.frame(start=paste(signif(c(self$theta,self$nug),3),collapse=","),end="try-error",value=NA,func_evals=NA,grad_evals=NA,convergence=NA, message=current[1], newbest=0)
           }
           details <- rbind(details, details.new)
         }
@@ -352,12 +362,6 @@ GauPro <- R6Class(classname = "GauPro",
       #curve(bgp$predict(x),-5,7);points(u,v)
       #curve(bgp$predict(x)+2*bgp$predict(x,se=T)$se,-5,7,add=T,col=2)
       #curve(bgp$predict(x)-2*bgp$predict(x,se=T)$se,-5,7,add=T,col=2)
-
-      #gam <- function(uu) {
-      #  pr <- bgp$predict(uu,se=T)
-      #  (min(v) - pr$m) / pr$se
-      #}
-      #curve(gam, -5,7)
       EI <- function(uu) {
         pr <- bgp$predict(uu,se=T)
         g <- (min(v) - pr$m) / pr$se
@@ -365,11 +369,11 @@ GauPro <- R6Class(classname = "GauPro",
       }
       for(i in 1:10) {
         #curve(EI, -5, 7);abline(v=u)
-        if (F) {browser()
-          curve(bgp$predict(x),-5,7);points(u,v)
-          curve(bgp$predict(x)+2*bgp$predict(x,se=T)$se,-5,7,add=T,col=2)
-          curve(bgp$predict(x)-2*bgp$predict(x,se=T)$se,-5,7,add=T,col=2)
-        }
+        #if (F) {browser()
+        #  curve(bgp$predict(x),-5,7);points(u,v)
+        #  curve(bgp$predict(x)+2*bgp$predict(x,se=T)$se,-5,7,add=T,col=2)
+        #  curve(bgp$predict(x)-2*bgp$predict(x,se=T)$se,-5,7,add=T,col=2)
+        #}
         #apply(u, 1, function(uuu){optim(uuu, EI, lower=-5,upper=7)})
         #replicate(1e1, {optim(runif(1,-5,7), EI, lower=-5,upper=7,method="L-BFGS-B", control=list(fnscale=-1))$val})
         #tmp <- replicate(1e1, {optim(runif(1,-5,7), EI, lower=-5,upper=7,method="L-BFGS-B", control=list(fnscale=-1))[[c('par','val')]]})
@@ -388,11 +392,8 @@ GauPro <- R6Class(classname = "GauPro",
       bestu <- u[which.min(v),]
       optim(bestu, EI, lower=-5,upper=7,method="L-BFGS-B", control=list(fnscale=-1))$par
     },
-    update = function (Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL, restarts = 5, theta.update = T, nug.update = self$nug.est) { # update theta and nugget
-      #if (!is.null(Xall)) {self$X <- Xall;self$N <- nrow(self$X)} else if (!is.null(Xnew)) {self$X <- rbind(self$X, Xnew);self$N <- nrow(self$X)}
-      #if (!is.null(Zall)) {self$Z <- Zall} else if (!is.null(Znew)) {self$Z <- rbind(self$Z, Znew)}
-      #if (!is.null(Xall) | !is.null(Xnew)) {self$update_params()} # update Kinv, etc, DONT THINK I NEED IT
-      self$update_data(Xnew=Xnew, Znew=Znew, Xall=Xall, Zall=Zall)
+    update = function (Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL, restarts = 5, theta.update = T, nug.update = self$nug.est) {
+      self$update_data(Xnew=Xnew, Znew=Znew, Xall=Xall, Zall=Zall) # Doesn't update Kinv, etc
 
       pars <- self$optim(restarts = restarts, theta.update = theta.update, nug.update = nug.update)$par
       self$nug <- pars[length(pars)]
@@ -401,7 +402,7 @@ GauPro <- R6Class(classname = "GauPro",
 
       invisible(self)
     },
-    update_data = function(Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL) { # update theta and nugget, make this private?
+    update_data = function(Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL) {
       if (!is.null(Xall)) {self$X <- Xall;self$N <- nrow(self$X)} else if (!is.null(Xnew)) {self$X <- rbind(self$X, Xnew);self$N <- nrow(self$X)}
       if (!is.null(Zall)) {self$Z <- Zall} else if (!is.null(Znew)) {self$Z <- rbind(self$Z, Znew)}
       #if (!is.null(Xall) | !is.null(Xnew)) {self$update_params()} # update Kinv, etc, DONT THINK I NEED IT
