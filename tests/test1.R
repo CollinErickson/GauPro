@@ -4,7 +4,7 @@
 #gp$pred(matrix(runif(6),3,2))
 
 # 1D test
-n <- 12
+n <- 32
 x <- matrix(seq(0,1,length.out = n), ncol=1)
 y <- sin(2*pi*x) + rnorm(n,0,1e-1)
 #y <- sqrt(x)-x
@@ -54,10 +54,12 @@ gp$cool1Dplot()
 library(lineprof)
 l <- lineprof(GauPro$new(X=x,Z=y))
 shine(l)
+microbenchmark::microbenchmark(gp$optim(restarts = 32), gp$optimParallel(restarts = 32), times = 10)
+microbenchmark::microbenchmark(gp$optim(), gp$optimParallel(), times = 10)
 
 
 # 2D test
-n <- 40
+n <- 33
 x <- matrix(runif(n*2), ncol=2)
 f1 <- function(a) {sin(3*pi*a[1]) + sin(3*pi*a[2])}
 y <- apply(x,1,f1)
