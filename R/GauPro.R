@@ -22,7 +22,7 @@ GauPro <- R6Class(classname = "GauPro",
     useC = TRUE,
     parallel = FALSE,
     parallel.cores = NULL,
-    initialize = function(X, Z, corr="Gauss", verbose=0, separable=T, useC=T,
+    initialize = function(X, Z, corr="Gauss", verbose=0, separable=T, useC=F,
                           parallel=T, ...) {#browser()
       #for (item in list(...)) {
       #  self$add(item)
@@ -59,6 +59,7 @@ GauPro <- R6Class(classname = "GauPro",
       self$useC <- useC
       self$parallel <- parallel
       if (self$parallel) {self$parallel.cores <- parallel::detectCores()}
+      else {self$parallel.cores <- 1}
 
       self$fit()
       invisible(self)

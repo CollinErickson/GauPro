@@ -4,7 +4,7 @@
 #gp$pred(matrix(runif(6),3,2))
 
 # 1D test
-n <- 32
+n <- 40
 x <- matrix(seq(0,1,length.out = n), ncol=1)
 y <- sin(2*pi*x) + rnorm(n,0,1e-1)
 #y <- sqrt(x)-x
@@ -56,10 +56,26 @@ l <- lineprof(GauPro$new(X=x,Z=y))
 shine(l)
 microbenchmark::microbenchmark(gp$optim(restarts = 32), gp$optimParallel(restarts = 32), times = 10)
 microbenchmark::microbenchmark(gp$optim(), gp$optimParallel(), times = 10)
-
+# compare useC and parallel options
+gp1 <- GauPro$new(x,y,parallel=F,useC=T)
+gp2 <- GauPro$new(x,y,parallel=F,useC=F)
+gp3 <- GauPro$new(x,y,parallel=T,useC=F)
+gp4 <- GauPro$new(x,y,parallel=T,useC=T)
+microbenchmark::microbenchmark(gp1$optim(32), gp2$optim(32), gp3$optim(32), gp4$optim(32), times = 5)
+gp1 <- GauPro$new(x,y,parallel=F,useC=T)
+gp2 <- GauPro$new(x,y,parallel=T,useC=F)
+gp3 <- GauPro$new(x,y,parallel=F,useC=F)
+microbenchmark::microbenchmark(gp1$optimParallel(32), gp2$optimParallel(32), gp3$optimParallel(32), times = 1)
+microbenchmark::microbenchmark(gp1$optimParallel(), gp2$optimParallel(), gp3$optimParallel(), times = 5)
+res <- 5:16#c(5,6,7,8,9,10)
+plot(microbenchmark::microbenchmark(gp$optimParallel(restarts = res[1]), gp$optimParallel(restarts = res[2]), gp$optimParallel(restarts = res[3]),
+                               gp$optimParallel(restarts = res[4]), gp$optimParallel(restarts = res[5]), gp$optimParallel(restarts = res[6]),
+                               gp$optimParallel(restarts = res[7]), gp$optimParallel(restarts = res[8]), gp$optimParallel(restarts = res[9]),
+                               gp$optimParallel(restarts = res[10]), gp$optimParallel(restarts = res[11]), gp$optimParallel(restarts = res[12]),
+                               times = 30))
 
 # 2D test
-n <- 33
+n <- 40
 x <- matrix(runif(n*2), ncol=2)
 f1 <- function(a) {sin(3*pi*a[1]) + sin(3*pi*a[2])}
 y <- apply(x,1,f1)
@@ -97,8 +113,8 @@ n <- 200
 d <- 4
 x <- matrix(runif(n*d), ncol=d)
 f1 <- function(a) {sum(sin(1:d*pi/a) + (1/a))}
-y <- apply(x,1,f1)
-gp <- GauPro$new(x,y, verbose=0);c(gp$theta,gp$nug)
+y <- apply(x,1,f1) + rnorm(n,0,.01)
+gp <- GauPro$new(x,y, verbose=0, parallel=T, useC=F);c(gp$theta,gp$nug)
 nn <- 20
 gp$pred(matrix(runif(nn*d),ncol=d))
 gp$grad(matrix(runif(nn*d),ncol=d))
