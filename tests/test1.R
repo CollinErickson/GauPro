@@ -11,11 +11,12 @@ y <- sin(2*pi*x) + rnorm(n,0,1e-1)
 #y <- (2*x) %%1
 y <- c(y)
 plot(x,y)
-gp <- GauPro$new(X=x, Z=y)
+gp <- GauPro$new(X=x, Z=y, useOptim2=T)
 curve(gp$pred(x));points(x,y)
 curve(gp$pred(x)+2*gp$pred(x,T)$se,col=2,add=T);curve(gp$pred(x)-2*gp$pred(x,T)$se,col=2,add=T)
 curve(sapply(x, gp$deviance_theta_log),-10,10, n = 300) # deviance profile
 gp$optim()
+microbenchmark(GauPro$new(x,y, useOptim2=F), GauPro$new(x,y, useOptim2=T), times = 100)
 
 gp$optim()
 c(gp$theta,gp$nug)
@@ -78,13 +79,13 @@ plot(microbenchmark::microbenchmark(gp$optimParallel(restarts = res[1]), gp$opti
 n <- 40
 x <- matrix(runif(n*2), ncol=2)
 f1 <- function(a) {sin(3*pi*a[1]) + sin(3*pi*a[2])}
-y <- apply(x,1,f1)
+#f1 <- TestFunctions::banana
+y <- apply(x,1,f1) + rnorm(n,0,.01)
 system.time(contourfilled::contourfilled.data(x,y))
-gp <- GauPro$new(x,y);gp$theta
-gp$pred(matrix(runif(6),3,2))
-c(gp$mu_hat, gp$s2_hat)
+gp <- GauPro$new(x,y, useOptim2=T, verbose=2);gp$theta
 system.time(contourfilled::contourfilled.func(gp$pred, pts=x))
 plot(y,gp$pred(x));abline(a=0,b=1)
+microbenchmark(GauPro$new(x,y, useOptim2=F), GauPro$new(x,y, useOptim2=T), times = 10)
 #system.time(print(gp$deviance_search()))
 #system.time(print(gp$deviance_search3()))
 c(gp$theta, gp$nug)
@@ -115,6 +116,7 @@ x <- matrix(runif(n*d), ncol=d)
 f1 <- function(a) {sum(sin(1:d*pi/a) + (1/a))}
 y <- apply(x,1,f1) + rnorm(n,0,.01)
 gp <- GauPro$new(x,y, verbose=0, parallel=T, useC=F);c(gp$theta,gp$nug)
+microbenchmark(GauPro$new(x,y, useOptim2=F), GauPro$new(x,y, useOptim2=T), times = 1)
 nn <- 2000
 gp$pred(matrix(runif(nn*d),ncol=d))
 gp$grad(matrix(runif(nn*d),ncol=d))
