@@ -88,36 +88,48 @@ GauPro <- R6Class(classname = "GauPro",
       kxx <- self$corr_func(XX, theta=self$theta)
       kx.xx <- self$corr_func(self$X, XX, theta=self$theta)
 
-      mn <- self$pred_mean(XX, kx.xx=kx.xx)
+      #mn <- self$pred_mean(XX, kx.xx=kx.xx)
+      mn <- pred_meanC(XX, kx.xx, self$mu_hat, self$Kinv, self$Z)
       if (!se.fit & !covmat) {
         return(mn)
       }
-      s2 <- self$pred_var(XX, kxx=kxx, kx.xx=kx.xx)
-      se <- rep(0, length(mn)) # NEG VARS will be 0 for se, NOT SURE I WANT THIS
-      se[s2>=0] <- sqrt(s2[s2>=0])
+      #s2 <- self$pred_var(XX, kxx=kxx, kx.xx=kx.xx)
+      #se <- rep(0, length(mn)) # NEG VARS will be 0 for se, NOT SURE I WANT THIS
+      #se[s2>=0] <- sqrt(s2[s2>=0])
       if (covmat) {
-        covmatdat <- self$pred_var(XX, kxx=kxx, kx.xx=kx.xx, covmat=T)
+        #covmatdat <- self$pred_var(XX, kxx=kxx, kx.xx=kx.xx, covmat=T)
+        covmatdat <- pred_cov(XX, kxx, kx.xx, self$s2_hat, self$Kinv, self$Z)
+        s2 <- diag(covmatdat)
+        se <- rep(1e-8, length(mn)) # NEG VARS will be 0 for se, NOT SURE I WANT THIS
+        se[s2>=0] <- sqrt(s2[s2>=0])
         return(list(mean=mn, s2=s2, se=se, cov=covmatdat))
       }
+
+      #s2 <- self$pred_var(XX, kxx=kxx, kx.xx=kx.xx, covmat=F)
+      s2 <- pred_var(XX, kxx, kx.xx, self$s2_hat, self$Kinv, self$Z)
+      se <- rep(0, length(mn)) # NEG VARS will be 0 for se, NOT SURE I WANT THIS
+      se[s2>=0] <- sqrt(s2[s2>=0])
+
       # se.fit but not covmat
       data.frame(mean=mn, s2=s2, se=se)
     },
-    pred_mean = function(XX, kx.xx) {
+    pred_mean = function(XX, kx.xx) { # 2-8x faster to use pred_meanC
       c(self$mu_hat + t(kx.xx) %*% self$Kinv %*% (self$Z - self$mu_hat))
     },
-    pred_var = function(XX, kxx, kx.xx, covmat=F) {
-      if (covmat) return(self$s2_hat * (kxx - t(kx.xx) %*% self$Kinv %*% kx.xx))
+    pred_meanC = function(XX, kx.xx) { # Don't use if R uses pass by copy(?)
+      pred_meanC(XX, kx.xx, self$mu_hat, self$Kinv, self$Z)
+    },
+    pred_var = function(XX, kxx, kx.xx, covmat=F) { # 2-4x faster to use C functions pred_var and pred_cov
       self$s2_hat * diag(kxx - t(kx.xx) %*% self$Kinv %*% kx.xx)
     },
     deviance_theta = function (theta) {
       self$deviance(theta=theta, nug=self$nug)
     },
     deviance_theta_log = function (beta) {
-      #points(beta,0)
       theta <- 10^beta
       self$deviance_theta(theta=theta)
     },
-    cool1Dplot = function () {#browser()
+    cool1Dplot = function () {
       if (self$D != 1) stop('Must be 1D')
       minx <- min(self$X)
       maxx <- max(self$X)
@@ -146,24 +158,29 @@ GauPro <- R6Class(classname = "GauPro",
       if (inherits(Kchol, "try-error")) {return(Inf)}
       Kinv <- chol2inv(Kchol)
       mu_hat <- sum(Kinv %*% self$Z) / sum(Kinv)
-      #browser()
-      s2_hat <- c(t(self$Z - mu_hat) %*% Kinv %*% (self$Z - mu_hat) / self$N)
-      #detK <- prod(diag(Kchol))^2
       logdetK <- 2 * sum(log(diag(Kchol)))
-      logdetK + self$N * log(t(self$Z - mu_hat) %*% solve(K, self$Z - mu_hat))
+      logdetK + self$N * log(t(self$Z - mu_hat) %*% (Kinv %*% (self$Z - mu_hat)))
+    },
+    devianceC2 = function (theta=self$theta, nug=self$nug) { #browser()# joint deviance
+      # Not faster than devianceC or even deviance
+      K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
+      Kchol <- try(chol(K))
+      if (inherits(Kchol, "try-error")) {return(Inf)}
+      Kinv <- chol2inv(Kchol)
+      logdetK <- 2 * sum(log(diag(Kchol)))
+      logdetK + deviance_part(theta, nug, self$X, self$Z, Kinv)
     },
     devianceC = function (theta=self$theta, nug=self$nug) { #browser()# joint deviance
+      # Uses cholC and solveC, not much faster than deviance though, maybe not at all
+      # This gives error for n>32, probably from cholC, so DONT USE
       K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
       Kchol <- try(cholC(K))
       if (inherits(Kchol, "try-error")) {return(Inf)}
       Kinv <- chol2inv(Kchol)
       mu_hat <- sum(Kinv %*% self$Z) / sum(Kinv)
-      #browser()
-      s2_hat <- c(t(self$Z - mu_hat) %*% Kinv %*% (self$Z - mu_hat) / self$N)
-      #detK <- prod(diag(Kchol))^2
       logdetK <- 2 * sum(log(diag(Kchol)))
       #logdetK + self$N * log(t(self$Z - mu_hat) %*% solveC(K, self$Z - mu_hat)) # convert 1x1 matrix to num
-      logdetK + self$N * log(as.numeric(t(self$Z - mu_hat) %*% solveC(K, self$Z - mu_hat)))
+      logdetK + self$N * log(as.numeric(t(self$Z - mu_hat) %*% (Kinv %*% (self$Z - mu_hat))))
     },
     deviance_log = function (beta=NULL, nug=self$nug, joint=NULL) {#browser()  # joint deviance
       if (!is.null(joint)) {
@@ -174,7 +191,7 @@ GauPro <- R6Class(classname = "GauPro",
         if (is.null(beta)) theta <- self$theta
         else theta <- 10^beta
       }
-      (if (self$useC) self$devianceC else self$deviance)(theta=theta, nug=nug)
+      (if (self$useC) self$devianceC2 else self$deviance)(theta=theta, nug=nug)
     },
     optimOld = function (restarts = 5, theta.update = T, nug.update = self$nug.est) {#browser()
       # Joint MLE search with L-BFGS-B, with restarts

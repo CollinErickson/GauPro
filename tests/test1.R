@@ -4,7 +4,7 @@
 #gp$pred(matrix(runif(6),3,2))
 
 # 1D test
-n <- 40
+n <- 12
 x <- matrix(seq(0,1,length.out = n), ncol=1)
 y <- sin(2*pi*x) + rnorm(n,0,1e-1)
 #y <- sqrt(x)-x
@@ -115,7 +115,7 @@ x <- matrix(runif(n*d), ncol=d)
 f1 <- function(a) {sum(sin(1:d*pi/a) + (1/a))}
 y <- apply(x,1,f1) + rnorm(n,0,.01)
 gp <- GauPro$new(x,y, verbose=0, parallel=T, useC=F);c(gp$theta,gp$nug)
-nn <- 20
+nn <- 2000
 gp$pred(matrix(runif(nn*d),ncol=d))
 gp$grad(matrix(runif(nn*d),ncol=d))
 gp$grad_norm(matrix(runif(nn*d),ncol=d))

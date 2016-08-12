@@ -42,6 +42,21 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// deviance_part
+double deviance_part(arma::vec theta, double nug, arma::mat X, arma::mat Z, arma::mat Kinv);
+RcppExport SEXP GauPro_deviance_part(SEXP thetaSEXP, SEXP nugSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP KinvSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< arma::vec >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< double >::type nug(nugSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Kinv(KinvSEXP);
+    __result = Rcpp::wrap(deviance_part(theta, nug, X, Z, Kinv));
+    return __result;
+END_RCPP
+}
 // rcpp_hello_world
 List rcpp_hello_world();
 RcppExport SEXP GauPro_rcpp_hello_world() {
@@ -49,6 +64,53 @@ BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     __result = Rcpp::wrap(rcpp_hello_world());
+    return __result;
+END_RCPP
+}
+// pred_meanC
+arma::vec pred_meanC(arma::mat XX, arma::mat kx_xx, double mu_hat, arma::mat Kinv, arma::mat Z);
+RcppExport SEXP GauPro_pred_meanC(SEXP XXSEXP, SEXP kx_xxSEXP, SEXP mu_hatSEXP, SEXP KinvSEXP, SEXP ZSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< arma::mat >::type XX(XXSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type kx_xx(kx_xxSEXP);
+    Rcpp::traits::input_parameter< double >::type mu_hat(mu_hatSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Kinv(KinvSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Z(ZSEXP);
+    __result = Rcpp::wrap(pred_meanC(XX, kx_xx, mu_hat, Kinv, Z));
+    return __result;
+END_RCPP
+}
+// pred_var
+arma::vec pred_var(arma::mat XX, arma::mat kxx, arma::mat kx_xx, double s2_hat, arma::mat Kinv, arma::mat Z);
+RcppExport SEXP GauPro_pred_var(SEXP XXSEXP, SEXP kxxSEXP, SEXP kx_xxSEXP, SEXP s2_hatSEXP, SEXP KinvSEXP, SEXP ZSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< arma::mat >::type XX(XXSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type kxx(kxxSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type kx_xx(kx_xxSEXP);
+    Rcpp::traits::input_parameter< double >::type s2_hat(s2_hatSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Kinv(KinvSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Z(ZSEXP);
+    __result = Rcpp::wrap(pred_var(XX, kxx, kx_xx, s2_hat, Kinv, Z));
+    return __result;
+END_RCPP
+}
+// pred_cov
+arma::mat pred_cov(arma::mat XX, arma::mat kxx, arma::mat kx_xx, double s2_hat, arma::mat Kinv, arma::mat Z);
+RcppExport SEXP GauPro_pred_cov(SEXP XXSEXP, SEXP kxxSEXP, SEXP kx_xxSEXP, SEXP s2_hatSEXP, SEXP KinvSEXP, SEXP ZSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< arma::mat >::type XX(XXSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type kxx(kxxSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type kx_xx(kx_xxSEXP);
+    Rcpp::traits::input_parameter< double >::type s2_hat(s2_hatSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Kinv(KinvSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Z(ZSEXP);
+    __result = Rcpp::wrap(pred_cov(XX, kxx, kx_xx, s2_hat, Kinv, Z));
     return __result;
 END_RCPP
 }

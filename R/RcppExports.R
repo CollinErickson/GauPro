@@ -13,7 +13,23 @@ corr_gauss_matrixC <- function(x, y, theta) {
     .Call('GauPro_corr_gauss_matrixC', PACKAGE = 'GauPro', x, y, theta)
 }
 
+deviance_part <- function(theta, nug, X, Z, Kinv) {
+    .Call('GauPro_deviance_part', PACKAGE = 'GauPro', theta, nug, X, Z, Kinv)
+}
+
 rcpp_hello_world <- function() {
     .Call('GauPro_rcpp_hello_world', PACKAGE = 'GauPro')
+}
+
+pred_meanC <- function(XX, kx_xx, mu_hat, Kinv, Z) {
+    .Call('GauPro_pred_meanC', PACKAGE = 'GauPro', XX, kx_xx, mu_hat, Kinv, Z)
+}
+
+pred_var <- function(XX, kxx, kx_xx, s2_hat, Kinv, Z) {
+    .Call('GauPro_pred_var', PACKAGE = 'GauPro', XX, kxx, kx_xx, s2_hat, Kinv, Z)
+}
+
+pred_cov <- function(XX, kxx, kx_xx, s2_hat, Kinv, Z) {
+    .Call('GauPro_pred_cov', PACKAGE = 'GauPro', XX, kxx, kx_xx, s2_hat, Kinv, Z)
 }
 
