@@ -176,7 +176,7 @@ GauPro <- R6Class(classname = "GauPro",
       }
       (if (self$useC) self$devianceC else self$deviance)(theta=theta, nug=nug)
     },
-    optim = function (restarts = 5, theta.update = T, nug.update = self$nug.est) {#browser()
+    optimOld = function (restarts = 5, theta.update = T, nug.update = self$nug.est) {#browser()
       # Joint MLE search with L-BFGS-B, with restarts
       if (theta.update & nug.update) {
         optim.func <- function(xx) {self$deviance_log(joint=xx)}
@@ -338,7 +338,8 @@ GauPro <- R6Class(classname = "GauPro",
       if (self$verbose >= 2) {print(details)}
       best
     },
-    optimParallel = function (restarts = 5, theta.update = T, nug.update = self$nug.est) {#browser()
+    optim = function (restarts = 5, theta.update = T, nug.update = self$nug.est, parallel=self$parallel, parallel.cores=self$parallel.cores) {#browser()
+      # Does parallel
       # Joint MLE search with L-BFGS-B, with restarts
       if (theta.update & nug.update) {
         optim.func <- function(xx) {self$deviance_log(joint=xx)}
@@ -405,7 +406,7 @@ GauPro <- R6Class(classname = "GauPro",
       #}
       #browser()
       # runs them in parallel, first starts from current, rest are jittered or random
-      restarts.out <- parallel::mclapply(1:(1+restarts), function(i){self$optimRestart(start.par=start.par, start.par0=start.par0, theta.update=theta.update, nug.update=nug.update, optim.func=optim.func, lower=lower, upper=upper, jit=(i!=1))}, mc.cores = self$parallel.cores)
+      restarts.out <- parallel::mclapply(1:(1+restarts), function(i){self$optimRestart(start.par=start.par, start.par0=start.par0, theta.update=theta.update, nug.update=nug.update, optim.func=optim.func, lower=lower, upper=upper, jit=(i!=1))}, mc.cores = parallel.cores)
       #restarts.out <- lapply(1:(1+restarts), function(i){self$optimRestart(start.par=start.par, start.par0=start.par0, theta.update=theta.update, nug.update=nug.update, optim.func=optim.func, lower=lower, upper=upper, jit=(i!=1))})
       new.details <- t(sapply(restarts.out,function(dd){dd$deta}))
       bestparallel <- which.min(sapply(restarts.out,function(i){i$current$val})) #which.min(new.details$value)
@@ -478,18 +479,19 @@ GauPro <- R6Class(classname = "GauPro",
       }
       for(i in 1:10) {
         #curve(EI, -5, 7);abline(v=u)
-        #if (F) {browser()
-        #  curve(bgp$predict(x),-5,7);points(u,v)
-        #  curve(bgp$predict(x)+2*bgp$predict(x,se=T)$se,-5,7,add=T,col=2)
-        #  curve(bgp$predict(x)-2*bgp$predict(x,se=T)$se,-5,7,add=T,col=2)
-        #}
+        if (F) {browser()
+          curve(bgp$predict(x),-5,7);points(u,v)
+          curve(bgp$predict(x)+2*bgp$predict(x,se=T)$se,-5,7,add=T,col=2)
+          curve(bgp$predict(x)-2*bgp$predict(x,se=T)$se,-5,7,add=T,col=2)
+        }
         #apply(u, 1, function(uuu){optim(uuu, EI, lower=-5,upper=7)})
         #replicate(1e1, {optim(runif(1,-5,7), EI, lower=-5,upper=7,method="L-BFGS-B", control=list(fnscale=-1))$val})
         #tmp <- replicate(1e1, {optim(runif(1,-5,7), EI, lower=-5,upper=7,method="L-BFGS-B", control=list(fnscale=-1))[[c('par','val')]]})
+        # parallel doesn't really speed up this line, already fast
         tmp <- replicate(10,{ta <- optim(runif(self$theta_length,-5,7), EI, lower=-5,upper=7,method="L-BFGS-B", control=list(fnscale=-1));c(ta$par,ta$val)})
         best <- tmp[,which.max(tmp[self$theta_length+1,])]
         bestu <- best[1:self$theta_length];#abline(v=bestu,col=2)
-        bestv <- self$deviance_log(beta=bestu)
+        bestv <- self$deviance_log(beta=bestu) # this might be slow, maybe do parallel and add a bunch of new points each time?
         bgp$update(Xnew = bestu, Znew = bestv, restarts = 0)
         u <- rbind(u, bestu)
         v <- c(v, bestv)
@@ -498,8 +500,9 @@ GauPro <- R6Class(classname = "GauPro",
       # take next point
       # start near that point?
       # repeat until limit reached
+      #browser()
       bestu <- u[which.min(v),]
-      optim(bestu, EI, lower=-5,upper=7,method="L-BFGS-B", control=list(fnscale=-1))$par
+      optim(bestu, bgp$pred, lower=-5,upper=7,method="L-BFGS-B")$par
     },
     update = function (Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL, restarts = 5, theta.update = T, nug.update = self$nug.est) {
       self$update_data(Xnew=Xnew, Znew=Znew, Xall=Xall, Zall=Zall) # Doesn't update Kinv, etc
