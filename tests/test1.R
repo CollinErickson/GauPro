@@ -11,12 +11,12 @@ y <- sin(2*pi*x) + rnorm(n,0,1e-1)
 #y <- (2*x) %%1
 y <- c(y)
 plot(x,y)
-gp <- GauPro$new(X=x, Z=y, useOptim2=T)
+gp <- GauPro$new(X=x, Z=y, useOptim2=T, parallel=F)
 curve(gp$pred(x));points(x,y)
 curve(gp$pred(x)+2*gp$pred(x,T)$se,col=2,add=T);curve(gp$pred(x)-2*gp$pred(x,T)$se,col=2,add=T)
 curve(sapply(x, gp$deviance_theta_log),-10,10, n = 300) # deviance profile
 gp$optim()
-microbenchmark(GauPro$new(x,y, useOptim2=F), GauPro$new(x,y, useOptim2=T), times = 100)
+microbenchmark::microbenchmark(GauPro$new(x,y, useOptim2=F), GauPro$new(x,y, useOptim2=T), times = 100)
 
 gp$optim()
 c(gp$theta,gp$nug)

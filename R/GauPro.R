@@ -439,7 +439,13 @@ GauPro <- R6Class(classname = "GauPro",
       #}
       #browser()
       # runs them in parallel, first starts from current, rest are jittered or random
-      restarts.out <- parallel::mclapply(1:(1+restarts), function(i){self$optimRestart(start.par=start.par, start.par0=start.par0, theta.update=theta.update, nug.update=nug.update, optim.func=optim.func, lower=lower, upper=upper, jit=(i!=1))}, mc.cores = parallel.cores)
+      if (sys_name == "Windows") {
+        # Trying this so it works on Windows
+        restarts.out <- lapply( 1:(1+restarts), function(i){self$optimRestart2(start.par=start.par, start.par0=start.par0, theta.update=theta.update, nug.update=nug.update, optim.func=optim.func, lower=lower, upper=upper, jit=(i!=1))})#, mc.cores = parallel.cores)
+      } else { # Mac/Unix
+
+        restarts.out <- parallel::mclapply(1:(1+restarts), function(i){self$optimRestart2(start.par=start.par, start.par0=start.par0, theta.update=theta.update, nug.update=nug.update, optim.func=optim.func, lower=lower, upper=upper, jit=(i!=1))}, mc.cores = parallel.cores)
+      }
       #restarts.out <- lapply(1:(1+restarts), function(i){self$optimRestart(start.par=start.par, start.par0=start.par0, theta.update=theta.update, nug.update=nug.update, optim.func=optim.func, lower=lower, upper=upper, jit=(i!=1))})
       new.details <- t(sapply(restarts.out,function(dd){dd$deta}))
       bestparallel <- which.min(sapply(restarts.out,function(i){i$current$val})) #which.min(new.details$value)
@@ -532,7 +538,13 @@ GauPro <- R6Class(classname = "GauPro",
       details <- rbind(details, details.new)
 
       # runs them in parallel, first starts from current, rest are jittered or random
-      restarts.out <- parallel::mclapply(1:(1+restarts), function(i){self$optimRestart2(start.par=start.par, start.par0=start.par0, theta.update=theta.update, nug.update=nug.update, optim.func=optim.func, lower=lower, upper=upper, jit=(i!=1))}, mc.cores = parallel.cores)
+      sys_name <- Sys.info()["sysname"]
+      if (sys_name == "Windows") {
+        # Trying this so it works on Windows
+        restarts.out <- lapply( 1:(1+restarts), function(i){self$optimRestart2(start.par=start.par, start.par0=start.par0, theta.update=theta.update, nug.update=nug.update, optim.func=optim.func, lower=lower, upper=upper, jit=(i!=1))})#, mc.cores = parallel.cores)
+      } else { # Mac/Unix
+        restarts.out <- parallel::mclapply(1:(1+restarts), function(i){self$optimRestart2(start.par=start.par, start.par0=start.par0, theta.update=theta.update, nug.update=nug.update, optim.func=optim.func, lower=lower, upper=upper, jit=(i!=1))}, mc.cores = parallel.cores)
+      }
       new.details <- t(sapply(restarts.out,function(dd){dd$deta}))
       bestparallel <- which.min(sapply(restarts.out,function(i){i$current$val})) #which.min(new.details$value)
       if (restarts.out[[bestparallel]]$current$val < best$val) {
