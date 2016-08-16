@@ -79,13 +79,26 @@ curve(sapply(x, function(xx)numDeriv::grad(gp$deviance_log,xx)),1,10, n = 300,co
 # time compare
 microbenchmark::microbenchmark(gp$deviance_log_grad(2), numDeriv::grad(gp$deviance_log,2),times=1e4)
 microbenchmark::microbenchmark(gp$deviance_log_grad(c(1,2)), numDeriv::grad(gp$deviance_log,c(1,2)),times=1e2)
+microbenchmark::microbenchmark(GauPro$new(x,y, useOptim2=T,parallel=F, useGrad=F, verbose=0),
+                               GauPro$new(x,y, useOptim2=T,parallel=F, useGrad=T, verbose=0),times=100)
+# Check for nugget
+nugdev <- Vectorize(function(xxx)gp$deviance(nug=xxx))
+nuggrad <- Vectorize(function(xxx)gp$deviance_gradC(nug=xxx,overwhat="nug"))
+nugnumgrad <- Vectorize(function(xx)numDeriv::grad(nugdev, xx))
+curve(nugdev,1e-6,1e-1,log='x',n = 200)
+curve(nuggrad,1e-6,1e-1,log='x',n = 200)
+curve(nugnumgrad,1e-6,1e-1,log=c('x'),n=200)
+xnug <- 10 ^ (seq(-8,-1,length.out = 1000))
+plot(xnug[1:999], diff(nugdev(xnug))/diff(xnug), log=c("x","y"))
+plot(diff(nugdev(xnug))/diff(xnug), nuggrad(xnug[1:999]))
 
 
 # 2D test
-n <- 40
+n <- 80
 x <- matrix(runif(n*2), ncol=2)
 f1 <- function(a) {sin(3*pi*a[1]) + sin(3*pi*a[2])}
-#f1 <- TestFunctions::banana
+f1 <- TestFunctions::branin
+f1 <- TestFunctions::RFF_get(D=2)
 y <- apply(x,1,f1) + rnorm(n,0,.01)
 system.time(contourfilled::contourfilled.data(x,y))
 gp <- GauPro$new(x,y, useOptim2=T, verbose=2);gp$theta
@@ -116,11 +129,11 @@ gpf$mod[[1]]
 
 
 # higher dim test
-n <- 200
+n <- 120
 d <- 4
 x <- matrix(runif(n*d), ncol=d)
-f1 <- function(a) {sum(sin(1:d*pi/a) + (1/a))}
-y <- apply(x,1,f1) + rnorm(n,0,.01)
+f1 <- function(a) {sum(sin(1:d*pi/a))}
+y <- apply(x,1,f1) + rnorm(n,0,.1)
 gp <- GauPro$new(x,y, verbose=0, parallel=T, useC=F);c(gp$theta,gp$nug)
 microbenchmark(GauPro$new(x,y, useOptim2=F), GauPro$new(x,y, useOptim2=T), times = 1)
 nn <- 2000

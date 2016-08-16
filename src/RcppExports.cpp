@@ -42,6 +42,48 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// deviance_grad_theta
+arma::vec deviance_grad_theta(arma::mat X, arma::mat K, arma::mat Kinv, arma::vec y);
+RcppExport SEXP GauPro_deviance_grad_theta(SEXP XSEXP, SEXP KSEXP, SEXP KinvSEXP, SEXP ySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type K(KSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Kinv(KinvSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
+    __result = Rcpp::wrap(deviance_grad_theta(X, K, Kinv, y));
+    return __result;
+END_RCPP
+}
+// deviance_grad_nug
+double deviance_grad_nug(arma::mat X, arma::mat K, arma::mat Kinv, arma::vec y);
+RcppExport SEXP GauPro_deviance_grad_nug(SEXP XSEXP, SEXP KSEXP, SEXP KinvSEXP, SEXP ySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type K(KSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Kinv(KinvSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
+    __result = Rcpp::wrap(deviance_grad_nug(X, K, Kinv, y));
+    return __result;
+END_RCPP
+}
+// deviance_grad_joint
+arma::vec deviance_grad_joint(arma::mat X, arma::mat K, arma::mat Kinv, arma::vec y);
+RcppExport SEXP GauPro_deviance_grad_joint(SEXP XSEXP, SEXP KSEXP, SEXP KinvSEXP, SEXP ySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type K(KSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Kinv(KinvSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
+    __result = Rcpp::wrap(deviance_grad_joint(X, K, Kinv, y));
+    return __result;
+END_RCPP
+}
 // deviance_part
 double deviance_part(arma::vec theta, double nug, arma::mat X, arma::mat Z, arma::mat Kinv);
 RcppExport SEXP GauPro_deviance_part(SEXP thetaSEXP, SEXP nugSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP KinvSEXP) {

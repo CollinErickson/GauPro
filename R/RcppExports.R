@@ -13,6 +13,18 @@ corr_gauss_matrixC <- function(x, y, theta) {
     .Call('GauPro_corr_gauss_matrixC', PACKAGE = 'GauPro', x, y, theta)
 }
 
+deviance_grad_theta <- function(X, K, Kinv, y) {
+    .Call('GauPro_deviance_grad_theta', PACKAGE = 'GauPro', X, K, Kinv, y)
+}
+
+deviance_grad_nug <- function(X, K, Kinv, y) {
+    .Call('GauPro_deviance_grad_nug', PACKAGE = 'GauPro', X, K, Kinv, y)
+}
+
+deviance_grad_joint <- function(X, K, Kinv, y) {
+    .Call('GauPro_deviance_grad_joint', PACKAGE = 'GauPro', X, K, Kinv, y)
+}
+
 deviance_part <- function(theta, nug, X, Z, Kinv) {
     .Call('GauPro_deviance_part', PACKAGE = 'GauPro', theta, nug, X, Z, Kinv)
 }
