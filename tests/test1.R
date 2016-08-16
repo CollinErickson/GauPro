@@ -66,14 +66,20 @@ microbenchmark::microbenchmark(gp1$optim(32), gp2$optim(32), gp3$optim(32), gp4$
 gp1 <- GauPro$new(x,y,parallel=F,useC=T)
 gp2 <- GauPro$new(x,y,parallel=T,useC=F)
 gp3 <- GauPro$new(x,y,parallel=F,useC=F)
-microbenchmark::microbenchmark(gp1$optimParallel(32), gp2$optimParallel(32), gp3$optimParallel(32), times = 1)
-microbenchmark::microbenchmark(gp1$optimParallel(), gp2$optimParallel(), gp3$optimParallel(), times = 5)
-res <- 5:16#c(5,6,7,8,9,10)
-plot(microbenchmark::microbenchmark(gp$optimParallel(restarts = res[1]), gp$optimParallel(restarts = res[2]), gp$optimParallel(restarts = res[3]),
-                               gp$optimParallel(restarts = res[4]), gp$optimParallel(restarts = res[5]), gp$optimParallel(restarts = res[6]),
-                               gp$optimParallel(restarts = res[7]), gp$optimParallel(restarts = res[8]), gp$optimParallel(restarts = res[9]),
-                               gp$optimParallel(restarts = res[10]), gp$optimParallel(restarts = res[11]), gp$optimParallel(restarts = res[12]),
-                               times = 30))
+
+# Check deviance grad
+curve(sapply(x, gp$deviance),1,10, n = 300,lwd=5) # deviance profile
+curve(sapply(x, gp$deviance_grad),1,10, n = 300,lwd=5) # deviance profile
+curve(sapply(x, function(xx)numDeriv::grad(gp$deviance,xx)),1,10, n = 300,col=2,add=T,lwd=3) # deviance profile
+tx <- seq(1,10,length.out = 200)
+plot(sapply(tx, gp$deviance_grad), sapply(tx, function(xx)numDeriv::grad(gp$deviance,xx)))
+# on beta scale
+curve(sapply(x, gp$deviance_log_grad),1,10, n = 300,lwd=5) # deviance profile
+curve(sapply(x, function(xx)numDeriv::grad(gp$deviance_log,xx)),1,10, n = 300,col=2,add=T,lwd=3) # deviance profile
+# time compare
+microbenchmark::microbenchmark(gp$deviance_log_grad(2), numDeriv::grad(gp$deviance_log,2),times=1e4)
+microbenchmark::microbenchmark(gp$deviance_log_grad(c(1,2)), numDeriv::grad(gp$deviance_log,c(1,2)),times=1e2)
+
 
 # 2D test
 n <- 40

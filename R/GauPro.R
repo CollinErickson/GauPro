@@ -209,6 +209,64 @@ GauPro <- R6Class(classname = "GauPro",
       }
       (if (self$useC) self$devianceC2 else self$deviance)(theta=theta, nug=nug)
     },
+    deviance_grad = function (theta=self$theta, nug=self$nug) { #browser()# joint deviance
+      K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
+      Kchol <- try(chol(K))
+      if (inherits(Kchol, "try-error")) {return(Inf)}
+      Kinv <- chol2inv(Kchol)
+      mu_hat <- sum(Kinv %*% self$Z) / sum(Kinv)
+      #logdetK <- 2 * sum(log(diag(Kchol)))
+      #logdetK + self$N * log(t(self$Z - mu_hat) %*% (Kinv %*% (self$Z - mu_hat)))
+
+      y <- self$Z - mu_hat
+      Kinv.y <- Kinv %*% y
+      t2a <- -self$N / (t(y)%*%Kinv.y)
+      dD <- rep(NA,self$D)
+      for(i in 1:self$D) {
+        dK <- K
+        for(j in 1:self$N) {
+          for(k in 1:self$N) {
+            dK[j, k] <- -(self$X[j,i]-self$X[k,i])^2 * dK[j, k]
+          }
+        }
+        #t1 <- sum(diag(Kinv %*% dK))
+        t1 <- sum(sapply(1:self$N, function(ii) {sum(Kinv[ii,] * dK[,ii])}))
+        t2 <- t2a * t(Kinv.y) %*% dK %*% Kinv.y
+        dD[i] <- t1+t2
+      }
+      dD
+    },
+    deviance_log_grad = function (beta=NULL, nug=self$nug, joint=NULL) {#browser()  # joint deviance
+      if (!is.null(joint)) {
+        beta <- joint[-length(joint)]
+        theta <- 10^beta
+        nug <- joint[length(joint)]
+      } else {
+        if (is.null(beta)) theta <- self$theta
+        else theta <- 10^beta
+      }
+      self$deviance_grad(theta=theta, nug=nug) * 10^beta * log(10)
+    },
+    deviance_LLH = function (theta=self$theta, nug=self$nug) { #browser()# joint deviance
+      K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
+      Kchol <- try(chol(K))
+      if (inherits(Kchol, "try-error")) {return(Inf)}
+      Kinv <- chol2inv(Kchol)
+      mu_hat <- sum(Kinv %*% self$Z) / sum(Kinv)
+      logdetK <- 2 * sum(log(diag(Kchol)))
+      logdetK + (t(self$Z - mu_hat) %*% (Kinv %*% (self$Z - mu_hat)))
+    },
+    deviance_log_LLH = function (beta=NULL, nug=self$nug, joint=NULL) {#browser()  # joint deviance
+      if (!is.null(joint)) {
+        beta <- joint[-length(joint)]
+        theta <- 10^beta
+        nug <- joint[length(joint)]
+      } else {
+        if (is.null(beta)) theta <- self$theta
+        else theta <- 10^beta
+      }
+      self$deviance_LLH(theta=theta, nug=nug)
+    },
     optimOld = function (restarts = 5, theta.update = T, nug.update = self$nug.est) {#browser()
       # Joint MLE search with L-BFGS-B, with restarts
       if (theta.update & nug.update) {
