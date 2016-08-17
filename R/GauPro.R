@@ -713,8 +713,18 @@ GauPro <- R6Class(classname = "GauPro",
       invisible(self)
     },
     update_data = function(Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL) {
-      if (!is.null(Xall)) {self$X <- Xall;self$N <- nrow(self$X)} else if (!is.null(Xnew)) {self$X <- rbind(self$X, Xnew);self$N <- nrow(self$X)}
-      if (!is.null(Zall)) {self$Z <- Zall} else if (!is.null(Znew)) {self$Z <- rbind(self$Z, Znew)}
+      if (!is.null(Xall)) {
+        self$X <- if (is.matrix(Xall)) Xall else matrix(Xall,ncol=1)
+        self$N <- nrow(self$X)
+      } else if (!is.null(Xnew)) {
+        self$X <- rbind(self$X, if (is.matrix(Xnew)) Xnew else matrix(Xnew,ncol=1))
+        self$N <- nrow(self$X)
+      }
+      if (!is.null(Zall)) {
+        self$Z <- if (is.matrix(Zall))Zall else matrix(Zall,ncol=1)
+      } else if (!is.null(Znew)) {
+        self$Z <- rbind(self$Z, if (is.matrix(Znew)) Znew else matrix(Znew,ncol=1))
+      }
       #if (!is.null(Xall) | !is.null(Xnew)) {self$update_params()} # update Kinv, etc, DONT THINK I NEED IT
     },
     update_theta = function (...) {
