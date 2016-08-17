@@ -6,9 +6,23 @@ corr_gauss_matrix_noC <- function(x, x2=x, theta) {#browser()
   #outer(x,x2, gauss_cor)
   outer(1:nrow(x),1:nrow(x2), Vectorize(function(i,j) corr_gauss_noC(x[i,], x2[j,], theta=theta)))
 }
-corr_gauss_matrix <- function(x, x2=x, theta) {
-  corr_gauss_matrixC(x, x2, theta)
+
+#' Title
+#'
+#' @param x First data matrix
+#' @param x2 Second data matrix
+#' @param theta Correlation parameter
+#'
+#' @return Correlation matrix
+#' @export
+#'
+#' @examples
+#' corr_gauss_matrixC(1:10, 6:15, 1e-2/(1:10))
+corr_gauss_matrix <- function(x, x2=NULL, theta) {
+  if (is.null(x2)) corr_gauss_matrix_symC(x, theta)
+  else corr_gauss_matrixC(x, x2, theta)
 }
+
 
 # corr_gauss using C++
 Rcpp::cppFunction('double corr_gaussC_wrongplace(NumericVector a, NumericVector b, NumericVector theta) {

@@ -13,6 +13,10 @@ corr_gauss_matrixC <- function(x, y, theta) {
     .Call('GauPro_corr_gauss_matrixC', PACKAGE = 'GauPro', x, y, theta)
 }
 
+corr_gauss_matrix_symC <- function(x, theta) {
+    .Call('GauPro_corr_gauss_matrix_symC', PACKAGE = 'GauPro', x, theta)
+}
+
 deviance_grad_theta <- function(X, K, Kinv, y) {
     .Call('GauPro_deviance_grad_theta', PACKAGE = 'GauPro', X, K, Kinv, y)
 }

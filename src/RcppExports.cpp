@@ -42,6 +42,18 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// corr_gauss_matrix_symC
+NumericMatrix corr_gauss_matrix_symC(NumericMatrix x, NumericVector theta);
+RcppExport SEXP GauPro_corr_gauss_matrix_symC(SEXP xSEXP, SEXP thetaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< NumericMatrix >::type x(xSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type theta(thetaSEXP);
+    __result = Rcpp::wrap(corr_gauss_matrix_symC(x, theta));
+    return __result;
+END_RCPP
+}
 // deviance_grad_theta
 arma::vec deviance_grad_theta(arma::mat X, arma::mat K, arma::mat Kinv, arma::vec y);
 RcppExport SEXP GauPro_deviance_grad_theta(SEXP XSEXP, SEXP KSEXP, SEXP KinvSEXP, SEXP ySEXP) {

@@ -1,5 +1,33 @@
-library(R6)
-GauPro <- R6Class(classname = "GauPro",
+#' Class providing object with methods for fitting a GP model
+#'
+#' @docType class
+#' @importFrom R6 R6Class
+#' @export
+#' @useDynLib GauPro
+#' @importFrom Rcpp evalCpp
+#' @keywords data, kriging, Gaussian process, regression
+#' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
+#' @format \code{\link{R6Class}} object.
+#' @examples
+#' n <- 12
+#' x <- matrix(seq(0,1,length.out = n), ncol=1)
+#' y <- sin(2*pi*x) + rnorm(n,0,1e-1)
+#' gp <- GauPro$new(X=x, Z=y)
+#' @field X Design matrix
+#' @field Z Responses
+#' @field N Number of data points
+#' @field D Dimension of data
+#' @section Methods:
+#' \describe{
+#'   \item{Documentation}{For full documentation of each method go to https://github.com/lightning-viz/lightining-r/}
+#'   \item{\code{new(X, Z, corr="Gauss", verbose=0, separable=T, useC=F,useGrad=T,
+#'          parallel=T, useOptim2=T, nug.est=T, ...)}}{This method is used to create object of this class with \code{X} and \code{Z} as the data.}
+#'
+#'   \item{\code{update(Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL,
+#' restarts = 5, useOptim2=self$useOptim2,
+#' theta.update = T, nug.update = self$nug.est)}}{This method updates the model, adding new data if given, then running optimization again.}
+#'   }
+GauPro <- R6::R6Class(classname = "GauPro",
   public = list(
     X = NULL,
     Z = NULL,
@@ -24,8 +52,8 @@ GauPro <- R6Class(classname = "GauPro",
     parallel = FALSE,
     parallel.cores = NULL,
     useOptim2 = F,
-    initialize = function(X, Z, corr="Gauss", verbose=0, separable=T, useC=F,useGrad=F,
-                          parallel=T, useOptim2=F, nug.est=T, ...) {#browser()
+    initialize = function(X, Z, corr="Gauss", verbose=0, separable=T, useC=F,useGrad=T,
+                          parallel=T, useOptim2=T, nug.est=T, ...) {#browser()
       #for (item in list(...)) {
       #  self$add(item)
       #}
@@ -52,7 +80,7 @@ GauPro <- R6Class(classname = "GauPro",
         self$theta <- 1
       }
       if (self$corr == "Gauss") {
-        self$corr_func <- if (self$useC) {GauPro::corr_gauss_matrix}
+        self$corr_func <- if (self$useC) {GauPro::corr_gauss_matrix} # added _sym since it should always be symmetric
                           else {GauPro::corr_gauss_matrix_noC}
       } else {
         stop("corr not specified or recognized")

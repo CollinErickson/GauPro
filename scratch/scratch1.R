@@ -8,7 +8,7 @@ n <- 12
 x <- matrix(seq(0,1,length.out = n), ncol=1)
 y <- sin(2*pi*x) + rnorm(n,0,1e-1)
 #y <- sqrt(x)-x
-#y <- (2*x) %%1
+y <- (2*x) %%1
 y <- c(y)
 plot(x,y)
 gp <- GauPro$new(X=x, Z=y, useOptim2=T, parallel=F)
@@ -137,7 +137,8 @@ x <- matrix(runif(n*d), ncol=d)
 f1 <- function(a) {sum(sin(1:d*pi/a))}
 y <- apply(x,1,f1) + rnorm(n,0,.1)
 gp <- GauPro$new(x,y, verbose=0, parallel=T, useC=F);c(gp$theta,gp$nug)
-microbenchmark(GauPro$new(x,y, useOptim2=F), GauPro$new(x,y, useOptim2=T), times = 1)
+microbenchmark::microbenchmark(GauPro$new(x,y, useOptim2=F), GauPro$new(x,y, useOptim2=T), times = 1)
+microbenchmark::microbenchmark(GauPro$new(x,y), times = 100)
 nn <- 2000
 gp$pred(matrix(runif(nn*d),ncol=d))
 gp$grad(matrix(runif(nn*d),ncol=d))

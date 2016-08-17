@@ -32,6 +32,30 @@ NumericMatrix corr_gauss_matrixC(NumericMatrix x, NumericMatrix y, NumericVector
   return out;
 }
 
+// [[Rcpp::export]]
+NumericMatrix corr_gauss_matrix_symC(NumericMatrix x, NumericVector theta) {
+  int nrow = x.nrow();
+  int nsum = x.ncol();
+  NumericMatrix out(nrow, nrow);
+
+  for (int i = 0; i < nrow - 1; i++) {
+    for (int j = i + 1; j < nrow; j++) {
+
+      double total = 0;
+      for(int k = 0; k < nsum; ++k) {
+        total += theta[k] * pow((x(i,k) - x(j,k)), 2.0);
+      }
+      total = exp(-total);
+
+      out(i, j) = total;
+    }
+  }
+  for (int i = 0; i < nrow; i++) {
+    out(i, i) = 1;
+  }
+  return out;
+}
+
 
 // You can include R code blocks in C++ files processed with sourceCpp
 // (useful for testing and development). The R code will be automatically
