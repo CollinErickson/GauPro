@@ -166,7 +166,7 @@ GauPro <- R6Class(classname = "GauPro",
       logdetK <- 2 * sum(log(diag(Kchol)))
       logdetK + self$N * log(t(self$Z - mu_hat) %*% (Kinv %*% (self$Z - mu_hat)))
     },
-    devianceC2 = function (theta=self$theta, nug=self$nug) { #browser()# joint deviance
+    devianceC = function (theta=self$theta, nug=self$nug) { #browser()# joint deviance
       # Not faster than devianceC or even deviance
       K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
       Kchol <- try(chol(K), silent = T)
@@ -174,18 +174,6 @@ GauPro <- R6Class(classname = "GauPro",
       Kinv <- chol2inv(Kchol)
       logdetK <- 2 * sum(log(diag(Kchol)))
       logdetK + deviance_part(theta, nug, self$X, self$Z, Kinv)
-    },
-    devianceC = function (theta=self$theta, nug=self$nug) { #browser()# joint deviance
-      # Uses cholC and solveC, not much faster than deviance though, maybe not at all
-      # This gives error for n>32, probably from cholC, so DONT USE
-      K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
-      Kchol <- try(cholC(K))
-      if (inherits(Kchol, "try-error")) {return(Inf)}
-      Kinv <- chol2inv(Kchol)
-      mu_hat <- sum(Kinv %*% self$Z) / sum(Kinv)
-      logdetK <- 2 * sum(log(diag(Kchol)))
-      #logdetK + self$N * log(t(self$Z - mu_hat) %*% solveC(K, self$Z - mu_hat)) # convert 1x1 matrix to num
-      logdetK + self$N * log(as.numeric(t(self$Z - mu_hat) %*% (Kinv %*% (self$Z - mu_hat))))
     },
     deviance_log = function (beta=NULL, nug=self$nug, joint=NULL) {#browser()  # joint deviance
       if (!is.null(joint)) {
@@ -196,7 +184,7 @@ GauPro <- R6Class(classname = "GauPro",
         if (is.null(beta)) theta <- self$theta
         else theta <- 10^beta
       }
-      (if (self$useC) self$devianceC2 else self$deviance)(theta=theta, nug=nug)
+      (if (self$useC) self$devianceC else self$deviance)(theta=theta, nug=nug)
     },
     deviance_log2 = function (beta=NULL, lognug=NULL, joint=NULL) {#browser()  # joint deviance
       # This takes nug on log scale
@@ -210,9 +198,10 @@ GauPro <- R6Class(classname = "GauPro",
         if (is.null(lognug)) nug <- self$nug
         else nug <- 10^lognug
       }
-      (if (self$useC) self$devianceC2 else self$deviance)(theta=theta, nug=nug)
+      (if (self$useC) self$devianceC else self$deviance)(theta=theta, nug=nug)
     },
     deviance_grad = function (theta=self$theta, nug=self$nug) { #browser()# joint deviance
+      # Works but DONT USE since deviance_gradC is 10x faster
       K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
       Kchol <- try(chol(K))
       if (inherits(Kchol, "try-error")) {return(Inf)}
@@ -283,6 +272,46 @@ GauPro <- R6Class(classname = "GauPro",
         joint <- c(beta, lognug)
       }
       self$deviance_gradC(theta=theta, nug=nug) * 10^joint * log(10)
+    },
+    deviance_fngr = function (theta=self$theta, nug=self$nug, overwhat=if (self$nug.est) "joint" else "theta") { #browser()# joint deviance
+      #
+      K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
+      Kchol <- try(chol(K), silent = T)
+      if (inherits(Kchol, "try-error")) {return(list(fn=Inf, gr=NA))}
+      Kinv <- chol2inv(Kchol)
+      mu_hat <- sum(Kinv %*% self$Z) / sum(Kinv)
+      logdetK <- 2 * sum(log(diag(Kchol)))
+      fn <- logdetK + self$N * log(t(self$Z - mu_hat) %*% (Kinv %*% (self$Z - mu_hat)))
+                      #deviance_part(theta, nug, self$X, self$Z, Kinv)
+
+      y <- self$Z - mu_hat
+      # Call Rcpparma function to calculate grad
+      if (overwhat == "theta") {
+        gr <- (deviance_grad_theta(self$X, K, Kinv, y))
+      } else if (overwhat == "nug") {
+        gr <- (deviance_grad_nug(self$X, K, Kinv, y))
+      } else if (overwhat == "joint") {
+        gr <- (deviance_grad_joint(self$X, K, Kinv, y))
+      }
+
+      return(list(fn=fn, gr=gr))
+    },
+    deviance_log2_fngr = function (beta=NULL, lognug=NULL, joint=NULL) {#browser()  # joint deviance
+      if (!is.null(joint)) {
+        beta <- joint[-length(joint)]
+        theta <- 10^beta
+        lognug <- joint[length(joint)]
+        nug <- 10^lognug
+      } else {
+        if (is.null(beta)) {theta <- self$theta; beta <- log(theta, 10)}
+        else theta <- 10^beta
+        if (is.null(lognug)) nug <- self$nug
+        else nug <- 10^lognug
+        joint <- c(beta, lognug)
+      }
+      tmp <- self$deviance_fngr(theta=theta, nug=nug)
+      tmp[[2]] <- tmp[[2]] * 10^joint * log(10) # scale gradient only
+      tmp
     },
     deviance_LLH = function (theta=self$theta, nug=self$nug) { #browser()# joint deviance
       K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
@@ -554,12 +583,15 @@ GauPro <- R6Class(classname = "GauPro",
       if (theta.update & nug.update) {
         optim.func <- function(xx) {self$deviance_log2(joint=xx)}
         grad.func <- function(xx) {self$deviance_log2_grad(joint=xx)}
+        optim.fngr <- function(xx) {self$deviance_log2_fngr(joint=xx)}
       } else if (theta.update & !nug.update) {
         optim.func <- function(xx) {self$deviance_log2(beta=xx)}
         grad.func <- function(xx) {self$deviance_log2_grad(beta=xx)}
+        optim.fngr <- function(xx) {self$deviance_log2_fngr(beta=xx)}
       } else if (!theta.update & nug.update) {
         optim.func <- function(xx) {self$deviance_log2(lognug=xx)}
         grad.func <- function(xx) {self$deviance_log2_grad(lognug=xx)}
+        optim.fngr <- function(xx) {self$deviance_log2_fngr(lognug=xx)}
       } else {
         stop("Can't optimize over no variables")
       }
@@ -591,9 +623,9 @@ GauPro <- R6Class(classname = "GauPro",
       sys_name <- Sys.info()["sysname"]
       if (sys_name == "Windows") {
         # Trying this so it works on Windows
-        restarts.out <- lapply( 1:(1+restarts), function(i){self$optimRestart2(start.par=start.par, start.par0=start.par0, theta.update=theta.update, nug.update=nug.update, optim.func=optim.func, grad.func=grad.func, lower=lower, upper=upper, jit=(i!=1))})#, mc.cores = parallel.cores)
+        restarts.out <- lapply( 1:(1+restarts), function(i){self$optimRestart2(start.par=start.par, start.par0=start.par0, theta.update=theta.update, nug.update=nug.update, optim.func=optim.func, grad.func=grad.func, optim.fngr=optim.fngr, lower=lower, upper=upper, jit=(i!=1))})#, mc.cores = parallel.cores)
       } else { # Mac/Unix
-        restarts.out <- parallel::mclapply(1:(1+restarts), function(i){self$optimRestart2(start.par=start.par, start.par0=start.par0, theta.update=theta.update, nug.update=nug.update, optim.func=optim.func, grad.func=grad.func, lower=lower, upper=upper, jit=(i!=1))}, mc.cores = parallel.cores)
+        restarts.out <- parallel::mclapply(1:(1+restarts), function(i){self$optimRestart2(start.par=start.par, start.par0=start.par0, theta.update=theta.update, nug.update=nug.update, optim.func=optim.func, grad.func=grad.func, optim.fngr=optim.fngr,lower=lower, upper=upper, jit=(i!=1))}, mc.cores = parallel.cores)
       }
       new.details <- t(sapply(restarts.out,function(dd){dd$deta}))
       vals <- sapply(restarts.out,
@@ -612,7 +644,7 @@ GauPro <- R6Class(classname = "GauPro",
       if (nug.update) best$par[length(best$par)] <- 10 ^ (best$par[length(best$par)])
       best
     },
-    optimRestart2 = function (start.par, start.par0, theta.update, nug.update, optim.func, grad.func, lower, upper, jit=T) {
+    optimRestart2 = function (start.par, start.par0, theta.update, nug.update, optim.func, grad.func, optim.fngr, lower, upper, jit=T) {
       # FOR lognug RIGHT NOW, seems to be at least as fast, up to 5x on big data, many fewer func_evals
       #    still want to check if it is better or not
       #browser()
@@ -629,8 +661,12 @@ GauPro <- R6Class(classname = "GauPro",
       if (self$verbose >= 2) {cat("\tRestart (parallel): starts pars =",start.par.i,"\n")}
       #browser()
       current <- try(
-        if (self$useGrad) lbfgs::lbfgs(optim.func, grad.func, start.par.i, invisible=1)
-        else optim(start.par.i, optim.func, method="L-BFGS-B", lower=lower, upper=upper, hessian=F)
+        if (self$useGrad) {
+          #lbfgs::lbfgs(optim.func, grad.func, start.par.i, invisible=1)
+          lbfgs_share(optim.fngr, start.par.i, invisible=1) # 1.7x speedup uses grad_share
+        } else {
+          optim(start.par.i, optim.func, method="L-BFGS-B", lower=lower, upper=upper, hessian=F)
+        }
       )
       if (self$useGrad) {current$counts <- c(NA,NA);if(is.null(current$message))current$message=NA}
       if (!inherits(current, "try-error")) {

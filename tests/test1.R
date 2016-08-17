@@ -92,6 +92,8 @@ xnug <- 10 ^ (seq(-8,-1,length.out = 1000))
 plot(xnug[1:999], diff(nugdev(xnug))/diff(xnug), log=c("x","y"))
 plot(diff(nugdev(xnug))/diff(xnug), nuggrad(xnug[1:999]))
 
+# Check fngr
+microbenchmark::microbenchmark(gp$deviance_fngr(), {gp$deviance();gp$deviance_gradC()}, {gp$devianceC();gp$deviance_gradC()})
 
 # 2D test
 n <- 80
@@ -129,7 +131,7 @@ gpf$mod[[1]]
 
 
 # higher dim test
-n <- 120
+n <- 200
 d <- 4
 x <- matrix(runif(n*d), ncol=d)
 f1 <- function(a) {sum(sin(1:d*pi/a))}
