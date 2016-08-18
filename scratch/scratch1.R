@@ -95,6 +95,12 @@ plot(diff(nugdev(xnug))/diff(xnug), nuggrad(xnug[1:999]))
 # Check fngr
 microbenchmark::microbenchmark(gp$deviance_fngr(), {gp$deviance();gp$deviance_gradC()}, {gp$devianceC();gp$deviance_gradC()})
 
+# Check LLH and grad
+curve(sapply(10^x, gp$deviance_LLH_grad),-10,10, n = 300,ylim=c(-4e7,10)) # deviance profile
+curve(sapply(10^x, function(a)numDeriv::grad(gp$deviance_LLH,a)),-10,10, n = 300) # deviance profile
+tx <- seq(-4,4,length.out = 200)
+plot(sapply(10^tx, gp$deviance_LLH_grad), sapply(10^tx, function(a)numDeriv::grad(gp$deviance_LLH,a)))
+
 # 2D test
 n <- 80
 x <- matrix(runif(n*2), ncol=2)

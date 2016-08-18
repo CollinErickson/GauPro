@@ -333,7 +333,7 @@ GauPro <- R6::R6Class(classname = "GauPro",
       tmp[[2]] <- tmp[[2]] * 10^joint * log(10) # scale gradient only
       tmp
     },
-    deviance_LLH = function (theta=self$theta, nug=self$nug) { #browser()# joint deviance
+    deviance_LLH = function (theta=self$theta, nug=self$nug) {
       K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
       Kchol <- try(chol(K))
       if (inherits(Kchol, "try-error")) {return(Inf)}
@@ -342,7 +342,7 @@ GauPro <- R6::R6Class(classname = "GauPro",
       logdetK <- 2 * sum(log(diag(Kchol)))
       logdetK + (t(self$Z - mu_hat) %*% (Kinv %*% (self$Z - mu_hat)))
     },
-    deviance_log_LLH = function (beta=NULL, nug=self$nug, joint=NULL) {#browser()  # joint deviance
+    deviance_LLH_log = function (beta=NULL, nug=self$nug, joint=NULL) {
       if (!is.null(joint)) {
         beta <- joint[-length(joint)]
         theta <- 10^beta
@@ -352,6 +352,120 @@ GauPro <- R6::R6Class(classname = "GauPro",
         else theta <- 10^beta
       }
       self$deviance_LLH(theta=theta, nug=nug)
+    },
+    deviance_LLH_log2 = function (beta=NULL, lognug=NULL, joint=NULL) {
+      # This takes nug on log scale
+      if (!is.null(joint)) {
+        beta <- joint[-length(joint)]
+        theta <- 10^beta
+        nug <- 10^joint[length(joint)]
+      } else {
+        if (is.null(beta)) theta <- self$theta
+        else theta <- 10^beta
+        if (is.null(lognug)) nug <- self$nug
+        else nug <- 10^lognug
+      }
+      self$deviance(theta=theta, nug=nug)
+    },
+    deviance_LLH_grad = function (theta=self$theta, nug=self$nug) {
+      # This agrees with numDeriv for deviance_LLH in 1D
+      K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
+      Kchol <- try(chol(K))
+      if (inherits(Kchol, "try-error")) {return(Inf)}
+      Kinv <- chol2inv(Kchol)
+      mu_hat <- sum(Kinv %*% self$Z) / sum(Kinv)
+      y <- self$Z - mu_hat
+      Kinv.y <- Kinv %*% y
+      t2a <- -self$N / (t(y)%*%Kinv.y)
+      dD <- rep(NA,self$D)
+      alphaKinv <- Kinv.y %*% t(Kinv.y) - Kinv
+      for(i in 1:self$D) {
+        dK <- K
+        for(j in 1:self$N) {
+          for(k in 1:self$N) {
+            dK[j, k] <- -(self$X[j,i]-self$X[k,i])^2 * dK[j, k]
+          }
+        }
+        t1 <- sum(sapply(1:self$N, function(ii) {sum(alphaKinv[ii,] * dK[,ii])}))
+        #t2 <- t2a * t(Kinv.y) %*% dK %*% Kinv.y
+        dD[i] <- -2 * t1#+t2
+      }
+      dD
+    },
+    deviance_LLH_log_grad = function (beta=NULL, nug=self$nug, joint=NULL) {
+      if (!is.null(joint)) {
+        beta <- joint[-length(joint)]
+        theta <- 10^beta
+        nug <- joint[length(joint)]
+      } else {
+        if (is.null(beta)) {theta <- self$theta; beta <- log(theta, 10)}
+        else theta <- 10^beta
+      }
+      dg <- self$deviance_LLH_grad(theta=theta, nug=nug)
+      dg[1:self$theta_length] <- dg[1:self$theta_length] * 10^beta * log(10)
+      dg
+    },
+    deviance_LLH_log2_grad = function (beta=NULL, lognug=NULL, joint=NULL) {
+      if (!is.null(joint)) {
+        beta <- joint[-length(joint)]
+        theta <- 10^beta
+        lognug <- joint[length(joint)]
+        nug <- 10^lognug
+      } else {
+        if (is.null(beta)) {theta <- self$theta; beta <- log(theta, 10)}
+        else theta <- 10^beta
+        if (is.null(lognug)) nug <- self$nug
+        else nug <- 10^lognug
+        joint <- c(beta, lognug)
+      }
+      self$deviance_LLH_grad(theta=theta, nug=nug) * 10^joint * log(10)
+    },
+    deviance_LLH_fngr = function (theta=self$theta, nug=self$nug, overwhat=if (self$nug.est) "joint" else "theta") {
+      #
+      K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
+      Kchol <- try(chol(K))
+      if (inherits(Kchol, "try-error")) {return(Inf)}
+      Kinv <- chol2inv(Kchol)
+      mu_hat <- sum(Kinv %*% self$Z) / sum(Kinv)
+      logdetK <- 2 * sum(log(diag(Kchol)))
+      fn <- logdetK + (t(self$Z - mu_hat) %*% (Kinv %*% (self$Z - mu_hat)))
+
+      y <- self$Z - mu_hat
+      Kinv.y <- Kinv %*% y
+      t2a <- -self$N / (t(y)%*%Kinv.y)
+      dD <- rep(NA,self$D)
+      alphaKinv <- Kinv.y %*% t(Kinv.y) - Kinv
+      for(i in 1:self$D) {
+        dK <- K
+        for(j in 1:self$N) {
+          for(k in 1:self$N) {
+            dK[j, k] <- -(self$X[j,i]-self$X[k,i])^2 * dK[j, k]
+          }
+        }
+        t1 <- sum(sapply(1:self$N, function(ii) {sum(alphaKinv[ii,] * dK[,ii])}))
+        #t2 <- t2a * t(Kinv.y) %*% dK %*% Kinv.y
+        dD[i] <- -2 * t1#+t2
+      }
+      dD
+
+      return(list(fn=fn, gr=dD))
+    },
+    deviance_LLH_log2_fngr = function (beta=NULL, lognug=NULL, joint=NULL) {
+      if (!is.null(joint)) {
+        beta <- joint[-length(joint)]
+        theta <- 10^beta
+        lognug <- joint[length(joint)]
+        nug <- 10^lognug
+      } else {
+        if (is.null(beta)) {theta <- self$theta; beta <- log(theta, 10)}
+        else theta <- 10^beta
+        if (is.null(lognug)) nug <- self$nug
+        else nug <- 10^lognug
+        joint <- c(beta, lognug)
+      }
+      tmp <- self$deviance_LLH_fngr(theta=theta, nug=nug)
+      tmp[[2]] <- tmp[[2]] * 10^joint * log(10) # scale gradient only
+      tmp
     },
     optimOld = function (restarts = 5, theta.update = T, nug.update = self$nug.est) {#browser()
       # Joint MLE search with L-BFGS-B, with restarts

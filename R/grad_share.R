@@ -50,3 +50,15 @@ lbfgs_share <- function(fngr, vars, method=NULL,...) {
 }
 #lbfgs_share(vars=c(3, -5), fngr=quad_share)
 #parallel::mclapply(1:10, function(i)lbfgs_share(vars=runif(2,-10,10), fngr=quad_share, invisible=1), mc.cores=1)
+
+make_share <- function(func, arg_fn, arg_gr) {
+  function(fngr, ...) {
+    env <- grad_share(fngr)
+    args_list <- list(env$fn, env$gr, ...)
+    names(args_list)[1] <- arg_fn
+    names(args_list)[2] <- arg_gr
+    do.call(what=func, args=args_list)
+  }
+}
+# make_share(lbfgs::lbfgs, 'call_eval', 'call_grad')
+# make_share(lbfgs::lbfgs, 'call_eval', 'call_grad')(quad_share, vars=c(5,-4))
