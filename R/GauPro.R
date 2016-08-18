@@ -5,6 +5,7 @@
 #' @export
 #' @useDynLib GauPro
 #' @importFrom Rcpp evalCpp
+#' @importFrom stats optim
 #' @keywords data, kriging, Gaussian process, regression
 #' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
 #' @format \code{\link{R6Class}} object.
@@ -12,7 +13,7 @@
 #' n <- 12
 #' x <- matrix(seq(0,1,length.out = n), ncol=1)
 #' y <- sin(2*pi*x) + rnorm(n,0,1e-1)
-#' gp <- GauPro$new(X=x, Z=y)
+#' gp <- GauPro$new(X=x, Z=y, parallel=FALSE)
 #' @field X Design matrix
 #' @field Z Responses
 #' @field N Number of data points
@@ -53,10 +54,7 @@ GauPro <- R6::R6Class(classname = "GauPro",
     parallel.cores = NULL,
     useOptim2 = F,
     initialize = function(X, Z, corr="Gauss", verbose=0, separable=T, useC=F,useGrad=T,
-                          parallel=T, useOptim2=T, nug.est=T, ...) {#browser()
-      #for (item in list(...)) {
-      #  self$add(item)
-      #}
+                          parallel=T, useOptim2=T, nug.est=T, ...) {
       self$X <- X
       self$Z <- matrix(Z, ncol=1)
       #if (!is.null(corr)) {self$corr <- corr}
@@ -228,16 +226,13 @@ GauPro <- R6::R6Class(classname = "GauPro",
       }
       (if (self$useC) self$devianceC else self$deviance)(theta=theta, nug=nug)
     },
-    deviance_grad = function (theta=self$theta, nug=self$nug) { #browser()# joint deviance
+    deviance_grad = function (theta=self$theta, nug=self$nug) {
       # Works but DONT USE since deviance_gradC is 10x faster
       K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
       Kchol <- try(chol(K))
       if (inherits(Kchol, "try-error")) {return(Inf)}
       Kinv <- chol2inv(Kchol)
       mu_hat <- sum(Kinv %*% self$Z) / sum(Kinv)
-      #logdetK <- 2 * sum(log(diag(Kchol)))
-      #logdetK + self$N * log(t(self$Z - mu_hat) %*% (Kinv %*% (self$Z - mu_hat)))
-
       y <- self$Z - mu_hat
       Kinv.y <- Kinv %*% y
       t2a <- -self$N / (t(y)%*%Kinv.y)
@@ -249,21 +244,20 @@ GauPro <- R6::R6Class(classname = "GauPro",
             dK[j, k] <- -(self$X[j,i]-self$X[k,i])^2 * dK[j, k]
           }
         }
-        #t1 <- sum(diag(Kinv %*% dK))
         t1 <- sum(sapply(1:self$N, function(ii) {sum(Kinv[ii,] * dK[,ii])}))
         t2 <- t2a * t(Kinv.y) %*% dK %*% Kinv.y
         dD[i] <- t1+t2
       }
       dD
     },
-    deviance_gradC = function (theta=self$theta, nug=self$nug, overwhat=if (self$nug.est) "joint" else "theta") { #browser()# joint deviance
+    deviance_gradC = function (theta=self$theta, nug=self$nug, overwhat=if (self$nug.est) "joint" else "theta") {
       K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
       Kchol <- try(chol(K), silent = T)
       if (inherits(Kchol, "try-error")) {return(Inf)}
       Kinv <- chol2inv(Kchol)
       mu_hat <- sum(Kinv %*% self$Z) / sum(Kinv)
       y <- self$Z - mu_hat
-      # Call Rcpparma function to calculate grad
+      # Call RcppArmadillo function to calculate grad
       if (overwhat == "theta") {
         return(deviance_grad_theta(self$X, K, Kinv, y))
       } else if (overwhat == "nug") {
@@ -272,7 +266,7 @@ GauPro <- R6::R6Class(classname = "GauPro",
         return(deviance_grad_joint(self$X, K, Kinv, y))
       }
     },
-    deviance_log_grad = function (beta=NULL, nug=self$nug, joint=NULL) {#browser()  # joint deviance
+    deviance_log_grad = function (beta=NULL, nug=self$nug, joint=NULL) {
       if (!is.null(joint)) {
         beta <- joint[-length(joint)]
         theta <- 10^beta
@@ -281,12 +275,11 @@ GauPro <- R6::R6Class(classname = "GauPro",
         if (is.null(beta)) {theta <- self$theta; beta <- log(theta, 10)}
         else theta <- 10^beta
       }
-      #self$deviance_gradC(theta=theta, nug=nug) * 10^beta * log(10) # this works if nug on log too
       dg <- self$deviance_gradC(theta=theta, nug=nug)
       dg[1:self$theta_length] <- dg[1:self$theta_length] * 10^beta * log(10)
       dg
     },
-    deviance_log2_grad = function (beta=NULL, lognug=NULL, joint=NULL) {#browser()  # joint deviance
+    deviance_log2_grad = function (beta=NULL, lognug=NULL, joint=NULL) {
       if (!is.null(joint)) {
         beta <- joint[-length(joint)]
         theta <- 10^beta
@@ -301,7 +294,7 @@ GauPro <- R6::R6Class(classname = "GauPro",
       }
       self$deviance_gradC(theta=theta, nug=nug) * 10^joint * log(10)
     },
-    deviance_fngr = function (theta=self$theta, nug=self$nug, overwhat=if (self$nug.est) "joint" else "theta") { #browser()# joint deviance
+    deviance_fngr = function (theta=self$theta, nug=self$nug, overwhat=if (self$nug.est) "joint" else "theta") {
       #
       K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
       Kchol <- try(chol(K), silent = T)
@@ -310,10 +303,9 @@ GauPro <- R6::R6Class(classname = "GauPro",
       mu_hat <- sum(Kinv %*% self$Z) / sum(Kinv)
       logdetK <- 2 * sum(log(diag(Kchol)))
       fn <- logdetK + self$N * log(t(self$Z - mu_hat) %*% (Kinv %*% (self$Z - mu_hat)))
-                      #deviance_part(theta, nug, self$X, self$Z, Kinv)
 
       y <- self$Z - mu_hat
-      # Call Rcpparma function to calculate grad
+      # Call RcppArmadillo function to calculate grad
       if (overwhat == "theta") {
         gr <- (deviance_grad_theta(self$X, K, Kinv, y))
       } else if (overwhat == "nug") {
@@ -324,7 +316,7 @@ GauPro <- R6::R6Class(classname = "GauPro",
 
       return(list(fn=fn, gr=gr))
     },
-    deviance_log2_fngr = function (beta=NULL, lognug=NULL, joint=NULL) {#browser()  # joint deviance
+    deviance_log2_fngr = function (beta=NULL, lognug=NULL, joint=NULL) {
       if (!is.null(joint)) {
         beta <- joint[-length(joint)]
         theta <- 10^beta

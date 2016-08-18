@@ -5,10 +5,13 @@ Version: 0.1.0
 Author: Collin Erickson
 Maintainer: Collin Erickson <collinberickson@gmail.com>
 Description: Fits a GP model to data.
-License: What license is it under?
+License: GPL-3
 LazyData: TRUE
 LinkingTo: Rcpp, RcppArmadillo
 Imports:
     Rcpp,
-    RcppArmadillo
+    RcppArmadillo,
+    R6,
+    lbfgs
 RoxygenNote: 5.0.1
+Suggests: testthat

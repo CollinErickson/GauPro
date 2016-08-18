@@ -137,7 +137,7 @@ x <- matrix(runif(n*d), ncol=d)
 f1 <- function(a) {sum(sin(1:d*pi/a))}
 y <- apply(x,1,f1) + rnorm(n,0,.1)
 gp <- GauPro$new(x,y, verbose=0, parallel=T, useC=F);c(gp$theta,gp$nug)
-microbenchmark::microbenchmark(GauPro$new(x,y, useOptim2=F), GauPro$new(x,y, useOptim2=T), times = 1)
+microbenchmark::microbenchmark(GauPro$new(x,y, useOptim2=F), GauPro$new(x,y, useOptim2=T), times = 10)
 microbenchmark::microbenchmark(GauPro$new(x,y), times = 100)
 nn <- 2000
 gp$pred(matrix(runif(nn*d),ncol=d))

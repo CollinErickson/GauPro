@@ -17,7 +17,7 @@ corr_gauss_matrix_noC <- function(x, x2=x, theta) {#browser()
 #' @export
 #'
 #' @examples
-#' corr_gauss_matrixC(1:10, 6:15, 1e-2/(1:10))
+#' corr_gauss_matrix(matrix(1:10,ncol=1), matrix(6:15,ncol=1), 1e-2/(1:10))
 corr_gauss_matrix <- function(x, x2=NULL, theta) {
   if (is.null(x2)) corr_gauss_matrix_symC(x, theta)
   else corr_gauss_matrixC(x, x2, theta)
