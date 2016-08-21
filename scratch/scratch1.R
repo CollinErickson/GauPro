@@ -3,7 +3,7 @@ n <- 12
 x <- matrix(seq(0,1,length.out = n), ncol=1)
 y <- sin(2*pi*x) + rnorm(n,0,1e-1)
 y <- sqrt(x)-x
-y <- (2*x) %%1
+#y <- (2*x) %%1
 plot(x,y)
 gp <- GauPro$new(X=x, Z=y, useLLH=F, useGrad=F)
 curve(gp$pred(x));points(x,y)
@@ -104,7 +104,7 @@ microbenchmark::microbenchmark(gp$deviance(), gp$devianceC(), gp$devianceCC(),ti
 # 2D test
 n <- 80
 x <- matrix(runif(n*2), ncol=2)
-f1 <- function(a) {sin(3*pi*a[1]) + sin(3*pi*a[2])}
+f1 <- function(a) {sin(2*pi*a[1]) + sin(3*pi*a[2])}
 #f1 <- TestFunctions::branin
 #f1 <- TestFunctions::RFF_get(D=2)
 y <- apply(x,1,f1) + rnorm(n,0,.01)
@@ -142,7 +142,7 @@ d <- 4
 x <- matrix(runif(n*d), ncol=d)
 f1 <- function(a) {sum(sin(1:d*pi/a))}
 y <- apply(x,1,f1) + rnorm(n,0,.1)
-gp <- GauPro$new(x,y, verbose=0, parallel=T, useC=F);c(gp$theta,gp$nug)
+gp <- GauPro$new(x,y, verbose=0, parallel=T, useC=T);c(gp$theta,gp$nug)
 microbenchmark::microbenchmark(GauPro$new(x,y, useOptim2=F), GauPro$new(x,y, useOptim2=T), times = 10)
 microbenchmark::microbenchmark(GauPro$new(x,y), times = 100)
 nn <- 2000
