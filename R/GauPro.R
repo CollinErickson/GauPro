@@ -204,7 +204,7 @@ GauPro <- R6::R6Class(classname = "GauPro",
       logdetK + deviance_part(theta, nug, self$X, self$Z, Kinv)
     },
     devianceCC = function (theta=self$theta, nug=self$nug) {
-      # Not faster than devianceC or even deviance
+      # 50% faster than devianceC and deviance on small,  twice on big
       K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
       devianceCC(theta, nug, self$X, self$Z, K)
     },
@@ -363,6 +363,11 @@ GauPro <- R6::R6Class(classname = "GauPro",
       logdetK <- 2 * sum(log(diag(Kchol)))
       logdetK + (t(self$Z - mu_hat) %*% (Kinv %*% (self$Z - mu_hat)))
     },
+    deviance_LLHC = function (theta=self$theta, nug=self$nug) {
+      # 50% faster than no C on small, 3.5x faster on big
+      K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
+      deviance_LLH(theta, nug, self$X, self$Z, K)
+    },
     deviance_LLH_log = function (beta=NULL, nug=self$nug, joint=NULL) {
       if (!is.null(joint)) {
         beta <- joint[-length(joint)]
@@ -418,6 +423,11 @@ GauPro <- R6::R6Class(classname = "GauPro",
       else if (overwhat == "nug") return(dD[self$D + 1])
       else stop("Overwhat not acceptable #971433")
     },
+    deviance_LLH_gradC = function (theta=self$theta, nug=self$nug) {
+      # 50% faster than no C on small, 3.5x faster on big
+      K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
+      deviance_LLH_grad_nug(self$X, self$Z, K)
+    },
     deviance_LLH_log_grad = function (beta=NULL, nug=self$nug, joint=NULL, overwhat=if (self$nug.est) "joint" else "theta") {
       if (!is.null(joint)) {
         beta <- joint[-length(joint)]
@@ -447,7 +457,6 @@ GauPro <- R6::R6Class(classname = "GauPro",
       self$deviance_LLH_grad(theta=theta, nug=nug, overwhat=overwhat) * 10^joint * log(10)
     },
     deviance_LLH_fngr = function (theta=self$theta, nug=self$nug, overwhat=if (self$nug.est) "joint" else "theta") {
-      # NEED TO IMPLMENT NUG GRAD AND OVERWHAT
       K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
       Kchol <- try(chol(K))
       if (inherits(Kchol, "try-error")) {return(Inf)}
@@ -458,7 +467,7 @@ GauPro <- R6::R6Class(classname = "GauPro",
 
       y <- self$Z - mu_hat
       Kinv.y <- Kinv %*% y
-      t2a <- -self$N / (t(y)%*%Kinv.y)
+      #t2a <- -self$N / (t(y)%*%Kinv.y)
       dD <- rep(NA,self$D + 1)
       alphaKinv <- Kinv.y %*% t(Kinv.y) - Kinv
       for(i in 1:self$D) {
@@ -472,13 +481,27 @@ GauPro <- R6::R6Class(classname = "GauPro",
         #t2 <- t2a * t(Kinv.y) %*% dK %*% Kinv.y
         dD[i] <- -2 * t1#+t2
       }
-      dD[self$D + 1] <- -2 * trace(alphaKinv)
+      dD[self$D + 1] <- -sum(diag(alphaKinv)) # don't think 2 should be in front, check it
       gr <- if (overwhat == "joint") dD
       else if (overwhat == "theta") dD[1:self$D]
       else if (overwhat == "nug") dD[self$D + 1]
       else stop("Overwhat not acceptable #971433")
 
-      return(list(fn=fn, gr=dD))
+      return(list(fn=fn, gr=gr))
+    },
+    deviance_LLH_fngrC = function (theta=self$theta, nug=self$nug, overwhat=if (self$nug.est) "joint" else "theta") {
+      # NOT WORKING!!!, grad no good, can't figure out why
+      K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
+      # Call RcppArmadillo function to calculate all
+      if (overwhat == "theta") {
+        fngr <- (deviance_LLH_fngr_theta(self$X, self$Z, K))
+      } else if (overwhat == "nug") {
+        fngr <- (deviance_LLH_fngr_nug(self$X, self$Z, K))
+      } else if (overwhat == "joint") {
+        fngr <- (deviance_LLH_fngr_joint(self$X, self$Z, K))
+      } else {stop("No overwhat given #935277")}
+
+      return(list(fn=fngr[1], gr=fngr[-1]))
     },
     deviance_LLH_log2_fngr = function (beta=NULL, lognug=NULL, joint=NULL, overwhat=if (self$nug.est) "joint" else "theta") {
       if (!is.null(joint)) {
