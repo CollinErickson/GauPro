@@ -28,7 +28,7 @@ arma::vec deviance_grad_theta(arma::mat X, arma::mat K, arma::mat Kinv, arma::ve
       t1 += sum(Kinv.row(ii) * dK.col(ii));
     }
     t2 = t2a * trans(Kinv_y) * dK * Kinv_y;
-    dD[i] = t1 + t2(0,0);
+    dD[i] = 2 * (t1 + t2(0,0));
   }
   return dD;
 }
@@ -78,7 +78,7 @@ arma::vec deviance_grad_joint(arma::mat X, arma::mat K, arma::mat Kinv, arma::ve
       t1 += sum(Kinv.row(ii) * dK.col(ii));
     }
     t2 = t2a * trans(Kinv_y) * dK * Kinv_y;
-    dD[i] = t1 + t2(0,0);
+    dD[i] = 2 * (t1 + t2(0,0));
   }
   // for nugget
   t1 = 0; // just the trace

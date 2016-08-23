@@ -108,30 +108,30 @@ f1 <- function(a) {sin(2*pi*a[1]) + sin(3*pi*a[2])}
 #f1 <- TestFunctions::branin
 #f1 <- TestFunctions::RFF_get(D=2)
 y <- apply(x,1,f1) + rnorm(n,0,.01)
-system.time(contourfilled::contourfilled.data(x,y))
+system.time(cf::cf_data(x,y))
 gp <- GauPro$new(x,y, verbose=2, useLLH=T);gp$theta
-system.time(contourfilled::contourfilled.func(gp$pred, pts=x))
+system.time(cf::cf_func(gp$pred, pts=x))
 plot(y,gp$pred(x));abline(a=0,b=1)
-microbenchmark(GauPro$new(x,y), GauPro$new(x,y), times = 10)
+microbenchmark::microbenchmark(GauPro$new(x,y), GauPro$new(x,y), times = 10)
 #system.time(print(gp$deviance_search()))
 #system.time(print(gp$deviance_search3()))
 c(gp$theta, gp$nug)
 gp$update()
 c(gp$theta, gp$nug)
-system.time(contourfilled::contourfilled.func(gp$pred, pts=x))
+system.time(cf::cf_func(gp$pred, pts=x))
 
-p$grad(matrix(c(.5, .75, .5, .83),2,2,byrow=T))
+#p$grad(matrix(c(.5, .75, .5, .83),2,2,byrow=T))
 gp$grad(matrix(c(.5, .75),1,2,byrow=T))
-contourfilled::contourfilled.func(function(xx){gp$grad(xx)[2]})
+cf::cf_func(function(xx){gp$grad(xx)[2]})
 gp$grad_norm(matrix(c(.5, .75, .5, .83),2,2,byrow=T))
 gp$grad_norm(c(.5,.5))
-contourfilled::contourfilled.func(function(xx){gp$grad_norm(xx)})
+cf::cf_func(function(xx){gp$grad_norm(xx)})
 
 #optim check, show contour of theta
-contourfilled::contourfilled.func(function(bet) {gp$deviance_log(beta = bet)}, xcontlim = c(-10,10), ycontlim = c(-10,10))
+cf::cf_func(function(bet) {gp$deviance_log(beta = bet)}, xlim = c(-10,10), ylim = c(-10,10))
 
 gpf <- UGP::UGP$new(X=x,Z=y, package="mlegp")
-gpf$mod[[1]]
+#gpf$mod[[1]]
 
 
 

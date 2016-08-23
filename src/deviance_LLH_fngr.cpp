@@ -4,8 +4,9 @@
 using namespace arma;
 
 
+
 // [[Rcpp::export]]
-arma::vec deviance_LLH_fngr_theta(arma::mat X, arma::vec Z, arma::mat K) {
+arma::vec deviance_LLH_fngr_theta(arma::mat X, arma::mat Z, arma::mat K) {
   int N = X.n_rows;
   int D = X.n_cols;
   arma::vec fngr = zeros(1 + D);
@@ -17,21 +18,14 @@ arma::vec deviance_LLH_fngr_theta(arma::mat X, arma::vec Z, arma::mat K) {
   double mu_hat = mu_hat_top / mu_hat_bottom;
   arma::vec y = Z - mu_hat;
   arma::vec Kinv_y = solve(trimatu(Kchol), solve(trimatl(Kchol.t()), Z - mu_hat));
-  double tmat = sum(trans(Z - mu_hat) * (Kinv_y));
+  double tmat = (sum(trans(Z - mu_hat) * (Kinv_y)));
   double logdetK = 2 * sum(log(diagvec(Kchol)));
-  //return logdetK + tmat;//(0,0);
-  fngr[0] = logdetK + tmat;//(0,0);
-
-  //arma::mat Kinv_y = Kinv * y;
-  //arma::mat t2amat = (trans(y) * Kinv_y);
-  //double t2a = -N / t2amat(0,0);
-  //arma::vec dD = zeros(D);
-  //double t1;
-  //arma::mat t2 = zeros(1,1);
+  fngr[0] = logdetK + tmat;
+  // Now calculate gradient
+  double t1;
   arma::mat dK = zeros(N,N);
+  // over thetas
   arma::mat Kcholtinv_dK = zeros(N, N);
-  arma::mat Kinv = inv_sympd(K);
-  arma::mat alphaKinv = Kinv_y * Kinv_y.t() - Kinv;
   for(int i = 0; i < D; i++) {
     dK = K;
     for(int j = 0; j < N; j++) {
@@ -40,28 +34,19 @@ arma::vec deviance_LLH_fngr_theta(arma::mat X, arma::vec Z, arma::mat K) {
         dK(j, k) = - pow(X(j,i) - X(k,i), 2) * dK(j, k);
       }
     }
-
-    // need to invert or something here, instead trying double solve and trace, no longer loop
-    /*t1 = 0;
-    Kcholtinv_dK = solve(trimatl(Kchol.t()), dK);
-    for (int ii = 0; ii < N; ii++) {
-    //t1 += sum(Kinv.row(ii) * dK.col(ii));
-    t1 += sum(Kchol.row(ii) * Kcholtinv_dK.col(ii));
-    }*/
-    //t1 = trace(solve(trimatu(Kchol), solve(trimatl(Kchol.t()), dK)));
-    //t2 = t2a * trans(Kinv_y) * dK * Kinv_y;
-    //fngr[1 + i] = t1 + t2(0,0);
-    fngr[1 + i] = -2 * trace(alphaKinv * dK);
+    t1 = trace(Kinv_y * Kinv_y.t() * dK - solve(trimatu(Kchol), solve(trimatl(Kchol.t()), dK)));
+    fngr[1 + i] = -2 * t1;
   }
-  //return dD;
   return fngr;
 }
 
+
+
+
 // [[Rcpp::export]]
-arma::vec deviance_LLH_fngr_nug(arma::mat X, arma::vec Z, arma::mat K) {
+arma::vec deviance_LLH_fngr_nug(arma::mat X, arma::mat Z, arma::mat K) {
   int N = X.n_rows;
-
-
+  //int D = X.n_cols;
   arma::vec fngr = zeros(1 + 1);
 
   arma::mat Kchol = chol(K);
@@ -71,18 +56,24 @@ arma::vec deviance_LLH_fngr_nug(arma::mat X, arma::vec Z, arma::mat K) {
   double mu_hat = mu_hat_top / mu_hat_bottom;
   arma::vec y = Z - mu_hat;
   arma::vec Kinv_y = solve(trimatu(Kchol), solve(trimatl(Kchol.t()), Z - mu_hat));
-  double tmat = sum(trans(Z - mu_hat) * (Kinv_y));
+  double tmat = (sum(trans(Z - mu_hat) * (Kinv_y)));
   double logdetK = 2 * sum(log(diagvec(Kchol)));
-  //return logdetK + tmat;//(0,0);
-  fngr[0] = logdetK + tmat;//(0,0);
-
-  arma::mat Kinv = inv(K);
-  Kinv_y = Kinv * y;
-  arma::mat alphaalphaKinv = Kinv_y * trans(Kinv_y) - Kinv;
-  //fngr[1] = - trace(Kinv * y * trans(y) * trans(Kinv) - Kinv);
-  fngr[1] = - trace(alphaalphaKinv);
+  fngr[0] = logdetK + tmat;
+  // Now calculate gradient
+  double t1;
+  // for nugget
+  t1 = 0; // just the trace
+  arma::mat Kchol_inv = inv(trimatu(Kchol));
+  for (int ii = 0; ii < N; ii++) {
+    t1 += pow(Kinv_y(ii), 2) - dot(Kchol_inv.row(ii), Kchol_inv.row(ii));
+  }
+  fngr[1] = -t1;
   return fngr;
 }
+
+
+
+
 
 
 // [[Rcpp::export]]
@@ -98,24 +89,14 @@ arma::vec deviance_LLH_fngr_joint(arma::mat X, arma::mat Z, arma::mat K) {
   double mu_hat = mu_hat_top / mu_hat_bottom;
   arma::vec y = Z - mu_hat;
   arma::vec Kinv_y = solve(trimatu(Kchol), solve(trimatl(Kchol.t()), Z - mu_hat));
-  double tmat = sum(trans(Z - mu_hat) * (Kinv_y));
+  double tmat = (sum(trans(Z - mu_hat) * (Kinv_y)));
   double logdetK = 2 * sum(log(diagvec(Kchol)));
-  //return logdetK + tmat;//(0,0);
-  fngr[0] = logdetK + tmat;//(0,0);
-
-
-  //arma::mat Kinv_y = Kinv * y;
-  //arma::mat t2amat = (trans(y) * Kinv_y);
-  //double t2a = -N / t2amat(0,0);
-  //arma::vec dD = zeros(D + 1);
-  //double t1;
-  //arma::mat t2 = zeros(1,1);
+  fngr[0] = logdetK + tmat;
+  // Now calculate gradient
+  double t1;
   arma::mat dK = zeros(N,N);
-
   // over thetas
   arma::mat Kcholtinv_dK = zeros(N, N);
-  arma::mat Kinv = inv(K);
-  arma::mat alphaKinv = Kinv_y * Kinv_y.t() - Kinv;
   for(int i = 0; i < D; i++) {
     dK = K;
     for(int j = 0; j < N; j++) {
@@ -124,30 +105,18 @@ arma::vec deviance_LLH_fngr_joint(arma::mat X, arma::mat Z, arma::mat K) {
         dK(j, k) = - pow(X(j,i) - X(k,i), 2) * dK(j, k);
       }
     }
-    //t1 = trace(solve(trimatu(Kchol), solve(trimatl(Kchol.t()), dK)));
-    //t2 = t2a * trans(Kinv_y) * dK * Kinv_y;
-    //dD[i] = t1 + t2(0,0);
-    //fngr[1 + i] = t1 + t2(0,0);
-    fngr[1 + i] = -2 * trace(alphaKinv * dK);
+    t1 = trace(Kinv_y * Kinv_y.t() * dK - solve(trimatu(Kchol), solve(trimatl(Kchol.t()), dK)));
+    fngr[1 + i] = -2 * t1;
   }
-
-
   // for nugget
-  /*t1 = 0; // just the trace
+  t1 = 0; // just the trace
   arma::mat Kchol_inv = inv(trimatu(Kchol));
   for (int ii = 0; ii < N; ii++) {
-    //t1 += Kinv(ii,ii); //sum(Kinv.row(ii) * dK.col(ii));
-    t1 += dot(Kchol_inv.row(ii), Kchol_inv.row(ii));
+    t1 += pow(Kinv_y(ii), 2) - dot(Kchol_inv.row(ii), Kchol_inv.row(ii));
   }
-  t2 = t2a * trans(Kinv_y) * Kinv_y;
-  //dD = t1 + t2(0,0);
-  fngr[1 + D] = t1 + t2(0,0);*/
-  fngr[1 + D] = - trace(alphaKinv);
-
-  //return dD;
+  fngr[1 + D] = -t1;
   return fngr;
 }
-
 
 
 

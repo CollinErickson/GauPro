@@ -53,6 +53,18 @@ deviance_LLH_fngr_joint <- function(X, Z, K) {
     .Call('GauPro_deviance_LLH_fngr_joint', PACKAGE = 'GauPro', X, Z, K)
 }
 
+deviance_LLH_grad_theta <- function(X, Z, K) {
+    .Call('GauPro_deviance_LLH_grad_theta', PACKAGE = 'GauPro', X, Z, K)
+}
+
+deviance_LLH_grad_nug <- function(X, Z, K) {
+    .Call('GauPro_deviance_LLH_grad_nug', PACKAGE = 'GauPro', X, Z, K)
+}
+
+deviance_LLH_grad_joint <- function(X, Z, K) {
+    .Call('GauPro_deviance_LLH_grad_joint', PACKAGE = 'GauPro', X, Z, K)
+}
+
 deviance_LLH <- function(theta, nug, X, Z, K) {
     .Call('GauPro_deviance_LLH', PACKAGE = 'GauPro', theta, nug, X, Z, K)
 }

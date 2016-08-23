@@ -50,7 +50,7 @@ arma::vec deviance_fngr_theta(arma::mat X, arma::vec Z, arma::mat K) {
 
     t2 = t2a * trans(Kinv_y) * dK * Kinv_y;
     //dD[i] = t1 + t2(0,0);
-    fngr[1 + i] = t1 + t2(0,0);
+    fngr[1 + i] = 2 * (t1 + t2(0,0));
   }
   //return dD;
   return fngr;
@@ -144,7 +144,7 @@ arma::vec deviance_fngr_joint(arma::mat X, arma::mat Z, arma::mat K) {
 
     t2 = t2a * trans(Kinv_y) * dK * Kinv_y;
     //dD[i] = t1 + t2(0,0);
-    fngr[1 + i] = t1 + t2(0,0);
+    fngr[1 + i] = 2 * (t1 + t2(0,0));
   }
 
 

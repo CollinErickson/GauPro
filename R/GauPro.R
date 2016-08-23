@@ -253,7 +253,40 @@ GauPro <- R6::R6Class(classname = "GauPro",
         }
         t1 <- sum(sapply(1:self$N, function(ii) {sum(Kinv[ii,] * dK[,ii])}))
         t2 <- t2a * t(Kinv.y) %*% dK %*% Kinv.y
-        dD[i] <- t1+t2
+        dD[i] <- 2 * (t1+t2)
+      }
+      dD
+    },
+    deviance_grad_fix = function (theta=self$theta, nug=self$nug) {
+      # Grad doesn't include d(mu)/d(theta), tried adding it here
+      #  If eqns are right, it makes a 1e-16 effect, so not worth it
+      K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
+      Kchol <- try(chol(K))
+      if (inherits(Kchol, "try-error")) {return(Inf)}
+      Kinv <- chol2inv(Kchol)
+      mu_hat <- sum(Kinv %*% self$Z) / sum(Kinv)
+      y <- self$Z - mu_hat
+      Kinv.y <- Kinv %*% y
+      t2a <- -self$N / (t(y)%*%Kinv.y)
+      dD <- rep(NA,self$D)
+      for(i in 1:self$D) {
+        dK <- K
+        for(j in 1:self$N) {
+          for(k in 1:self$N) {
+            dK[j, k] <- -(self$X[j,i]-self$X[k,i])^2 * dK[j, k]
+          }
+        }
+        # mu = A^-1 %*% B, use it to calculate grad more accurately
+        A <- sum(Kinv)
+        B <- sum(Kinv.y)
+        dA <- sum(Kinv)^2 * sum(Kinv %*% dK %*% Kinv)
+        dB <- sum(Kinv %*% dK %*% Kinv %*%y)
+        dmu = (A * dB - B * dA) / A^2
+        t1 <- sum(sapply(1:self$N, function(ii) {sum(Kinv[ii,] * dK[,ii])}))
+        t2 <- t2a * (t(Kinv.y) %*% dK %*% Kinv.y + - 2 * sum(Kinv.y) * dmu) # after including mu
+        print(c(t(Kinv.y) %*% dK %*% Kinv.y , - 2 * sum(Kinv.y) * dmu))
+        #t2 <- t2a * t(Kinv.y) %*% dK %*% Kinv.y # before mu
+        dD[i] <- 2 * (t1+t2)
       }
       dD
     },
@@ -403,7 +436,7 @@ GauPro <- R6::R6Class(classname = "GauPro",
       mu_hat <- sum(Kinv %*% self$Z) / sum(Kinv)
       y <- self$Z - mu_hat
       Kinv.y <- Kinv %*% y
-      t2a <- -self$N / (t(y)%*%Kinv.y)
+      #t2a <- -self$N / (t(y)%*%Kinv.y)
       dD <- rep(NA,self$D + 1)
       alphaKinv <- Kinv.y %*% t(Kinv.y) - Kinv
       for(i in 1:self$D) {
@@ -457,6 +490,7 @@ GauPro <- R6::R6Class(classname = "GauPro",
       self$deviance_LLH_grad(theta=theta, nug=nug, overwhat=overwhat) * 10^joint * log(10)
     },
     deviance_LLH_fngr = function (theta=self$theta, nug=self$nug, overwhat=if (self$nug.est) "joint" else "theta") {
+      # Is correct but VERY SLOW, don't use in optimization, C version is 40-300x faster
       K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
       Kchol <- try(chol(K))
       if (inherits(Kchol, "try-error")) {return(Inf)}
@@ -490,7 +524,7 @@ GauPro <- R6::R6Class(classname = "GauPro",
       return(list(fn=fn, gr=gr))
     },
     deviance_LLH_fngrC = function (theta=self$theta, nug=self$nug, overwhat=if (self$nug.est) "joint" else "theta") {
-      # NOT WORKING!!!, grad no good, can't figure out why
+      # Is correct, 40-300x faster than R version
       K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
       # Call RcppArmadillo function to calculate all
       if (overwhat == "theta") {
@@ -516,7 +550,7 @@ GauPro <- R6::R6Class(classname = "GauPro",
         else nug <- 10^lognug
         joint <- c(beta, lognug)
       }
-      tmp <- self$deviance_LLH_fngr(theta=theta, nug=nug, overwhat=overwhat)
+      tmp <- self$deviance_LLH_fngrC(theta=theta, nug=nug, overwhat=overwhat)
       tmp[[2]] <- tmp[[2]] * 10^joint * log(10) # scale gradient only
       tmp
     },
@@ -794,10 +828,10 @@ GauPro <- R6::R6Class(classname = "GauPro",
     },
     update_data = function(Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL) {
       if (!is.null(Xall)) {
-        self$X <- if (is.matrix(Xall)) Xall else matrix(Xall,ncol=1)
+        self$X <- if (is.matrix(Xall)) Xall else matrix(Xall,nrow=1)
         self$N <- nrow(self$X)
       } else if (!is.null(Xnew)) {
-        self$X <- rbind(self$X, if (is.matrix(Xnew)) Xnew else matrix(Xnew,ncol=1))
+        self$X <- rbind(self$X, if (is.matrix(Xnew)) Xnew else matrix(Xnew,nrow=1))
         self$N <- nrow(self$X)
       }
       if (!is.null(Zall)) {

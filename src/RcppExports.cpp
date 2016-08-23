@@ -136,26 +136,26 @@ BEGIN_RCPP
 END_RCPP
 }
 // deviance_LLH_fngr_theta
-arma::vec deviance_LLH_fngr_theta(arma::mat X, arma::vec Z, arma::mat K);
+arma::vec deviance_LLH_fngr_theta(arma::mat X, arma::mat Z, arma::mat K);
 RcppExport SEXP GauPro_deviance_LLH_fngr_theta(SEXP XSEXP, SEXP ZSEXP, SEXP KSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Z(ZSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type K(KSEXP);
     __result = Rcpp::wrap(deviance_LLH_fngr_theta(X, Z, K));
     return __result;
 END_RCPP
 }
 // deviance_LLH_fngr_nug
-arma::vec deviance_LLH_fngr_nug(arma::mat X, arma::vec Z, arma::mat K);
+arma::vec deviance_LLH_fngr_nug(arma::mat X, arma::mat Z, arma::mat K);
 RcppExport SEXP GauPro_deviance_LLH_fngr_nug(SEXP XSEXP, SEXP ZSEXP, SEXP KSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Z(ZSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type K(KSEXP);
     __result = Rcpp::wrap(deviance_LLH_fngr_nug(X, Z, K));
     return __result;
@@ -171,6 +171,45 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat >::type Z(ZSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type K(KSEXP);
     __result = Rcpp::wrap(deviance_LLH_fngr_joint(X, Z, K));
+    return __result;
+END_RCPP
+}
+// deviance_LLH_grad_theta
+arma::vec deviance_LLH_grad_theta(arma::mat X, arma::mat Z, arma::mat K);
+RcppExport SEXP GauPro_deviance_LLH_grad_theta(SEXP XSEXP, SEXP ZSEXP, SEXP KSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type K(KSEXP);
+    __result = Rcpp::wrap(deviance_LLH_grad_theta(X, Z, K));
+    return __result;
+END_RCPP
+}
+// deviance_LLH_grad_nug
+double deviance_LLH_grad_nug(arma::mat X, arma::mat Z, arma::mat K);
+RcppExport SEXP GauPro_deviance_LLH_grad_nug(SEXP XSEXP, SEXP ZSEXP, SEXP KSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type K(KSEXP);
+    __result = Rcpp::wrap(deviance_LLH_grad_nug(X, Z, K));
+    return __result;
+END_RCPP
+}
+// deviance_LLH_grad_joint
+arma::vec deviance_LLH_grad_joint(arma::mat X, arma::mat Z, arma::mat K);
+RcppExport SEXP GauPro_deviance_LLH_grad_joint(SEXP XSEXP, SEXP ZSEXP, SEXP KSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type K(KSEXP);
+    __result = Rcpp::wrap(deviance_LLH_grad_joint(X, Z, K));
     return __result;
 END_RCPP
 }
