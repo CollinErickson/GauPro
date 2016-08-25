@@ -50,11 +50,10 @@ GauPro <- R6::R6Class(classname = "GauPro",
     verbose = 0,
     useC = TRUE,
     useGrad = FALSE,
-    useLLH = FALSE,
     parallel = FALSE,
     parallel.cores = NULL,
     useOptim2 = FALSE,
-    initialize = function(X, Z, corr="Gauss", verbose=0, separable=T, useC=F,useGrad=T,useLLH=F,
+    initialize = function(X, Z, corr="Gauss", verbose=0, separable=T, useC=F,useGrad=T,
                           parallel=T, useOptim2=T, nug.est=T, ...) {
       self$X <- X
       self$Z <- matrix(Z, ncol=1)
@@ -87,7 +86,6 @@ GauPro <- R6::R6Class(classname = "GauPro",
       self$nug.est <- nug.est
       self$useC <- useC
       self$useGrad <- useGrad
-      self$useLLH <- useLLH
       self$parallel <- parallel
       if (self$parallel) {self$parallel.cores <- parallel::detectCores()}
       else {self$parallel.cores <- 1}
@@ -387,173 +385,6 @@ GauPro <- R6::R6Class(classname = "GauPro",
       tmp[[2]] <- tmp[[2]] * 10^joint * log(10) # scale gradient only
       tmp
     },
-    deviance_LLH = function (theta=self$theta, nug=self$nug) {
-      K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
-      Kchol <- try(chol(K))
-      if (inherits(Kchol, "try-error")) {return(Inf)}
-      Kinv <- chol2inv(Kchol)
-      mu_hat <- sum(Kinv %*% self$Z) / sum(Kinv)
-      logdetK <- 2 * sum(log(diag(Kchol)))
-      logdetK + (t(self$Z - mu_hat) %*% (Kinv %*% (self$Z - mu_hat)))
-    },
-    deviance_LLHC = function (theta=self$theta, nug=self$nug) {
-      # 50% faster than no C on small, 3.5x faster on big
-      K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
-      deviance_LLH(theta, nug, self$X, self$Z, K)
-    },
-    deviance_LLH_log = function (beta=NULL, nug=self$nug, joint=NULL) {
-      if (!is.null(joint)) {
-        beta <- joint[-length(joint)]
-        theta <- 10^beta
-        nug <- joint[length(joint)]
-      } else {
-        if (is.null(beta)) theta <- self$theta
-        else theta <- 10^beta
-      }
-      self$deviance_LLH(theta=theta, nug=nug)
-    },
-    deviance_LLH_log2 = function (beta=NULL, lognug=NULL, joint=NULL) {
-      # This takes nug on log scale
-      if (!is.null(joint)) {
-        beta <- joint[-length(joint)]
-        theta <- 10^beta
-        nug <- 10^joint[length(joint)]
-      } else {
-        if (is.null(beta)) theta <- self$theta
-        else theta <- 10^beta
-        if (is.null(lognug)) nug <- self$nug
-        else nug <- 10^lognug
-      }
-      self$deviance_LLH(theta=theta, nug=nug)
-    },
-    deviance_LLH_grad = function (theta=self$theta, nug=self$nug, overwhat=if (self$nug.est) "joint" else "theta") {#browser()
-      # This agrees with numDeriv for deviance_LLH in 1D
-      # NEED TO IMPLEMENT NUG GRAD AND OVERWHAT
-      K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
-      Kchol <- try(chol(K))
-      if (inherits(Kchol, "try-error")) {return(Inf)}
-      Kinv <- chol2inv(Kchol)
-      mu_hat <- sum(Kinv %*% self$Z) / sum(Kinv)
-      y <- self$Z - mu_hat
-      Kinv.y <- Kinv %*% y
-      #t2a <- -self$N / (t(y)%*%Kinv.y)
-      dD <- rep(NA,self$D + 1)
-      alphaKinv <- Kinv.y %*% t(Kinv.y) - Kinv
-      for(i in 1:self$D) {
-        dK <- K
-        for(j in 1:self$N) {
-          for(k in 1:self$N) {
-            dK[j, k] <- -(self$X[j,i]-self$X[k,i])^2 * dK[j, k]
-          }
-        }
-        t1 <- sum(sapply(1:self$N, function(ii) {sum(alphaKinv[ii,] * dK[,ii])}))
-        #t2 <- t2a * t(Kinv.y) %*% dK %*% Kinv.y
-        dD[i] <- -2 * t1#+t2
-      }
-      dD[self$D + 1] <- - sum(diag(alphaKinv))
-      if (overwhat == "joint") return(dD)
-      else if (overwhat == "theta") return(dD[1:self$D])
-      else if (overwhat == "nug") return(dD[self$D + 1])
-      else stop("Overwhat not acceptable #971433")
-    },
-    deviance_LLH_gradC = function (theta=self$theta, nug=self$nug) {
-      # 50% faster than no C on small, 3.5x faster on big
-      K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
-      deviance_LLH_grad_nug(self$X, self$Z, K)
-    },
-    deviance_LLH_log_grad = function (beta=NULL, nug=self$nug, joint=NULL, overwhat=if (self$nug.est) "joint" else "theta") {
-      if (!is.null(joint)) {
-        beta <- joint[-length(joint)]
-        theta <- 10^beta
-        nug <- joint[length(joint)]
-      } else {
-        if (is.null(beta)) {theta <- self$theta; beta <- log(theta, 10)}
-        else theta <- 10^beta
-      }
-      dg <- self$deviance_LLH_grad(theta=theta, nug=nug, overwhat=overwhat)
-      if (overwhat != "nug") {dg[1:self$theta_length] <- dg[1:self$theta_length] * 10^beta * log(10)}
-      dg
-    },
-    deviance_LLH_log2_grad = function (beta=NULL, lognug=NULL, joint=NULL, overwhat=if (self$nug.est) "joint" else "theta") {#browser()
-      if (!is.null(joint)) {
-        beta <- joint[-length(joint)]
-        theta <- 10^beta
-        lognug <- joint[length(joint)]
-        nug <- 10^lognug
-      } else {
-        if (is.null(beta)) {theta <- self$theta; beta <- log(theta, 10)}
-        else theta <- 10^beta
-        if (is.null(lognug)) {nug <- self$nug; lognug <- log(nug, 10)}
-        else nug <- 10^lognug
-        joint <- c(beta, lognug)
-      }
-      self$deviance_LLH_grad(theta=theta, nug=nug, overwhat=overwhat) * 10^joint * log(10)
-    },
-    deviance_LLH_fngr = function (theta=self$theta, nug=self$nug, overwhat=if (self$nug.est) "joint" else "theta") {
-      # Is correct but VERY SLOW, don't use in optimization, C version is 40-300x faster
-      K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
-      Kchol <- try(chol(K))
-      if (inherits(Kchol, "try-error")) {return(Inf)}
-      Kinv <- chol2inv(Kchol)
-      mu_hat <- sum(Kinv %*% self$Z) / sum(Kinv)
-      logdetK <- 2 * sum(log(diag(Kchol)))
-      fn <- logdetK + (t(self$Z - mu_hat) %*% (Kinv %*% (self$Z - mu_hat)))
-
-      y <- self$Z - mu_hat
-      Kinv.y <- Kinv %*% y
-      #t2a <- -self$N / (t(y)%*%Kinv.y)
-      dD <- rep(NA,self$D + 1)
-      alphaKinv <- Kinv.y %*% t(Kinv.y) - Kinv
-      for(i in 1:self$D) {
-        dK <- K
-        for(j in 1:self$N) {
-          for(k in 1:self$N) {
-            dK[j, k] <- -(self$X[j,i]-self$X[k,i])^2 * dK[j, k]
-          }
-        }
-        t1 <- sum(sapply(1:self$N, function(ii) {sum(alphaKinv[ii,] * dK[,ii])}))
-        #t2 <- t2a * t(Kinv.y) %*% dK %*% Kinv.y
-        dD[i] <- -2 * t1#+t2
-      }
-      dD[self$D + 1] <- -sum(diag(alphaKinv)) # don't think 2 should be in front, check it
-      gr <- if (overwhat == "joint") dD
-      else if (overwhat == "theta") dD[1:self$D]
-      else if (overwhat == "nug") dD[self$D + 1]
-      else stop("Overwhat not acceptable #971433")
-
-      return(list(fn=fn, gr=gr))
-    },
-    deviance_LLH_fngrC = function (theta=self$theta, nug=self$nug, overwhat=if (self$nug.est) "joint" else "theta") {
-      # Is correct, 40-300x faster than R version
-      K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
-      # Call RcppArmadillo function to calculate all
-      if (overwhat == "theta") {
-        fngr <- (deviance_LLH_fngr_theta(self$X, self$Z, K))
-      } else if (overwhat == "nug") {
-        fngr <- (deviance_LLH_fngr_nug(self$X, self$Z, K))
-      } else if (overwhat == "joint") {
-        fngr <- (deviance_LLH_fngr_joint(self$X, self$Z, K))
-      } else {stop("No overwhat given #935277")}
-
-      return(list(fn=fngr[1], gr=fngr[-1]))
-    },
-    deviance_LLH_log2_fngr = function (beta=NULL, lognug=NULL, joint=NULL, overwhat=if (self$nug.est) "joint" else "theta") {
-      if (!is.null(joint)) {
-        beta <- joint[-length(joint)]
-        theta <- 10^beta
-        lognug <- joint[length(joint)]
-        nug <- 10^lognug
-      } else {
-        if (is.null(beta)) {theta <- self$theta; beta <- log(theta, 10)}
-        else theta <- 10^beta
-        if (is.null(lognug)) nug <- self$nug
-        else nug <- 10^lognug
-        joint <- c(beta, lognug)
-      }
-      tmp <- self$deviance_LLH_fngrC(theta=theta, nug=nug, overwhat=overwhat)
-      tmp[[2]] <- tmp[[2]] * 10^joint * log(10) # scale gradient only
-      tmp
-    },
     optim = function (restarts = 5, theta.update = T, nug.update = self$nug.est, parallel=self$parallel, parallel.cores=self$parallel.cores) {#browser()
       # Does parallel
       # Joint MLE search with L-BFGS-B, with restarts
@@ -643,29 +474,14 @@ GauPro <- R6::R6Class(classname = "GauPro",
         optim.func <- function(xx) {self$deviance_log2(joint=xx)}
         grad.func <- function(xx) {self$deviance_log2_grad(joint=xx)}
         optim.fngr <- function(xx) {self$deviance_log2_fngr(joint=xx)}
-        if (self$useLLH) {
-          optim.func <- function(xx) {self$deviance_LLH_log2(joint=xx)}
-          grad.func <- function(xx) {self$deviance_LLH_log2_grad(joint=xx)}
-          optim.fngr <- NULL#function(xx) {self$deviance_log2_fngr(joint=xx)}
-        }
       } else if (theta.update & !nug.update) {
         optim.func <- function(xx) {self$deviance_log2(beta=xx)}
         grad.func <- function(xx) {self$deviance_log2_grad(beta=xx)}
         optim.fngr <- function(xx) {self$deviance_log2_fngr(beta=xx)}
-        if (self$useLLH) {
-          optim.func <- function(xx) {self$deviance_LLH_log2(beta=xx)}
-          grad.func <- function(xx) {self$deviance_LLH_log2_grad(beta=xx)}
-          optim.fngr <- NULL#function(xx) {self$deviance_log2_fngr(joint=xx)}
-        }
       } else if (!theta.update & nug.update) {
         optim.func <- function(xx) {self$deviance_log2(lognug=xx)}
         grad.func <- function(xx) {self$deviance_log2_grad(lognug=xx)}
         optim.fngr <- function(xx) {self$deviance_log2_fngr(lognug=xx)}
-        if (self$useLLH) {
-          optim.func <- function(xx) {self$deviance_LLH_log2(lognug=xx)}
-          grad.func <- function(xx) {self$deviance_LLH_log2_grad(lognug=xx)}
-          optim.fngr <- NULL#function(xx) {self$deviance_log2_fngr(joint=xx)}
-        }
       } else {
         stop("Can't optimize over no variables")
       }
