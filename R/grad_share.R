@@ -25,6 +25,30 @@ grad_share <- function(fn_gr) {
   env
 }
 
+
+fngr <- function(fn_gr, check_all=FALSE, recalculate_indices = 1) {
+  env <- new.env()
+  env$f <- function(i, check=check_all, recalculate = any(i==recalculate_indices)) {
+    function(x=NULL, check_now=check, recalculate_now=recalculate) {
+      if (recalculate_now) {
+        out <- fn_gr(x)
+        env$x_last <- x
+        env$out <- out
+        out[[1]]
+      } else {
+        # Can check if evaluated at same value, but will only slow it down
+        if (check_now) {
+          if (!is.null(x) && !any(is.nan(x)) && x != env$x_last) {
+            warning("gr called at different x than fn")
+          }
+        }
+      }
+      env$out[[i]]
+    }
+  }
+  env
+}
+
 quad_share <- function(x){list(sum(x^4), 4*x^3)}
 
 #grad_share(quad_share)
