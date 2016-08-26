@@ -2,10 +2,10 @@
 n <- 12
 x <- matrix(seq(0,1,length.out = n), ncol=1)
 y <- sin(2*pi*x) + rnorm(n,0,1e-1)
-y <- sqrt(x)-x
-#y <- (2*x) %%1
+#y <- sqrt(x)-x
+y <- (2*x) %%1
 plot(x,y)
-gp <- GauPro$new(X=x, Z=y, useLLH=F, useGrad=F)
+gp <- GauPro$new(X=x, Z=y, useGrad=F, verbose=2)
 curve(gp$pred(x));points(x,y)
 curve(gp$pred(x)+2*gp$pred(x,T)$se,col=2,add=T);curve(gp$pred(x)-2*gp$pred(x,T)$se,col=2,add=T)
 curve(sapply(x, gp$deviance_theta_log),-10,10, n = 300) # deviance profile
@@ -89,13 +89,6 @@ plot(diff(nugdev(xnug))/diff(xnug), nuggrad(xnug[1:999]))
 # Check fngr
 microbenchmark::microbenchmark(gp$deviance_fngr(), {gp$deviance();gp$deviance_gradC()}, {gp$devianceC();gp$deviance_gradC()})
 
-# Check LLH and grad
-curve(sapply(10^x, gp$deviance_LLH_grad),-10,10, n = 300,ylim=c(-4e7,10)) # deviance profile
-curve(sapply(10^x, function(a)numDeriv::grad(gp$deviance_LLH,a)),-10,10, n = 300) # deviance profile
-tx <- seq(-4,4,length.out = 200)
-plot(sapply(10^tx, gp$deviance_LLH_grad), sapply(10^tx, function(a)numDeriv::grad(gp$deviance_LLH,a)))
-numDeriv::grad(function(a)gp$deviance_LLH_log2(joint=a), log(c(gp$theta, gp$nug),10))
-gp$deviance_LLH_log2_grad()
 
 # Check deviance speeds
 microbenchmark::microbenchmark(gp$deviance(), gp$devianceC(), gp$devianceCC(),times=1e4)

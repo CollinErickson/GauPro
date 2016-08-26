@@ -99,8 +99,15 @@ GauPro <- R6::R6Class(classname = "GauPro",
       self$update()
     },
     update_params = function () {#browser()
-      self$K <- self$corr_func(self$X, theta=self$theta) + diag(self$nug, self$N)
-      self$Kchol <- chol(self$K)
+      while(T) {
+        self$K <- self$corr_func(self$X, theta=self$theta) + diag(self$nug, self$N)
+        try.chol <- try(self$Kchol <- chol(self$K), silent = T)
+        if (!inherits(try.chol, "try-error")) {break}
+        warning("Can't Cholesky, increasing nugget #7819553")
+        oldnug <- self$nug
+        self$nug <- max(1e-8, 2 * self$nug)
+        print(c(oldnug, self$nug))
+      }
       self$Kinv <- chol2inv(self$Kchol)
       self$mu_hat <- sum(self$Kinv %*% self$Z) / sum(self$Kinv)
       self$s2_hat <- c(t(self$Z - self$mu_hat) %*% self$Kinv %*% (self$Z - self$mu_hat) / self$N)
@@ -485,6 +492,16 @@ GauPro <- R6::R6Class(classname = "GauPro",
       } else {
         stop("Can't optimize over no variables")
       }
+
+      # This will make sure it at least can start
+      # Run before it sets initial parameters
+      try.devlog <- try(devlog <- self$deviance_log2(), silent = T)
+      if (inherits(try.devlog, "try-error")) {
+        warning("Current nugget doesn't work, increasing it #31973")
+        self$update_params() # This will increase the nugget
+        devlog <- self$deviance_log2()
+      }
+
       lower <- c()
       upper <- c()
       start.par <- c()
@@ -504,9 +521,10 @@ GauPro <- R6::R6Class(classname = "GauPro",
 
       # Find best params with optimization, start with current params in case all give error
       # Current params
-      best <- list(par=c(log(self$theta, 10), log(self$nug,10)), value = self$deviance_log2())
+      best <- list(par=c(log(self$theta, 10), log(self$nug,10)), value = devlog)
       if (self$verbose >= 2) {cat("Optimizing\n");cat("\tInitial values:\n");print(best)}
       details <- data.frame(start=paste(c(self$theta,self$nug),collapse=","),end=NA,value=best$value,func_evals=1,grad_evals=NA,convergence=NA, message=NA, stringsAsFactors=F)
+
 
       #browser()
       # runs them in parallel, first starts from current, rest are jittered or random
