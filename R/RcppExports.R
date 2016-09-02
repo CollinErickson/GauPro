@@ -17,6 +17,14 @@ corr_gauss_matrix_symC <- function(x, theta) {
     .Call('GauPro_corr_gauss_matrix_symC', PACKAGE = 'GauPro', x, theta)
 }
 
+deviance_part <- function(theta, nug, X, Z, Kinv) {
+    .Call('GauPro_deviance_part', PACKAGE = 'GauPro', theta, nug, X, Z, Kinv)
+}
+
+devianceCC <- function(theta, nug, X, Z, K) {
+    .Call('GauPro_devianceCC', PACKAGE = 'GauPro', theta, nug, X, Z, K)
+}
+
 deviance_fngr_theta <- function(X, Z, K) {
     .Call('GauPro_deviance_fngr_theta', PACKAGE = 'GauPro', X, Z, K)
 }
@@ -39,14 +47,6 @@ deviance_grad_nug <- function(X, K, Kinv, y) {
 
 deviance_grad_joint <- function(X, K, Kinv, y) {
     .Call('GauPro_deviance_grad_joint', PACKAGE = 'GauPro', X, K, Kinv, y)
-}
-
-deviance_part <- function(theta, nug, X, Z, Kinv) {
-    .Call('GauPro_deviance_part', PACKAGE = 'GauPro', theta, nug, X, Z, Kinv)
-}
-
-devianceCC <- function(theta, nug, X, Z, K) {
-    .Call('GauPro_devianceCC', PACKAGE = 'GauPro', theta, nug, X, Z, K)
 }
 
 rcpp_hello_world <- function() {
