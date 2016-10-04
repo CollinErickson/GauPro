@@ -14,6 +14,8 @@ knitr::opts_chunk$set(
 
 # GauPro
 
+[![Travis-CI Build Status](https://travis-ci.org/CollinErickson/GauPro.svg?branch=master)](https://travis-ci.org/CollinErickson/GauPro)
+
 This package allows you to fit a Gaussian process to a dataset. 
 A Gaussian process is a commonly used model in computer simulation.
 It assumes that the distribution of any set of points is multivariate

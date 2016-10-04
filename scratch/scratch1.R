@@ -143,3 +143,17 @@ gp$pred(matrix(runif(nn*d),ncol=d))
 gp$grad(matrix(runif(nn*d),ncol=d))
 gp$grad_norm(matrix(runif(nn*d),ncol=d))
 plot(y,gp$pred(x));abline(a=0,b=1)
+
+
+# Test update function
+u <- GauPro$new()
+n <- 3
+d <- 2
+f <- TestFunctions::gaussian1
+for (i in 1:10) {
+  x <- matrix(runif(n*d), ncol=d)
+  y <- f(x)
+  if(i==1) u <- GauPro$new(X=x,Z=y)
+  else u$update(Xnew=x, Znew=y)
+  cf::cf(u$predict, pts=u$X)
+}

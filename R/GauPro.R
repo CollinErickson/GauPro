@@ -18,6 +18,16 @@
 #' @field Z Responses
 #' @field N Number of data points
 #' @field D Dimension of data
+#' @field corr Type of correlation function
+#' @field nug.min Minimum value of nugget
+#' @field nug Value of the nugget, is estimated unless told otherwise
+#' @field theta Length-scale parameters
+#' @field separable Are the dimensions separable?
+#' @field verbose 0 means nothing printed, 1 prints some, 2 prints most.
+#' @field useGrad Should grad be used?
+#' @field useC Should C code be used?
+#' @field parallel Should the code be run in parallel?
+#' @field parallel.cores How many cores are there? It will self detect, do not set yourself.
 #' @section Methods:
 #' \describe{
 #'   \item{Documentation}{For full documentation of each method go to https://github.com/lightning-viz/lightining-r/}
