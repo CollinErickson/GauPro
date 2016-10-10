@@ -24,6 +24,26 @@ Class providing object with methods for fitting a GP model
 \item{\code{N}}{Number of data points}
 
 \item{\code{D}}{Dimension of data}
+
+\item{\code{corr}}{Type of correlation function}
+
+\item{\code{nug.min}}{Minimum value of nugget}
+
+\item{\code{nug}}{Value of the nugget, is estimated unless told otherwise}
+
+\item{\code{theta}}{Length-scale parameters}
+
+\item{\code{separable}}{Are the dimensions separable?}
+
+\item{\code{verbose}}{0 means nothing printed, 1 prints some, 2 prints most.}
+
+\item{\code{useGrad}}{Should grad be used?}
+
+\item{\code{useC}}{Should C code be used?}
+
+\item{\code{parallel}}{Should the code be run in parallel?}
+
+\item{\code{parallel.cores}}{How many cores are there? It will self detect, do not set yourself.}
 }}
 \section{Methods}{
 
