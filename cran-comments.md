@@ -1,19 +1,21 @@
 I submitted this on 10/11 and received an email from Kurt Hornik
 saying that it wouldn't install. I don't get this error on my 
-computers, but I think I fixed it by editing the makevars.win file.
-
+computers, but I think I fixed it by adding a makevars file.
+I was previously failing on Travis (couldn't figure out why),
+but after this change it is now working.
 
 ## Test environments
 * local Windows install, R 3.3.1
 * UNIX on a cluster, R 3.1.2
 * win-builder
+* Ubuntu 12.04.5 LTS, R 3.3.1 (Travis)
 
 ## R CMD check results
 There were no ERRORs or WARNINGs or NOTEs on Windows using R 3.3.1.
 
 I get two notes on UNIX that don't seem like real problems (NEWS.md and installed package size).
 
-I fixed the two simple notes that came up on win-builder (title case and remove an import).
+The only note on win-builder is Maintainer- New submission.
 
 ## Downstream dependencies
 
