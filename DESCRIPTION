@@ -1,6 +1,6 @@
 Package: GauPro
 Type: Package
-Title: Gaussian Process fitting
+Title: Gaussian Process Fitting
 Version: 0.1.0
 Author: Collin Erickson
 Maintainer: Collin Erickson <collinberickson@gmail.com>
@@ -10,7 +10,6 @@ LazyData: TRUE
 LinkingTo: Rcpp, RcppArmadillo
 Imports:
     Rcpp,
-    RcppArmadillo,
     R6,
     lbfgs
 RoxygenNote: 5.0.1
