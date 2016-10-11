@@ -1,3 +1,8 @@
+I submitted this on 10/11 and received an email from Kurt Hornik
+saying that it wouldn't install. I don't get this error on my 
+computers, but I think I fixed it by editing the makevars.win file.
+
+
 ## Test environments
 * local Windows install, R 3.3.1
 * UNIX on a cluster, R 3.1.2

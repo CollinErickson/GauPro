@@ -4,7 +4,12 @@ Title: Gaussian Process Fitting
 Version: 0.1.0
 Author: Collin Erickson
 Maintainer: Collin Erickson <collinberickson@gmail.com>
-Description: Fits a GP model to data.
+Description: Fits a Gaussian process model to data. Gaussian processes
+ are commonly used in computer experiments to fit an interpolating model.
+ The model is stored as an R6 object and can be easily updated with new 
+ data. There are options to run in parallel (not for Windows), and Rcpp
+ has been used to speed up calculations. Other R packages that perform
+ similar calculations include laGP, DiceKriging, GPfit, and mlegp.
 License: GPL-3
 LazyData: TRUE
 LinkingTo: Rcpp, RcppArmadillo
