@@ -1,11 +1,12 @@
-//#include <Rcpp.h>
+//  #include <Rcpp.h>
 #include <RcppArmadillo.h>
-//  using namespace Rcpp;
+#include "corr.h"
+//using namespace Rcpp;
 using namespace arma;
 
 
 // [[Rcpp::export]]
-double deviance_part(arma::vec theta, double nug, arma::mat X, arma::mat Z, arma::mat Kinv) {
+double Gaussian_deviance_part(arma::vec theta, double nug, arma::mat X, arma::mat Z, arma::mat Kinv) {
   // Not faster than using R, no need for this
   int N = X.n_rows;
   //double sumKinv = sum(sum(Kinv));
@@ -19,9 +20,14 @@ double deviance_part(arma::vec theta, double nug, arma::mat X, arma::mat Z, arma
 
 
 // [[Rcpp::export]]
-double devianceC(arma::vec theta, double nug, arma::mat X, arma::mat Z, arma::mat K) {
+double Gaussian_devianceC(arma::vec theta, double nug, arma::mat X, arma::mat Z) {
   // Twice as fast to this compared to devianceC or just R version
   int N = X.n_rows;
+
+  arma::vec nug_vec(N);
+  for (int i =0; i<N; i++) {nug_vec[i] = nug;};
+  arma::mat K = (corr_gauss_matrix_sym_armaC(X, theta)) + arma::diagmat(nug_vec);//  diag(nug, self$N);
+
   arma::mat Kchol = chol(K);
   double mu_hat_top = sum(sum(solve(trimatu(Kchol), solve(trimatl(Kchol.t()), Z))));
   arma::vec mu_hat_bottom_half = solve(trimatl(Kchol.t()), arma::ones(N));

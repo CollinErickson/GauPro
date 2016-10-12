@@ -49,8 +49,11 @@ GauPro <- R6::R6Class(classname = "GauPro",
     nug = 1e-6,
     nug.min = 1e-8,
     nug.est = T,
-    theta = NULL,
-    theta_length = NULL,
+    theta = NULL, # theta of length D, will repeat values if nonseparable
+    theta_length = NULL, # number of unique theta's
+    theta_map = NULL, # Vector of length D, ith component is which theta group ith dimension belongs to, eg c(1,2,1) means first and third dimensions share a theta
+    theta_short = NULL, # vector of unique theta's, length D if separable, length 1 if nonsep. Use this for optimization, then transform to full theta using map
+    #theta_short_length = NULL,
     separable = NULL,
     mu_hat = NULL,
     s2_hat = NULL,
@@ -63,8 +66,13 @@ GauPro <- R6::R6Class(classname = "GauPro",
     parallel = FALSE,
     parallel.cores = NULL,
     useOptim2 = FALSE,
+    deviance_out = NULL, #(theta, nug)
+    deviance_grad_out = NULL, #(theta, nug, overwhat)
+    deviance_fngr_out = NULL,
     initialize = function(X, Z, corr="Gauss", verbose=0, separable=T, useC=F,useGrad=T,
-                          parallel=T, useOptim2=T, nug.est=T, ...) {
+                          parallel=T, useOptim2=T, nug.est=T,
+                          theta_map = NULL,
+                          ...) {
       self$X <- X
       self$Z <- matrix(Z, ncol=1)
       #if (!is.null(corr)) {self$corr <- corr}
@@ -80,16 +88,31 @@ GauPro <- R6::R6Class(classname = "GauPro",
       self$N <- nrow(self$X)
       self$D <- ncol(self$X)
       self$separable <- separable
-      if (self$separable) {
+      if (!is.null(theta_map)) {
+        self$theta_map <- theta_map
+        self$theta_length <- length(unique(theta_map))
+      } else if (self$separable) {
+        self$theta_map <- 1:self$D
         self$theta_length <- self$D
-        self$theta <- rep(1, self$theta_length)
-      } else {
+      } else{
+        self$theta_map <- rep(1, self$D)
         self$theta_length <- 1
-        self$theta <- 1
       }
+      self$theta_short <- rep(1, self$theta_length)
+      self$theta <- self$theta_short[self$theta_map]
+
       if (self$corr == "Gauss") {
-        self$corr_func <- if (self$useC | T) {GauPro::corr_gauss_matrix} # added _sym since it should always be symmetric
-                          else {GauPro::corr_gauss_matrix_noC}
+        if (self$useC) {
+          self$corr_func <- corr_gauss_matrix
+          self$deviance_out <- Gaussian_devianceC
+          self$deviance_grad_out <- Gaussian_deviance_gradC
+          self$deviance_fngr_out <- Gaussian_deviance_fngrC
+        } else {
+          self$corr_func <- corr_gauss_matrix_noC
+          self$deviance_out <- Gaussian_devianceR
+          self$deviance_grad_out <- Gaussian_deviance_gradR
+          self$deviance_fngr_out <- Gaussian_deviance_fngrR
+        }
       } else {
         stop("corr not specified or recognized")
       }
@@ -108,7 +131,7 @@ GauPro <- R6::R6Class(classname = "GauPro",
     fit = function(X, Z) {
       self$update()
     },
-    update_params = function () {#browser()
+    update_params = function () {
       while(T) {
         self$K <- self$corr_func(self$X, theta=self$theta) + diag(self$nug, self$N)
         try.chol <- try(self$Kchol <- chol(self$K), silent = T)
@@ -125,7 +148,7 @@ GauPro <- R6::R6Class(classname = "GauPro",
     predict = function(XX, se.fit=F, covmat=F) {
       self$pred(XX=XX, se.fit=se.fit, covmat=covmat)
     },
-    pred = function(XX, se.fit=F, covmat=F) {#browser()
+    pred = function(XX, se.fit=F, covmat=F) {
       if (!is.matrix(XX)) {
         if (self$D == 1) XX <- matrix(XX, ncol=1)
         else if (length(XX) == self$D) XX <- matrix(XX, nrow=1)
@@ -199,29 +222,8 @@ GauPro <- R6::R6Class(classname = "GauPro",
       sapply(1:n2, function(i) points(x, newy[i,], type='l', col='gray'))
       points(self$X, self$Z, pch=19, col=1, cex=2)
     },
-
-    deviance = function (theta=self$theta, nug=self$nug) { #browser()# joint deviance
-      K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
-      Kchol <- try(chol(K), silent = T)
-      if (inherits(Kchol, "try-error")) {return(Inf)}
-      Kinv <- chol2inv(Kchol)
-      mu_hat <- sum(Kinv %*% self$Z) / sum(Kinv)
-      logdetK <- 2 * sum(log(diag(Kchol)))
-      logdetK + self$N * log(t(self$Z - mu_hat) %*% (Kinv %*% (self$Z - mu_hat)))
-    },
-    devianceC = function (theta=self$theta, nug=self$nug) {
-      # Not faster than devianceC or even deviance
-      K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
-      Kchol <- try(chol(K), silent = T)
-      if (inherits(Kchol, "try-error")) {return(Inf)}
-      Kinv <- chol2inv(Kchol)
-      logdetK <- 2 * sum(log(diag(Kchol)))
-      logdetK + deviance_part(theta, nug, self$X, self$Z, Kinv)
-    },
-    devianceCC = function (theta=self$theta, nug=self$nug) {
-      # 50% faster than devianceC and deviance on small,  twice on big
-      K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
-      devianceCC(theta, nug, self$X, self$Z, K)
+    deviance = function(theta, nug) {
+      self$deviance_out(theta, nug, self$X, self$Z)
     },
     deviance_log = function (beta=NULL, nug=self$nug, joint=NULL) {
       if (!is.null(joint)) {
@@ -232,9 +234,9 @@ GauPro <- R6::R6Class(classname = "GauPro",
         if (is.null(beta)) theta <- self$theta
         else theta <- 10^beta
       }
-      (if (self$useC) self$devianceCC else self$deviance)(theta=theta, nug=nug)
+      self$deviance(theta=theta, nug=nug)
     },
-    deviance_log2 = function (beta=NULL, lognug=NULL, joint=NULL) {#browser()  # joint deviance
+    deviance_log2 = function (beta=NULL, lognug=NULL, joint=NULL) {  # joint deviance
       # This takes nug on log scale
       if (!is.null(joint)) {
         beta <- joint[-length(joint)]
@@ -246,80 +248,10 @@ GauPro <- R6::R6Class(classname = "GauPro",
         if (is.null(lognug)) nug <- self$nug
         else nug <- 10^lognug
       }
-      (if (self$useC) self$devianceCC else self$deviance)(theta=theta, nug=nug)
+      self$deviance(theta=theta, nug=nug)
     },
-    deviance_grad = function (theta=self$theta, nug=self$nug) {
-      # Works but DONT USE since deviance_gradC is 10x faster, and only does theta grad so no good
-      K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
-      Kchol <- try(chol(K))
-      if (inherits(Kchol, "try-error")) {return(Inf)}
-      Kinv <- chol2inv(Kchol)
-      mu_hat <- sum(Kinv %*% self$Z) / sum(Kinv)
-      y <- self$Z - mu_hat
-      Kinv.y <- Kinv %*% y
-      t2a <- -self$N / (t(y)%*%Kinv.y)
-      dD <- rep(NA,self$D)
-      for(i in 1:self$D) {
-        dK <- K
-        for(j in 1:self$N) {
-          for(k in 1:self$N) {
-            dK[j, k] <- -(self$X[j,i]-self$X[k,i])^2 * dK[j, k]
-          }
-        }
-        t1 <- sum(sapply(1:self$N, function(ii) {sum(Kinv[ii,] * dK[,ii])}))
-        t2 <- t2a * t(Kinv.y) %*% dK %*% Kinv.y
-        dD[i] <- 2 * (t1+t2)
-      }
-      dD
-    },
-    deviance_grad_fix = function (theta=self$theta, nug=self$nug) {
-      # Grad doesn't include d(mu)/d(theta), tried adding it here
-      #  If eqns are right, it makes a 1e-16 effect, so not worth it
-      K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
-      Kchol <- try(chol(K))
-      if (inherits(Kchol, "try-error")) {return(Inf)}
-      Kinv <- chol2inv(Kchol)
-      mu_hat <- sum(Kinv %*% self$Z) / sum(Kinv)
-      y <- self$Z - mu_hat
-      Kinv.y <- Kinv %*% y
-      t2a <- -self$N / (t(y)%*%Kinv.y)
-      dD <- rep(NA,self$D)
-      for(i in 1:self$D) {
-        dK <- K
-        for(j in 1:self$N) {
-          for(k in 1:self$N) {
-            dK[j, k] <- -(self$X[j,i]-self$X[k,i])^2 * dK[j, k]
-          }
-        }
-        # mu = A^-1 %*% B, use it to calculate grad more accurately
-        A <- sum(Kinv)
-        B <- sum(Kinv.y)
-        dA <- sum(Kinv)^2 * sum(Kinv %*% dK %*% Kinv)
-        dB <- sum(Kinv %*% dK %*% Kinv %*%y)
-        dmu = (A * dB - B * dA) / A^2
-        t1 <- sum(sapply(1:self$N, function(ii) {sum(Kinv[ii,] * dK[,ii])}))
-        t2 <- t2a * (t(Kinv.y) %*% dK %*% Kinv.y + - 2 * sum(Kinv.y) * dmu) # after including mu
-        print(c(t(Kinv.y) %*% dK %*% Kinv.y , - 2 * sum(Kinv.y) * dmu))
-        #t2 <- t2a * t(Kinv.y) %*% dK %*% Kinv.y # before mu
-        dD[i] <- 2 * (t1+t2)
-      }
-      dD
-    },
-    deviance_gradC = function (theta=self$theta, nug=self$nug, overwhat=if (self$nug.est) "joint" else "theta") {
-      K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
-      Kchol <- try(chol(K), silent = T)
-      if (inherits(Kchol, "try-error")) {return(Inf)}
-      Kinv <- chol2inv(Kchol)
-      mu_hat <- sum(Kinv %*% self$Z) / sum(Kinv)
-      y <- self$Z - mu_hat
-      # Call RcppArmadillo function to calculate grad
-      if (overwhat == "theta") {
-        return(deviance_grad_theta(self$X, K, Kinv, y))
-      } else if (overwhat == "nug") {
-        return(deviance_grad_nug(self$X, K, Kinv, y))
-      } else if (overwhat == "joint") {
-        return(deviance_grad_joint(self$X, K, Kinv, y))
-      } else {stop("No overwhat given #231854")}
+    deviance_grad = function(theta=NULL, nug=self$nug, joint=NULL, overwhat=if (self$nug.est) "joint" else "theta") {
+      self$deviance_grad_out(theta=theta, nug=nug, X=self$X, Z=self$Z, overwhat=overwhat)
     },
     deviance_log_grad = function (beta=NULL, nug=self$nug, joint=NULL, overwhat=if (self$nug.est) "joint" else "theta") {
       if (!is.null(joint)) {
@@ -349,41 +281,8 @@ GauPro <- R6::R6Class(classname = "GauPro",
       }
       self$deviance_gradC(theta=theta, nug=nug, overwhat=overwhat) * 10^joint * log(10)
     },
-    deviance_fngr = function (theta=self$theta, nug=self$nug, overwhat=if (self$nug.est) "joint" else "theta") {
-      #
-      K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
-      Kchol <- try(chol(K), silent = T)
-      if (inherits(Kchol, "try-error")) {return(list(fn=Inf, gr=NA))}
-      Kinv <- chol2inv(Kchol)
-      mu_hat <- sum(Kinv %*% self$Z) / sum(Kinv)
-      logdetK <- 2 * sum(log(diag(Kchol)))
-      fn <- logdetK + self$N * log(t(self$Z - mu_hat) %*% (Kinv %*% (self$Z - mu_hat)))
-
-      y <- self$Z - mu_hat
-      # Call RcppArmadillo function to calculate grad
-      if (overwhat == "theta") {
-        gr <- (deviance_grad_theta(self$X, K, Kinv, y))
-      } else if (overwhat == "nug") {
-        gr <- (deviance_grad_nug(self$X, K, Kinv, y))
-      } else if (overwhat == "joint") {
-        gr <- (deviance_grad_joint(self$X, K, Kinv, y))
-      } else {stop("No overwhat given #8523093")}
-
-      return(list(fn=fn, gr=gr))
-    },
-    deviance_fngrC = function (theta=self$theta, nug=self$nug, overwhat=if (self$nug.est) "joint" else "theta") {
-      #
-      K <- self$corr_func(self$X, theta=theta) + diag(nug, self$N)
-      # Call RcppArmadillo function to calculate all
-      if (overwhat == "theta") {
-        fngr <- (deviance_fngr_theta(self$X, self$Z, K))
-      } else if (overwhat == "nug") {
-        fngr <- (deviance_fngr_nug(self$X, self$Z, K))
-      } else if (overwhat == "joint") {
-        fngr <- (deviance_fngr_joint(self$X, self$Z, K))
-      } else {stop("No overwhat given #935277")}
-
-      return(list(fn=fngr[1], gr=fngr[-1]))
+    deviance_fngr = function (theta=NULL, nug=NULL, overwhat=if (self$nug.est) "joint" else "theta") {
+      self$deviance_fngr_out(theta=theta, nug=nug, X=self$X, Z=self$Z, overwhat=overwhat)
     },
     deviance_log2_fngr = function (beta=NULL, lognug=NULL, joint=NULL, overwhat=if (self$nug.est) "joint" else "theta") {
       if (!is.null(joint)) {
@@ -402,7 +301,7 @@ GauPro <- R6::R6Class(classname = "GauPro",
       tmp[[2]] <- tmp[[2]] * 10^joint * log(10) # scale gradient only
       tmp
     },
-    optim = function (restarts = 5, theta.update = T, nug.update = self$nug.est, parallel=self$parallel, parallel.cores=self$parallel.cores) {#browser()
+    optim = function (restarts = 5, theta.update = T, nug.update = self$nug.est, parallel=self$parallel, parallel.cores=self$parallel.cores) {
       # Does parallel
       # Joint MLE search with L-BFGS-B, with restarts
       if (theta.update & nug.update) {
@@ -421,8 +320,8 @@ GauPro <- R6::R6Class(classname = "GauPro",
       if (theta.update) {
         lower <- c(lower, rep(-5, self$theta_length))
         upper <- c(upper, rep(7, self$theta_length))
-        start.par <- c(start.par, log(self$theta, 10))
-        start.par0 <- c(start.par0, rep(0, length(self$theta)))
+        start.par <- c(start.par, log(self$theta_short, 10))
+        start.par0 <- c(start.par0, rep(0, self$theta_length))
       }
       if (nug.update) {
         lower <- c(lower, self$nug.min)
@@ -464,7 +363,7 @@ GauPro <- R6::R6Class(classname = "GauPro",
         #print("start at zero par")
       } else { # jitter from current params
         start.par.i <- start.par
-      } #;browser()
+      }
       if (jit) {
         if (theta.update) {start.par.i[1:self$theta_length] <- start.par.i[1:self$theta_length] + rnorm(self$theta_length,0,2)} # jitter betas
         if (nug.update) {start.par.i[length(start.par.i)] <- start.par.i[length(start.par.i)] + rexp(1,1e4)} # jitter nugget
@@ -483,10 +382,9 @@ GauPro <- R6::R6Class(classname = "GauPro",
       }
       list(current=current, details=details.new)
     },
-    optim2 = function (restarts = 5, theta.update = T, nug.update = self$nug.est, parallel=self$parallel, parallel.cores=self$parallel.cores) {#browser()
+    optim2 = function (restarts = 5, theta.update = T, nug.update = self$nug.est, parallel=self$parallel, parallel.cores=self$parallel.cores) {
       # Does parallel
       # Joint MLE search with L-BFGS-B, with restarts
-      #browser()
       if (theta.update & nug.update) {
         optim.func <- function(xx) {self$deviance_log2(joint=xx)}
         grad.func <- function(xx) {self$deviance_log2_grad(joint=xx)}
@@ -519,8 +417,8 @@ GauPro <- R6::R6Class(classname = "GauPro",
       if (theta.update) {
         lower <- c(lower, rep(-5, self$theta_length))
         upper <- c(upper, rep(7, self$theta_length))
-        start.par <- c(start.par, log(self$theta, 10))
-        start.par0 <- c(start.par0, rep(0, length(self$theta)))
+        start.par <- c(start.par, log(self$theta_short, 10))
+        start.par0 <- c(start.par0, rep(0, self$theta_length))
       }
       if (nug.update) {
         lower <- c(lower, log(self$nug.min,10))
@@ -531,12 +429,11 @@ GauPro <- R6::R6Class(classname = "GauPro",
 
       # Find best params with optimization, start with current params in case all give error
       # Current params
-      best <- list(par=c(log(self$theta, 10), log(self$nug,10)), value = devlog)
+      best <- list(par=c(log(self$theta_short, 10), log(self$nug,10)), value = devlog)
       if (self$verbose >= 2) {cat("Optimizing\n");cat("\tInitial values:\n");print(best)}
-      details <- data.frame(start=paste(c(self$theta,self$nug),collapse=","),end=NA,value=best$value,func_evals=1,grad_evals=NA,convergence=NA, message=NA, stringsAsFactors=F)
+      details <- data.frame(start=paste(c(self$theta_short,self$nug),collapse=","),end=NA,value=best$value,func_evals=1,grad_evals=NA,convergence=NA, message=NA, stringsAsFactors=F)
 
 
-      #browser()
       # runs them in parallel, first starts from current, rest are jittered or random
       sys_name <- Sys.info()["sysname"]
       if (sys_name == "Windows" | !self$parallel) {
@@ -545,7 +442,6 @@ GauPro <- R6::R6Class(classname = "GauPro",
       } else { # Mac/Unix
         restarts.out <- parallel::mclapply(1:(1+restarts), function(i){self$optimRestart2(start.par=start.par, start.par0=start.par0, theta.update=theta.update, nug.update=nug.update, optim.func=optim.func, grad.func=grad.func, optim.fngr=optim.fngr,lower=lower, upper=upper, jit=(i!=1))}, mc.cores = parallel.cores)
       }
-      #browser()
       new.details <- t(sapply(restarts.out,function(dd){dd$deta}))
       vals <- sapply(restarts.out,
                      function(ii){
@@ -566,19 +462,17 @@ GauPro <- R6::R6Class(classname = "GauPro",
     optimRestart2 = function (start.par, start.par0, theta.update, nug.update, optim.func, grad.func, optim.fngr, lower, upper, jit=T) {
       # FOR lognug RIGHT NOW, seems to be at least as fast, up to 5x on big data, many fewer func_evals
       #    still want to check if it is better or not
-      #browser()
       if (runif(1) < .33 & jit) { # restart near some spot to avoid getting stuck in bad spot
         start.par.i <- start.par0
         #print("start at zero par")
       } else { # jitter from current params
         start.par.i <- start.par
-      } #;browser()
+      }
       if (jit) {
         if (theta.update) {start.par.i[1:self$theta_length] <- start.par.i[1:self$theta_length] + rnorm(self$theta_length,0,2)} # jitter betas
         if (nug.update) {start.par.i[length(start.par.i)] <- start.par.i[length(start.par.i)] + min(4, rexp(1,1))} # jitter nugget
       }
       if (self$verbose >= 2) {cat("\tRestart (parallel): starts pars =",start.par.i,"\n")}
-      #browser()
       current <- try(
         if (self$useGrad) {
           if (is.null(optim.fngr)) {
@@ -598,7 +492,7 @@ GauPro <- R6::R6Class(classname = "GauPro",
       }
       list(current=current, details=details.new)
     },
-    optimBayes = function(theta.update = T, nug.update = F & self$nug.est) {#browser()
+    optimBayes = function(theta.update = T, nug.update = F & self$nug.est) {
       lower <- c()
       upper <- c()
       start.par <- c()
@@ -606,7 +500,7 @@ GauPro <- R6::R6Class(classname = "GauPro",
       if (theta.update) {
         lower <- c(lower, rep(-5, self$theta_length))
         upper <- c(upper, rep(7, self$theta_length))
-        start.par <- c(start.par, log(self$theta, 10))
+        start.par <- c(start.par, log(self$theta_short, 10))
         start.par0 <- c(start.par0, rep(0, self$theta_length))
       }
       if (nug.update) {
@@ -622,7 +516,6 @@ GauPro <- R6::R6Class(classname = "GauPro",
       for(i in 1:n0){u[i,] <- u[i,] + rnorm(d,0,2)}
       v <- apply(u,1, self$deviance_log)
       bgp <- GauPro$new(u,v)
-      #browser()
       #curve(bgp$predict(x),-5,7);points(u,v)
       #curve(bgp$predict(x)+2*bgp$predict(x,se=T)$se,-5,7,add=T,col=2)
       #curve(bgp$predict(x)-2*bgp$predict(x,se=T)$se,-5,7,add=T,col=2)
@@ -633,7 +526,7 @@ GauPro <- R6::R6Class(classname = "GauPro",
       }
       for(i in 1:10) {
         #curve(EI, -5, 7);abline(v=u)
-        if (F) {browser()
+        if (F) {
           curve(bgp$predict(x),-5,7);points(u,v)
           curve(bgp$predict(x)+2*bgp$predict(x,se=T)$se,-5,7,add=T,col=2)
           curve(bgp$predict(x)-2*bgp$predict(x,se=T)$se,-5,7,add=T,col=2)
@@ -654,7 +547,6 @@ GauPro <- R6::R6Class(classname = "GauPro",
       # take next point
       # start near that point?
       # repeat until limit reached
-      #browser()
       bestu <- u[which.min(v),]
       optim(bestu, bgp$pred, lower=-5,upper=7,method="L-BFGS-B")$par
     },
@@ -665,7 +557,10 @@ GauPro <- R6::R6Class(classname = "GauPro",
 
       pars <- (if(useOptim2) self$optim2 else self$optim)(restarts = restarts, theta.update = theta.update, nug.update = nug.update)$par
       if (nug.update) {self$nug <- pars[length(pars)]}
-      if (theta.update) {self$theta <- 10 ^ pars[1:self$theta_length]}
+      if (theta.update) {
+        self$theta_short <- 10 ^ pars[1:self$theta_length]
+        self$theta <- self$theta_short[self$theta_map]
+      }
       self$update_params()
 
       invisible(self)
@@ -700,7 +595,7 @@ GauPro <- R6::R6Class(classname = "GauPro",
       self$nug <- nug
       self$update_params()
     },
-    grad = function (XX) {#browser()
+    grad = function (XX) {
       if (!is.matrix(XX)) {
         if (self$D == 1) XX <- matrix(XX, ncol=1)
         else if (length(XX) == self$D) XX <- matrix(XX, nrow=1)
@@ -722,12 +617,12 @@ GauPro <- R6::R6Class(classname = "GauPro",
       if (self$D == 1) return(grad1)
       t(grad1)
     },
-    grad_norm = function (XX) {#browser()
+    grad_norm = function (XX) {
       grad1 <- self$grad(XX)
       if (!is.matrix(grad1)) return(abs(grad1))
       apply(grad1,1, function(xx) {sqrt(sum(xx^2))})
     }#,
-    #grad_num = function (XX) {#browser() # NUMERICAL GRAD IS OVER 10 TIMES SLOWER
+    #grad_num = function (XX) { # NUMERICAL GRAD IS OVER 10 TIMES SLOWER
     #  if (!is.matrix(XX)) {
     #    if (self$D == 1) XX <- matrix(XX, ncol=1)
     #    else if (length(XX) == self$D) XX <- matrix(XX, nrow=1)
@@ -741,7 +636,7 @@ GauPro <- R6::R6Class(classname = "GauPro",
     #  if (self$D == 1) return(grad1)
     #  t(grad1)
     #},
-    #grad_num_norm = function (XX) {#browser()
+    #grad_num_norm = function (XX) {
     #  grad1 <- self$grad_num(XX)
     #  if (!is.matrix(grad1)) return(abs(grad1))
     #  apply(grad1,1, function(xx) {sqrt(sum(xx^2))})
