@@ -18,7 +18,7 @@ double Gaussian_deviance_part(arma::vec theta, double nug, arma::mat X, arma::ma
   return tmat(0,0);
 }
 
-
+//' @export
 // [[Rcpp::export]]
 double Gaussian_devianceC(arma::vec theta, double nug, arma::mat X, arma::mat Z) {
   // Twice as fast to this compared to devianceC or just R version

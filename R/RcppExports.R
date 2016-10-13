@@ -59,6 +59,7 @@ Gaussian_deviance_part <- function(theta, nug, X, Z, Kinv) {
     .Call('GauPro_Gaussian_deviance_part', PACKAGE = 'GauPro', theta, nug, X, Z, Kinv)
 }
 
+#' @export
 Gaussian_devianceC <- function(theta, nug, X, Z) {
     .Call('GauPro_Gaussian_devianceC', PACKAGE = 'GauPro', theta, nug, X, Z)
 }
