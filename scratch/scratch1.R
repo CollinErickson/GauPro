@@ -131,10 +131,12 @@ gpf <- UGP::UGP$new(X=x,Z=y, package="mlegp")
 
 # higher dim test
 n <- 200
-d <- 4
+d <- 10
 x <- matrix(runif(n*d), ncol=d)
 f1 <- function(a) {sum(sin(1:d*pi/a))}
-y <- apply(x,1,f1) + rnorm(n,0,.1)
+f1 <- function(a) {sum(sin(1*pi/a[1:5]))}
+#f1 <- TestFunctions::RFF_get(D=5)
+y <- apply(x,1,f1) #+ rnorm(n,0,.1)
 gp <- GauPro$new(x,y, verbose=0, parallel=T, useC=T);c(gp$theta,gp$nug)
 microbenchmark::microbenchmark(GauPro$new(x,y, useOptim2=F), GauPro$new(x,y, useOptim2=T), times = 10)
 microbenchmark::microbenchmark(GauPro$new(x,y), times = 100)

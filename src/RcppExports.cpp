@@ -54,6 +54,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// corr_gauss_matrix_sym_armaC
+arma::mat corr_gauss_matrix_sym_armaC(arma::mat x, arma::vec theta);
+RcppExport SEXP GauPro_corr_gauss_matrix_sym_armaC(SEXP xSEXP, SEXP thetaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type x(xSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type theta(thetaSEXP);
+    rcpp_result_gen = Rcpp::wrap(corr_gauss_matrix_sym_armaC(x, theta));
+    return rcpp_result_gen;
+END_RCPP
+}
 // deviance_part
 double deviance_part(arma::vec theta, double nug, arma::mat X, arma::mat Z, arma::mat Kinv);
 RcppExport SEXP GauPro_deviance_part(SEXP thetaSEXP, SEXP nugSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP KinvSEXP) {
@@ -69,9 +81,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// devianceCC
-double devianceCC(arma::vec theta, double nug, arma::mat X, arma::mat Z, arma::mat K);
-RcppExport SEXP GauPro_devianceCC(SEXP thetaSEXP, SEXP nugSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP KSEXP) {
+// devianceC
+double devianceC(arma::vec theta, double nug, arma::mat X, arma::mat Z, arma::mat K);
+RcppExport SEXP GauPro_devianceC(SEXP thetaSEXP, SEXP nugSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP KSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -80,7 +92,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type Z(ZSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type K(KSEXP);
-    rcpp_result_gen = Rcpp::wrap(devianceCC(theta, nug, X, Z, K));
+    rcpp_result_gen = Rcpp::wrap(devianceC(theta, nug, X, Z, K));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -162,6 +174,35 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat >::type Kinv(KinvSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
     rcpp_result_gen = Rcpp::wrap(deviance_grad_joint(X, K, Kinv, y));
+    return rcpp_result_gen;
+END_RCPP
+}
+// Gaussian_deviance_part
+double Gaussian_deviance_part(arma::vec theta, double nug, arma::mat X, arma::mat Z, arma::mat Kinv);
+RcppExport SEXP GauPro_Gaussian_deviance_part(SEXP thetaSEXP, SEXP nugSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP KinvSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< double >::type nug(nugSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Kinv(KinvSEXP);
+    rcpp_result_gen = Rcpp::wrap(Gaussian_deviance_part(theta, nug, X, Z, Kinv));
+    return rcpp_result_gen;
+END_RCPP
+}
+// Gaussian_devianceC
+double Gaussian_devianceC(arma::vec theta, double nug, arma::mat X, arma::mat Z);
+RcppExport SEXP GauPro_Gaussian_devianceC(SEXP thetaSEXP, SEXP nugSEXP, SEXP XSEXP, SEXP ZSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< double >::type nug(nugSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Z(ZSEXP);
+    rcpp_result_gen = Rcpp::wrap(Gaussian_devianceC(theta, nug, X, Z));
     return rcpp_result_gen;
 END_RCPP
 }

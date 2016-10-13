@@ -1,5 +1,7 @@
-#include <Rcpp.h>
+//#include <Rcpp.h>
+#include <RcppArmadillo.h>
 using namespace Rcpp;
+//using namespace arma;
 
 // This is a simple example of exporting a C++ function to R. You can
 // source this function into an R session using the Rcpp::sourceCpp
@@ -32,6 +34,7 @@ NumericMatrix corr_gauss_matrixC(NumericMatrix x, NumericMatrix y, NumericVector
   return out;
 }
 
+//' @export
 // [[Rcpp::export]]
 NumericMatrix corr_gauss_matrix_symC(NumericMatrix x, NumericVector theta) {
   int nrow = x.nrow();
@@ -48,6 +51,34 @@ NumericMatrix corr_gauss_matrix_symC(NumericMatrix x, NumericVector theta) {
       total = exp(-total);
 
       out(i, j) = total;
+      out(j, i) = total; // since symmetric
+    }
+  }
+  for (int i = 0; i < nrow; i++) {
+    out(i, i) = 1;
+  }
+  return out;
+}
+
+
+//' @export
+// [[Rcpp::export]]
+arma::mat corr_gauss_matrix_sym_armaC(arma::mat x, arma::vec theta) {
+  int nrow = x.n_rows;
+  int nsum = x.n_cols;
+  arma::mat out(nrow, nrow);
+
+  for (int i = 0; i < nrow - 1; i++) {
+    for (int j = i + 1; j < nrow; j++) {
+
+      double total = 0;
+      for(int k = 0; k < nsum; ++k) {
+        total += theta[k] * pow((x(i,k) - x(j,k)), 2.0);
+      }
+      total = exp(-total);
+
+      out(i, j) = total;
+      out(j, i) = total;
     }
   }
   for (int i = 0; i < nrow; i++) {

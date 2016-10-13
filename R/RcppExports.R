@@ -13,16 +13,22 @@ corr_gauss_matrixC <- function(x, y, theta) {
     .Call('GauPro_corr_gauss_matrixC', PACKAGE = 'GauPro', x, y, theta)
 }
 
+#' @export
 corr_gauss_matrix_symC <- function(x, theta) {
     .Call('GauPro_corr_gauss_matrix_symC', PACKAGE = 'GauPro', x, theta)
+}
+
+#' @export
+corr_gauss_matrix_sym_armaC <- function(x, theta) {
+    .Call('GauPro_corr_gauss_matrix_sym_armaC', PACKAGE = 'GauPro', x, theta)
 }
 
 deviance_part <- function(theta, nug, X, Z, Kinv) {
     .Call('GauPro_deviance_part', PACKAGE = 'GauPro', theta, nug, X, Z, Kinv)
 }
 
-devianceCC <- function(theta, nug, X, Z, K) {
-    .Call('GauPro_devianceCC', PACKAGE = 'GauPro', theta, nug, X, Z, K)
+devianceC <- function(theta, nug, X, Z, K) {
+    .Call('GauPro_devianceC', PACKAGE = 'GauPro', theta, nug, X, Z, K)
 }
 
 deviance_fngr_theta <- function(X, Z, K) {
@@ -47,6 +53,15 @@ deviance_grad_nug <- function(X, K, Kinv, y) {
 
 deviance_grad_joint <- function(X, K, Kinv, y) {
     .Call('GauPro_deviance_grad_joint', PACKAGE = 'GauPro', X, K, Kinv, y)
+}
+
+Gaussian_deviance_part <- function(theta, nug, X, Z, Kinv) {
+    .Call('GauPro_Gaussian_deviance_part', PACKAGE = 'GauPro', theta, nug, X, Z, Kinv)
+}
+
+#' @export
+Gaussian_devianceC <- function(theta, nug, X, Z) {
+    .Call('GauPro_Gaussian_devianceC', PACKAGE = 'GauPro', theta, nug, X, Z)
 }
 
 rcpp_hello_world <- function() {
