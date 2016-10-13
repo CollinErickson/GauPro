@@ -82,7 +82,6 @@ GauPr_Gauss <- R6::R6Class(classname = "GauPr_Gauss",
           self$fit()
           invisible(self)
         },
-        simple = function() {print(133)},
         #corr_func = GauPro::corr_gauss_matrix, # This is in R/corr, but copied here, DOESN'T WORK
         corr_func = function(x, x2=NULL, theta) {
           if (is.null(x2)) corr_gauss_matrix_symC(x, theta)
@@ -203,7 +202,6 @@ GauPr_Gauss <- R6::R6Class(classname = "GauPr_Gauss",
           cat("\tUse pred to get predictions at new points\n")
           invisible(self)
         }
-        ,plot = plot
       ),
       private = list(
 
