@@ -78,15 +78,35 @@ GauPr_Gauss <- R6::R6Class(classname = "GauPr_Gauss",
           self$deviance_theta(theta=theta)
         },
         deviance = function(theta=self$theta, nug=self$nug) {
+          if (length(theta) < self$D) {theta = theta[self$theta_map]} # if not fully separable, map out to full theta
           Gaussian_devianceC(theta, nug, self$X, self$Z)
         },
         #deviance_out = function(...){Gaussian_devianceC(...)},
         deviance_grad = function(theta=NULL, nug=self$nug, joint=NULL, overwhat=if (self$nug.est) "joint" else "theta") {
-          Gaussian_deviance_gradC(theta=theta, nug=nug, X=self$X, Z=self$Z, overwhat=overwhat)
+          if (length(theta) < self$D) {theta = theta[self$theta_map]} # if not fully separable, map out to full theta
+          gr <- Gaussian_deviance_gradC(theta=theta, nug=nug, X=self$X, Z=self$Z, overwhat=overwhat)
+          if (!self$separable & overwhat!="nug") { # Map down if theta not full dimensional
+            tgr <- sapply(1:self$theta_length, function(ii){sum(gr[which(self$theta_map == ii)])})
+            if (overwhat == "joint") { # If joint, add nugget to end and return
+              return(c(tgr, tail(gr,1)))
+            }
+            return(tgr) # else just return theta grad
+          }
+          gr
         },
         #deviance_grad_out = function(...){Gaussian_deviance_gradC(...)},
-        deviance_fngr = function (theta=NULL, nug=NULL, overwhat=if (self$nug.est) "joint" else "theta") {
-          Gaussian_deviance_fngrC(theta=theta, nug=nug, X=self$X, Z=self$Z, overwhat=overwhat)
+        deviance_fngr = function (theta=NULL, nug=NULL, overwhat=if (self$nug.est) "joint" else "theta") {#browser()
+          if (length(theta) < self$D) {theta = theta[self$theta_map]} # if not fully separable, map out to full theta
+          fngr <- Gaussian_deviance_fngrC(theta=theta, nug=nug, X=self$X, Z=self$Z, overwhat=overwhat)
+          if (!self$separable & overwhat!="nug") {#browser() # Map down if theta not full dimensional
+            gr <- fngr$gr
+            tgr <- sapply(1:self$theta_length, function(ii){sum(gr[which(self$theta_map == ii)])})
+            if (overwhat == "joint") { # If joint, add nugget to end and return
+              return(list(fn=fngr$fn, gr=c(tgr, tail(gr,1))))
+            }
+            return(list(fn=fngr$fn, gr=tgr)) # else just return theta grad
+          }
+          fngr
         },
         #deviance_fngr_out = function(...){Gaussian_deviance_fngrC(...)},
         deviance_log = function (beta=NULL, nug=self$nug, joint=NULL) {
@@ -328,6 +348,7 @@ GauPr_Gauss <- R6::R6Class(classname = "GauPr_Gauss",
         optimRestart2 = function (start.par, start.par0, theta.update, nug.update, optim.func, grad.func, optim.fngr, lower, upper, jit=T) {
           # FOR lognug RIGHT NOW, seems to be at least as fast, up to 5x on big data, many fewer func_evals
           #    still want to check if it is better or not
+          #browser()
           if (runif(1) < .33 & jit) { # restart near some spot to avoid getting stuck in bad spot
             start.par.i <- start.par0
             #print("start at zero par")
