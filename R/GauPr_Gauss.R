@@ -37,25 +37,14 @@ GauPr_Gauss <- R6::R6Class(classname = "GauPr_Gauss",
         theta_short = NULL, # vector of unique theta's, length D if separable, length 1 if nonsep. Use this for optimization, then transform to full theta using map
         #theta_short_length = NULL,
         separable = NULL,
-        mu_hat = NULL,
-        s2_hat = NULL,
-        corr = "Gauss",
         initialize = function(X, Z, verbose=0, separable=T, useC=F,useGrad=T,
                               parallel=T, useOptim2=T, nug.est=T,
                               theta_map = NULL,
                               ...) {
-          self$X <- X
-          self$Z <- matrix(Z, ncol=1)
-          self$verbose <- verbose
-          if (!is.matrix(self$X)) {
-            if (length(self$X) == length(self$Z)) {
-              self$X <- matrix(X, ncol=1)
-            } else {
-              stop("X and Z don't match")
-            }
-          }
-          self$N <- nrow(self$X)
-          self$D <- ncol(self$X)
+          super$initialize(X=X,Z=Z,verbose=verbose,useC=useC,useGrad=useGrad,
+                           parallel=parallel,useOptim2=useOptim2, nug.est=nug.est)
+
+
           self$separable <- separable
           if (!is.null(theta_map)) {
             self$theta_map <- theta_map
@@ -70,26 +59,36 @@ GauPr_Gauss <- R6::R6Class(classname = "GauPr_Gauss",
           self$theta_short <- rep(1, self$theta_length)
           self$theta <- self$theta_short[self$theta_map]
 
-          self$nug.est <- nug.est
-          self$useC <- useC
-          self$useGrad <- useGrad
-          self$parallel <- parallel
-          if (self$parallel) {self$parallel.cores <- parallel::detectCores()}
-          else {self$parallel.cores <- 1}
 
-          self$useOptim2 <- useOptim2
+          #self$useOptim2 <- useOptim2 # maybe move this back here
 
           self$fit()
           invisible(self)
         },
         #corr_func = GauPro::corr_gauss_matrix, # This is in R/corr, but copied here, DOESN'T WORK
-        corr_func = function(x, x2=NULL, theta) {
+        corr_func = function(x, x2=NULL, theta=self$theta) {
           if (is.null(x2)) corr_gauss_matrix_symC(x, theta)
           else corr_gauss_matrixC(x, x2, theta)
         },
-        deviance_out = function(...){Gaussian_devianceC(...)},
-        deviance_grad_out = function(...){Gaussian_deviance_gradC(...)},
-        deviance_fngr_out = function(...){Gaussian_deviance_fngrC(...)},
+        deviance_theta = function (theta) {
+          self$deviance(theta=theta, nug=self$nug)
+        },
+        deviance_theta_log = function (beta) {
+          theta <- 10^beta
+          self$deviance_theta(theta=theta)
+        },
+        deviance = function(theta=self$theta, nug=self$nug) {
+          Gaussian_devianceC(theta, nug, self$X, self$Z)
+        },
+        #deviance_out = function(...){Gaussian_devianceC(...)},
+        deviance_grad = function(theta=NULL, nug=self$nug, joint=NULL, overwhat=if (self$nug.est) "joint" else "theta") {
+          Gaussian_deviance_gradC(theta=theta, nug=nug, X=self$X, Z=self$Z, overwhat=overwhat)
+        },
+        #deviance_grad_out = function(...){Gaussian_deviance_gradC(...)},
+        deviance_fngr = function (theta=NULL, nug=NULL, overwhat=if (self$nug.est) "joint" else "theta") {
+          Gaussian_deviance_fngrC(theta=theta, nug=nug, X=self$X, Z=self$Z, overwhat=overwhat)
+        },
+        #deviance_fngr_out = function(...){Gaussian_deviance_fngrC(...)},
         deviance_log = function (beta=NULL, nug=self$nug, joint=NULL) {
           if (!is.null(joint)) {
             beta <- joint[-length(joint)]
@@ -115,9 +114,9 @@ GauPr_Gauss <- R6::R6Class(classname = "GauPr_Gauss",
           }
           self$deviance(theta=theta, nug=nug)
         },
-        deviance_grad = function(theta=NULL, nug=self$nug, joint=NULL, overwhat=if (self$nug.est) "joint" else "theta") {
-          self$deviance_grad_out(theta=theta, nug=nug, X=self$X, Z=self$Z, overwhat=overwhat)
-        },
+        #deviance_grad = function(theta=NULL, nug=self$nug, joint=NULL, overwhat=if (self$nug.est) "joint" else "theta") {
+        #  self$deviance_grad_out(theta=theta, nug=nug, X=self$X, Z=self$Z, overwhat=overwhat)
+        #},
         deviance_log_grad = function (beta=NULL, nug=self$nug, joint=NULL, overwhat=if (self$nug.est) "joint" else "theta") {
           if (!is.null(joint)) {
             beta <- joint[-length(joint)]
@@ -146,9 +145,9 @@ GauPr_Gauss <- R6::R6Class(classname = "GauPr_Gauss",
           }
           self$deviance_gradC(theta=theta, nug=nug, overwhat=overwhat) * 10^joint * log(10)
         },
-        deviance_fngr = function (theta=NULL, nug=NULL, overwhat=if (self$nug.est) "joint" else "theta") {
-          self$deviance_fngr_out(theta=theta, nug=nug, X=self$X, Z=self$Z, overwhat=overwhat)
-        },
+        #deviance_fngr = function (theta=NULL, nug=NULL, overwhat=if (self$nug.est) "joint" else "theta") {
+        #  self$deviance_fngr_out(theta=theta, nug=nug, X=self$X, Z=self$Z, overwhat=overwhat)
+        #},
         deviance_log2_fngr = function (beta=NULL, lognug=NULL, joint=NULL, overwhat=if (self$nug.est) "joint" else "theta") {
           if (!is.null(joint)) {
             beta <- joint[-length(joint)]
@@ -166,6 +165,271 @@ GauPr_Gauss <- R6::R6Class(classname = "GauPr_Gauss",
           tmp[[2]] <- tmp[[2]] * 10^joint * log(10) # scale gradient only
           tmp
         },
+
+
+        optim = function (restarts = 5, theta.update = T, nug.update = self$nug.est, parallel=self$parallel, parallel.cores=self$parallel.cores) {
+          # Does parallel
+          # Joint MLE search with L-BFGS-B, with restarts
+          if (theta.update & nug.update) {
+            optim.func <- function(xx) {self$deviance_log(joint=xx)}
+          } else if (theta.update & !nug.update) {
+            optim.func <- function(xx) {self$deviance_log(beta=xx)}
+          } else if (!theta.update & nug.update) {
+            optim.func <- function(xx) {self$deviance_log(nug=xx)}
+          } else {
+            stop("Can't optimize over no variables")
+          }
+          lower <- c()
+          upper <- c()
+          start.par <- c()
+          start.par0 <- c() # Some default params
+          if (theta.update) {
+            lower <- c(lower, rep(-5, self$theta_length))
+            upper <- c(upper, rep(7, self$theta_length))
+            start.par <- c(start.par, log(self$theta_short, 10))
+            start.par0 <- c(start.par0, rep(0, self$theta_length))
+          }
+          if (nug.update) {
+            lower <- c(lower, self$nug.min)
+            upper <- c(upper, Inf)
+            start.par <- c(start.par, self$nug)
+            start.par0 <- c(start.par0, 1e-6)
+          }
+
+          # Find best params with optimization, start with current params in case all give error
+          # Current params
+          best <- list(par=c(log(self$theta, 10), self$nug), value = self$deviance_log())
+          if (self$verbose >= 2) {cat("Optimizing\n");cat("\tInitial values:\n");print(best)}
+          details <- data.frame(start=paste(c(self$theta,self$nug),collapse=","),end=NA,value=best$value,func_evals=1,grad_evals=NA,convergence=NA, message=NA, stringsAsFactors=F)
+
+          # runs them in parallel, first starts from current, rest are jittered or random
+          sys_name <- Sys.info()["sysname"]
+          if (sys_name == "Windows") {
+            # Trying this so it works on Windows
+            restarts.out <- lapply( 1:(1+restarts), function(i){self$optimRestart(start.par=start.par, start.par0=start.par0, theta.update=theta.update, nug.update=nug.update, optim.func=optim.func, lower=lower, upper=upper, jit=(i!=1))})#, mc.cores = parallel.cores)
+          } else { # Mac/Unix
+
+            restarts.out <- parallel::mclapply(1:(1+restarts), function(i){self$optimRestart(start.par=start.par, start.par0=start.par0, theta.update=theta.update, nug.update=nug.update, optim.func=optim.func, lower=lower, upper=upper, jit=(i!=1))}, mc.cores = parallel.cores)
+          }
+          #restarts.out <- lapply(1:(1+restarts), function(i){self$optimRestart(start.par=start.par, start.par0=start.par0, theta.update=theta.update, nug.update=nug.update, optim.func=optim.func, lower=lower, upper=upper, jit=(i!=1))})
+          new.details <- t(sapply(restarts.out,function(dd){dd$deta}))
+          bestparallel <- which.min(sapply(restarts.out,function(i){i$current$val})) #which.min(new.details$value)
+          if (restarts.out[[bestparallel]]$current$val < best$val) {
+            best <- restarts.out[[bestparallel]]$current
+          }
+          details <- rbind(details, new.details)
+
+          if (self$verbose >= 2) {print(details)}
+          best
+        },
+        optimRestart = function (start.par, start.par0, theta.update, nug.update, optim.func, lower, upper, jit=T, startAt.par0=F) {
+
+          if (runif(1) < .33 & jit) { # restart near some spot to avoid getting stuck in bad spot
+            start.par.i <- start.par0
+            #print("start at zero par")
+          } else { # jitter from current params
+            start.par.i <- start.par
+          }
+          if (jit) {
+            if (theta.update) {start.par.i[1:self$theta_length] <- start.par.i[1:self$theta_length] + rnorm(self$theta_length,0,2)} # jitter betas
+            if (nug.update) {start.par.i[length(start.par.i)] <- start.par.i[length(start.par.i)] + rexp(1,1e4)} # jitter nugget
+          }
+          if (self$verbose >= 2) {cat("\tRestart (parallel): starts pars =",start.par.i,"\n")}
+          current <- try(
+            optim(start.par.i, optim.func, method="L-BFGS-B", lower=lower, upper=upper, hessian=F)
+          )
+          if (!inherits(current, "try-error")) {
+            details.new <- data.frame(start=paste(signif(start.par.i,3),collapse=","),end=paste(signif(current$par,3),collapse=","),value=current$value,func_evals=current$counts[1],grad_evals=current$counts[2],convergence=current$convergence, message=current$message, row.names = NULL, stringsAsFactors=F)
+            #if (current$value < best$value) {
+            #  best <- current
+            #}
+          } else{
+            details.new <- data.frame(start=paste(signif(start.par.i,3),collapse=","),end="try-error",value=NA,func_evals=NA,grad_evals=NA,convergence=NA, message=current[1], stringsAsFactors=F)
+          }
+          list(current=current, details=details.new)
+        },
+        optim2 = function (restarts = 5, theta.update = T, nug.update = self$nug.est, parallel=self$parallel, parallel.cores=self$parallel.cores) {
+          # Does parallel
+          # Joint MLE search with L-BFGS-B, with restarts
+          if (theta.update & nug.update) {
+            optim.func <- function(xx) {self$deviance_log2(joint=xx)}
+            grad.func <- function(xx) {self$deviance_log2_grad(joint=xx)}
+            optim.fngr <- function(xx) {self$deviance_log2_fngr(joint=xx)}
+          } else if (theta.update & !nug.update) {
+            optim.func <- function(xx) {self$deviance_log2(beta=xx)}
+            grad.func <- function(xx) {self$deviance_log2_grad(beta=xx)}
+            optim.fngr <- function(xx) {self$deviance_log2_fngr(beta=xx)}
+          } else if (!theta.update & nug.update) {
+            optim.func <- function(xx) {self$deviance_log2(lognug=xx)}
+            grad.func <- function(xx) {self$deviance_log2_grad(lognug=xx)}
+            optim.fngr <- function(xx) {self$deviance_log2_fngr(lognug=xx)}
+          } else {
+            stop("Can't optimize over no variables")
+          }
+
+          # This will make sure it at least can start
+          # Run before it sets initial parameters
+          try.devlog <- try(devlog <- self$deviance_log2(), silent = T)
+          if (inherits(try.devlog, "try-error")) {
+            warning("Current nugget doesn't work, increasing it #31973")
+            self$update_K_and_estimates() # This will increase the nugget
+            devlog <- self$deviance_log2()
+          }
+
+          lower <- c()
+          upper <- c()
+          start.par <- c()
+          start.par0 <- c() # Some default params
+          if (theta.update) {
+            lower <- c(lower, rep(-5, self$theta_length))
+            upper <- c(upper, rep(7, self$theta_length))
+            start.par <- c(start.par, log(self$theta_short, 10))
+            start.par0 <- c(start.par0, rep(0, self$theta_length))
+          }
+          if (nug.update) {
+            lower <- c(lower, log(self$nug.min,10))
+            upper <- c(upper, Inf)
+            start.par <- c(start.par, log(self$nug,10))
+            start.par0 <- c(start.par0, -6)
+          }
+
+          # Find best params with optimization, start with current params in case all give error
+          # Current params
+          best <- list(par=c(log(self$theta_short, 10), log(self$nug,10)), value = devlog)
+          if (self$verbose >= 2) {cat("Optimizing\n");cat("\tInitial values:\n");print(best)}
+          details <- data.frame(start=paste(c(self$theta_short,self$nug),collapse=","),end=NA,value=best$value,func_evals=1,grad_evals=NA,convergence=NA, message=NA, stringsAsFactors=F)
+
+
+          # runs them in parallel, first starts from current, rest are jittered or random
+          sys_name <- Sys.info()["sysname"]
+          if (sys_name == "Windows" | !self$parallel) {
+            # Trying this so it works on Windows
+            restarts.out <- lapply( 1:(1+restarts), function(i){self$optimRestart2(start.par=start.par, start.par0=start.par0, theta.update=theta.update, nug.update=nug.update, optim.func=optim.func, grad.func=grad.func, optim.fngr=optim.fngr, lower=lower, upper=upper, jit=(i!=1))})#, mc.cores = parallel.cores)
+          } else { # Mac/Unix
+            restarts.out <- parallel::mclapply(1:(1+restarts), function(i){self$optimRestart2(start.par=start.par, start.par0=start.par0, theta.update=theta.update, nug.update=nug.update, optim.func=optim.func, grad.func=grad.func, optim.fngr=optim.fngr,lower=lower, upper=upper, jit=(i!=1))}, mc.cores = parallel.cores)
+          }
+          new.details <- t(sapply(restarts.out,function(dd){dd$deta}))
+          vals <- sapply(restarts.out,
+                         function(ii){
+                           if (inherits(ii$current,"try-error")){Inf}
+                           else ii$current$val
+                         }
+          )
+          bestparallel <- which.min(vals) #which.min(new.details$value)
+          if (restarts.out[[bestparallel]]$current$val < best$val) {
+            best <- restarts.out[[bestparallel]]$current
+          }
+          details <- rbind(details, new.details)
+
+          if (self$verbose >= 2) {print(details)}
+          if (nug.update) best$par[length(best$par)] <- 10 ^ (best$par[length(best$par)])
+          best
+        },
+        optimRestart2 = function (start.par, start.par0, theta.update, nug.update, optim.func, grad.func, optim.fngr, lower, upper, jit=T) {
+          # FOR lognug RIGHT NOW, seems to be at least as fast, up to 5x on big data, many fewer func_evals
+          #    still want to check if it is better or not
+          if (runif(1) < .33 & jit) { # restart near some spot to avoid getting stuck in bad spot
+            start.par.i <- start.par0
+            #print("start at zero par")
+          } else { # jitter from current params
+            start.par.i <- start.par
+          }
+          if (jit) {
+            if (theta.update) {start.par.i[1:self$theta_length] <- start.par.i[1:self$theta_length] + rnorm(self$theta_length,0,2)} # jitter betas
+            if (nug.update) {start.par.i[length(start.par.i)] <- start.par.i[length(start.par.i)] + min(4, rexp(1,1))} # jitter nugget
+          }
+          if (self$verbose >= 2) {cat("\tRestart (parallel): starts pars =",start.par.i,"\n")}
+          current <- try(
+            if (self$useGrad) {
+              if (is.null(optim.fngr)) {
+                lbfgs::lbfgs(optim.func, grad.func, start.par.i, invisible=1)
+              } else {
+                lbfgs_share(optim.fngr, start.par.i, invisible=1) # 1.7x speedup uses grad_share
+              }
+            } else {
+              optim(start.par.i, optim.func, method="L-BFGS-B", lower=lower, upper=upper, hessian=F)
+            }
+          )
+          if (self$useGrad) {current$counts <- c(NA,NA);if(is.null(current$message))current$message=NA}
+          if (!inherits(current, "try-error")) {
+            details.new <- data.frame(start=paste(signif(start.par.i,3),collapse=","),end=paste(signif(current$par,3),collapse=","),value=current$value,func_evals=current$counts[1],grad_evals=current$counts[2],convergence=current$convergence, message=current$message, row.names = NULL, stringsAsFactors=F)
+          } else{
+            details.new <- data.frame(start=paste(signif(start.par.i,3),collapse=","),end="try-error",value=NA,func_evals=NA,grad_evals=NA,convergence=NA, message=current[1], stringsAsFactors=F)
+          }
+          list(current=current, details=details.new)
+        },
+        optimBayes = function(theta.update = T, nug.update = F & self$nug.est) {
+          lower <- c()
+          upper <- c()
+          start.par <- c()
+          start.par0 <- c() # Some default params
+          if (theta.update) {
+            lower <- c(lower, rep(-5, self$theta_length))
+            upper <- c(upper, rep(7, self$theta_length))
+            start.par <- c(start.par, log(self$theta_short, 10))
+            start.par0 <- c(start.par0, rep(0, self$theta_length))
+          }
+          if (nug.update) {
+            lower <- c(lower, self$nug.min)
+            upper <- c(upper, Inf)
+            start.par <- c(start.par, self$nug)
+            start.par0 <- c(start.par0, 1e-6)
+          }
+          # start with spread of points
+          n0 <- 10
+          d <- self$theta_length + as.numeric(nug.update)
+          u <- matrix(start.par0,nrow=n0, ncol=d, byrow = T)
+          for(i in 1:n0){u[i,] <- u[i,] + rnorm(d,0,2)}
+          v <- apply(u,1, self$deviance_log)
+          bgp <- GauPro$new(u,v)
+          #curve(bgp$predict(x),-5,7);points(u,v)
+          #curve(bgp$predict(x)+2*bgp$predict(x,se=T)$se,-5,7,add=T,col=2)
+          #curve(bgp$predict(x)-2*bgp$predict(x,se=T)$se,-5,7,add=T,col=2)
+          EI <- function(uu) {
+            pr <- bgp$predict(uu,se=T)
+            g <- (min(v) - pr$m) / pr$se
+            pr$se * (g * pnorm(g) + dnorm(g))
+          }
+          for(i in 1:10) {
+            #curve(EI, -5, 7);abline(v=u)
+            if (F) {
+              curve(bgp$predict(x),-5,7);points(u,v)
+              curve(bgp$predict(x)+2*bgp$predict(x,se=T)$se,-5,7,add=T,col=2)
+              curve(bgp$predict(x)-2*bgp$predict(x,se=T)$se,-5,7,add=T,col=2)
+            }
+            #apply(u, 1, function(uuu){optim(uuu, EI, lower=-5,upper=7)})
+            #replicate(1e1, {optim(runif(1,-5,7), EI, lower=-5,upper=7,method="L-BFGS-B", control=list(fnscale=-1))$val})
+            #tmp <- replicate(1e1, {optim(runif(1,-5,7), EI, lower=-5,upper=7,method="L-BFGS-B", control=list(fnscale=-1))[[c('par','val')]]})
+            # parallel doesn't really speed up this line, already fast
+            tmp <- replicate(10,{ta <- optim(runif(self$theta_length,-5,7), EI, lower=-5,upper=7,method="L-BFGS-B", control=list(fnscale=-1));c(ta$par,ta$val)})
+            best <- tmp[,which.max(tmp[self$theta_length+1,])]
+            bestu <- best[1:self$theta_length];#abline(v=bestu,col=2)
+            bestv <- self$deviance_log(beta=bestu) # this might be slow, maybe do parallel and add a bunch of new points each time?
+            bgp$update(Xnew = bestu, Znew = bestv, restarts = 0)
+            u <- rbind(u, bestu)
+            v <- c(v, bestv)
+          }
+          # optim from points already have, can pass grad #start at all midpoints?
+          # take next point
+          # start near that point?
+          # repeat until limit reached
+          bestu <- u[which.min(v),]
+          optim(bestu, bgp$pred, lower=-5,upper=7,method="L-BFGS-B")$par
+        },
+
+
+        update_params = function(restarts, useOptim2, param_update, nug.update) {
+          pars <- (if(useOptim2) self$optim2 else self$optim)(
+                    restarts = restarts, theta.update = param_update, nug.update = nug.update
+                  )$par
+          if (nug.update) {self$nug <- pars[length(pars)]}
+          if (param_update) {
+            self$theta_short <- 10 ^ pars[1:self$theta_length]
+            self$theta <- self$theta_short[self$theta_map]
+          }
+        },
+
+
         grad = function (XX) {
           if (!is.matrix(XX)) {
             if (self$D == 1) XX <- matrix(XX, ncol=1)
@@ -188,11 +452,10 @@ GauPr_Gauss <- R6::R6Class(classname = "GauPr_Gauss",
           if (self$D == 1) return(grad1)
           t(grad1)
         },
-        grad_norm = function (XX) {
-          grad1 <- self$grad(XX)
-          if (!is.matrix(grad1)) return(abs(grad1))
-          apply(grad1,1, function(xx) {sqrt(sum(xx^2))})
-        },
+
+
+
+
         print = function() {
           cat("GauPro object\n")
           cat(paste0("\tD = ", self$D, ", N = ", self$N,"\n"))
