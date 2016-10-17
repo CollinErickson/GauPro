@@ -2,6 +2,14 @@
 # corr: name of correlation
 # corr_func
 # deviance_out
+# deviance
+# deviance_grad
+# deviance_fngr
+# optim/optim2
+# optimRestart/optim2Restart
+# optimBayes
+# update_params
+# grad
 
 # Should only require??
 # deviance
@@ -181,7 +189,13 @@ GauPr_Gauss <- R6::R6Class(classname = "GauPr_Gauss",
             else nug <- 10^lognug
             joint <- c(beta, lognug)
           }
+          if (self$theta_length < self$D) {
+            theta <- theta[self$theta_map]
+            beta <- log(theta,10)
+            joint <- c(beta, lognug)
+          }
           tmp <- self$deviance_fngr(theta=theta, nug=nug, overwhat=overwhat)
+          #browser()
           tmp[[2]] <- tmp[[2]] * 10^joint * log(10) # scale gradient only
           tmp
         },
@@ -332,7 +346,7 @@ GauPr_Gauss <- R6::R6Class(classname = "GauPr_Gauss",
           vals <- sapply(restarts.out,
                          function(ii){
                            if (inherits(ii$current,"try-error")){Inf}
-                           else ii$current$val
+                           else ii$details$val
                          }
           )
           bestparallel <- which.min(vals) #which.min(new.details$value)
@@ -370,12 +384,16 @@ GauPr_Gauss <- R6::R6Class(classname = "GauPr_Gauss",
             } else {
               optim(start.par.i, optim.func, method="L-BFGS-B", lower=lower, upper=upper, hessian=F)
             }
-          )
-          if (self$useGrad) {current$counts <- c(NA,NA);if(is.null(current$message))current$message=NA}
-          if (!inherits(current, "try-error")) {
-            details.new <- data.frame(start=paste(signif(start.par.i,3),collapse=","),end=paste(signif(current$par,3),collapse=","),value=current$value,func_evals=current$counts[1],grad_evals=current$counts[2],convergence=current$convergence, message=current$message, row.names = NULL, stringsAsFactors=F)
+          )#;browser()
+          if (!inherits(current, "try-error")) {#browser()
+            if (is.character(current[[1]])) { # means cholesky failed probably
+              details.new <- data.frame(start=paste(signif(start.par.i,3),collapse=","),end="cholesky error probably",value=Inf,func_evals=NA,grad_evals=NA,convergence=NA, message=current[1], stringsAsFactors=F)
+            } else {
+              if (self$useGrad) {current$counts <- c(NA,NA);if(is.null(current$message))current$message=NA}
+              details.new <- data.frame(start=paste(signif(start.par.i,3),collapse=","),end=paste(signif(current$par,3),collapse=","),value=current$value,func_evals=current$counts[1],grad_evals=current$counts[2],convergence=current$convergence, message=current$message, row.names = NULL, stringsAsFactors=F)
+            }
           } else{
-            details.new <- data.frame(start=paste(signif(start.par.i,3),collapse=","),end="try-error",value=NA,func_evals=NA,grad_evals=NA,convergence=NA, message=current[1], stringsAsFactors=F)
+            details.new <- data.frame(start=paste(signif(start.par.i,3),collapse=","),end="try-error",value=Inf,func_evals=NA,grad_evals=NA,convergence=NA, message=current[1], stringsAsFactors=F)
           }
           list(current=current, details=details.new)
         },

@@ -103,6 +103,7 @@ GauPr <- R6::R6Class(classname = "GauPr",
             try.chol <- try(self$Kchol <- chol(self$K), silent = T)
             if (!inherits(try.chol, "try-error")) {break}
             warning("Can't Cholesky, increasing nugget #7819553")
+            browser()
             oldnug <- self$nug
             self$nug <- max(1e-8, 2 * self$nug)
             print(c(oldnug, self$nug))
@@ -181,7 +182,9 @@ GauPr <- R6::R6Class(classname = "GauPr",
           sapply(1:n2, function(i) points(x, newy[i,], type='l', col='gray'))
           points(self$X, self$Z, pch=19, col=1, cex=2)
         },
-
+        loglikelihood = function(mu=self$mu_hat, s2=self$s2_hat) {
+          -.5 * (self$N*log(s2) + log(det(self$K)) + t(self$Z - mu)%*%self$Kinv%*%(self$Z - mu)/s2)
+        },
         optim2 = function (restarts = 5, param_update = T, nug.update = self$nug.est, parallel=self$parallel, parallel_cores=self$parallel_cores) {
           # Does parallel
           # Joint MLE search with L-BFGS-B, with restarts
