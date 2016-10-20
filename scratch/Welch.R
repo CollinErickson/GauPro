@@ -3,7 +3,7 @@ tf <- function(x) {
     .05*x[2] + .08*x[3] -.03*x[6] + .03*x[7] -.09*x[9] -.01*x[10] -.07*x[11] +
     .25*x[13]^2 -.04*x[14] +.06*x[15] -.01*x[17] -.03*x[18]
 }
-X <- lhs::maximinLHS(n=50,k=20) -.5
+X <- lhs::maximinLHS(n=100,k=20) -.5
 Z <- apply(X, 1, tf)
 gp <- GauPr_Gauss$new(X=X, Z=Z, theta_map=rep(1,20), nug.est=F, nug=1e-8)
 

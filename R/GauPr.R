@@ -31,10 +31,10 @@
 #' \describe{
 #'   \item{Documentation}{For full documentation of each method go to https://github.com/lightning-viz/lightining-r/}
 #'   \item{\code{new(X, Z, corr="Gauss", verbose=0, separable=T, useC=F,useGrad=T,
-#'          parallel=T, useOptim2=T, nug.est=T, ...)}}{This method is used to create object of this class with \code{X} and \code{Z} as the data.}
+#'          parallel=T, nug.est=T, ...)}}{This method is used to create object of this class with \code{X} and \code{Z} as the data.}
 #'
 #'   \item{\code{update(Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL,
-#' restarts = 5, useOptim2=self$useOptim2,
+#' restarts = 5,
 #' param_update = T, nug.update = self$nug.est)}}{This method updates the model, adding new data if given, then running optimization again.}
 #'   }
 GauPr <- R6::R6Class(classname = "GauPr",
@@ -57,16 +57,15 @@ GauPr <- R6::R6Class(classname = "GauPr",
         useGrad = FALSE,
         parallel = FALSE,
         parallel_cores = NULL,
-        useOptim2 = FALSE,
         #deviance_out = NULL, #(theta, nug)
         #deviance_grad_out = NULL, #(theta, nug, overwhat)
         #deviance_fngr_out = NULL,
         initialize = function(X, Z, verbose=0, useC=F,useGrad=T,
-                              parallel=T, useOptim2=T, nug.est=T,
+                              parallel=T, nug.est=T,
 
                               ...) {
           #self$initialize_GauPr(X=X,Z=Z,verbose=verbose,useC=useC,useGrad=useGrad,
-          #                      parallel=parallel,useOptim2=useOptim2, nug.est=nug.est)
+          #                      parallel=parallel, nug.est=nug.est)
           self$X <- X
           self$Z <- matrix(Z, ncol=1)
           self$verbose <- verbose
@@ -87,7 +86,6 @@ GauPr <- R6::R6Class(classname = "GauPr",
           if (self$parallel) {self$parallel_cores <- parallel::detectCores()}
           else {self$parallel_cores <- 1}
 
-          self$useOptim2 <- useOptim2
 
           invisible(self)
         },
@@ -103,7 +101,6 @@ GauPr <- R6::R6Class(classname = "GauPr",
             try.chol <- try(self$Kchol <- chol(self$K), silent = T)
             if (!inherits(try.chol, "try-error")) {break}
             warning("Can't Cholesky, increasing nugget #7819553")
-            browser()
             oldnug <- self$nug
             self$nug <- max(1e-8, 2 * self$nug)
             print(c(oldnug, self$nug))
@@ -185,43 +182,43 @@ GauPr <- R6::R6Class(classname = "GauPr",
         loglikelihood = function(mu=self$mu_hat, s2=self$s2_hat) {
           -.5 * (self$N*log(s2) + log(det(self$K)) + t(self$Z - mu)%*%self$Kinv%*%(self$Z - mu)/s2)
         },
-        optim2 = function (restarts = 5, param_update = T, nug.update = self$nug.est, parallel=self$parallel, parallel_cores=self$parallel_cores) {
+        optim = function (restarts = 5, param_update = T, nug.update = self$nug.est, parallel=self$parallel, parallel_cores=self$parallel_cores) {
           # Does parallel
           # Joint MLE search with L-BFGS-B, with restarts
-          if (param_update & nug.update) {
-            optim.func <- function(xx) {self$deviance_log2(joint=xx)}
-            grad.func <- function(xx) {self$deviance_log2_grad(joint=xx)}
-            optim.fngr <- function(xx) {self$deviance_log2_fngr(joint=xx)}
-          } else if (param_update & !nug.update) {
-            optim.func <- function(xx) {self$deviance_log2(beta=xx)}
-            grad.func <- function(xx) {self$deviance_log2_grad(beta=xx)}
-            optim.fngr <- function(xx) {self$deviance_log2_fngr(beta=xx)}
-          } else if (!param_update & nug.update) {
-            optim.func <- function(xx) {self$deviance_log2(lognug=xx)}
-            grad.func <- function(xx) {self$deviance_log2_grad(lognug=xx)}
-            optim.fngr <- function(xx) {self$deviance_log2_fngr(lognug=xx)}
-          } else {
-            stop("Can't optimize over no variables")
-          }
+          #if (param_update & nug.update) {
+          #  optim.func <- function(xx) {self$deviance_log2(joint=xx)}
+          #  grad.func <- function(xx) {self$deviance_log2_grad(joint=xx)}
+          #  optim.fngr <- function(xx) {self$deviance_log2_fngr(joint=xx)}
+          #} else if (param_update & !nug.update) {
+          #  optim.func <- function(xx) {self$deviance_log2(beta=xx)}
+          #  grad.func <- function(xx) {self$deviance_log2_grad(beta=xx)}
+          #  optim.fngr <- function(xx) {self$deviance_log2_fngr(beta=xx)}
+          #} else if (!param_update & nug.update) {
+          #  optim.func <- function(xx) {self$deviance_log2(lognug=xx)}
+          #  grad.func <- function(xx) {self$deviance_log2_grad(lognug=xx)}
+          #  optim.fngr <- function(xx) {self$deviance_log2_fngr(lognug=xx)}
+          #} else {
+          #  stop("Can't optimize over no variables")
+          #}
+          optim_functions <- self$get_optim_functions(param_update=param_update, nug.update=nug.update)
+          #optim.func <- self$get_optim_func(param_update=param_update, nug.update=nug.update)
+          #optim.grad <- self$get_optim_grad(param_update=param_update, nug.update=nug.update)
+          #optim.fngr <- self$get_optim_fngr(param_update=param_update, nug.update=nug.update)
+          optim.func <- optim_functions[[1]]
+          optim.grad <- optim_functions[[2]]
+          optim.fngr <- optim_functions[[3]]
 
-          # This will make sure it at least can start
-          # Run before it sets initial parameters
-          try.devlog <- try(devlog <- self$deviance_log2(), silent = T)
-          if (inherits(try.devlog, "try-error")) {
-            warning("Current nugget doesn't work, increasing it #31973")
-            self$update_K_and_estimates() # This will increase the nugget
-            devlog <- self$deviance_log2()
-          }
 
+          # Set starting parameters and bounds
           lower <- c()
           upper <- c()
           start.par <- c()
           start.par0 <- c() # Some default params
           if (param_update) {
-            lower <- c(lower, rep(-5, self$theta_length))
-            upper <- c(upper, rep(7, self$theta_length))
-            start.par <- c(start.par, log(self$theta_short, 10))
-            start.par0 <- c(start.par0, rep(0, self$theta_length))
+            lower <- c(lower, self$param_optim_lower())#rep(-5, self$theta_length))
+            upper <- c(upper, self$param_optim_upper())#rep(7, self$theta_length))
+            start.par <- c(start.par, self$param_optim_start())#log(self$theta_short, 10))
+            start.par0 <- c(start.par0, self$param_optim_start0())#rep(0, self$theta_length))
           }
           if (nug.update) {
             lower <- c(lower, log(self$nug.min,10))
@@ -230,20 +227,32 @@ GauPr <- R6::R6Class(classname = "GauPr",
             start.par0 <- c(start.par0, -6)
           }
 
+
+          # This will make sure it at least can start
+          # Run before it sets initial parameters
+          try.devlog <- try(devlog <- optim.func(start.par), silent = T)
+          if (inherits(try.devlog, "try-error")) {
+            warning("Current nugget doesn't work, increasing it #31973")
+            self$update_K_and_estimates() # This will increase the nugget until cholesky works
+            devlog <- optim.func(start.par)
+          }
+
           # Find best params with optimization, start with current params in case all give error
           # Current params
-          best <- list(par=c(log(self$theta_short, 10), log(self$nug,10)), value = devlog)
+          #best <- list(par=c(log(self$theta_short, 10), log(self$nug,10)), value = devlog)
+          best <- list(par=start.par, value = devlog)
           if (self$verbose >= 2) {cat("Optimizing\n");cat("\tInitial values:\n");print(best)}
-          details <- data.frame(start=paste(c(self$theta_short,self$nug),collapse=","),end=NA,value=best$value,func_evals=1,grad_evals=NA,convergence=NA, message=NA, stringsAsFactors=F)
+          #details <- data.frame(start=paste(c(self$theta_short,self$nug),collapse=","),end=NA,value=best$value,func_evals=1,grad_evals=NA,convergence=NA, message=NA, stringsAsFactors=F)
+          details <- data.frame(start=paste(start.par,collapse=","),end=NA,value=best$value,func_evals=1,grad_evals=NA,convergence=NA, message=NA, stringsAsFactors=F)
 
 
           # runs them in parallel, first starts from current, rest are jittered or random
           sys_name <- Sys.info()["sysname"]
           if (sys_name == "Windows" | !self$parallel) {
             # Trying this so it works on Windows
-            restarts.out <- lapply( 1:(1+restarts), function(i){self$optimRestart2(start.par=start.par, start.par0=start.par0, param_update=param_update, nug.update=nug.update, optim.func=optim.func, grad.func=grad.func, optim.fngr=optim.fngr, lower=lower, upper=upper, jit=(i!=1))})#, mc.cores = parallel_cores)
+            restarts.out <- lapply( 1:(1+restarts), function(i){self$optimRestart(start.par=start.par, start.par0=start.par0, param_update=param_update, nug.update=nug.update, optim.func=optim.func, optim.grad=optim.grad, optim.fngr=optim.fngr, lower=lower, upper=upper, jit=(i!=1))})#, mc.cores = parallel_cores)
           } else { # Mac/Unix
-            restarts.out <- parallel::mclapply(1:(1+restarts), function(i){self$optimRestart2(start.par=start.par, start.par0=start.par0, param_update=param_update, nug.update=nug.update, optim.func=optim.func, grad.func=grad.func, optim.fngr=optim.fngr,lower=lower, upper=upper, jit=(i!=1))}, mc.cores = parallel_cores)
+            restarts.out <- parallel::mclapply(1:(1+restarts), function(i){self$optimRestart(start.par=start.par, start.par0=start.par0, param_update=param_update, nug.update=nug.update, optim.func=optim.func, optim.grad=optim.grad, optim.fngr=optim.fngr,lower=lower, upper=upper, jit=(i!=1))}, mc.cores = parallel_cores)
           }
           new.details <- t(sapply(restarts.out,function(dd){dd$deta}))
           vals <- sapply(restarts.out,
@@ -262,7 +271,7 @@ GauPr <- R6::R6Class(classname = "GauPr",
           if (nug.update) best$par[length(best$par)] <- 10 ^ (best$par[length(best$par)])
           best
         },
-        optimRestart2 = function (start.par, start.par0, param_update, nug.update, optim.func, grad.func, optim.fngr, lower, upper, jit=T) {
+        optimRestart = function (start.par, start.par0, param_update, nug.update, optim.func, optim.grad, optim.fngr, lower, upper, jit=T) {
           # FOR lognug RIGHT NOW, seems to be at least as fast, up to 5x on big data, many fewer func_evals
           #    still want to check if it is better or not
           if (runif(1) < .33 & jit) { # restart near some spot to avoid getting stuck in bad spot
@@ -272,14 +281,15 @@ GauPr <- R6::R6Class(classname = "GauPr",
             start.par.i <- start.par
           }
           if (jit) {
-            if (param_update) {start.par.i[1:self$theta_length] <- start.par.i[1:self$theta_length] + rnorm(self$theta_length,0,2)} # jitter betas
+            #if (param_update) {start.par.i[1:self$theta_length] <- start.par.i[1:self$theta_length] + rnorm(self$theta_length,0,2)} # jitter betas
+            if (param_update) {start.par.i[-length(start.par.i)] <- start.par.i[-length(start.par.i)] + self$param_optim_jitter(start.par.i[-length(start.par.i)])} # jitter betas
             if (nug.update) {start.par.i[length(start.par.i)] <- start.par.i[length(start.par.i)] + min(4, rexp(1,1))} # jitter nugget
           }
           if (self$verbose >= 2) {cat("\tRestart (parallel): starts pars =",start.par.i,"\n")}
           current <- try(
             if (self$useGrad) {
               if (is.null(optim.fngr)) {
-                lbfgs::lbfgs(optim.func, grad.func, start.par.i, invisible=1)
+                lbfgs::lbfgs(optim.func, optim.grad, start.par.i, invisible=1)
               } else {
                 lbfgs_share(optim.fngr, start.par.i, invisible=1) # 1.7x speedup uses grad_share
               }
@@ -296,11 +306,11 @@ GauPr <- R6::R6Class(classname = "GauPr",
           list(current=current, details=details.new)
         },
         update = function (Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL,
-                           restarts = 5, useOptim2=self$useOptim2,
+                           restarts = 5,
                            param_update = T, nug.update = self$nug.est) {
           self$update_data(Xnew=Xnew, Znew=Znew, Xall=Xall, Zall=Zall) # Doesn't update Kinv, etc
 
-          self$update_params(restarts=restarts, useOptim2=useOptim2,param_update=param_update,nug.update=nug.update)
+          self$update_params(restarts=restarts, param_update=param_update,nug.update=nug.update)
 
           self$update_K_and_estimates()
 

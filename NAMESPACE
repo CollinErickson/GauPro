@@ -2,6 +2,7 @@
 
 export(GauPr)
 export(GauPr_Gauss)
+export(GauPr_Gauss_par)
 export(GauPro)
 export(Gaussian_devianceC)
 export(corr_gauss_matrix)

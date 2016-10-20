@@ -31,8 +31,6 @@ Class providing object with methods for fitting a GP model
 
 \item{\code{nug}}{Value of the nugget, is estimated unless told otherwise}
 
-\item{\code{theta}}{Length-scale parameters}
-
 \item{\code{separable}}{Are the dimensions separable?}
 
 \item{\code{verbose}}{0 means nothing printed, 1 prints some, 2 prints most.}
@@ -43,7 +41,7 @@ Class providing object with methods for fitting a GP model
 
 \item{\code{parallel}}{Should the code be run in parallel?}
 
-\item{\code{parallel.cores}}{How many cores are there? It will self detect, do not set yourself.}
+\item{\code{parallel_cores}}{How many cores are there? It will self detect, do not set yourself.}
 }}
 \section{Methods}{
 
@@ -54,7 +52,7 @@ Class providing object with methods for fitting a GP model
 
   \item{\code{update(Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL,
 restarts = 5, useOptim2=self$useOptim2,
-theta.update = T, nug.update = self$nug.est)}}{This method updates the model, adding new data if given, then running optimization again.}
+param_update = T, nug.update = self$nug.est)}}{This method updates the model, adding new data if given, then running optimization again.}
   }
 }
 \examples{

@@ -5,8 +5,8 @@
 # deviance
 # deviance_grad
 # deviance_fngr
-# optim/optim2
-# optimRestart/optim2Restart
+# optim
+# optimRestart
 # optimBayes
 # update_params
 # grad
@@ -46,11 +46,11 @@ GauPr_Gauss <- R6::R6Class(classname = "GauPr_Gauss",
         #theta_short_length = NULL,
         separable = NULL,
         initialize = function(X, Z, verbose=0, separable=T, useC=F,useGrad=T,
-                              parallel=T, useOptim2=T, nug.est=T,
+                              parallel=T, nug.est=T,
                               theta_map = NULL,
                               ...) {
           super$initialize(X=X,Z=Z,verbose=verbose,useC=useC,useGrad=useGrad,
-                           parallel=parallel,useOptim2=useOptim2, nug.est=nug.est)
+                           parallel=parallel, nug.est=nug.est)
 
 
           self$separable <- separable
@@ -68,7 +68,6 @@ GauPr_Gauss <- R6::R6Class(classname = "GauPr_Gauss",
           self$theta <- self$theta_short[self$theta_map]
 
 
-          #self$useOptim2 <- useOptim2 # maybe move this back here
 
           self$fit()
           invisible(self)
@@ -205,87 +204,6 @@ GauPr_Gauss <- R6::R6Class(classname = "GauPr_Gauss",
           # Does parallel
           # Joint MLE search with L-BFGS-B, with restarts
           if (theta.update & nug.update) {
-            optim.func <- function(xx) {self$deviance_log(joint=xx)}
-          } else if (theta.update & !nug.update) {
-            optim.func <- function(xx) {self$deviance_log(beta=xx)}
-          } else if (!theta.update & nug.update) {
-            optim.func <- function(xx) {self$deviance_log(nug=xx)}
-          } else {
-            stop("Can't optimize over no variables")
-          }
-          lower <- c()
-          upper <- c()
-          start.par <- c()
-          start.par0 <- c() # Some default params
-          if (theta.update) {
-            lower <- c(lower, rep(-5, self$theta_length))
-            upper <- c(upper, rep(7, self$theta_length))
-            start.par <- c(start.par, log(self$theta_short, 10))
-            start.par0 <- c(start.par0, rep(0, self$theta_length))
-          }
-          if (nug.update) {
-            lower <- c(lower, self$nug.min)
-            upper <- c(upper, Inf)
-            start.par <- c(start.par, self$nug)
-            start.par0 <- c(start.par0, 1e-6)
-          }
-
-          # Find best params with optimization, start with current params in case all give error
-          # Current params
-          best <- list(par=c(log(self$theta, 10), self$nug), value = self$deviance_log())
-          if (self$verbose >= 2) {cat("Optimizing\n");cat("\tInitial values:\n");print(best)}
-          details <- data.frame(start=paste(c(self$theta,self$nug),collapse=","),end=NA,value=best$value,func_evals=1,grad_evals=NA,convergence=NA, message=NA, stringsAsFactors=F)
-
-          # runs them in parallel, first starts from current, rest are jittered or random
-          sys_name <- Sys.info()["sysname"]
-          if (sys_name == "Windows") {
-            # Trying this so it works on Windows
-            restarts.out <- lapply( 1:(1+restarts), function(i){self$optimRestart(start.par=start.par, start.par0=start.par0, theta.update=theta.update, nug.update=nug.update, optim.func=optim.func, lower=lower, upper=upper, jit=(i!=1))})#, mc.cores = parallel.cores)
-          } else { # Mac/Unix
-
-            restarts.out <- parallel::mclapply(1:(1+restarts), function(i){self$optimRestart(start.par=start.par, start.par0=start.par0, theta.update=theta.update, nug.update=nug.update, optim.func=optim.func, lower=lower, upper=upper, jit=(i!=1))}, mc.cores = parallel.cores)
-          }
-          #restarts.out <- lapply(1:(1+restarts), function(i){self$optimRestart(start.par=start.par, start.par0=start.par0, theta.update=theta.update, nug.update=nug.update, optim.func=optim.func, lower=lower, upper=upper, jit=(i!=1))})
-          new.details <- t(sapply(restarts.out,function(dd){dd$deta}))
-          bestparallel <- which.min(sapply(restarts.out,function(i){i$current$val})) #which.min(new.details$value)
-          if (restarts.out[[bestparallel]]$current$val < best$val) {
-            best <- restarts.out[[bestparallel]]$current
-          }
-          details <- rbind(details, new.details)
-
-          if (self$verbose >= 2) {print(details)}
-          best
-        },
-        optimRestart = function (start.par, start.par0, theta.update, nug.update, optim.func, lower, upper, jit=T, startAt.par0=F) {
-
-          if (runif(1) < .33 & jit) { # restart near some spot to avoid getting stuck in bad spot
-            start.par.i <- start.par0
-            #print("start at zero par")
-          } else { # jitter from current params
-            start.par.i <- start.par
-          }
-          if (jit) {
-            if (theta.update) {start.par.i[1:self$theta_length] <- start.par.i[1:self$theta_length] + rnorm(self$theta_length,0,2)} # jitter betas
-            if (nug.update) {start.par.i[length(start.par.i)] <- start.par.i[length(start.par.i)] + rexp(1,1e4)} # jitter nugget
-          }
-          if (self$verbose >= 2) {cat("\tRestart (parallel): starts pars =",start.par.i,"\n")}
-          current <- try(
-            optim(start.par.i, optim.func, method="L-BFGS-B", lower=lower, upper=upper, hessian=F)
-          )
-          if (!inherits(current, "try-error")) {
-            details.new <- data.frame(start=paste(signif(start.par.i,3),collapse=","),end=paste(signif(current$par,3),collapse=","),value=current$value,func_evals=current$counts[1],grad_evals=current$counts[2],convergence=current$convergence, message=current$message, row.names = NULL, stringsAsFactors=F)
-            #if (current$value < best$value) {
-            #  best <- current
-            #}
-          } else{
-            details.new <- data.frame(start=paste(signif(start.par.i,3),collapse=","),end="try-error",value=NA,func_evals=NA,grad_evals=NA,convergence=NA, message=current[1], stringsAsFactors=F)
-          }
-          list(current=current, details=details.new)
-        },
-        optim2 = function (restarts = 5, theta.update = T, nug.update = self$nug.est, parallel=self$parallel, parallel.cores=self$parallel.cores) {
-          # Does parallel
-          # Joint MLE search with L-BFGS-B, with restarts
-          if (theta.update & nug.update) {
             optim.func <- function(xx) {self$deviance_log2(joint=xx)}
             grad.func <- function(xx) {self$deviance_log2_grad(joint=xx)}
             optim.fngr <- function(xx) {self$deviance_log2_fngr(joint=xx)}
@@ -359,7 +277,7 @@ GauPr_Gauss <- R6::R6Class(classname = "GauPr_Gauss",
           if (nug.update) best$par[length(best$par)] <- 10 ^ (best$par[length(best$par)])
           best
         },
-        optimRestart2 = function (start.par, start.par0, theta.update, nug.update, optim.func, grad.func, optim.fngr, lower, upper, jit=T) {
+        optimRestart = function (start.par, start.par0, theta.update, nug.update, optim.func, grad.func, optim.fngr, lower, upper, jit=T) {
           # FOR lognug RIGHT NOW, seems to be at least as fast, up to 5x on big data, many fewer func_evals
           #    still want to check if it is better or not
           #browser()
@@ -457,8 +375,8 @@ GauPr_Gauss <- R6::R6Class(classname = "GauPr_Gauss",
         },
 
 
-        update_params = function(restarts, useOptim2, param_update, nug.update) {
-          pars <- (if(useOptim2) self$optim2 else self$optim)(
+        update_params = function(restarts, param_update, nug.update) {
+          pars <- self$optim(
                     restarts = restarts, theta.update = param_update, nug.update = nug.update
                   )$par
           if (nug.update) {self$nug <- pars[length(pars)]}

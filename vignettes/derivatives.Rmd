@@ -1,0 +1,155 @@
+---
+title: "Derivatives for estimating Gaussian process parameters"
+author: "Collin Erickson"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Derivatives for estimating Gaussian process parameters}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+Estimating the parameters is often done through maximum likelihood estimation. 
+In this vignette, derivatives of parameters are calculated to give the parameter gradient. This can then be used in numerical optimization, such as with BFGS, and should be much faster than calculating without having the gradient.
+
+
+## Deviance
+
+In this vignette, I follow the lead of the [GPfit paper](https://www.jstatsoft.org/article/view/v064i12). Instead of maximizing the likelihood, we find parameter estimates by minimizing the deviance. For correlation parameters $\theta$, the deviance is shown below.
+
+$$ -2\log L_{\theta} \propto \log |R| + n\log[(Y-1_n \hat{\mu}(\theta))^T R^{-1} (Y-1_n \hat{\mu}(\theta))]  = \mathcal{D}$$
+
+For now I will assume that $\hat{\mu}$ does not depend on $\theta$, and will replace $Y-\hat{\mu}(\theta)$ with $Z$, as shown below.
+
+$$ \mathcal{D} = \log |R| + n\log[Z^T R^{-1} Z]$$
+
+Thus the only dependence on the correlation parameters is through $R$.
+
+
+Via the [GPML book section A.3.1](http://www.gaussianprocess.org/gpml/chapters/RWA.pdf), we need the following equations:
+
+$$  \frac{\partial }{\partial \theta} R^{-1} = -R^{-1} \frac{\partial R}{\partial \theta} R^{-1}$$
+
+$$  \frac{\partial }{\partial \theta} \log |R|  = \text{tr}(R ^ {-1}\frac{\partial R}{\partial \theta} )   $$
+
+
+
+Now we can calculate the derivative of the deviance in terms of $\frac{\partial R}{\partial \theta}$.
+
+$$ \frac{\partial \mathcal{D}}{\partial \theta} = \text{tr}(R ^ {-1}\frac{\partial R}{\partial \theta} ) -  
+\frac{n}{Z^T R^{-1} Z} Z^T R^{-1} \frac{\partial R}{\partial \theta} R^{-1} Z
+ $$
+
+
+Now we just need to find $\frac{\partial R}{\partial \theta}$, which depends on the specific correlation function $R(\theta)$.
+
+
+## Nugget
+
+The correlation function is usually augmented by adding a nugget term $\delta$ to the diagonal:
+
+$$ R = R^* + \delta I  $$
+
+The nugget accounts for noise in the responses, smoothing the predicted response function.
+It also helps with numerical stability, which is a serious problem when there is a lot of data. Often a small value is used even the function is noiseless.
+
+For the nugget,
+
+$$\frac{\partial R}{\partial \delta} = I$$
+
+Thus, the derivative for the deviance is  very simple.
+$$ \frac{\partial \mathcal{D}}{\partial \delta} = \text{tr}(R ^ {-1} ) -  
+\frac{n}{Z^T R^{-1} Z} Z^T R^{-1}  R^{-1} Z
+ $$
+
+This equation gives the derivative of the deviance with respect to the nugget regardless of the correlation function used.
+
+
+## Gaussian correlation
+
+The Gaussian correlation function has parameter vector $\theta = (\theta_1, ..., \theta_d)$.
+
+Ignoring the nugget term, the $i$,$j$ entry of the correlation matrix is 
+
+$$  R_{ij}(x, y) = \exp\bigg[-\sum_{k=1}^{d} \theta_k (x_{ik} - x_{jk})^2 \bigg]  $$
+
+
+$$  \frac{\partial}{\partial \theta_l} R_{ij}(x, y) = -\exp\bigg[-\sum_{k=1}^{d} \theta_k (x_{ik} - x_{jk})^2 \bigg] (x_{il} - x_{jl})^2  $$
+
+This will give the matrix $\frac{\partial R}{\partial \theta_l}$, which can be used with the previous equations to calculate $\frac{\partial \mathcal{D}}{\partial \theta_l}$.
+
+
+
+## Lifted brownian covariance
+
+
+
+## Likelihood
+
+The likelihood for data from a Gaussian process follows the standard multivariate normal probability distribution function (pdf).
+$$  L = (2 \pi)^{-k/2} |\Sigma|^{-1/2} \exp[\frac{-1}{2}(Y - \mu) \Sigma^{-1} (Y - \mu)]  $$
+The log likelihood is generally easier to work with.
+
+$$  \log L = \frac{-k}{2} \log(2 \pi) +  \frac{-1}{2}\log|\Sigma|  +  \frac{-1}{2}(Y - \mu) \Sigma^{-1} (Y - \mu)  $$
+To simplify, we can multiply it by -1/2, and call this the deviance, denoted here as $\mathcal{D}$.
+
+$$ \mathcal{D} = \log L = k \log(2 \pi) +  \log|\Sigma|  +  (Y - \mu) \Sigma^{-1} (Y - \mu)  $$
+$k$ can be ignored since it usually constant while optimizing parameters.
+$$ \mathcal{D} = \log L \propto  \log|\Sigma|  +  (Y - \mu) \Sigma^{-1} (Y - \mu)  $$
+
+
+
+
+
+## fin
+
+
+
+Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format:
+
+- Never uses retina figures
+- Has a smaller default figure size
+- Uses a custom CSS stylesheet instead of the default Twitter Bootstrap style
+
+## Vignette Info
+
+Note the various macros within the `vignette` section of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the `title` field and the `\VignetteIndexEntry` to match the title of your vignette.
+
+## Styles
+
+The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
+
+    output: 
+      rmarkdown::html_vignette:
+        css: mystyles.css
+
+## Figures
+
+The figure sizes have been customised so that you can easily put two images side-by-side. 
+
+```{r, fig.show='hold'}
+plot(1:10)
+plot(10:1)
+```
+
+You can enable figure captions by `fig_caption: yes` in YAML:
+
+    output:
+      rmarkdown::html_vignette:
+        fig_caption: yes
+
+Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
+
+## More Examples
+
+You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
+
+```{r, echo=FALSE, results='asis'}
+knitr::kable(head(mtcars, 10))
+```
+
+Also a quote using `>`:
+
+> "He who gives up [code] safety for [code] speed deserves neither."
+([via](https://twitter.com/hadleywickham/status/504368538874703872))
