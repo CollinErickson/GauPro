@@ -7,6 +7,8 @@ vignette: >
   %\VignetteIndexEntry{Derivatives for estimating Gaussian process parameters}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+header-includes:
+   - \usepackage{bm}
 ---
 
 
@@ -83,6 +85,38 @@ This will give the matrix $\frac{\partial R}{\partial \theta_l}$, which can be u
 
 ## Lifted brownian covariance
 
+The [lifted brownian covariance](http://amstat.tandfonline.com/doi/abs/10.1080/00401706.2016.1211555) function is 
+$$  c(x, x') = \psi(x) + \psi(x') + \psi(x-x') - 1  $$
+where 
+$$ \psi(h) = (1 + ||h||_a^{2\gamma} ) ^{\beta} $$
+
+and 
+$$ ||h||_a^2 = \boldsymbol{h}^T 
+\begin{bmatrix}
+    a_1 & 0 & \dots & 0 \\
+    0 & a_2 &  \dots  & 0 \\
+    \vdots & \vdots &  \ddots & \vdots \\
+    0 & 0  & \dots  & a_d
+\end{bmatrix} 
+\boldsymbol{h} = \sum_{i=1}^d a_i h_i^2$$
+
+
+This is different from the others because it is not a correlation function, which ranges from 0 to 1, but is the covariance function itself. Thus we will have to use first deviance before inserting $\hat{\sigma}^2$.
+
+$$ \frac{\partial}{\partial \beta} \psi(h) =   (1 + ||h||_a^{2\gamma} ) ^{\beta} \log (1 + ||h||_a^{2\gamma} ) = \psi(h) \log (1 + ||h||_a^{2\gamma} ) $$
+
+$$ \frac{\partial}{\partial \gamma} \psi(h) =  \beta (1 + ||h||_a^{2\gamma} ) ^{\beta-1} ||h||_a^{2\gamma} \log(||h||_a^{2})  $$
+$$ \frac{\partial}{\partial a_i} ||h||_a^{2} = h_i^2  $$
+
+$$ \frac{\partial}{\partial a_i} ||h||_a^{2\gamma} = \gamma ||h||_a^{2(\gamma-1)} h_i^2 $$
+
+
+$$ \frac{\partial}{\partial a_i} \psi(h) =  \beta (1 + ||h||_a^{2\gamma} ) ^{\beta-1} \gamma ||h||_a^{2(\gamma-1)} h_i^2  $$
+
+
+
+
+
 
 
 ## Likelihood
@@ -92,12 +126,14 @@ $$  L = (2 \pi)^{-k/2} |\Sigma|^{-1/2} \exp[\frac{-1}{2}(Y - \mu) \Sigma^{-1} (Y
 The log likelihood is generally easier to work with.
 
 $$  \log L = \frac{-k}{2} \log(2 \pi) +  \frac{-1}{2}\log|\Sigma|  +  \frac{-1}{2}(Y - \mu) \Sigma^{-1} (Y - \mu)  $$
-To simplify, we can multiply it by -1/2, and call this the deviance, denoted here as $\mathcal{D}$.
+To simplify, we can multiply it by -2, and call this the deviance, denoted here as $\mathcal{D}$.
 
-$$ \mathcal{D} = \log L = k \log(2 \pi) +  \log|\Sigma|  +  (Y - \mu) \Sigma^{-1} (Y - \mu)  $$
+$$ \mathcal{D} = -2\log L = k \log(2 \pi) +  \log|\Sigma|  +  (Y - \mu) \Sigma^{-1} (Y - \mu)  $$
 $k$ can be ignored since it usually constant while optimizing parameters.
-$$ \mathcal{D} = \log L \propto  \log|\Sigma|  +  (Y - \mu) \Sigma^{-1} (Y - \mu)  $$
+$$ \mathcal{D} = -2\log L \propto  \log|\Sigma|  +  (Y - \mu) \Sigma^{-1} (Y - \mu)  $$
 
+$$ \frac{\partial \mathcal{D}}{\partial \theta} = \text{tr}(\Sigma ^ {-1}\frac{\partial \Sigma}{\partial \theta} ) -  
+ Z^T \Sigma^{-1} \frac{\partial \Sigma}{\partial \theta} \Sigma^{-1} Z $$
 
 
 
