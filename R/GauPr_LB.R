@@ -86,7 +86,7 @@ GauPr_LB <- R6::R6Class(classname = "GauPr_LB",
        },
        psi = function(x, theta=self$theta, beth=self$beth, gam=self$gam) {
          (1 + sum(a * x ^ 2) ^ gam) ^ beth
-       }
+       },
        cov_func = function(x, x2=NULL, theta=self$theta, beth=self$beth, gam=self$gam) {
          if   (is.null(x2)) {
            psi(x, theta=theta, beth=beth, gam=gam) +
