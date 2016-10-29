@@ -34,8 +34,8 @@
 #' x <- matrix(seq(0,1,length.out = n), ncol=1)
 #' y <- sin(2*pi*x) + rnorm(n,0,1e-1)
 #' gp <- GauPro$new(X=x, Z=y, parallel=FALSE)
-GauPr_Gauss <- R6::R6Class(classname = "GauPr_Gauss",
-      inherit = GauPr,
+GauPro_Gauss_old <- R6::R6Class(classname = "GauPro_Gauss_old",
+      inherit = GauPro_base,
       public = list(
         corr = "Gauss",
         #corr_func = NULL,

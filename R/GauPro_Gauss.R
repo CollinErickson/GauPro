@@ -33,8 +33,8 @@
 #' x <- matrix(seq(0,1,length.out = n), ncol=1)
 #' y <- sin(2*pi*x) + rnorm(n,0,1e-1)
 #' gp <- GauPro$new(X=x, Z=y, parallel=FALSE)
-GauPr_Gauss_par <- R6::R6Class(classname = "GauPr_Gauss",
-     inherit = GauPr,
+GauPro_Gauss <- R6::R6Class(classname = "GauPro_Gauss",
+     inherit = GauPro_base,
      public = list(
        corr = "Gauss",
        #corr_func = NULL,
@@ -227,7 +227,7 @@ GauPr_Gauss_par <- R6::R6Class(classname = "GauPr_Gauss",
          rep(5, self$theta_length)
        },
        param_optim_start = function() {# - current param values on optim scale
-         log(self$theta_short, 10)
+         pmin(pmax(log(self$theta_short, 10), -5), 5)
        },
        param_optim_start0 = function () {# - some central param values that can be used for optimization restarts
          rep(0, self$theta_length)
@@ -275,7 +275,7 @@ GauPr_Gauss_par <- R6::R6Class(classname = "GauPr_Gauss",
 
 
        print = function() {
-         cat("GauPro object\n")
+         cat("GauPro object of GauPr_Gauss_par\n")
          cat(paste0("\tD = ", self$D, ", N = ", self$N,"\n"))
          cat(paste0(c("\tTheta = ", signif(self$theta, 3), "\n")))
          cat(paste0("\tNugget = ", signif(self$nug, 3), "\n"))

@@ -37,7 +37,7 @@
 #' restarts = 5,
 #' param_update = T, nug.update = self$nug.est)}}{This method updates the model, adding new data if given, then running optimization again.}
 #'   }
-GauPr <- R6::R6Class(classname = "GauPr",
+GauPro_base <- R6::R6Class(classname = "GauPro_base",
       public = list(
         X = NULL,
         Z = NULL,
@@ -297,8 +297,8 @@ GauPr <- R6::R6Class(classname = "GauPr",
               optim(start.par.i, optim.func, method="L-BFGS-B", lower=lower, upper=upper, hessian=F)
             }
           )
-          if (self$useGrad) {current$counts <- c(NA,NA);if(is.null(current$message))current$message=NA}
-          if (!inherits(current, "try-error")) {
+          if (!inherits(current, "try-error")) {#browser()
+            if (self$useGrad) {current$counts <- c(NA,NA);if(is.null(current$message))current$message=NA}
             details.new <- data.frame(start=paste(signif(start.par.i,3),collapse=","),end=paste(signif(current$par,3),collapse=","),value=current$value,func_evals=current$counts[1],grad_evals=current$counts[2],convergence=current$convergence, message=current$message, row.names = NULL, stringsAsFactors=F)
           } else{
             details.new <- data.frame(start=paste(signif(start.par.i,3),collapse=","),end="try-error",value=NA,func_evals=NA,grad_evals=NA,convergence=NA, message=current[1], stringsAsFactors=F)

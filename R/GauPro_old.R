@@ -38,7 +38,7 @@
 #' restarts = 5, useOptim2=self$useOptim2,
 #' theta.update = T, nug.update = self$nug.est)}}{This method updates the model, adding new data if given, then running optimization again.}
 #'   }
-GauPro <- R6::R6Class(classname = "GauPro",
+GauPro_old <- R6::R6Class(classname = "GauPro_old",
   public = list(
     X = NULL,
     Z = NULL,
