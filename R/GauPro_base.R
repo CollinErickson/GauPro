@@ -37,7 +37,7 @@
 #' restarts = 5,
 #' param_update = T, nug.update = self$nug.est)}}{This method updates the model, adding new data if given, then running optimization again.}
 #'   }
-GauPro_base <- R6::R6Class(classname = "GauPro_base",
+GauPro_base <- R6::R6Class(classname = "GauPro",
       public = list(
         X = NULL,
         Z = NULL,
