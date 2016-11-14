@@ -262,7 +262,9 @@ GauPro_base <- R6::R6Class(classname = "GauPro",
                          }
           )
           bestparallel <- which.min(vals) #which.min(new.details$value)
-          if (restarts.out[[bestparallel]]$current$val < best$val) {
+          if(inherits(try(restarts.out[[bestparallel]]$current$val), "try-error")) { # need this in case all are restart vals are Inf
+            print("Successful avoid 325238399")
+          } else if (restarts.out[[bestparallel]]$current$val < best$val) {
             best <- restarts.out[[bestparallel]]$current
           }
           details <- rbind(details, new.details)
