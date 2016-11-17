@@ -85,7 +85,10 @@ GauPro_Gauss <- R6::R6Class(classname = "GauPro_Gauss",
        },
        deviance = function(theta=self$theta, nug=self$nug) {
          if (length(theta) < self$D) {theta = theta[self$theta_map]} # if not fully separable, map out to full theta
-         Gaussian_devianceC(theta, nug, self$X, self$Z)
+         #Gaussian_devianceC(theta, nug, self$X, self$Z) # adding a try in case C can't chol()
+         try.dev.C <- try(Gaussian_devianceC(theta, nug, self$X, self$Z))
+         if (inherits(try.dev.C, "try-error")) {return(Inf)}
+         try.dev.C
        },
        #deviance_out = function(...){Gaussian_devianceC(...)},
        deviance_grad = function(theta=NULL, nug=self$nug, joint=NULL, overwhat=if (self$nug.est) "joint" else "theta") {
