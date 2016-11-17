@@ -1,0 +1,123 @@
+---
+title: "Surface derivatives of Gaussian process models"
+author: "Collin Erickson"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Surface derivatives of Gaussian process models}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+This vignette covers the derivatives of the surface created by a Gaussian process model with respect to the spatial dimensions. 
+The other vignette has derivatives of the deviance (likelihood) with respect to the parameters.
+
+# Gradient of mean function
+
+The mean function is 
+$$ \hat{y}(x) = \hat{\mu} + r^T R^{-1}(Y - 1\hat{\mu}). $$
+$r$ is the only part that depends on $x$, and is defined below, where $K$ is the correlation function.
+
+$$ r = (r_1(x), \ldots, r_d(x))^T$$
+$$ r_i(x) = K(z(x), z(u_i))$$
+$$\frac{\partial \hat{y}(x)}{\partial x_i} = \frac{\partial r}{\partial x_i}^T R^{-1}(Y - 1\hat{\mu})$$
+
+$$\frac{\partial r_j}{\partial x_i} = \frac{\partial K(z(x), z(u_j))}{\partial x_i} $$
+This value depends on the correlation function $K$. This will give the vector $\frac{\partial r}{\partial x_i}$ which is calculates a single partial derivative, then the vector of these gives the gradient $\nabla_x \hat{y}(x)$ 
+
+
+
+
+## Hessian
+
+The second derivatives can be calculated similarly
+$$\frac{\partial^2 \hat{y}(x)}{\partial x_i \partial x_k} = \frac{\partial^2 r}{\partial x_i \partial x_k}^T R^{-1}(Y - 1\hat{\mu})$$
+
+Each element of this matrix is
+$$\frac{\partial^2 r_j}{\partial x_i \partial x_k} = \frac{\partial^2 K(z(x), z(u_j))}{\partial x_i \partial x_k} $$
+
+## Gaussian correlation derivative
+
+The equations above work for any correlation function, but then we need to have the derivatives of the correlation function with respect to the spatial variables.
+
+$$K(z(x), z(u_j)) = \exp(-\sum_{\ell =1}^d \theta_\ell (x_\ell - u_{j\ell})^2) $$
+
+$$\frac{\partial K(z(x), z(u_j))}{\partial x_i}  = -2\theta_i (x_i - u_{ji}) \exp(-\sum_{\ell =1}^d \theta_\ell (x_\ell - u_{j\ell})^2)  $$
+The second derivative with respect to the same dimension is
+
+$$\frac{\partial^2 K(z(x), z(u_j))}{\partial x_i^2}  = (-2\theta_i  + 4\theta_i^2 (x_i - u_{ji})^2) \exp(-\sum_{\ell =1}^d \theta_\ell (x_\ell - u_{j\ell})^2)  $$
+
+The cross derivative is 
+$$\frac{\partial^2 K(z(x), z(u_j))}{\partial x_i \partial x_k}  = 4\theta_i \theta_k (x_i - u_{ji}) (x_k - u_{jk}) \exp(-\sum_{\ell =1}^d \theta_\ell (x_\ell - u_{j\ell})^2)  $$
+
+## Gradient distribution
+
+A big problem with using the gradient of the mean function of a GP is that it doesn't give an idea of its distribution/randomness. The gradient could be zero in a region where the surface is not flat just because we don't any information in that region yet.
+
+Can we find the distribution of the gradient by taking a limit?
+
+In $d$ dimensions we 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# default
+Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format:
+
+- Never uses retina figures
+- Has a smaller default figure size
+- Uses a custom CSS stylesheet instead of the default Twitter Bootstrap style
+
+## Vignette Info
+
+Note the various macros within the `vignette` section of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the `title` field and the `\VignetteIndexEntry` to match the title of your vignette.
+
+## Styles
+
+The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
+
+    output: 
+      rmarkdown::html_vignette:
+        css: mystyles.css
+
+## Figures
+
+The figure sizes have been customised so that you can easily put two images side-by-side. 
+
+```{r, fig.show='hold'}
+plot(1:10)
+plot(10:1)
+```
+
+You can enable figure captions by `fig_caption: yes` in YAML:
+
+    output:
+      rmarkdown::html_vignette:
+        fig_caption: yes
+
+Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
+
+## More Examples
+
+You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
+
+```{r, echo=FALSE, results='asis'}
+knitr::kable(head(mtcars, 10))
+```
+
+Also a quote using `>`:
+
+> "He who gives up [code] safety for [code] speed deserves neither."
+([via](https://twitter.com/hadleywickham/status/504368538874703872))
