@@ -273,7 +273,23 @@ GauPro_Gauss <- R6::R6Class(classname = "GauPro_Gauss",
          if (self$D == 1) return(grad1)
          t(grad1)
        },
+      hessian = function(XX, useC=self$useC) {browser()
 
+        if (!is.matrix(XX)) {
+          if (self$D == 1) XX <- matrix(XX, ncol=1)
+          else if (length(XX) == self$D) XX <- matrix(XX, nrow=1)
+          else stop('Predict input should be matrix')
+        } else {
+          if (ncol(XX) != self$D) {stop("Wrong dimension input")}
+        }
+
+        if (nrow(XX) == 1) {
+          hess1 <- Gaussian_hessianR(XX=XX, X=self$X, Z=self$Z, Kinv=self$Kinv, self$mu_hat, self$theta)
+        } else { # more than one row
+          hess1 <- lapply(1:nrow(XX), function(ii) {Gaussian_hessianR(XX=XX[ii, ], X=self$X, Z=self$Z, Kinv=self$Kinv, self$mu_hat, self$theta)})
+        }
+        hess1
+      },
 
 
 
