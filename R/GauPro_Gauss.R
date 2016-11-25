@@ -273,7 +273,7 @@ GauPro_Gauss <- R6::R6Class(classname = "GauPro_Gauss",
          if (self$D == 1) return(grad1)
          t(grad1)
        },
-      hessian = function(XX, useC=self$useC) {browser()
+      hessian = function(XX, useC=self$useC) {#browser()
 
         if (!is.matrix(XX)) {
           if (self$D == 1) XX <- matrix(XX, ncol=1)
