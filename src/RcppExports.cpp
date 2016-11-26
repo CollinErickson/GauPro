@@ -206,6 +206,22 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// Gaussian_hessianC
+NumericMatrix Gaussian_hessianC(NumericVector XX, NumericMatrix X, NumericVector Z, NumericMatrix Kinv, double mu_hat, NumericMatrix theta);
+RcppExport SEXP GauPro_Gaussian_hessianC(SEXP XXSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP KinvSEXP, SEXP mu_hatSEXP, SEXP thetaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type XX(XXSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type Kinv(KinvSEXP);
+    Rcpp::traits::input_parameter< double >::type mu_hat(mu_hatSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type theta(thetaSEXP);
+    rcpp_result_gen = Rcpp::wrap(Gaussian_hessianC(XX, X, Z, Kinv, mu_hat, theta));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rcpp_hello_world
 List rcpp_hello_world();
 RcppExport SEXP GauPro_rcpp_hello_world() {

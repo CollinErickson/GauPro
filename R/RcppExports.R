@@ -64,6 +64,10 @@ Gaussian_devianceC <- function(theta, nug, X, Z) {
     .Call('GauPro_Gaussian_devianceC', PACKAGE = 'GauPro', theta, nug, X, Z)
 }
 
+Gaussian_hessianC <- function(XX, X, Z, Kinv, mu_hat, theta) {
+    .Call('GauPro_Gaussian_hessianC', PACKAGE = 'GauPro', XX, X, Z, Kinv, mu_hat, theta)
+}
+
 rcpp_hello_world <- function() {
     .Call('GauPro_rcpp_hello_world', PACKAGE = 'GauPro')
 }

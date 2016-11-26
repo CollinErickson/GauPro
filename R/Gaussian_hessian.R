@@ -61,3 +61,9 @@ Gaussian_hessianR <- function(XX, X, Z, Kinv, mu_hat, theta) {#browser()
 
   hess <- d2ZZ #t(d2K) %*% solve(R, Z - mu_hat)
 }
+
+
+Gaussian_hessianC <- function(XX, X, Z, Kinv, mu_hat, theta) {#browser()
+
+  Gaussian_hessianCC(XX, X, Z, Kinv, mu_hat, theta)
+}
