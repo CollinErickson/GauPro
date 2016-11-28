@@ -52,8 +52,8 @@ Gaussian_hessianR <- function(XX, X, Z, Kinv, mu_hat, theta) {#browser()
         }
 
         tval <- t(d2K_dxidxk) %*% Kinv_Zmu
-        d2ZZ[i, k] <- tval
-        d2ZZ[k, i] <- tval
+        d2ZZ(i, k) <- tval
+        d2ZZ(k, i) <- tval
       }
     }
   }
@@ -64,6 +64,7 @@ Gaussian_hessianR <- function(XX, X, Z, Kinv, mu_hat, theta) {#browser()
 
 
 Gaussian_hessianC <- function(XX, X, Z, Kinv, mu_hat, theta) {#browser()
-
+  print("Using C version")
+  browser()
   Gaussian_hessianCC(XX, X, Z, Kinv, mu_hat, theta)
 }

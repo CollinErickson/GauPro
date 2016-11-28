@@ -282,11 +282,12 @@ GauPro_Gauss <- R6::R6Class(classname = "GauPro_Gauss",
         } else {
           if (ncol(XX) != self$D) {stop("Wrong dimension input")}
         }
-
+        #browser()
+        hessian_func <- if (useC) {Gaussian_hessianC} else {Gaussian_hessianR}
         if (nrow(XX) == 1) {
-          hess1 <- Gaussian_hessianR(XX=XX, X=self$X, Z=self$Z, Kinv=self$Kinv, self$mu_hat, self$theta)
+          hess1 <- hessian_func(XX=XX, X=self$X, Z=self$Z, Kinv=self$Kinv, self$mu_hat, self$theta)
         } else { # more than one row
-          hess1 <- lapply(1:nrow(XX), function(ii) {Gaussian_hessianR(XX=XX[ii, ], X=self$X, Z=self$Z, Kinv=self$Kinv, self$mu_hat, self$theta)})
+          hess1 <- lapply(1:nrow(XX), function(ii) {hessian_func(XX=XX[ii, ], X=self$X, Z=self$Z, Kinv=self$Kinv, self$mu_hat, self$theta)})
         }
         hess1
       },

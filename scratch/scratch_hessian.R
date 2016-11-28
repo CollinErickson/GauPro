@@ -1,3 +1,16 @@
+# 1D hessian test
+n <- 12
+x <- matrix(seq(0,1,length.out = n), ncol=1)
+y <- sin(2*pi*x) + rnorm(n,0,1e-2)
+#y <- sqrt(x)-x
+y <- (2*x) %%1
+plot(x,y)
+gp <- GauPro(X=x, Z=y)
+curve(gp$pred(x));points(x,y)
+curve(gp$pred(x)+2*gp$pred(x,T)$se,col=2,add=T);curve(gp$pred(x)-2*gp$pred(x,T)$se,col=2,add=T)
+gp$hessian(.35, useC=F)
+gp$hessian(.35, useC=T)
+
 
 # 2D surface to test Hessian
 n <- 40
@@ -11,6 +24,8 @@ gp <- GauPro(x,y, verbose=2);gp$theta
 system.time(cf::cf_func(gp$pred, pts=x))
 # They give same numerical answer
 gp$hessian(c(.2,.75))
+gp$hessian(c(.2,.75), useC=F)
+gp$hessian(c(.2,.75), useC=T)
 numDeriv::hessian(gp$predict, c(.2,.75))
 
 max_eigen <- function(x) {

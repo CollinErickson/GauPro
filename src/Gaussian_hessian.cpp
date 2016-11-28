@@ -12,7 +12,7 @@ using namespace Rcpp;
 //
 
 // [[Rcpp::export]]
-NumericMatrix Gaussian_hessianC(NumericVector XX, NumericMatrix X, NumericVector Z, NumericMatrix Kinv, double mu_hat, NumericMatrix theta) {
+NumericMatrix Gaussian_hessianCC(NumericVector XX, NumericMatrix X, NumericVector Z, NumericMatrix Kinv, double mu_hat, NumericVector theta) {
   int n = X.nrow(); // # number of points already in design
   int d = XX.length(); // # input dimensions
   NumericVector Kinv_Zmu = Kinv * (Z - mu_hat); //#solve(R, Z - mu_hat)
@@ -35,6 +35,7 @@ NumericMatrix Gaussian_hessianC(NumericVector XX, NumericMatrix X, NumericVector
     for (int h=0; h<n; h++) {
       d2ZZ[i, i] += d2K_dxidxi(h) * Kinv_Zmu(h);
     }
+    Rcout << i << d2ZZ[i, i] << std::endl;
   }
   if (d > 1) {
     for (int i=0; i < d-1; i++ ){ //(i in 1:(d-1)) { # off diagonal points
@@ -52,8 +53,10 @@ NumericMatrix Gaussian_hessianC(NumericVector XX, NumericMatrix X, NumericVector
         for (int h=0; h<n; h++) {
           tval += d2K_dxidxk(h) * Kinv_Zmu(h);
         }
-        d2ZZ[i, k] = tval;
-        d2ZZ[k, i] = tval;
+        //print("in C here");
+        Rcout << i << k << tval << std::endl;
+        //d2ZZ[i, k] = tval;
+        //d2ZZ[k, i] = tval;
       }
     }
   }
