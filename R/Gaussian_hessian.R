@@ -17,7 +17,7 @@
 #' f1 <- function(a) {sin(2*pi*a[1]) + sin(6*pi*a[2])}
 #' y <- apply(x,1,f1) + rnorm(n,0,.01)
 #' gp <- GauPro(x,y, verbose=2);gp$theta
-#' gp$hessian(c(.2,.75)) # Should be -38.3, -5.96, -5.96, -389.4 as 2x2 matrix
+#' gp$hessian(c(.2,.75), useC=F) # Should be -38.3, -5.96, -5.96, -389.4 as 2x2 matrix
 Gaussian_hessianR <- function(XX, X, Z, Kinv, mu_hat, theta) {#browser()
   n <- nrow(X) # number of points already in design
   d <- length(XX) # input dimensions
@@ -52,8 +52,8 @@ Gaussian_hessianR <- function(XX, X, Z, Kinv, mu_hat, theta) {#browser()
         }
 
         tval <- t(d2K_dxidxk) %*% Kinv_Zmu
-        d2ZZ(i, k) <- tval
-        d2ZZ(k, i) <- tval
+        d2ZZ[i, k] <- tval
+        d2ZZ[k, i] <- tval
       }
     }
   }
@@ -63,8 +63,28 @@ Gaussian_hessianR <- function(XX, X, Z, Kinv, mu_hat, theta) {#browser()
 }
 
 
+#' Calculate Hessian for a GP with Gaussian correlation
+#'
+#' @param XX The vector at which to calculate the Hessian
+#' @param X The input points
+#' @param Z The output values
+#' @param Kinv The inverse of the correlation matrix
+#' @param mu_hat Estimate of mu
+#' @param theta Theta parameters for the correlation
+#'
+#' @return Matrix, the Hessian at XX
+#' @export
+#'
+#' @examples
+#' set.seed(0)
+#' n <- 40
+#' x <- matrix(runif(n*2), ncol=2)
+#' f1 <- function(a) {sin(2*pi*a[1]) + sin(6*pi*a[2])}
+#' y <- apply(x,1,f1) + rnorm(n,0,.01)
+#' gp <- GauPro(x,y, verbose=2);gp$theta
+#' gp$hessian(c(.2,.75), useC=T) # Should be -38.3, -5.96, -5.96, -389.4 as 2x2 matrix
 Gaussian_hessianC <- function(XX, X, Z, Kinv, mu_hat, theta) {#browser()
   print("Using C version")
-  browser()
+  #browser()
   Gaussian_hessianCC(XX, X, Z, Kinv, mu_hat, theta)
 }

@@ -4,7 +4,7 @@
 \alias{GauPro}
 \title{GauPro_selector}
 \usage{
-GauPro(...)
+GauPro(..., type = "Gauss")
 }
 \arguments{
 \item{...}{Pass on}

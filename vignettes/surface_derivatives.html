@@ -14,8 +14,7 @@
 
 <meta name="date" content="2016-11-28" />
 
-<title>Derivatives for estimating Gaussian process parameters</title>
-
+<title>Surface derivatives of Gaussian process models</title>
 
 
 
@@ -69,83 +68,46 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 
 
-<h1 class="title toc-ignore">Derivatives for estimating Gaussian process parameters</h1>
+<h1 class="title toc-ignore">Surface derivatives of Gaussian process models</h1>
 <h4 class="author"><em>Collin Erickson</em></h4>
 <h4 class="date"><em>2016-11-28</em></h4>
 
 
 
-<p>Estimating the parameters is often done through maximum likelihood estimation. In this vignette, derivatives of parameters are calculated to give the parameter gradient. This can then be used in numerical optimization, such as with BFGS, and should be much faster than calculating without having the gradient.</p>
-<div id="deviance" class="section level2">
-<h2>Deviance</h2>
-<p>In this vignette, I follow the lead of the <a href="https://www.jstatsoft.org/article/view/v064i12">GPfit paper</a>. Instead of maximizing the likelihood, we find parameter estimates by minimizing the deviance. For correlation parameters <span class="math inline">\(\theta\)</span>, the deviance is shown below.</p>
-<p><span class="math display">\[ -2\log L_{\theta} \propto \log |R| + n\log[(Y-1_n \hat{\mu}(\theta))^T R^{-1} (Y-1_n \hat{\mu}(\theta))]  = \mathcal{D}\]</span></p>
-<p>For now I will assume that <span class="math inline">\(\hat{\mu}\)</span> does not depend on <span class="math inline">\(\theta\)</span>, and will replace <span class="math inline">\(Y-\hat{\mu}(\theta)\)</span> with <span class="math inline">\(Z\)</span>, as shown below.</p>
-<p><span class="math display">\[ \mathcal{D} = \log |R| + n\log[Z^T R^{-1} Z]\]</span></p>
-<p>Thus the only dependence on the correlation parameters is through <span class="math inline">\(R\)</span>.</p>
-<p>Via the <a href="http://www.gaussianprocess.org/gpml/chapters/RWA.pdf">GPML book section A.3.1</a>, we need the following equations:</p>
-<p><span class="math display">\[  \frac{\partial }{\partial \theta} R^{-1} = -R^{-1} \frac{\partial R}{\partial \theta} R^{-1}\]</span></p>
-<p><span class="math display">\[  \frac{\partial }{\partial \theta} \log |R|  = \text{tr}(R ^ {-1}\frac{\partial R}{\partial \theta} )   \]</span></p>
-<p>Now we can calculate the derivative of the deviance in terms of <span class="math inline">\(\frac{\partial R}{\partial \theta}\)</span>.</p>
-<p><span class="math display">\[ \frac{\partial \mathcal{D}}{\partial \theta} = \text{tr}(R ^ {-1}\frac{\partial R}{\partial \theta} ) -  
-\frac{n}{Z^T R^{-1} Z} Z^T R^{-1} \frac{\partial R}{\partial \theta} R^{-1} Z
- \]</span></p>
-<p>Now we just need to find <span class="math inline">\(\frac{\partial R}{\partial \theta}\)</span>, which depends on the specific correlation function <span class="math inline">\(R(\theta)\)</span>.</p>
+<p>This vignette covers the derivatives of the surface created by a Gaussian process model with respect to the spatial dimensions. The other vignette has derivatives of the deviance (likelihood) with respect to the parameters.</p>
+<div id="gradient-of-mean-function" class="section level1">
+<h1>Gradient of mean function</h1>
+<p>The mean function is <span class="math display">\[ \hat{y}(x) = \hat{\mu} + r^T R^{-1}(Y - 1\hat{\mu}). \]</span> <span class="math inline">\(r\)</span> is the only part that depends on <span class="math inline">\(x\)</span>, and is defined below, where <span class="math inline">\(K\)</span> is the correlation function.</p>
+<p><span class="math display">\[ r = (r_1(x), \ldots, r_d(x))^T\]</span> <span class="math display">\[ r_i(x) = K(z(x), z(u_i))\]</span> <span class="math display">\[\frac{\partial \hat{y}(x)}{\partial x_i} = \frac{\partial r}{\partial x_i}^T R^{-1}(Y - 1\hat{\mu})\]</span></p>
+<p><span class="math display">\[\frac{\partial r_j}{\partial x_i} = \frac{\partial K(z(x), z(u_j))}{\partial x_i} \]</span> This value depends on the correlation function <span class="math inline">\(K\)</span>. This will give the vector <span class="math inline">\(\frac{\partial r}{\partial x_i}\)</span> which is calculates a single partial derivative, then the vector of these gives the gradient <span class="math inline">\(\nabla_x \hat{y}(x)\)</span></p>
+<div id="hessian" class="section level2">
+<h2>Hessian</h2>
+<p>The second derivatives can be calculated similarly <span class="math display">\[\frac{\partial^2 \hat{y}(x)}{\partial x_i \partial x_k} = \frac{\partial^2 r}{\partial x_i \partial x_k}^T R^{-1}(Y - 1\hat{\mu})\]</span></p>
+<p>Each element of this matrix is <span class="math display">\[\frac{\partial^2 r_j}{\partial x_i \partial x_k} = \frac{\partial^2 K(z(x), z(u_j))}{\partial x_i \partial x_k} \]</span></p>
 </div>
-<div id="nugget" class="section level2">
-<h2>Nugget</h2>
-<p>The correlation function is usually augmented by adding a nugget term <span class="math inline">\(\delta\)</span> to the diagonal:</p>
-<p><span class="math display">\[ R = R^* + \delta I  \]</span></p>
-<p>The nugget accounts for noise in the responses, smoothing the predicted response function. It also helps with numerical stability, which is a serious problem when there is a lot of data. Often a small value is used even the function is noiseless.</p>
-<p>For the nugget,</p>
-<p><span class="math display">\[\frac{\partial R}{\partial \delta} = I\]</span></p>
-<p>Thus, the derivative for the deviance is very simple. <span class="math display">\[ \frac{\partial \mathcal{D}}{\partial \delta} = \text{tr}(R ^ {-1} ) -  
-\frac{n}{Z^T R^{-1} Z} Z^T R^{-1}  R^{-1} Z
- \]</span></p>
-<p>This equation gives the derivative of the deviance with respect to the nugget regardless of the correlation function used.</p>
+<div id="gaussian-correlation-derivative" class="section level2">
+<h2>Gaussian correlation derivative</h2>
+<p>The equations above work for any correlation function, but then we need to have the derivatives of the correlation function with respect to the spatial variables.</p>
+<p><span class="math display">\[K(z(x), z(u_j)) = \exp(-\sum_{\ell =1}^d \theta_\ell (x_\ell - u_{j\ell})^2) \]</span></p>
+<p><span class="math display">\[\frac{\partial K(z(x), z(u_j))}{\partial x_i}  = -2\theta_i (x_i - u_{ji}) \exp(-\sum_{\ell =1}^d \theta_\ell (x_\ell - u_{j\ell})^2)  \]</span> The second derivative with respect to the same dimension is</p>
+<p><span class="math display">\[\frac{\partial^2 K(z(x), z(u_j))}{\partial x_i^2}  = (-2\theta_i  + 4\theta_i^2 (x_i - u_{ji})^2) \exp(-\sum_{\ell =1}^d \theta_\ell (x_\ell - u_{j\ell})^2)  \]</span></p>
+<p>The cross derivative is <span class="math display">\[\frac{\partial^2 K(z(x), z(u_j))}{\partial x_i \partial x_k}  = 4\theta_i \theta_k (x_i - u_{ji}) (x_k - u_{jk}) \exp(-\sum_{\ell =1}^d \theta_\ell (x_\ell - u_{j\ell})^2)  \]</span></p>
 </div>
-<div id="gaussian-correlation" class="section level2">
-<h2>Gaussian correlation</h2>
-<p>The Gaussian correlation function has parameter vector <span class="math inline">\(\theta = (\theta_1, ..., \theta_d)\)</span>.</p>
-<p>Ignoring the nugget term, the <span class="math inline">\(i\)</span>,<span class="math inline">\(j\)</span> entry of the correlation matrix is</p>
-<p><span class="math display">\[  R_{ij}(x, y) = \exp\bigg[-\sum_{k=1}^{d} \theta_k (x_{ik} - x_{jk})^2 \bigg]  \]</span></p>
-<p><span class="math display">\[  \frac{\partial}{\partial \theta_l} R_{ij}(x, y) = -\exp\bigg[-\sum_{k=1}^{d} \theta_k (x_{ik} - x_{jk})^2 \bigg] (x_{il} - x_{jl})^2  \]</span></p>
-<p>This will give the matrix <span class="math inline">\(\frac{\partial R}{\partial \theta_l}\)</span>, which can be used with the previous equations to calculate <span class="math inline">\(\frac{\partial \mathcal{D}}{\partial \theta_l}\)</span>.</p>
+<div id="gradient-distribution" class="section level2">
+<h2>Gradient distribution</h2>
+<p>A big problem with using the gradient of the mean function of a GP is that it doesn’t give an idea of its distribution/randomness. The gradient could be zero in a region where the surface is not flat just because we don’t any information in that region yet.</p>
+<p>Can we find the distribution of the gradient by taking a limit?</p>
+<p>In <span class="math inline">\(d\)</span> dimensions we</p>
 </div>
-<div id="lifted-brownian-covariance" class="section level2">
-<h2>Lifted brownian covariance</h2>
-<p>The <a href="http://amstat.tandfonline.com/doi/abs/10.1080/00401706.2016.1211555">lifted brownian covariance</a> function is <span class="math display">\[  c(x, x') = \psi(x) + \psi(x') + \psi(x-x') - 1  \]</span> where <span class="math display">\[ \psi(h) = (1 + ||h||_a^{2\gamma} ) ^{\beta} \]</span></p>
-<p>and <span class="math display">\[ ||h||_a^2 = \boldsymbol{h}^T 
-\begin{bmatrix}
-    a_1 &amp; 0 &amp; \dots &amp; 0 \\
-    0 &amp; a_2 &amp;  \dots  &amp; 0 \\
-    \vdots &amp; \vdots &amp;  \ddots &amp; \vdots \\
-    0 &amp; 0  &amp; \dots  &amp; a_d
-\end{bmatrix} 
-\boldsymbol{h} = \sum_{i=1}^d a_i h_i^2\]</span></p>
-<p>This is different from the others because it is not a correlation function, which ranges from 0 to 1, but is the covariance function itself. Thus we will have to use first deviance before inserting <span class="math inline">\(\hat{\sigma}^2\)</span>.</p>
-<p><span class="math display">\[ \frac{\partial}{\partial \beta} \psi(h) =   (1 + ||h||_a^{2\gamma} ) ^{\beta} \log (1 + ||h||_a^{2\gamma} ) = \psi(h) \log (1 + ||h||_a^{2\gamma} ) \]</span></p>
-<p><span class="math display">\[ \frac{\partial}{\partial \gamma} \psi(h) =  \beta (1 + ||h||_a^{2\gamma} ) ^{\beta-1} ||h||_a^{2\gamma} \log(||h||_a^{2})  \]</span> <span class="math display">\[ \frac{\partial}{\partial a_i} ||h||_a^{2} = h_i^2  \]</span></p>
-<p><span class="math display">\[ \frac{\partial}{\partial a_i} ||h||_a^{2\gamma} = \gamma ||h||_a^{2(\gamma-1)} h_i^2 \]</span></p>
-<p><span class="math display">\[ \frac{\partial}{\partial a_i} \psi(h) =  \beta (1 + ||h||_a^{2\gamma} ) ^{\beta-1} \gamma ||h||_a^{2(\gamma-1)} h_i^2  \]</span></p>
 </div>
-<div id="likelihood" class="section level2">
-<h2>Likelihood</h2>
-<p>The likelihood for data from a Gaussian process follows the standard multivariate normal probability distribution function (pdf). <span class="math display">\[  L = (2 \pi)^{-k/2} |\Sigma|^{-1/2} \exp[\frac{-1}{2}(Y - \mu) \Sigma^{-1} (Y - \mu)]  \]</span> The log likelihood is generally easier to work with.</p>
-<p><span class="math display">\[  \log L = \frac{-k}{2} \log(2 \pi) +  \frac{-1}{2}\log|\Sigma|  +  \frac{-1}{2}(Y - \mu) \Sigma^{-1} (Y - \mu)  \]</span> To simplify, we can multiply it by -2, and call this the deviance, denoted here as <span class="math inline">\(\mathcal{D}\)</span>.</p>
-<p><span class="math display">\[ \mathcal{D} = -2\log L = k \log(2 \pi) +  \log|\Sigma|  +  (Y - \mu) \Sigma^{-1} (Y - \mu)  \]</span> <span class="math inline">\(k\)</span> can be ignored since it usually constant while optimizing parameters. <span class="math display">\[ \mathcal{D} = -2\log L \propto  \log|\Sigma|  +  (Y - \mu) \Sigma^{-1} (Y - \mu)  \]</span></p>
-<p><span class="math display">\[ \frac{\partial \mathcal{D}}{\partial \theta} = \text{tr}(\Sigma ^ {-1}\frac{\partial \Sigma}{\partial \theta} ) -  
- Z^T \Sigma^{-1} \frac{\partial \Sigma}{\partial \theta} \Sigma^{-1} Z \]</span></p>
-</div>
-<div id="fin" class="section level2">
-<h2>fin</h2>
+<div id="default" class="section level1">
+<h1>default</h1>
 <p>Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The <code>html_vignette</code> output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The <code>html_vignette</code> format:</p>
 <ul>
 <li>Never uses retina figures</li>
 <li>Has a smaller default figure size</li>
 <li>Uses a custom CSS stylesheet instead of the default Twitter Bootstrap style</li>
 </ul>
-</div>
 <div id="vignette-info" class="section level2">
 <h2>Vignette Info</h2>
 <p>Note the various macros within the <code>vignette</code> section of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the <code>title</code> field and the <code>\VignetteIndexEntry</code> to match the title of your vignette.</p>
@@ -336,6 +298,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <blockquote>
 <p>“He who gives up [code] safety for [code] speed deserves neither.” (<a href="https://twitter.com/hadleywickham/status/504368538874703872">via</a>)</p>
 </blockquote>
+</div>
 </div>
 <div class="footnotes">
 <hr />

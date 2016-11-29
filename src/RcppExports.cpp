@@ -207,17 +207,17 @@ BEGIN_RCPP
 END_RCPP
 }
 // Gaussian_hessianCC
-NumericMatrix Gaussian_hessianCC(NumericVector XX, NumericMatrix X, NumericVector Z, NumericMatrix Kinv, double mu_hat, NumericVector theta);
+arma::mat Gaussian_hessianCC(arma::vec XX, arma::mat X, arma::vec Z, arma::mat Kinv, double mu_hat, arma::vec theta);
 RcppExport SEXP GauPro_Gaussian_hessianCC(SEXP XXSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP KinvSEXP, SEXP mu_hatSEXP, SEXP thetaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type XX(XXSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type Z(ZSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type Kinv(KinvSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type XX(XXSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Kinv(KinvSEXP);
     Rcpp::traits::input_parameter< double >::type mu_hat(mu_hatSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type theta(thetaSEXP);
     rcpp_result_gen = Rcpp::wrap(Gaussian_hessianCC(XX, X, Z, Kinv, mu_hat, theta));
     return rcpp_result_gen;
 END_RCPP
