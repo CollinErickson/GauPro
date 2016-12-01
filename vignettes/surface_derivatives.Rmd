@@ -29,7 +29,7 @@ This value depends on the correlation function $K$. This will give the vector $\
 
 
 
-## Hessian
+## Hessian of mean function
 
 The second derivatives can be calculated similarly
 $$\frac{\partial^2 \hat{y}(x)}{\partial x_i \partial x_k} = \frac{\partial^2 r}{\partial x_i \partial x_k}^T R^{-1}(Y - 1\hat{\mu})$$
@@ -59,6 +59,50 @@ Can we find the distribution of the gradient by taking a limit?
 
 In $d$ dimensions we 
 
+First start with the directional derivative in the direction of the ith component.
+$$ \frac{\partial \hat{y}(x)}{\partial x_i} = \lim_{\delta -> 0} \frac{ \hat{y}(x + \delta e_i) - \hat{y}(x)}{\delta}  $$
+
+Now we find the joint distribution of $\hat{y}(x + \delta e_i) $ and $ \hat{y}(x)$
+
+### Joint distribution
+
+If $(y,z) \sim N((\mu_1, \mu_2), \Sigma)$
+then $$ z|y \sim N(\mu_{z|y}, \Sigma_{z|y} )$$
+$$ \mu_{z|y}= \mu_2 + \Sigma_{zy}\Sigma_{yy}^{-1} (y - \mu_1)$$
+$$ \Sigma_{z|y} = \Sigma_{zz} - \Sigma_{zy}\Sigma_{yy}^{-1}\Sigma_{yz} $$
+
+### Linear combination of normal variables is normal
+
+$$ E[\hat{y}(x + \delta e_i) - \hat{y}(x)] = (\Sigma_{z_1y} - \Sigma_{z_2y})\Sigma_{yy}^{-1} (y - \mu_1) = (r_1-r_2)R^{-1}(y-\mu_1)$$
+
+$$ E[\frac{\hat{y}(x + \delta e_i) - \hat{y}(x)}{\delta}] = (\frac{\Sigma_{z_1y} - \Sigma_{z_2y}}{\delta})\Sigma_{yy}^{-1} (y - \mu_1) =  (\frac{r_1 - r_2}{\delta})R^{-1} (y - \mu_1)$$
+
+
+$$ \frac{\Sigma_{z_1y} - \Sigma_{z_2y}}{\delta} = \frac{\hat{\sigma}^2 (r_1 - r_2)}{\delta}$$
+The jth element of this is
+$$ \lim_{\delta -> 0} \frac{R(x+\delta e_i, X_j) - R(x, X_j)}{\delta}  = \frac{\partial R(x, X_j)}{\partial x_i} =  \frac{\partial r_{(j)}}{\partial x_i}$$
+The mean of the gradient distribution is 
+$$ \frac{\partial r}{\partial x_i}^TR^{-1} (y - \mu_1)$$
+This is the same as the derivative of the mean function.
+
+The variance is the more difficult part.
+
+### Variance of lincom
+
+$$ Var\big[ \frac{\hat{y}(x + \delta e_i) - \hat{y}(x)}{\delta} \big] = \frac{1}{\delta^2}Var\big[ \hat{y}(x + \delta e_i) - \hat{y}(x) \big]$$
+$$=\frac{1}{\delta^2}\big( Var\big[ \hat{y}(x + \delta e_i)  \big] + Var\big[ \hat{y}(x) \big] + -2 Cov\big[ \hat{y}(x + \delta e_i), \hat{y}(x) \big] \big)$$
+$$ Var\big[ \hat{y}(x + \delta e_i) |Y \big] = \Sigma_{11} - \Sigma_{1Y} \Sigma_{YY}^{-1} \Sigma_{Y1}  $$
+$$ Var\big[ \hat{y}(x) |Y \big] = \Sigma_{22} - \Sigma_{2Y} \Sigma_{YY}^{-1} \Sigma_{Y2}  $$
+$$ Cov\big[ \hat{y}(x + \delta e_i), \hat{y}(x)|Y \big] =  Cov\big[ \hat{y}(x + \delta e_i), \hat{y}(x) \big] - Cov\big[ \hat{y}(x + \delta e_i), Y \big] \Sigma_{YY}^{-1} Cov\big[ Y, \hat{y}(x) \big] $$
+$$ = \Sigma_{12} - \Sigma_{1Y} \Sigma_{YY}^{-1} \Sigma_{Y2}$$
+$$  = \hat{\sigma}^2 \big(R\big[ \hat{y}(x + \delta e_i), \hat{y}(x) \big] + r_1 R^{-1} r_2 \big) $$
+
+$$=\frac{1}{\delta^2}\big( \Sigma_{11} - \Sigma_{1Y} \Sigma_{YY}^{-1} \Sigma_{Y1} + \Sigma_{22} - \Sigma_{2Y} \Sigma_{YY}^{-1} \Sigma_{Y2} + -2 (\Sigma_{12} - \Sigma_{1Y} \Sigma_{YY}^{-1} \Sigma_{Y2}) $$
+$$=\frac{1}{\delta^2}\big( \Sigma_{11}  + \Sigma_{22}  -2 \Sigma_{12} +2 (\Sigma_{1Y}- \Sigma_{2Y}) \Sigma_{YY}^{-1} ( \Sigma_{1Y}-\Sigma_{Y2}) $$
+
+
+CONTINUE HERE
+USE THIS AS GUIDE http://mlg.eng.cam.ac.uk/mchutchon/DifferentiatingGPs.pdf
 
 
 
@@ -66,10 +110,12 @@ In $d$ dimensions we
 
 
 
+$$=\frac{1}{\delta^2}\big( Var\big[ \hat{y}(x + \delta e_i)  \big] + Var\big[ \hat{y}(x) \big] + -2 Cov\big[ \hat{y}(x + \delta e_i), \hat{y}(x) \big] \big)$$
 
+I could have just used this formula:
+$$ Var[(1,-1)^T (z_1, z_2)] = (1,-1)^T Cov((z_1, z_2)) (1,-1)$$
 
-
-
+$$ \frac{\partial R(z_1, z_2)}{\partial \delta} = $$
 
 
 
