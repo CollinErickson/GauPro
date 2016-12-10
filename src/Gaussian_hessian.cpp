@@ -11,6 +11,16 @@ using namespace arma;
 //   http://gallery.rcpp.org/
 //
 
+//' Gaussian hessian in C
+//'
+//' @param XX point to find Hessian at
+//' @param X matrix of data points
+//' @param Z matrix of output
+//' @param Kinv inverse of correlation matrix
+//' @param mu_hat mean estimate
+//' @param theta correlation parameters
+//'
+//' @return Hessian matrix
 //' @export
 // [[Rcpp::export]]
 arma::mat Gaussian_hessianCC(arma::vec XX, arma::mat X, arma::vec Z, arma::mat Kinv, double mu_hat, arma::vec theta) {

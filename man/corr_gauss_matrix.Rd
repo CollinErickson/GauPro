@@ -2,7 +2,7 @@
 % Please edit documentation in R/corr.R
 \name{corr_gauss_matrix}
 \alias{corr_gauss_matrix}
-\title{Title}
+\title{Gaussian correlation}
 \usage{
 corr_gauss_matrix(x, x2 = NULL, theta)
 }
@@ -17,7 +17,7 @@ corr_gauss_matrix(x, x2 = NULL, theta)
 Correlation matrix
 }
 \description{
-Title
+Gaussian correlation
 }
 \examples{
 corr_gauss_matrix(matrix(1:10,ncol=1), matrix(6:15,ncol=1), 1e-2/(1:10))

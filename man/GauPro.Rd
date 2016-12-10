@@ -8,6 +8,8 @@ GauPro(..., type = "Gauss")
 }
 \arguments{
 \item{...}{Pass on}
+
+\item{type}{Type of Gaussian process, or the kind of correlation function.}
 }
 \value{
 A GauPro object

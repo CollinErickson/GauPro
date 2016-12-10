@@ -1,5 +1,6 @@
 #' GauPro_selector
 #'
+#' @param type Type of Gaussian process, or the kind of correlation function.
 #' @param ... Pass on
 #'
 #' @return A GauPro object

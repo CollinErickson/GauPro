@@ -64,6 +64,16 @@ Gaussian_devianceC <- function(theta, nug, X, Z) {
     .Call('GauPro_Gaussian_devianceC', PACKAGE = 'GauPro', theta, nug, X, Z)
 }
 
+#' Gaussian hessian in C
+#'
+#' @param XX point to find Hessian at
+#' @param X matrix of data points
+#' @param Z matrix of output
+#' @param Kinv inverse of correlation matrix
+#' @param mu_hat mean estimate
+#' @param theta correlation parameters
+#'
+#' @return Hessian matrix
 #' @export
 Gaussian_hessianCC <- function(XX, X, Z, Kinv, mu_hat, theta) {
     .Call('GauPro_Gaussian_hessianCC', PACKAGE = 'GauPro', XX, X, Z, Kinv, mu_hat, theta)

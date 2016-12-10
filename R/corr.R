@@ -7,7 +7,7 @@ corr_gauss_matrix_noC <- function(x, x2=x, theta) {#browser()
   outer(1:nrow(x),1:nrow(x2), Vectorize(function(i,j) corr_gauss_noC(x[i,], x2[j,], theta=theta)))
 }
 
-#' Title
+#' Gaussian correlation
 #'
 #' @param x First data matrix
 #' @param x2 Second data matrix
