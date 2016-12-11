@@ -13,7 +13,7 @@
 #' n <- 12
 #' x <- matrix(seq(0,1,length.out = n), ncol=1)
 #' y <- sin(2*pi*x) + rnorm(n,0,1e-1)
-#' gp <- GauPro$new(X=x, Z=y, parallel=FALSE)
+#' gp <- GauPro(X=x, Z=y, parallel=FALSE)
 #' @field X Design matrix
 #' @field Z Responses
 #' @field N Number of data points

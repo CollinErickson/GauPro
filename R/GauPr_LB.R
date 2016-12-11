@@ -31,7 +31,7 @@
 #' n <- 12
 #' x <- matrix(seq(0,1,length.out = n), ncol=1)
 #' y <- sin(2*pi*x) + rnorm(n,0,1e-1)
-#' gp <- GauPro$new(X=x, Z=y, parallel=FALSE)
+#' gp <- GauPro(X=x, Z=y, parallel=FALSE)
 GauPr_LB <- R6::R6Class(classname = "GauPr_LB",
      inherit = GauPr,
      public = list(

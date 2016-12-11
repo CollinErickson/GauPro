@@ -33,7 +33,7 @@
 #' n <- 12
 #' x <- matrix(seq(0,1,length.out = n), ncol=1)
 #' y <- sin(2*pi*x) + rnorm(n,0,1e-1)
-#' gp <- GauPro$new(X=x, Z=y, parallel=FALSE)
+#' gp <- GauPro(X=x, Z=y, parallel=FALSE)
 GauPro_Gauss_old <- R6::R6Class(classname = "GauPro_Gauss_old",
       inherit = GauPro_base,
       public = list(
