@@ -17,7 +17,7 @@
 #' f1 <- function(a) {sin(2*pi*a[1]) + sin(6*pi*a[2])}
 #' y <- apply(x,1,f1) + rnorm(n,0,.01)
 #' gp <- GauPro(x,y, verbose=2);gp$theta
-#' gp$hessian(c(.2,.75), useC=F) # Should be -38.3, -5.96, -5.96, -389.4 as 2x2 matrix
+#' gp$hessian(c(.2,.75), useC=FALSE) # Should be -38.3, -5.96, -5.96, -389.4 as 2x2 matrix
 Gaussian_hessianR <- function(XX, X, Z, Kinv, mu_hat, theta) {#browser()
   n <- nrow(X) # number of points already in design
   d <- length(XX) # input dimensions
@@ -82,7 +82,7 @@ Gaussian_hessianR <- function(XX, X, Z, Kinv, mu_hat, theta) {#browser()
 #' f1 <- function(a) {sin(2*pi*a[1]) + sin(6*pi*a[2])}
 #' y <- apply(x,1,f1) + rnorm(n,0,.01)
 #' gp <- GauPro(x,y, verbose=2);gp$theta
-#' gp$hessian(c(.2,.75), useC=T) # Should be -38.3, -5.96, -5.96, -389.4 as 2x2 matrix
+#' gp$hessian(c(.2,.75), useC=TRUE) # Should be -38.3, -5.96, -5.96, -389.4 as 2x2 matrix
 Gaussian_hessianC <- function(XX, X, Z, Kinv, mu_hat, theta) {#browser()
   print("Using C version")
   #browser()
