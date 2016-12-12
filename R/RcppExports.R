@@ -13,11 +13,23 @@ corr_gauss_matrixC <- function(x, y, theta) {
     .Call('GauPro_corr_gauss_matrixC', PACKAGE = 'GauPro', x, y, theta)
 }
 
+#' Correlation Gaussian matrix in C (symmetric)
+#' @param x Matrix x
+#' @param theta Theta vector
+#' @return Correlation matrix
 #' @export
+#' @examples
+#' corr_gauss_matrix_symC(matrix(c(1,0,0,1),2,2),c(1,1))
 corr_gauss_matrix_symC <- function(x, theta) {
     .Call('GauPro_corr_gauss_matrix_symC', PACKAGE = 'GauPro', x, theta)
 }
 
+#' Correlation Gaussian matrix in C using Armadillo (symmetric)
+#' @param x Matrix x
+#' @param theta Theta vector
+#' @return Correlation matrix
+#' @examples
+#' corr_gauss_matrix_sym_armaC(matrix(c(1,0,0,1),2,2),c(1,1))
 #' @export
 corr_gauss_matrix_sym_armaC <- function(x, theta) {
     .Call('GauPro_corr_gauss_matrix_sym_armaC', PACKAGE = 'GauPro', x, theta)
@@ -59,6 +71,14 @@ Gaussian_deviance_part <- function(theta, nug, X, Z, Kinv) {
     .Call('GauPro_Gaussian_deviance_part', PACKAGE = 'GauPro', theta, nug, X, Z, Kinv)
 }
 
+#' Calculate the Gaussian deviance in C
+#' @param X Matrix X
+#' @param Z Matrix Z
+#' @param theta Theta vector
+#' @param nug Nugget
+#' @return Correlation matrix
+#' @examples
+#' Gaussian_devianceC(c(1,1), 1e-8, matrix(c(1,0,0,1),2,2), matrix(c(1,0),2,1))
 #' @export
 Gaussian_devianceC <- function(theta, nug, X, Z) {
     .Call('GauPro_Gaussian_devianceC', PACKAGE = 'GauPro', theta, nug, X, Z)

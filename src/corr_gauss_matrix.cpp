@@ -34,7 +34,13 @@ NumericMatrix corr_gauss_matrixC(NumericMatrix x, NumericMatrix y, NumericVector
   return out;
 }
 
+//' Correlation Gaussian matrix in C (symmetric)
+//' @param x Matrix x
+//' @param theta Theta vector
+//' @return Correlation matrix
 //' @export
+//' @examples
+//' corr_gauss_matrix_symC(matrix(c(1,0,0,1),2,2),c(1,1))
 // [[Rcpp::export]]
 NumericMatrix corr_gauss_matrix_symC(NumericMatrix x, NumericVector theta) {
   int nrow = x.nrow();
@@ -61,6 +67,12 @@ NumericMatrix corr_gauss_matrix_symC(NumericMatrix x, NumericVector theta) {
 }
 
 
+//' Correlation Gaussian matrix in C using Armadillo (symmetric)
+//' @param x Matrix x
+//' @param theta Theta vector
+//' @return Correlation matrix
+//' @examples
+//' corr_gauss_matrix_sym_armaC(matrix(c(1,0,0,1),2,2),c(1,1))
 //' @export
 // [[Rcpp::export]]
 arma::mat corr_gauss_matrix_sym_armaC(arma::mat x, arma::vec theta) {

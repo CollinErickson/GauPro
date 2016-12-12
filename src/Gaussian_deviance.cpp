@@ -18,6 +18,15 @@ double Gaussian_deviance_part(arma::vec theta, double nug, arma::mat X, arma::ma
   return tmat(0,0);
 }
 
+
+//' Calculate the Gaussian deviance in C
+//' @param X Matrix X
+//' @param Z Matrix Z
+//' @param theta Theta vector
+//' @param nug Nugget
+//' @return Correlation matrix
+//' @examples
+//' Gaussian_devianceC(c(1,1), 1e-8, matrix(c(1,0,0,1),2,2), matrix(c(1,0),2,1))
 //' @export
 // [[Rcpp::export]]
 double Gaussian_devianceC(arma::vec theta, double nug, arma::mat X, arma::mat Z) {
