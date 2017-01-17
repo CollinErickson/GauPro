@@ -284,7 +284,8 @@ GauPro_base <- R6::R6Class(classname = "GauPro",
           }
           if (jit) {
             #if (param_update) {start.par.i[1:self$theta_length] <- start.par.i[1:self$theta_length] + rnorm(self$theta_length,0,2)} # jitter betas
-            if (param_update) {start.par.i[-length(start.par.i)] <- start.par.i[-length(start.par.i)] + self$param_optim_jitter(start.par.i[-length(start.par.i)])} # jitter betas
+            theta_indices <- 1:length(self$param_optim_start()) #if () -length(start.par.i)
+            if (param_update) {start.par.i[theta_indices] <- start.par.i[theta_indices] + self$param_optim_jitter(start.par.i[theta_indices])} # jitter betas
             if (nug.update) {start.par.i[length(start.par.i)] <- start.par.i[length(start.par.i)] + min(4, rexp(1,1))} # jitter nugget
           }
           if (self$verbose >= 2) {cat("\tRestart (parallel): starts pars =",start.par.i,"\n")}
