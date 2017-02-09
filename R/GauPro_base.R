@@ -109,28 +109,66 @@ GauPro_base <- R6::R6Class(classname = "GauPro",
           self$mu_hat <- sum(self$Kinv %*% self$Z) / sum(self$Kinv)
           self$s2_hat <- c(t(self$Z - self$mu_hat) %*% self$Kinv %*% (self$Z - self$mu_hat) / self$N)
         },
-        predict = function(XX, se.fit=F, covmat=F) {
-          self$pred(XX=XX, se.fit=se.fit, covmat=covmat)
+        predict = function(XX, se.fit=F, covmat=F, split_speedT) {
+          self$pred(XX=XX, se.fit=se.fit, covmat=covmat, split_speed=split_speed)
         },
-        pred = function(XX, se.fit=F, covmat=F) {
+        pred = function(XX, se.fit=F, covmat=F, split_speed=T) {
           if (!is.matrix(XX)) {
             if (self$D == 1) XX <- matrix(XX, ncol=1)
             else if (length(XX) == self$D) XX <- matrix(XX, nrow=1)
             else stop('Predict input should be matrix')
           }
-          #covmat <- gauss_cor(c(x, xx))
-          #kx <- gauss_cor_mat(self$X) + diag(self$nug, self$N)
+
+          N <- nrow(XX)
+          # Split speed makes predictions for groups of rows separately.
+          # Fastest is for about 40.
+          if (split_speed & N >= 200 & !covmat) {#print('In split speed')
+            mn <- numeric(N)
+            if (se.fit) {
+              s2 <- numeric(N)
+              se <- numeric(N)
+              #se <- rep(0, length(mn)) # NEG VARS will be 0 for se, NOT SURE I WANT THIS
+            }
+
+            ni <- 40 # batch size
+            Nni <- ceiling(N/ni)-1
+            for (j in 0:Nni) {#browser()
+              XXj <- XX[(j*ni+1):(min((j+1)*ni,N)), , drop=FALSE]
+              # kxxj <- self$corr_func(XXj)
+              # kx.xxj <- self$corr_func(self$X, XXj)
+              predj <- self$pred_one_matrix(XX=XXj, se.fit=se.fit, covmat=covmat)
+              #mn[(j*ni+1):(min((j+1)*ni,N))] <- pred_meanC(XXj, kx.xxj, self$mu_hat, self$Kinv, self$Z)
+              if (!se.fit) { # if no se.fit, just set vector
+                mn[(j*ni+1):(min((j+1)*ni,N))] <- predj
+              } else { # otherwise set all three from data.frame
+                mn[(j*ni+1):(min((j+1)*ni,N))] <- predj$mean
+                #s2j <- pred_var(XXj, kxxj, kx.xxj, self$s2_hat, self$Kinv, self$Z)
+                #s2[(j*ni+1):(min((j+1)*ni,N))] <- s2j
+                s2[(j*ni+1):(min((j+1)*ni,N))] <- predj$s2
+                se[(j*ni+1):(min((j+1)*ni,N))] <- predj$se
+
+              }
+            }
+            #se[s2>=0] <- sqrt(s2[s2>=0])
+            if (!se.fit) {# covmat is always FALSE for split_speed } & !covmat) {
+              return(mn)
+            } else {
+              return(data.frame(mean=mn, s2=s2, se=se))
+            }
+
+          } else {
+            return(self$pred_one_matrix(XX=XX, se.fit=se.fit, covmat=covmat))
+          }
+        },
+        pred_one_matrix = function(XX, se.fit=F, covmat=F) {
+          # input should already be check for matrix
           kxx <- self$corr_func(XX)
           kx.xx <- self$corr_func(self$X, XX)
-
-          #mn <- self$pred_mean(XX, kx.xx=kx.xx)
           mn <- pred_meanC(XX, kx.xx, self$mu_hat, self$Kinv, self$Z)
+
           if (!se.fit & !covmat) {
             return(mn)
           }
-          #s2 <- self$pred_var(XX, kxx=kxx, kx.xx=kx.xx)
-          #se <- rep(0, length(mn)) # NEG VARS will be 0 for se, NOT SURE I WANT THIS
-          #se[s2>=0] <- sqrt(s2[s2>=0])
           if (covmat) {
             #covmatdat <- self$pred_var(XX, kxx=kxx, kx.xx=kx.xx, covmat=T)
             covmatdat <- pred_cov(XX, kxx, kx.xx, self$s2_hat, self$Kinv, self$Z)
@@ -140,7 +178,6 @@ GauPro_base <- R6::R6Class(classname = "GauPro",
             return(list(mean=mn, s2=s2, se=se, cov=covmatdat))
           }
 
-          #s2 <- self$pred_var(XX, kxx=kxx, kx.xx=kx.xx, covmat=F)
           s2 <- pred_var(XX, kxx, kx.xx, self$s2_hat, self$Kinv, self$Z)
           se <- rep(0, length(mn)) # NEG VARS will be 0 for se, NOT SURE I WANT THIS
           se[s2>=0] <- sqrt(s2[s2>=0])
@@ -310,10 +347,12 @@ GauPro_base <- R6::R6Class(classname = "GauPro",
         },
         update = function (Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL,
                            restarts = 5,
-                           param_update = T, nug.update = self$nug.est) {
+                           param_update = T, nug.update = self$nug.est, no_update=FALSE) {
           self$update_data(Xnew=Xnew, Znew=Znew, Xall=Xall, Zall=Zall) # Doesn't update Kinv, etc
 
-          self$update_params(restarts=restarts, param_update=param_update,nug.update=nug.update)
+          if (!no_update) { # This option lets it skip parameter optimization entirely
+            self$update_params(restarts=restarts, param_update=param_update,nug.update=nug.update)
+          }
 
           self$update_K_and_estimates()
 
