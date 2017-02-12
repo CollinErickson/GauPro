@@ -46,7 +46,7 @@ GauPro_Gauss <- R6::R6Class(classname = "GauPro_Gauss",
        separable = NULL,
        initialize = function(X, Z, verbose=0, separable=T, useC=F,useGrad=T,
                              parallel=T, nug.est=T,
-                             theta_map = NULL,
+                             theta = NULL, theta_short = NULL, theta_map = NULL,
                              ...) {
          super$initialize(X=X,Z=Z,verbose=verbose,useC=useC,useGrad=useGrad,
                           parallel=parallel, nug.est=nug.est)
@@ -63,8 +63,25 @@ GauPro_Gauss <- R6::R6Class(classname = "GauPro_Gauss",
            self$theta_map <- rep(1, self$D)
            self$theta_length <- 1
          }
-         self$theta_short <- rep(1, self$theta_length)
-         self$theta <- self$theta_short[self$theta_map]
+
+         if (is.null(theta) & is.null(theta_short)) {
+           self$theta_short <- rep(1, self$theta_length)
+           self$theta <- self$theta_short[self$theta_map]
+         } else if (!is.null(theta) & is.null(theta_short)) {
+           if (!is.null(theta_map)) {
+             stop("Don't give in theta and theta_map")
+           }
+           self$theta_short <- theta
+           self$theta <- theta
+         } else if (is.null(theta) & !is.null(theta_short)) {
+           if (is.null(theta_map)) {
+             stop("Don't give theta_short without giving theta_map")
+           }
+           self$theta_short <- theta_short
+           self$theta <- self$theta_short[self$theta_map]
+         } else if (!is.null(theta) & !is.null(theta_short)) {
+           stop("Don't give both theta and theta_short")
+         }
 
 
 
