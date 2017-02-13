@@ -43,9 +43,9 @@ GauPro_base <- R6::R6Class(classname = "GauPro",
         Z = NULL,
         N = NULL,
         D = NULL,
-        nug = 1e-6,
-        nug.min = 1e-8,
-        nug.est = T,
+        nug = NULL,
+        nug.min = NULL,
+        nug.est = NULL,
         mu_hat = NULL,
         s2_hat = NULL,
         corr_func = function(...){}, # When this was NULL the child didn't overwrite with own method, it stayed as NULL
@@ -61,7 +61,8 @@ GauPro_base <- R6::R6Class(classname = "GauPro",
         #deviance_grad_out = NULL, #(theta, nug, overwhat)
         #deviance_fngr_out = NULL,
         initialize = function(X, Z, verbose=0, useC=F,useGrad=T,
-                              parallel=T, nug.est=T,
+                              parallel=T,
+                              nug=1e-6, nug.min=1e-8, nug.est=T,
 
                               ...) {
           #self$initialize_GauPr(X=X,Z=Z,verbose=verbose,useC=useC,useGrad=useGrad,
@@ -79,6 +80,8 @@ GauPro_base <- R6::R6Class(classname = "GauPro",
           self$N <- nrow(self$X)
           self$D <- ncol(self$X)
 
+          self$nug <- nug
+          self$nug.min <- nug.min
           self$nug.est <- nug.est
           self$useC <- useC
           self$useGrad <- useGrad

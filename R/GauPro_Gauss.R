@@ -45,11 +45,13 @@ GauPro_Gauss <- R6::R6Class(classname = "GauPro_Gauss",
        #theta_short_length = NULL,
        separable = NULL,
        initialize = function(X, Z, verbose=0, separable=T, useC=F,useGrad=T,
-                             parallel=T, nug.est=T,
+                             parallel=T,
+                             nug=1e-6, nug.min=1e-8, nug.est=T,
                              theta = NULL, theta_short = NULL, theta_map = NULL,
                              ...) {
          super$initialize(X=X,Z=Z,verbose=verbose,useC=useC,useGrad=useGrad,
-                          parallel=parallel, nug.est=nug.est)
+                          parallel=parallel,
+                          nug=nug, nug.min=nug.min, nug.est=nug.est)
 
 
          self$separable <- separable
