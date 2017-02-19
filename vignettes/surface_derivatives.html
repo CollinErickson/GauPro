@@ -12,7 +12,7 @@
 
 <meta name="author" content="Collin Erickson" />
 
-<meta name="date" content="2016-11-28" />
+<meta name="date" content="2016-12-09" />
 
 <title>Surface derivatives of Gaussian process models</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Surface derivatives of Gaussian process models</h1>
 <h4 class="author"><em>Collin Erickson</em></h4>
-<h4 class="date"><em>2016-11-28</em></h4>
+<h4 class="date"><em>2016-12-09</em></h4>
 
 
 
@@ -80,8 +80,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p>The mean function is <span class="math display">\[ \hat{y}(x) = \hat{\mu} + r^T R^{-1}(Y - 1\hat{\mu}). \]</span> <span class="math inline">\(r\)</span> is the only part that depends on <span class="math inline">\(x\)</span>, and is defined below, where <span class="math inline">\(K\)</span> is the correlation function.</p>
 <p><span class="math display">\[ r = (r_1(x), \ldots, r_d(x))^T\]</span> <span class="math display">\[ r_i(x) = K(z(x), z(u_i))\]</span> <span class="math display">\[\frac{\partial \hat{y}(x)}{\partial x_i} = \frac{\partial r}{\partial x_i}^T R^{-1}(Y - 1\hat{\mu})\]</span></p>
 <p><span class="math display">\[\frac{\partial r_j}{\partial x_i} = \frac{\partial K(z(x), z(u_j))}{\partial x_i} \]</span> This value depends on the correlation function <span class="math inline">\(K\)</span>. This will give the vector <span class="math inline">\(\frac{\partial r}{\partial x_i}\)</span> which is calculates a single partial derivative, then the vector of these gives the gradient <span class="math inline">\(\nabla_x \hat{y}(x)\)</span></p>
-<div id="hessian" class="section level2">
-<h2>Hessian</h2>
+<div id="hessian-of-mean-function" class="section level2">
+<h2>Hessian of mean function</h2>
 <p>The second derivatives can be calculated similarly <span class="math display">\[\frac{\partial^2 \hat{y}(x)}{\partial x_i \partial x_k} = \frac{\partial^2 r}{\partial x_i \partial x_k}^T R^{-1}(Y - 1\hat{\mu})\]</span></p>
 <p>Each element of this matrix is <span class="math display">\[\frac{\partial^2 r_j}{\partial x_i \partial x_k} = \frac{\partial^2 K(z(x), z(u_j))}{\partial x_i \partial x_k} \]</span></p>
 </div>
@@ -98,6 +98,28 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p>A big problem with using the gradient of the mean function of a GP is that it doesn’t give an idea of its distribution/randomness. The gradient could be zero in a region where the surface is not flat just because we don’t any information in that region yet.</p>
 <p>Can we find the distribution of the gradient by taking a limit?</p>
 <p>In <span class="math inline">\(d\)</span> dimensions we</p>
+<p>First start with the directional derivative in the direction of the ith component. <span class="math display">\[ \frac{\partial \hat{y}(x)}{\partial x_i} = \lim_{\delta -&gt; 0} \frac{ \hat{y}(x + \delta e_i) - \hat{y}(x)}{\delta}  \]</span></p>
+<p>Now we find the joint distribution of $(x + e_i) $ and $ (x)$</p>
+<div id="joint-distribution" class="section level3">
+<h3>Joint distribution</h3>
+<p>If <span class="math inline">\((y,z) \sim N((\mu_1, \mu_2), \Sigma)\)</span> then <span class="math display">\[ z|y \sim N(\mu_{z|y}, \Sigma_{z|y} )\]</span> <span class="math display">\[ \mu_{z|y}= \mu_2 + \Sigma_{zy}\Sigma_{yy}^{-1} (y - \mu_1)\]</span> <span class="math display">\[ \Sigma_{z|y} = \Sigma_{zz} - \Sigma_{zy}\Sigma_{yy}^{-1}\Sigma_{yz} \]</span></p>
+</div>
+<div id="linear-combination-of-normal-variables-is-normal" class="section level3">
+<h3>Linear combination of normal variables is normal</h3>
+<p><span class="math display">\[ E[\hat{y}(x + \delta e_i) - \hat{y}(x)] = (\Sigma_{z_1y} - \Sigma_{z_2y})\Sigma_{yy}^{-1} (y - \mu_1) = (r_1-r_2)R^{-1}(y-\mu_1)\]</span></p>
+<p><span class="math display">\[ E[\frac{\hat{y}(x + \delta e_i) - \hat{y}(x)}{\delta}] = (\frac{\Sigma_{z_1y} - \Sigma_{z_2y}}{\delta})\Sigma_{yy}^{-1} (y - \mu_1) =  (\frac{r_1 - r_2}{\delta})R^{-1} (y - \mu_1)\]</span></p>
+<p><span class="math display">\[ \frac{\Sigma_{z_1y} - \Sigma_{z_2y}}{\delta} = \frac{\hat{\sigma}^2 (r_1 - r_2)}{\delta}\]</span> The jth element of this is <span class="math display">\[ \lim_{\delta -&gt; 0} \frac{R(x+\delta e_i, X_j) - R(x, X_j)}{\delta}  = \frac{\partial R(x, X_j)}{\partial x_i} =  \frac{\partial r_{(j)}}{\partial x_i}\]</span> The mean of the gradient distribution is <span class="math display">\[ \frac{\partial r}{\partial x_i}^TR^{-1} (y - \mu_1)\]</span> This is the same as the derivative of the mean function.</p>
+<p>The variance is the more difficult part.</p>
+</div>
+<div id="variance-of-lincom" class="section level3">
+<h3>Variance of lincom</h3>
+<p><span class="math display">\[ Var\big[ \frac{\hat{y}(x + \delta e_i) - \hat{y}(x)}{\delta} \big] = \frac{1}{\delta^2}Var\big[ \hat{y}(x + \delta e_i) - \hat{y}(x) \big]\]</span> <span class="math display">\[=\frac{1}{\delta^2}\big( Var\big[ \hat{y}(x + \delta e_i)  \big] + Var\big[ \hat{y}(x) \big] + -2 Cov\big[ \hat{y}(x + \delta e_i), \hat{y}(x) \big] \big)\]</span> <span class="math display">\[ Var\big[ \hat{y}(x + \delta e_i) |Y \big] = \Sigma_{11} - \Sigma_{1Y} \Sigma_{YY}^{-1} \Sigma_{Y1}  \]</span> <span class="math display">\[ Var\big[ \hat{y}(x) |Y \big] = \Sigma_{22} - \Sigma_{2Y} \Sigma_{YY}^{-1} \Sigma_{Y2}  \]</span> <span class="math display">\[ Cov\big[ \hat{y}(x + \delta e_i), \hat{y}(x)|Y \big] =  Cov\big[ \hat{y}(x + \delta e_i), \hat{y}(x) \big] - Cov\big[ \hat{y}(x + \delta e_i), Y \big] \Sigma_{YY}^{-1} Cov\big[ Y, \hat{y}(x) \big] \]</span> <span class="math display">\[ = \Sigma_{12} - \Sigma_{1Y} \Sigma_{YY}^{-1} \Sigma_{Y2}\]</span> <span class="math display">\[  = \hat{\sigma}^2 \big(R\big[ \hat{y}(x + \delta e_i), \hat{y}(x) \big] + r_1 R^{-1} r_2 \big) \]</span></p>
+<p><span class="math display">\[=\frac{1}{\delta^2}\big( \Sigma_{11} - \Sigma_{1Y} \Sigma_{YY}^{-1} \Sigma_{Y1} + \Sigma_{22} - \Sigma_{2Y} \Sigma_{YY}^{-1} \Sigma_{Y2} + -2 (\Sigma_{12} - \Sigma_{1Y} \Sigma_{YY}^{-1} \Sigma_{Y2}) \]</span> <span class="math display">\[=\frac{1}{\delta^2}\big( \Sigma_{11}  + \Sigma_{22}  -2 \Sigma_{12} +2 (\Sigma_{1Y}- \Sigma_{2Y}) \Sigma_{YY}^{-1} ( \Sigma_{1Y}-\Sigma_{Y2}) \]</span></p>
+<p>CONTINUE HERE USE THIS AS GUIDE <a href="http://mlg.eng.cam.ac.uk/mchutchon/DifferentiatingGPs.pdf" class="uri">http://mlg.eng.cam.ac.uk/mchutchon/DifferentiatingGPs.pdf</a></p>
+<p><span class="math display">\[=\frac{1}{\delta^2}\big( Var\big[ \hat{y}(x + \delta e_i)  \big] + Var\big[ \hat{y}(x) \big] + -2 Cov\big[ \hat{y}(x + \delta e_i), \hat{y}(x) \big] \big)\]</span></p>
+<p>I could have just used this formula: <span class="math display">\[ Var[(1,-1)^T (z_1, z_2)] = (1,-1)^T Cov((z_1, z_2)) (1,-1)\]</span></p>
+<p><span class="math display">\[ \frac{\partial R(z_1, z_2)}{\partial \delta} = \]</span></p>
+</div>
 </div>
 </div>
 <div id="default" class="section level1">
