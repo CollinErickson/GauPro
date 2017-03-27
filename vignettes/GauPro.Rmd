@@ -13,6 +13,23 @@ vignette: >
 This R package provides R code for fitting Gaussian process models to data.
 The code is created using the `R6` class structure, which is why `$` is used to access object methods.
 
+A Gaussian process fits a model to a dataset, which gives a function that gives a prediction for the mean at any point along with a variance of this prediction.
+
+Suppose we have the data below
+
+```{r}
+x <- seq(0,1,l=10)
+y <- abs(sin(2*pi*x))^.8
+plot(x, y)
+```
+
+A linear model (LM) will fit a straight line through the data and clearly does not describe the underlying function producing the data.
+
+```{r}
+lm_mod <- lm(y ~ x)
+plot(x, y)
+abline(a=lm_mod$coef[1], b=lm_mod$coef[2], col='red')
+```
 
 
 
