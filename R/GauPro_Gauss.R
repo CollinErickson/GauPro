@@ -47,11 +47,12 @@ GauPro_Gauss <- R6::R6Class(classname = "GauPro_Gauss",
        initialize = function(X, Z, verbose=0, separable=T, useC=F,useGrad=T,
                              parallel=T,
                              nug=1e-6, nug.min=1e-8, nug.est=T,
+                             param.est=T,
                              theta = NULL, theta_short = NULL, theta_map = NULL,
                              ...) {
          super$initialize(X=X,Z=Z,verbose=verbose,useC=useC,useGrad=useGrad,
                           parallel=parallel,
-                          nug=nug, nug.min=nug.min, nug.est=nug.est)
+                          nug=nug, nug.min=nug.min, nug.est=nug.est, param.est=param.est)
 
 
          self$separable <- separable
@@ -259,6 +260,9 @@ GauPro_Gauss <- R6::R6Class(classname = "GauPro_Gauss",
        },
 
        update_params = function(restarts, param_update, nug.update) {
+         if (param_update==FALSE && nug.update==FALSE) {
+           return()
+         }
          pars <- self$optim(
            restarts = restarts, param_update = param_update, nug.update = nug.update
          )$par

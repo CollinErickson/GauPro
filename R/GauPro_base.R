@@ -46,6 +46,7 @@ GauPro_base <- R6::R6Class(classname = "GauPro",
         nug = NULL,
         nug.min = NULL,
         nug.est = NULL,
+        param.est = NULL, # Whether parameters besides nugget (theta) should be updated
         mu_hat = NULL,
         s2_hat = NULL,
         corr_func = function(...){}, # When this was NULL the child didn't overwrite with own method, it stayed as NULL
@@ -63,7 +64,7 @@ GauPro_base <- R6::R6Class(classname = "GauPro",
         initialize = function(X, Z, verbose=0, useC=F,useGrad=T,
                               parallel=T,
                               nug=1e-6, nug.min=1e-8, nug.est=T,
-
+                              param.est = TRUE,
                               ...) {
           #self$initialize_GauPr(X=X,Z=Z,verbose=verbose,useC=useC,useGrad=useGrad,
           #                      parallel=parallel, nug.est=nug.est)
@@ -83,6 +84,7 @@ GauPro_base <- R6::R6Class(classname = "GauPro",
           self$nug <- nug
           self$nug.min <- nug.min
           self$nug.est <- nug.est
+          self$param.est <- param.est
           self$useC <- useC
           self$useGrad <- useGrad
           self$parallel <- parallel
@@ -112,7 +114,7 @@ GauPro_base <- R6::R6Class(classname = "GauPro",
           self$mu_hat <- sum(self$Kinv %*% self$Z) / sum(self$Kinv)
           self$s2_hat <- c(t(self$Z - self$mu_hat) %*% self$Kinv %*% (self$Z - self$mu_hat) / self$N)
         },
-        predict = function(XX, se.fit=F, covmat=F, split_speedT) {
+        predict = function(XX, se.fit=F, covmat=F, split_speed=T) {
           self$pred(XX=XX, se.fit=se.fit, covmat=covmat, split_speed=split_speed)
         },
         pred = function(XX, se.fit=F, covmat=F, split_speed=T) {
@@ -350,10 +352,10 @@ GauPro_base <- R6::R6Class(classname = "GauPro",
         },
         update = function (Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL,
                            restarts = 5,
-                           param_update = T, nug.update = self$nug.est, no_update=FALSE) {
+                           param_update = self$param.est, nug.update = self$nug.est, no_update=FALSE) {
           self$update_data(Xnew=Xnew, Znew=Znew, Xall=Xall, Zall=Zall) # Doesn't update Kinv, etc
 
-          if (!no_update) { # This option lets it skip parameter optimization entirely
+          if (!no_update || (!param_update && !nug.update)) { # This option lets it skip parameter optimization entirely
             self$update_params(restarts=restarts, param_update=param_update,nug.update=nug.update)
           }
 
