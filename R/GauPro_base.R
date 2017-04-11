@@ -199,16 +199,31 @@ GauPro_base <- R6::R6Class(classname = "GauPro",
         pred_var = function(XX, kxx, kx.xx, covmat=F) { # 2-4x faster to use C functions pred_var and pred_cov
           self$s2_hat * diag(kxx - t(kx.xx) %*% self$Kinv %*% kx.xx)
         },
-        cool1Dplot = function () {
+        cool1Dplot = function (n2=20, nn=201, col2="gray",
+                               xlab='x', ylab='y',
+                               xmin=NULL, xmax=NULL,
+                               ymin=NULL, ymax=NULL
+                               ) {
           if (self$D != 1) stop('Must be 1D')
-          minx <- min(self$X)
-          maxx <- max(self$X)
+          # Letting user pass in minx and maxx
+          if (is.null(xmin)) {
+            minx <- min(self$X)
+          } else {
+            minx <- xmin
+          }
+          if (is.null(xmax)) {
+            maxx <- max(self$X)
+          } else {
+            maxx <- xmax
+          }
+          # minx <- min(self$X)
+          # maxx <- max(self$X)
           x1 <- minx - .1 * (maxx - minx)
           x2 <- maxx + .1 * (maxx - minx)
-          nn <- 201
+          # nn <- 201
           x <- seq(x1, x2, length.out = nn)
           px <- self$pred(x, covmat = T)
-          n2 <- 20
+          # n2 <- 20
           Sigma.try <- try(newy <- MASS::mvrnorm(n=n2, mu=px$mean, Sigma=px$cov))
           if (inherits(Sigma.try, "try-error")) {
             message("Adding nugget to cool1Dplot")
@@ -217,8 +232,35 @@ GauPro_base <- R6::R6Class(classname = "GauPro",
               stop("Can't do cool1Dplot")
             }
           }
-          plot(x,px$me, type='l', lwd=4, ylim=c(min(newy),max(newy)))
-          sapply(1:n2, function(i) points(x, newy[i,], type='l', col='gray'))
+          # plot(x,px$me, type='l', lwd=4, ylim=c(min(newy),max(newy)),
+          #      xlab=xlab, ylab=ylab)
+          # sapply(1:n2, function(i) points(x, newy[i,], type='l', col=col2))
+          # points(self$X, self$Z, pch=19, col=1, cex=2)
+
+          # Setting ylim, giving user option
+          if (is.null(ymin)) {
+            miny <- min(newy)
+          } else {
+            miny <- ymin
+          }
+          if (is.null(ymax)) {
+            maxy <- max(newy)
+          } else {
+            maxy <- ymax
+          }
+
+          # Redo to put gray lines on bottom
+          for (i in 1:n2) {
+            if (i == 1) {
+              plot(x, newy[i,], type='l', col=col2,
+                   # ylim=c(min(newy),max(newy)),
+                   ylim=c(miny,maxy),
+                   xlab=xlab, ylab=ylab)
+            } else {
+              points(x, newy[i,], type='l', col=col2)
+            }
+          }
+          points(x,px$me, type='l', lwd=4)
           points(self$X, self$Z, pch=19, col=1, cex=2)
         },
         loglikelihood = function(mu=self$mu_hat, s2=self$s2_hat) {
