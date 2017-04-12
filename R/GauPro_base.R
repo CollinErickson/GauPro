@@ -167,7 +167,7 @@ GauPro_base <- R6::R6Class(classname = "GauPro",
         },
         pred_one_matrix = function(XX, se.fit=F, covmat=F) {
           # input should already be check for matrix
-          kxx <- self$corr_func(XX)
+          kxx <- self$corr_func(XX) + self$nug
           kx.xx <- self$corr_func(self$X, XX)
           mn <- pred_meanC(XX, kx.xx, self$mu_hat, self$Kinv, self$Z)
 
