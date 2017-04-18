@@ -459,6 +459,19 @@ GauPro_base <- R6::R6Class(classname = "GauPro",
         #  if (!is.matrix(grad1)) return(abs(grad1))
         #  apply(grad1,1, function(xx) {sqrt(sum(xx^2))})
         #},
+        sample = function(XX, n=1) {
+          # Generates n samples at rows of XX
+          px <- self$pred(XX, covmat = T)
+          Sigma.try <- try(newy <- MASS::mvrnorm(n=n, mu=px$mean, Sigma=px$cov))
+          if (inherits(Sigma.try, "try-error")) {
+            message("Adding nugget to get sample")
+            Sigma.try2 <- try(newy <- MASS::mvrnorm(n=n, mu=px$mean, Sigma=px$cov + diag(self$nug, nrow(px$cov))))
+            if (inherits(Sigma.try2, "try-error")) {
+              stop("Can't do sample, can't factor Sigma")
+            }
+          }
+          newy # Not transposing matrix since it gives var a problem
+        },
         print = function() {
           cat("GauPro object\n")
           cat(paste0("\tD = ", self$D, ", N = ", self$N,"\n"))
