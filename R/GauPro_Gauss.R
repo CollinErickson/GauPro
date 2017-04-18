@@ -296,6 +296,45 @@ GauPro_Gauss <- R6::R6Class(classname = "GauPro_Gauss",
          if (self$D == 1) return(grad1)
          t(grad1)
        },
+       grad_dist = function (XX) {
+         if (!is.matrix(XX)) {
+           if (self$D == 1) XX <- matrix(XX, ncol=1)
+           else if (length(XX) == self$D) XX <- matrix(XX, nrow=1)
+           else stop('Predict input should be matrix')
+         } else {
+           if (ncol(XX) != self$D) {stop("Wrong dimension input")}
+         }
+         kx.xx <- self$corr_func(self$X, XX, theta=self$theta)
+
+         # browser()
+         xx <- as.numeric(XX)
+         dkxx.x_dxx <- vapply(1:nrow(XX),
+                              Vectorize(
+                                function(k) {
+                                  t(-2 * outer(1:self$N,
+                                               1:self$D,
+                                               Vectorize(
+                                                 function(i,j) {
+                                                   self$theta[j] * (XX[k, j] - self$X[i, j]) * kx.xx[i, k]}))
+                                  )  #%*%self$Kinv %*% (self$Z - self$mu_hat)
+                                }
+                              )
+                              , matrix(0, nrow=self$D, ncol=nrow(self$X))
+         )
+         cov_mat <- lapply(1:nrow(XX),
+                function(i) {
+                  (diag(2*self$theta) -
+                    dkxx.x_dxx[,,i] %*% self$Kinv %*% t(dkxx.x_dxx[,,i])
+                  ) * self$s2_hat
+                  }
+                )
+         mean_vec <- lapply(1:nrow(XX),
+                                function(i) {
+                                  0 + dkxx.x_dxx[,,i] %*% self$Kinv %*% (self$Z - self$mu_hat)
+                                }
+                         )
+         list(mean=mean_vec, cov=cov_mat)
+       },
       hessian = function(XX, useC=self$useC) {#browser()
 
         if (!is.matrix(XX)) {
