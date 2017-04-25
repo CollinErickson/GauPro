@@ -43,6 +43,7 @@ Class providing object with methods for fitting a GP model
 
 \item{\code{parallel_cores}}{How many cores are there? It will self detect, do not set yourself.}
 }}
+
 \section{Methods}{
 
 \describe{
@@ -55,6 +56,7 @@ restarts = 5,
 param_update = T, nug.update = self$nug.est)}}{This method updates the model, adding new data if given, then running optimization again.}
   }
 }
+
 \examples{
 n <- 12
 x <- matrix(seq(0,1,length.out = n), ncol=1)
@@ -66,4 +68,3 @@ gp <- GauPro(X=x, Z=y, parallel=FALSE)
 \keyword{kriging,}
 \keyword{process,}
 \keyword{regression}
-

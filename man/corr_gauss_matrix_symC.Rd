@@ -20,4 +20,3 @@ Correlation Gaussian matrix in C (symmetric)
 \examples{
 corr_gauss_matrix_symC(matrix(c(1,0,0,1),2,2),c(1,1))
 }
-

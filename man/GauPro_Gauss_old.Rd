@@ -25,4 +25,3 @@ gp <- GauPro(X=x, Z=y, parallel=FALSE)
 \keyword{kriging,}
 \keyword{process,}
 \keyword{regression}
-

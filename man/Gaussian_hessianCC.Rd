@@ -25,4 +25,3 @@ Hessian matrix
 \description{
 Gaussian hessian in C
 }
-
