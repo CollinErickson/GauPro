@@ -354,12 +354,17 @@ GauPro_base <- R6::R6Class(classname = "GauPro",
           details <- rbind(details, new.details)
 
           if (self$verbose >= 2) {print(details)}
+
+          # If new nug is below nug.min, optimize again with fixed nug
+          # Moved into update_params, since I don't want to set nugget here
+
           if (nug.update) best$par[length(best$par)] <- 10 ^ (best$par[length(best$par)])
           best
         },
         optimRestart = function (start.par, start.par0, param_update, nug.update, optim.func, optim.grad, optim.fngr, lower, upper, jit=T) {
           # FOR lognug RIGHT NOW, seems to be at least as fast, up to 5x on big data, many fewer func_evals
           #    still want to check if it is better or not
+
           if (runif(1) < .33 & jit) { # restart near some spot to avoid getting stuck in bad spot
             start.par.i <- start.par0
             #print("start at zero par")

@@ -216,8 +216,21 @@ GauPro_Gauss <- R6::R6Class(classname = "GauPro_Gauss",
            joint <- c(beta, lognug)
          }
          tmp <- self$deviance_fngr(theta=theta, nug=nug, overwhat=overwhat)
-         #browser()
-         tmp[[2]] <- tmp[[2]] * 10^joint * log(10) # scale gradient only
+
+         # Need to scale gradient, chain rule to get derivatives on log scale
+         #if (length(tmp[[2]]) != length(joint)) {browser()}
+         if (overwhat == "joint") {
+           tmp[[2]] <- tmp[[2]] * 10^joint * log(10) # scale gradient only
+         } else if (overwhat == "theta") {
+           tmp[[2]] <- tmp[[2]] * theta * log(10) # scale gradient only
+         } else if (overwhat == "nug") {
+           tmp[[2]] <- tmp[[2]] * nug * log(10) # scale gradient only
+         } else {
+           print(paste("Overwhat is", overwhat, ", which is not accepted #523592"))
+         }
+         # Old below
+         # tmp[[2]] <- tmp[[2]] * 10^joint * log(10) # scale gradient only
+
          tmp
        },
 
@@ -229,8 +242,8 @@ GauPro_Gauss <- R6::R6Class(classname = "GauPro_Gauss",
            optim.fngr <- function(xx) {self$deviance_log2_fngr(joint=xx)}
          } else if (param_update & !nug.update) {
            optim.func <- function(xx) {self$deviance_log2(beta=xx)}
-           optim.grad <- function(xx) {self$deviance_log2_grad(beta=xx)}
-           optim.fngr <- function(xx) {self$deviance_log2_fngr(beta=xx)}
+           optim.grad <- function(xx) {self$deviance_log2_grad(beta=xx, overwhat="theta")}
+           optim.fngr <- function(xx) {self$deviance_log2_fngr(beta=xx, overwhat="theta")}
          } else if (!param_update & nug.update) {
            optim.func <- function(xx) {self$deviance_log2(lognug=xx)}
            optim.grad <- function(xx) {self$deviance_log2_grad(lognug=xx)}
@@ -266,6 +279,27 @@ GauPro_Gauss <- R6::R6Class(classname = "GauPro_Gauss",
          pars <- self$optim(
            restarts = restarts, param_update = param_update, nug.update = nug.update
          )$par
+
+         # Check if nugget is below nug.min since lbfgs doesn't use bounds
+         if (nug.update) {
+           if (pars[length(pars)] < self$nug.min) {
+             message("Below nug.min, setting nug to nug.min and reoptimizing #82387")
+             self$nug <- self$nug.min
+             nug.update=FALSE
+             if (param_update) {
+               # Set to best thetas and run from there
+               self$theta_short <- 10 ^ pars[1:self$theta_length]
+               self$theta <- self$theta_short[self$theta_map]
+
+               # And rerun opt once fixing nugget
+               pars <- self$optim(
+                 restarts = 0, param_update = T, nug.update = F
+               )$par
+             }
+
+           }
+         }
+
          if (nug.update) {self$nug <- pars[length(pars)]}
          if (param_update) {
            self$theta_short <- 10 ^ pars[1:self$theta_length]
@@ -357,7 +391,7 @@ GauPro_Gauss <- R6::R6Class(classname = "GauPro_Gauss",
 
 
        print = function() {
-         cat("GauPro object of GauPr_Gauss_par\n")
+         cat("GauPro object of GauPr_Gauss\n")
          cat(paste0("\tD = ", self$D, ", N = ", self$N,"\n"))
          cat(paste0(c("\tTheta = ", signif(self$theta, 3), "\n")))
          cat(paste0("\tNugget = ", signif(self$nug, 3), "\n"))
