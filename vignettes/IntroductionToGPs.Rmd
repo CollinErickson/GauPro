@@ -1,0 +1,111 @@
+---
+title: "Introduction to Gaussian Processes"
+author: "Collin Erickson"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to Gaussian Processes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+
+A Gaussian process is a stochastic process that assumes that the 
+outputs for any set of input points follows a multivariate normal distribution.
+To determine the normal distribution, we must select a mean function that gives
+a mean for each point and a covariance function that gives the covariance
+between any set of points.
+
+Thus if we have mean function $\mu$, covariance function $C$, and the $n \times d$ matrix X with the input vectors $\mathbf{x_1}, ..., \mathbf{x_n}$ in its rows, then distribution of the output at these points, $\mathbf{y} = [y_1, \hdots, y_n]^T$ is given by:
+
+$$ \mathbf{y} \sim  N(\mu(X),~C(X)) $$
+
+Or in full element notation:
+
+$$ \begin{bmatrix} y_1 \\ \vdots \\ y_n \end{bmatrix} \sim N(\begin{bmatrix} \mu(\mathbf{x_1}) \\ \vdots \\ \mu(\mathbf{x_n}) \end{bmatrix}, \begin{bmatrix} C(\mathbf{x_1},\mathbf{x_1}) &\cdots &C(\mathbf{x_1},\mathbf{x_n}) \\ \vdots &\ddots &\vdots \\ C(\mathbf{x_n},\mathbf{x_1}) &\cdots &C(\mathbf{x_n},\mathbf{x_n}) \end{bmatrix})$$
+
+
+## Mean function $\mu$
+
+The mean function can be any function mapping the input space to the real numbers.
+The most commonly used mean function is a constant, so $\mu(\mathbf{x}) = \mu$.
+This means that over the entire space the predicted mean given no other information
+a constant.
+When fitting a GP model to data, $\mu$ is usually estimated using the data.
+Another commonly used mean function is zero.
+This works surprisingly well since the GP will interpolated between your data,
+meaning that the mean function work have much of an effect when there is enough data.
+
+A more advanced choice of mean function is to use a linear model, so 
+$$\mu(\mathbf{x}) = \beta_0 + \sum_{i=1}^d \beta_i x_i$$.
+Again these parameters must be estimated.
+This can be generalized to a linear combination of functions of the input data, 
+$f_1, \ldots, f_m$ so the mean function is
+$$\mu(\mathbf{x}) = \beta_0 + \sum_{i=1}^m \beta_i f_i(\mathbf{x})$$.
+
+It is generally recommended to just use a constant mean since the data itself
+should provide enough information to fit the true function.
+Some researchers say that using a linear model can have negative effects
+on fitting a good model.
+
+## Covariance function $C$
+
+
+
+## Likelihood function
+
+# Prediction of new points
+
+# Conditional distribution
+
+
+# END
+
+Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format:
+
+- Never uses retina figures
+- Has a smaller default figure size
+- Uses a custom CSS stylesheet instead of the default Twitter Bootstrap style
+
+## Vignette Info
+
+Note the various macros within the `vignette` section of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the `title` field and the `\VignetteIndexEntry` to match the title of your vignette.
+
+## Styles
+
+The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
+
+    output: 
+      rmarkdown::html_vignette:
+        css: mystyles.css
+
+## Figures
+
+The figure sizes have been customised so that you can easily put two images side-by-side. 
+
+```{r, fig.show='hold'}
+plot(1:10)
+plot(10:1)
+```
+
+You can enable figure captions by `fig_caption: yes` in YAML:
+
+    output:
+      rmarkdown::html_vignette:
+        fig_caption: yes
+
+Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
+
+## More Examples
+
+You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
+
+```{r, echo=FALSE, results='asis'}
+knitr::kable(head(mtcars, 10))
+```
+
+Also a quote using `>`:
+
+> "He who gives up [code] safety for [code] speed deserves neither."
+([via](https://twitter.com/hadleywickham/status/504368538874703872))
