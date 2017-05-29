@@ -51,6 +51,29 @@ on fitting a good model.
 
 ## Covariance function $C$
 
+The covariance function determines the "rough" the surface is,
+or how strong the correlation is between points.
+Notation: 
+A covariance/correlation function should take two vectors as input.
+For a $n \times d$ matrix $X$, $C(X)$ denotes the $n \times n$ matrix whose $(i, j)$ element
+is $C(\mathbf{x_i}, \mathbf{x_j})$.
+
+Often a correlation function, $R$, is used instead of a covariance function.
+The correlation function should map any pair of points to $[0,1]$.
+The correlation for any point with itself should be 1, i.e. $R(\mathbf{x}, \mathbf{x}) = 1$.
+When a correlation function is used, a variance parameter $\sigma^2$ must be estimated to scale
+the correlation matrix into a covariance matrix. 
+Thus the covariance matrix is $C(X) = \hat{\sigma}^2 R(X)$
+
+### Gaussian correlation
+
+The most commonly used correlation function is the Gausian.
+
+$$ R(\mathbf{u}, \mathbf{v}) = \exp{\sum_{i=1}^d} \theta_i (u_i - v_i)^2$$
+
+The parameters $\mathbf{\theta} = (\theta_1, \ldots, \theta_d)$ are the 
+correlation parameters for each dimensions.
+Generally they must be estimated from the data when fitting a Gaussian process model to data.
 
 
 ## Likelihood function
