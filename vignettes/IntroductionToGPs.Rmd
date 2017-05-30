@@ -76,7 +76,22 @@ correlation parameters for each dimensions.
 Generally they must be estimated from the data when fitting a Gaussian process model to data.
 
 
-## Likelihood function
+## Likelihood function and parameter estimation
+
+The parameters are often estimated by finding the parameters that maximize the likelihood given a data set.
+
+The likelihood function is the usual multivariate normal pdf shown below, where $\mathbf{\mu} = \mu(X)$, $\Sigma = C(X)$
+
+$$ f(\mathbf{\theta};~X,~\mathbf{y}) = f(X,~\mathbf{y};~\mathbf{\theta}) = \frac{1}{(2 \pi)^{n/2} |\Sigma|^{1/2} } \exp{(-\frac{1}{2} (\mathbf{y} - \mathbf{\mu})^T \Sigma^{-1} (\mathbf{y} - \mathbf{\mu}))}$$
+
+As usual, we use negative two times the log-likelihood for simplicity, ignoring the constant terms.
+
+$$ \ell(\theta) = \ln |\Sigma| + (\mathbf{y} - \mathbf{\mu})^T \Sigma^{-1} (\mathbf{y} - \mathbf{\mu})$$
+
+This equation is minimized as a function of the correlation parameters to find the
+parameters that give the greatest likelihood.
+Since there is a determinant and matrix solve,
+this is an expensive function to optimize, with each evaluation being $O(n^3)$
 
 # Prediction of new points
 
