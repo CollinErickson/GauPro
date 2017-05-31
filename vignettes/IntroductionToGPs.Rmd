@@ -93,6 +93,27 @@ parameters that give the greatest likelihood.
 Since there is a determinant and matrix solve,
 this is an expensive function to optimize, with each evaluation being $O(n^3)$
 
+### Estimate for constant $\mu$
+
+If the mean is set to be constant, $\mu(X) = \mu \mathbf{1_n}$, then there is 
+a single parameter $\mu$ to estimate.
+Differentiating $\ell$ with respect to $\mu$ will then give
+$$ \frac{d \ell}{d \mu} = \mathbf{1_n}^T \Sigma^{-1}(\mathbf{y} - \mu \mathbf{1_n})$$
+Setting this equal to zero and solving for $\mu$ gives the maximum likelihood estimate $\hat{\mu}$
+$$ \hat{\mu} = \frac{\mathbf{1_n}^T \Sigma^{-1}\mathbf{y}}{\mathbf{1_n}^T \Sigma^{-1}\mathbf{1_n}}$$
+
+### Estimate for $\sigma$
+
+When using a correlation matrix so that $\Sigma = \sigma^2 R$, $\sigma$ must be estimated using maximum likelihood.
+
+$$ \frac{d \ell}{d \sigma^2} = \frac{n}{\sigma^2} - \frac{1}{\sigma^4}(\mathbf{y} - \mathbf{\mu})^T R^{-1} (\mathbf{y} - \mathbf{\mu})$$
+Setting equal to zero and solving for $\sigma^2$ gives
+$$ \hat{\sigma}^2 = \frac{1}{n} (\mathbf{y} - \mathbf{\mu})^T R^{-1} (\mathbf{y} - \mathbf{\mu})$$
+When estimating $\mu$ and $\sigma^2$ simultaneously, these estimates are valid and the
+estimate can simply be plugged into the equation.
+
+
+
 # Prediction of new points
 
 # Conditional distribution
