@@ -118,6 +118,27 @@ estimate can simply be plugged into the equation.
 
 # Conditional distribution
 
+Suppose there are  vectors $\mathbf{y_1}$ and $\mathbf{y_2}$
+that are jointly multivariate normal.
+The joint distribution is
+$$ \begin{bmatrix} \mathbf{y_1} \\ \mathbf{y_2} \end{bmatrix} \sim N(
+\begin{bmatrix} \mathbf{\mu_1} \\ \mathbf{\mu_2} \end{bmatrix},
+~\begin{bmatrix} \Sigma_{11} \Sigma_{12} \\ \Sigma_{21} \Sigma_{22} \end{bmatrix} )
+$$
+
+The conditional distribution of $\mathbf{y_1}$ given $\mathbf{y_2}$ is 
+
+$$\mathbf{y_1} ~|~\mathbf{y_2} \sim 
+N(\mathbf{\mu_1} + \Sigma_{12} \Sigma_{22}^{-1}( \mathbf{y_2} - \mathbf{\mu_2})),
+~\Sigma_{11} - \Sigma_{12}\Sigma_{22}^{-1}\Sigma_{21})
+$$
+
+
+# Predicting
+
+Suppose there are two input matrices, $X_1$ and $X_2$, 
+With corresponding output vectors $\mathbf{y_1}$ and $\mathbf{y_2}$.
+
 
 # END
 
