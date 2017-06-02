@@ -136,8 +136,24 @@ $$
 
 # Predicting
 
-Suppose there are two input matrices, $X_1$ and $X_2$, 
-With corresponding output vectors $\mathbf{y_1}$ and $\mathbf{y_2}$.
+Suppose there are two input matrices, $X_1$ and $X_2$, whose rows are the input points,
+with corresponding output vectors $\mathbf{y_1}$ and $\mathbf{y_2}$.
+Suppose we have the actual values for $\mathbf{y_2}$,
+and want to estimate, or predict, $\math{y_1}$.
+We can use the conditional distribution above to get a posterior distribution for $\math{y_1}$.
+
+If we only want to predict for a single point, i.e. we want to predict
+the output $y$ at $\mathbf{x}$, then this equation gives
+
+$$y ~|~\mathbf{y_2} \sim 
+N(\hat{\mu} + R(\mathbf{x},~X_2) R(X_2)^{-1}( \mathbf{y_2} - \mu\mathbf{1_n})),
+~R(\mathbf{x}) - R(\mathbf{x},~X_2) R(X_2)^{-1} R(X_2,~\mathbf{x}))
+$$
+
+Notice we get an estimate not only for the value of $y$,
+but also the standard error.
+This can be useful when we need a way to judge the prediction accuracy of the model.
+
 
 
 # END
