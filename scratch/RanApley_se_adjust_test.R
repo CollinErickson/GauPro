@@ -1,11 +1,15 @@
-set.seed(1)
-n <- 20
-d <- 1
+set.seed(2)
+n <- 60
+d <- 2
 f <- function(x) sin(2*pi*x)^.8
 f <- function(x) abs(sin(2*pi*x))^.8 * sign(sin(2*pi*x)) * x^4 + rnorm(n, 0, .001)
+f <- function(x) as.numeric(x>.5)*sin(2*pi*x) + as.numeric(x>.5)*rnorm(length(x), 0, .09)
+f <- TestFunctions::banana
 X <- lhs::maximinLHS(n, d) #matrix(runif(n*d), ncol=2)
 Z <- f(X)
 gp <- GauPro(X, Z)#, nug=1e-8, nug.est=F)
+if (d==1) {gp$cool1Dplot()}
+if (d==2) {ContourFunctions::cf(gp$predict, pts=X)}
 
 E <- gp$Kinv[1:(n-1), 1:(n-1)]
 B <- gp$K[n, 1:(n-1)]
@@ -32,6 +36,7 @@ microbenchmark::microbenchmark(solve(gp$K[-n, -n]),
                                },
                                times = 100)
 
+
 yhati <- function(i, gp) {#browser()
   #n <- nrow(gp$X)
   Kinvi <- gp$Kinv[-i, -i]+ gp$Kinv[-i, -i] %*% gp$K[i, -i] %*% gp$Kinv[i, -i] / (1 - sum(gp$K[i, -i]*gp$Kinv[i, -i]))
@@ -44,7 +49,9 @@ yhats <- sapply(1:n, function(i){yhati(i, gp)})
 ContourFunctions::cf(X, Z-yhats[1,])
 zhats <- (yhats[1,] - Z) / sqrt(yhats[2,])
 abszhats <- abs(zhats)
-gpz <- GauPro(X, abszhats, nug.est = F, nug = 1e-8, theta = gp$theta, param.est=F)
+gpz <- GauPro(X, abszhats, nug.est = F, nug = 1e-8)#, theta = gp$theta, param.est=F)
+if (d==1) {gpz$cool1Dplot()}
+if (d==2) {ContourFunctions::cf(gpz$predict, batchmax=Inf)}
 
 predse <- function(XX) {#browser()
   pr <- gp$pred(XX, se.fit = T)
@@ -53,9 +60,11 @@ predse <- function(XX) {#browser()
   #pr$s2 <- pr$s2 * pr_z^2
   pr_se
 }
-ContourFunctions::cf(gp$pred)
-ContourFunctions::cf(function(x)gp$predict(x, se=T)$se, batchmax=Inf, pts=X)
-ContourFunctions::cf(function(x)predse(x), batchmax=Inf, pts=X)
+if (d==2) {
+  ContourFunctions::cf(gp$pred)
+  ContourFunctions::cf(function(x)gp$predict(x, se=T)$se, batchmax=Inf, pts=X)
+  ContourFunctions::cf(function(x)predse(x), batchmax=Inf, pts=X)
+}
 XX <- lhs::randomLHS(1e4, d)
 ZZ <- f(XX)
 ZZpred <- gp$pred(XX)
@@ -66,9 +75,11 @@ plot(abs(ZZpred - ZZ), ZZse2);abline(a=0,b=1,col=2)
 hist((ZZpred - ZZ) / ZZse1)
 hist((ZZpred - ZZ) / ZZse2)
 
-curve(gp$pred(x))
-points(X, Z)
-curve(gp$pred(x) + gp$pred(x,se=T)$se, add=T, col=2)
-curve(gp$pred(x) - gp$pred(x,se=T)$se, add=T, col=2)
-curve(gp$pred(x) + predse(x), add=T, col=3)
-curve(gp$pred(x) - predse(x), add=T, col=3)
+if (d == 1) {
+  curve(gp$pred(x))
+  points(X, Z)
+  curve(gp$pred(x) + gp$pred(x,se=T)$se, add=T, col=2)
+  curve(gp$pred(x) - gp$pred(x,se=T)$se, add=T, col=2)
+  curve(gp$pred(x) + predse(x), add=T, col=3)
+  curve(gp$pred(x) - predse(x), add=T, col=3)
+}
