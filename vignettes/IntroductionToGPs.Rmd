@@ -17,7 +17,7 @@ To determine the normal distribution, we must select a mean function that gives
 a mean for each point and a covariance function that gives the covariance
 between any set of points.
 
-Thus if we have mean function $\mu$, covariance function $C$, and the $n \times d$ matrix X with the input vectors $\mathbf{x_1}, ..., \mathbf{x_n}$ in its rows, then distribution of the output at these points, $\mathbf{y} = [y_1, \hdots, y_n]^T$ is given by:
+Thus if we have mean function $\mu$, covariance function $C$, and the $n \times d$ matrix X with the input vectors $\mathbf{x_1}, ..., \mathbf{x_n}$ in its rows, then distribution of the output at these points, $\mathbf{y} = [y_1, \ldots, y_n]^T$ is given by:
 
 $$ \mathbf{y} \sim  N(\mu(X),~C(X)) $$
 
@@ -114,9 +114,9 @@ estimate can simply be plugged into the equation.
 
 
 
-# Prediction of new points
+## Prediction of new points
 
-# Conditional distribution
+### Conditional distribution
 
 Suppose there are  vectors $\mathbf{y_1}$ and $\mathbf{y_2}$
 that are jointly multivariate normal.
@@ -134,21 +134,25 @@ N(\mathbf{\mu_1} + \Sigma_{12} \Sigma_{22}^{-1}( \mathbf{y_2} - \mathbf{\mu_2}))
 $$
 
 
-# Predicting
+### Predicting
 
 Suppose there are two input matrices, $X_1$ and $X_2$, whose rows are the input points,
 with corresponding output vectors $\mathbf{y_1}$ and $\mathbf{y_2}$.
 Suppose we have the actual values for $\mathbf{y_2}$,
-and want to estimate, or predict, $\math{y_1}$.
-We can use the conditional distribution above to get a posterior distribution for $\math{y_1}$.
+and want to estimate, or predict, $\mathbf{y_1}$.
+We can use the conditional distribution above to get a posterior distribution for $\mathbf{y_1}$.
 
 If we only want to predict for a single point, i.e. we want to predict
 the output $y$ at $\mathbf{x}$, then this equation gives
 
 $$y ~|~\mathbf{y_2} \sim 
-N(\hat{\mu} + R(\mathbf{x},~X_2) R(X_2)^{-1}( \mathbf{y_2} - \mu\mathbf{1_n})),
-~R(\mathbf{x}) - R(\mathbf{x},~X_2) R(X_2)^{-1} R(X_2,~\mathbf{x}))
+N(\hat{y},
+~\hat{\sigma}^2(y))
 $$
+where
+$$ \hat{y} = \hat{\mu} + R(\mathbf{x},~X_2) R(X_2)^{-1}( \mathbf{y_2} - \mu\mathbf{1_n})) $$
+and
+$$ \hat{\sigma}^2(y) = R(\mathbf{x}) - R(\mathbf{x},~X_2) R(X_2)^{-1} R(X_2,~\mathbf{x}) $$
 
 Notice we get an estimate not only for the value of $y$,
 but also the standard error.
