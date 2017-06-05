@@ -1,0 +1,17 @@
+---
+title: "Leave-one-out cross-validation and error correction"
+author: "Collin Erickson"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Leave-one-out cross-validation and error correction}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+Cross-validation is often used in machine learning to judge how well a model is fit.
+Instead of using the entire data set to fit the model,
+it will use one part of the data set to fit a model and then test the model on the remaining data.
+This gives an idea of how well the model will generalize to indpendent data.
+
