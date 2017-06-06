@@ -15,3 +15,33 @@ Instead of using the entire data set to fit the model,
 it will use one part of the data set to fit a model and then test the model on the remaining data.
 This gives an idea of how well the model will generalize to indpendent data.
 
+## Leave-one-out predictions using Gaussian processes
+
+Leave-one-out prediction uses an entire model fit to all the data except
+a single point, and then makes a prediction at that point which can
+be compared to the actual value.
+It seems like this may be very expensive to do,
+but it is actually an inexpensive computation for a Gaussian process model,
+as long as the same parameters are used from the full model.
+This will bias the predictions to better results than if parameters were
+re-estimated.
+
+Normally each prediction point requires solving a matrix equation.
+To predict the output, $y$, at point $mathbf{x}$, given 
+input data in matrix $X_2$ and output $\mathbf{y_2}$, we use the equation
+$$ \hat{y} = \hat{\mu} + R(\mathbf{x},~X_2) R(X_2)^{-1}( \mathbf{y_2} - \mu\mathbf{1_n})) $$
+For leave-one-out predictions, the matrix $X_2$ will have all the design points
+except for the one we are predicting at, and thus will be different
+for each one.
+However, we will have the correlation matrix $R$ for the full data set
+from estimating the parameters, and there is a shortcut
+to find the inverse of a matrix leaving out a single row and column.
+
+
+
+
+
+
+
+
+
