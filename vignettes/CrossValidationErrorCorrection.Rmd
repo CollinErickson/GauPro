@@ -38,10 +38,37 @@ from estimating the parameters, and there is a shortcut
 to find the inverse of a matrix leaving out a single row and column.
 
 
+There is significant speed-up by using a multiplication instead of a matrix solve.
+The code chunk below shows that solving with a square matrix with 200 rows
+is over 30 times slower than a matrix multiplication.
+
+```{r}
+n <- 200
+m1 <- matrix(runif(n*n),ncol=n)
+b1 <- runif(n)
+microbenchmark::microbenchmark(solve(m1, b1), m1 %*% b1)
+```
+
+### Getting the inverse of a submatrix.
+
+Suppose we have a matrix $K$ and know its inverse $K^{-1}$.
+Suppose that $K$ has block structure
+$$ K = \begin{bmatrix} A~B \\ C~D \end{bmatrix}$$
+Now we want to find out how to find $A^{-1}$ using $K^{-1}$ instead of doing the full inverse.
+We can write $K^{-1}$ in block structure
+$$K^{-1} = \begin{bmatrix} E~F \\ G~H \end{bmatrix}$$
+
+Now we use the fact that $K K^{-1}  = I$
+$$ \begin{bmatrix} I~0 \\ 0~I \end{bmatrix} = \begin{bmatrix} A~B \\ C~D \end{bmatrix}\begin{bmatrix} E~F \\ G~H \end{bmatrix}  $$
+
+This gives the equations
+$$ AE + BG = I$$
+$$ AF + BH = 0$$
+$$ CE + DG = 0$$
+$$ CF + DH = I$$
 
 
-
-
-
-
-
+Solving the first equation gives that 
+$$ A = (I - BG)E^{-1}$$
+or
+$$ A^{-1} = E (I - BG) ^{-1}$$
