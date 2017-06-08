@@ -49,7 +49,7 @@ b1 <- runif(n)
 microbenchmark::microbenchmark(solve(m1, b1), m1 %*% b1)
 ```
 
-### Getting the inverse of a submatrix.
+### Getting the inverse of a submatrix
 
 Suppose we have a matrix $K$ and know its inverse $K^{-1}$.
 Suppose that $K$ has block structure
@@ -72,3 +72,25 @@ Solving the first equation gives that
 $$ A = (I - BG)E^{-1}$$
 or
 $$ A^{-1} = E (I - BG) ^{-1}$$
+
+### Leave-one-out covariance matrix inverse for Gaussian processes
+
+For Gaussian processes we can consider the block matrix for the covariance (or correlation) matrix
+where a single row and its corresponding column is being removed.
+Let the first $n-1$ rows and columns be the covariance of the points in design matrix $X$,
+while the last row and column are the covariance for the vector $\mathbf{x}$ with $X$ and $\mathbf{x}$.
+Then we can have
+
+$$ K = \begin{bmatrix} C(X,X)~ C(X,\mathbf{x}) \\ C(\mathbf{x},X)~C(\mathbf{x},\mathbf{x}) \end{bmatrix}$$
+
+Using the notation from the previous subsection we have $A = C(X,X)$ and $B=C(X,\mathbf{x})$, 
+and $E$ and $G$ will be submatrices of the full $K^{-1}$.
+$B$ is a column vector, so I'll write it as a vector $\mathbf{b}$,
+and $G$ is a row vector, so I'll write it as a vector $\mathbf{g}^T$.
+So we have
+$$ C(X,X)^{-1} = E(I-C(X,x)G)^{-1}$$
+So if we want to calculate
+$$ A^{-1} = E (I - \mathbf{b}\mathbf{g}^T) ^{-1}$$
+we still have to invert $I-BG$, which is a large matrix.
+However this can be done efficiently since it is a rank one matrix
+using the Sherman-Morrison formula.
