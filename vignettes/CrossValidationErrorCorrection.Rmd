@@ -94,3 +94,31 @@ $$ A^{-1} = E (I - \mathbf{b}\mathbf{g}^T) ^{-1}$$
 we still have to invert $I-BG$, which is a large matrix.
 However this can be done efficiently since it is a rank one matrix
 using the Sherman-Morrison formula.
+$$ (I - \mathbf{b}\mathbf{g}^T)^{-1} = I^{-1} - \frac{I^{-1}\mathbf{b}\mathbf{g}^TI^{-1}}{1+\mathbf{g}^TI^{-1}\mathbf{b}}
+= I - \frac{\mathbf{b}\mathbf{g}^T}{1+\mathbf{g}^T\mathbf{b}}
+$$
+Thus we have the shortcut for $A^{-1}$ that is only multiplication
+$$ A^{-1} = E (I - \frac{\mathbf{b}\mathbf{g}^T}{1+\mathbf{g}^T\mathbf{b}})$$
+
+To speed this up it should be calculated as
+
+$$ A^{-1} = E - \frac{(E\mathbf{b})\mathbf{g}^T}{1+\mathbf{g}^T\mathbf{b}}$$
+Below demonstrates that we get a speedup of almost twenty by using this shortcut.
+```{r}
+set.seed(0)
+corr <- function(x,y) {exp(sum(-30*(x-y)^2))}
+n <- 200
+d <- 2
+X <- matrix(runif(n*d),ncol=2)
+R <- outer(1:n,1:n, Vectorize(function(i,j) {corr(X[i,], X[j,])}))
+Rinv <- solve(R)
+A <- R[-n,-n]
+Ainv <- solve(A)
+E <- Rinv[-n, -n]
+b <- R[n,-n]
+g <- Rinv[n,-n]
+Ainv_shortcut <- E + E %*% b %*% g / (1-sum(g*b))
+summary(c(Ainv - Ainv_shortcut))
+microbenchmark::microbenchmark(solve(A), E + E %*% b %*% g / (1-sum(g*b)))
+```
+
