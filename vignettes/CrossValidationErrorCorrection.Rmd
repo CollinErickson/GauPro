@@ -122,3 +122,23 @@ summary(c(Ainv - Ainv_shortcut))
 microbenchmark::microbenchmark(solve(A), E + E %*% b %*% g / (1-sum(g*b)))
 ```
 
+In terms of the covariance matrices already calculated, this is the following,
+where $M_{-i}$ is the matrix $M$ with the ith row and column removed, and 
+$M_{i,-i}$ is the ith row of the matrix $M$ with the value from the ith column removed.
+
+$$ R(X_{-i})^{-1} = R(X)_{-i} -
+\frac{(R(X)_{-i}R(X)_{-i,i}) (R(X)^{-1})_{i,-i}^T }{1 + (R(X)^{-1})_{i,-i}^T R(X)_{-i,i}}$$
+
+
+### Leave-one-out prediction
+
+Recall that the predicted mean at a new point is
+$$ \hat{y} = \hat{\mu} + R(\mathbf{x},~X_2) R(X_2)^{-1}( \mathbf{y_2} - \mu\mathbf{1_n})) $$
+
+$$ \hat{y} = \hat{\mu} + R(\mathbf{x_i},~X_{-1}) R(X_{-i})^{-1}( \mathbf{y_{-i}} - \mu\mathbf{1_n})) $$
+
+
+
+
+
+
