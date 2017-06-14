@@ -67,6 +67,28 @@ NumericMatrix corr_gauss_matrix_symC(NumericMatrix x, NumericVector theta) {
 }
 
 
+
+
+// [[Rcpp::export]]
+NumericVector corr_gauss_matrixvecC(NumericMatrix x, NumericVector y, NumericVector theta) {
+  int nrow = x.nrow(); //, ncol = y.nrow();
+  int nsum = x.ncol();
+  NumericVector out(nrow);
+
+  for (int i = 0; i < nrow; i++) {
+    double total = 0;
+    for(int k = 0; k < nsum; ++k) {
+      total += theta[k] * pow((x(i,k) - y(k)), 2.0);
+    }
+    total = exp(-total);
+
+    out(i) = total;
+  }
+  return out;
+}
+
+
+
 //' Correlation Gaussian matrix in C using Armadillo (symmetric)
 //' @param x Matrix x
 //' @param theta Theta vector

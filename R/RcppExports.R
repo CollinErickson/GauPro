@@ -2,15 +2,15 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 cholC <- function(x) {
-    .Call('GauPro_cholC', PACKAGE = 'GauPro', x)
+    .Call(GauPro_cholC, x)
 }
 
 solveC <- function(A, b) {
-    .Call('GauPro_solveC', PACKAGE = 'GauPro', A, b)
+    .Call(GauPro_solveC, A, b)
 }
 
 corr_gauss_matrixC <- function(x, y, theta) {
-    .Call('GauPro_corr_gauss_matrixC', PACKAGE = 'GauPro', x, y, theta)
+    .Call(GauPro_corr_gauss_matrixC, x, y, theta)
 }
 
 #' Correlation Gaussian matrix in C (symmetric)
@@ -21,7 +21,11 @@ corr_gauss_matrixC <- function(x, y, theta) {
 #' @examples
 #' corr_gauss_matrix_symC(matrix(c(1,0,0,1),2,2),c(1,1))
 corr_gauss_matrix_symC <- function(x, theta) {
-    .Call('GauPro_corr_gauss_matrix_symC', PACKAGE = 'GauPro', x, theta)
+    .Call(GauPro_corr_gauss_matrix_symC, x, theta)
+}
+
+corr_gauss_matrixvecC <- function(x, y, theta) {
+    .Call(GauPro_corr_gauss_matrixvecC, x, y, theta)
 }
 
 #' Correlation Gaussian matrix in C using Armadillo (symmetric)
@@ -32,43 +36,43 @@ corr_gauss_matrix_symC <- function(x, theta) {
 #' corr_gauss_matrix_sym_armaC(matrix(c(1,0,0,1),2,2),c(1,1))
 #' @export
 corr_gauss_matrix_sym_armaC <- function(x, theta) {
-    .Call('GauPro_corr_gauss_matrix_sym_armaC', PACKAGE = 'GauPro', x, theta)
+    .Call(GauPro_corr_gauss_matrix_sym_armaC, x, theta)
 }
 
 deviance_part <- function(theta, nug, X, Z, Kinv) {
-    .Call('GauPro_deviance_part', PACKAGE = 'GauPro', theta, nug, X, Z, Kinv)
+    .Call(GauPro_deviance_part, theta, nug, X, Z, Kinv)
 }
 
 devianceC <- function(theta, nug, X, Z, K) {
-    .Call('GauPro_devianceC', PACKAGE = 'GauPro', theta, nug, X, Z, K)
+    .Call(GauPro_devianceC, theta, nug, X, Z, K)
 }
 
 deviance_fngr_theta <- function(X, Z, K) {
-    .Call('GauPro_deviance_fngr_theta', PACKAGE = 'GauPro', X, Z, K)
+    .Call(GauPro_deviance_fngr_theta, X, Z, K)
 }
 
 deviance_fngr_nug <- function(X, Z, K) {
-    .Call('GauPro_deviance_fngr_nug', PACKAGE = 'GauPro', X, Z, K)
+    .Call(GauPro_deviance_fngr_nug, X, Z, K)
 }
 
 deviance_fngr_joint <- function(X, Z, K) {
-    .Call('GauPro_deviance_fngr_joint', PACKAGE = 'GauPro', X, Z, K)
+    .Call(GauPro_deviance_fngr_joint, X, Z, K)
 }
 
 deviance_grad_theta <- function(X, K, Kinv, y) {
-    .Call('GauPro_deviance_grad_theta', PACKAGE = 'GauPro', X, K, Kinv, y)
+    .Call(GauPro_deviance_grad_theta, X, K, Kinv, y)
 }
 
 deviance_grad_nug <- function(X, K, Kinv, y) {
-    .Call('GauPro_deviance_grad_nug', PACKAGE = 'GauPro', X, K, Kinv, y)
+    .Call(GauPro_deviance_grad_nug, X, K, Kinv, y)
 }
 
 deviance_grad_joint <- function(X, K, Kinv, y) {
-    .Call('GauPro_deviance_grad_joint', PACKAGE = 'GauPro', X, K, Kinv, y)
+    .Call(GauPro_deviance_grad_joint, X, K, Kinv, y)
 }
 
 Gaussian_deviance_part <- function(theta, nug, X, Z, Kinv) {
-    .Call('GauPro_Gaussian_deviance_part', PACKAGE = 'GauPro', theta, nug, X, Z, Kinv)
+    .Call(GauPro_Gaussian_deviance_part, theta, nug, X, Z, Kinv)
 }
 
 #' Calculate the Gaussian deviance in C
@@ -81,7 +85,7 @@ Gaussian_deviance_part <- function(theta, nug, X, Z, Kinv) {
 #' Gaussian_devianceC(c(1,1), 1e-8, matrix(c(1,0,0,1),2,2), matrix(c(1,0),2,1))
 #' @export
 Gaussian_devianceC <- function(theta, nug, X, Z) {
-    .Call('GauPro_Gaussian_devianceC', PACKAGE = 'GauPro', theta, nug, X, Z)
+    .Call(GauPro_Gaussian_devianceC, theta, nug, X, Z)
 }
 
 #' Gaussian hessian in C
@@ -96,22 +100,22 @@ Gaussian_devianceC <- function(theta, nug, X, Z) {
 #' @return Hessian matrix
 #' @export
 Gaussian_hessianCC <- function(XX, X, Z, Kinv, mu_hat, theta) {
-    .Call('GauPro_Gaussian_hessianCC', PACKAGE = 'GauPro', XX, X, Z, Kinv, mu_hat, theta)
+    .Call(GauPro_Gaussian_hessianCC, XX, X, Z, Kinv, mu_hat, theta)
 }
 
 rcpp_hello_world <- function() {
-    .Call('GauPro_rcpp_hello_world', PACKAGE = 'GauPro')
+    .Call(GauPro_rcpp_hello_world)
 }
 
 pred_meanC <- function(XX, kx_xx, mu_hat, Kinv, Z) {
-    .Call('GauPro_pred_meanC', PACKAGE = 'GauPro', XX, kx_xx, mu_hat, Kinv, Z)
+    .Call(GauPro_pred_meanC, XX, kx_xx, mu_hat, Kinv, Z)
 }
 
 pred_var <- function(XX, kxx, kx_xx, s2_hat, Kinv, Z) {
-    .Call('GauPro_pred_var', PACKAGE = 'GauPro', XX, kxx, kx_xx, s2_hat, Kinv, Z)
+    .Call(GauPro_pred_var, XX, kxx, kx_xx, s2_hat, Kinv, Z)
 }
 
 pred_cov <- function(XX, kxx, kx_xx, s2_hat, Kinv, Z) {
-    .Call('GauPro_pred_cov', PACKAGE = 'GauPro', XX, kxx, kx_xx, s2_hat, Kinv, Z)
+    .Call(GauPro_pred_cov, XX, kxx, kx_xx, s2_hat, Kinv, Z)
 }
 
