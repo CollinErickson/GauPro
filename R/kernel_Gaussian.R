@@ -33,29 +33,30 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
   inherit = GauPro_kernel,
   public = list(
     theta = NULL,
+    s2 = NULL, # variance coefficient to scale correlation matrix to covariance
     initialize = function(theta) {
       self$theta <- theta
     },
     k = function(x, y=NULL, theta=self$theta) {
       if (is.null(y)) {
         if (is.matrix(x)) {
-          return(corr_gauss_matrix_symC(x, theta))
+          return(self$s2 * corr_gauss_matrix_symC(x, theta))
         } else {
-          return(1)
+          return(self$s2 * 1)
         }
       }
       if (is.matrix(x) & is.matrix(y)) {
-        corr_gauss_matrixC(x, y, theta)
+        self$s2 * corr_gauss_matrixC(x, y, theta)
       } else if (is.matrix(x) & !is.matrix(y)) {
-        corr_gauss_matrixvecC(x, y, theta)
+        self$s2 * corr_gauss_matrixvecC(x, y, theta)
       } else if (is.matrix(y)) {
-        corr_gauss_matrixvecC(y, x, theta)
+        self$s2 * corr_gauss_matrixvecC(y, x, theta)
       } else {
-        exp(-sum(theta * (x-y)^2))
+        self$s2 * exp(-sum(theta * (x-y)^2))
       }
     },
     k1 = function(x, y, theta=self$theta) {
-      exp(-sum(theta * (x-y)^2))
+      self$s2 * exp(-sum(theta * (x-y)^2))
     },
     km = function(x, y, theta=self$theta) {
 
