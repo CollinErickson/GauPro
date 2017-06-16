@@ -34,8 +34,14 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
   public = list(
     theta = NULL,
     s2 = NULL, # variance coefficient to scale correlation matrix to covariance
-    initialize = function(theta) {
+    initialize = function(theta, s2=1, theta_lower=0, theta_upper=1e6) {
       self$theta <- theta
+      if (length(theta) == 1) {
+        self$theta <- rep(theta, self$d)
+      }
+      self$s2 <- s2
+      self$theta_lower <- theta_lower
+      self$theta_upper <- theta_upper
     },
     k = function(x, y=NULL, theta=self$theta) {
       if (is.null(y)) {
@@ -60,6 +66,19 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
     },
     km = function(x, y, theta=self$theta) {
 
+    },
+    dl_dthetas2 = function(X, y, theta, mu, s2, n, firstiter) {
+      R <- self$r(X, theta)
+      dl_ds2 <- n / s2 - s2^2 * sum((y - u) * solve(R, y - mu))
+      # p should be theta length
+      dl_dt <- sapply(1:self$p, function(l) {
+        # dR_dti <- R
+        dr_dtl <- outer(1:n, 1:n, function(i, j) {-(X[i,k] - X[j,k])^2 * R[i,j]})
+        dR_dtl_Rinv <- solve(dR_dtl, R)
+        dl_dtl <- diag() / s2 + sum(Rinv %*% (y-u), dR_dtl %*% (y-u))/ s2^2
+        dl_dtl
+      })
+      c(cl_dtl, dl_ds2)
     }
   ),
   private = list(
