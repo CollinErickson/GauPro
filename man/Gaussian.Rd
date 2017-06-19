@@ -3,7 +3,7 @@
 \docType{class}
 \name{Gaussian}
 \alias{Gaussian}
-\title{Kernel R6 class}
+\title{Gaussian Kernel R6 class}
 \format{\code{\link{R6Class}} object.}
 \usage{
 Gaussian
@@ -12,7 +12,7 @@ Gaussian
 Object of \code{\link{R6Class}} with methods for fitting GP model.
 }
 \description{
-Kernel R6 class
+Gaussian Kernel R6 class
 }
 \examples{
 
