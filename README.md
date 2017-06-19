@@ -3,7 +3,7 @@
 GauPro
 ======
 
-[![Travis-CI Build Status](https://travis-ci.org/CollinErickson/GauPro.svg?branch=master)](https://travis-ci.org/CollinErickson/GauPro)
+[![Travis-CI Build Status](https://travis-ci.org/CollinErickson/GauPro.svg?branch=master)](https://travis-ci.org/CollinErickson/GauPro) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/GauPro)](http://cran.r-project.org/package=GauPro)
 
 This package allows you to fit a Gaussian process to a dataset. A Gaussian process is a commonly used model in computer simulation. It assumes that the distribution of any set of points is multivariate normal with a constant mean and a correlation function.
 
@@ -20,7 +20,7 @@ Fit a sine curve with noise.
 n <- 12
 x <- matrix(seq(0,1,length.out = n), ncol=1)
 y <- sin(2*pi*x) + rnorm(n,0,1e-1)
-gp <- GauPro::GauPro$new(X=x, Z=y)
+gp <- GauPro::GauPro(X=x, Z=y)
 curve(gp$pred(x));points(x,y)
 curve(gp$pred(x)+2*gp$pred(x,T)$se,col=2,add=T);curve(gp$pred(x)-2*gp$pred(x,T)$se,col=2,add=T)
 ```
@@ -41,7 +41,7 @@ Fit a sawtooth function with no noise.
 n <- 12
 x <- matrix(seq(0,1,length.out = n), ncol=1)
 y <- (2*x) %%1
-gp <- GauPro::GauPro$new(X=x, Z=y)
+gp <- GauPro::GauPro(X=x, Z=y)
 curve(gp$pred(x));points(x,y)
 curve(gp$pred(x)+2*gp$pred(x,T)$se,col=2,add=T);curve(gp$pred(x)-2*gp$pred(x,T)$se,col=2,add=T)
 ```
