@@ -16,7 +16,7 @@
 
 
 
-#' Kernel R6 class
+#' Gaussian Kernel R6 class
 #'
 #' @docType class
 #' @importFrom R6 R6Class
@@ -67,18 +67,46 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
     km = function(x, y, theta=self$theta) {
 
     },
+    l = function(X, y, theta, s2, mu, n) {
+      R <- self$r(X, theta)
+      n*log(s2) + log(det(R)) + sum(y - mu, Rinv %*% (y-mu))
+    },
     dl_dthetas2 = function(X, y, theta, mu, s2, n, firstiter) {
       R <- self$r(X, theta)
-      dl_ds2 <- n / s2 - s2^2 * sum((y - u) * solve(R, y - mu))
+      dl_ds2 <- n / s2 - s2^2 * sum((y - mu) * solve(R, y - mu))
       # p should be theta length
       dl_dt <- sapply(1:self$p, function(l) {
         # dR_dti <- R
         dr_dtl <- outer(1:n, 1:n, function(i, j) {-(X[i,k] - X[j,k])^2 * R[i,j]})
         dR_dtl_Rinv <- solve(dR_dtl, R)
-        dl_dtl <- diag() / s2 + sum(Rinv %*% (y-u), dR_dtl %*% (y-u))/ s2^2
+        dl_dtl <- diag(dR_dtl) / s2 + sum(Rinv %*% (y-mu), dR_dtl %*% (y-mu))/ s2^2
         dl_dtl
       })
       c(cl_dtl, dl_ds2)
+    },
+    optim_param_start = function(random, y) {
+      if (random) {
+        c(log(self$theta, 10) + rnorm(self$p, 0, 1), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
+      } else {
+        c(log(self$theta, 10), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
+      }
+    },
+    optim_param_lower = function() {
+      c(rep(-5, self$p), 8)
+    },
+    optim_param_upper = function() {
+      c(rep(5, self$p), 8)
+    },
+    optim_fngr = function(X, y, params, mu, n) {
+      theta <- 10^params[1:self$p]
+      s2 <- 10^params[self$p+1]
+      list(fn=self$l(X=X, y=y, theta=theta, s2=s2, mu=mu, n=n),
+           gr=self$dl_dthetas2(X=X, y=y, theta=theta, s2=s2, mu=mu, n=n, firstiter=FALSE)
+      )
+    },
+    param_set = function(optim_out) {
+      self$theta <- 10^optim_out[1:self$p]
+      self$s2 <- 10^optim_out[self$p+1]
     }
   ),
   private = list(
