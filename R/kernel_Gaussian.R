@@ -33,12 +33,14 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
   inherit = GauPro_kernel,
   public = list(
     theta = NULL,
+    theta_lower = NULL,
+    theta_upper = NULL,
     s2 = NULL, # variance coefficient to scale correlation matrix to covariance
     initialize = function(theta, s2=1, theta_lower=0, theta_upper=1e6) {
       self$theta <- theta
-      if (length(theta) == 1) {
-        self$theta <- rep(theta, self$d)
-      }
+      # if (length(theta) == 1) {
+      #   self$theta <- rep(theta, self$d)
+      # }
       self$s2 <- s2
       self$theta_lower <- theta_lower
       self$theta_upper <- theta_upper

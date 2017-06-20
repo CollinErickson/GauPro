@@ -18,3 +18,20 @@
 predict.GauPro <- function(gp, XX, se.fit=F, covmat=F, split_speed=T) {
   gp$predict(XX=XX, se.fit=se.fit, covmat=covmat, split_speed=split_speed)
 }
+
+
+#' Kernel sum
+#'
+#' @param k1 First kernel
+#' @param k2 Second kernel
+#'
+#' @return Kernel which is sum of two kernels
+#' @export
+#'
+#' @examples
+#' k1 <- Gaussian$new(theta=1)
+#' k2 <- Gaussian$new(theta=2)
+#' k <- k1 + k2
+'+.GauPro_kernel' <- function(k1, k2) {
+  kernel_sum$new(k1=k1, k2=k2)
+}
