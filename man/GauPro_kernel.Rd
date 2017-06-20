@@ -15,7 +15,7 @@ Object of \code{\link{R6Class}} with methods for fitting GP model.
 Kernel R6 class
 }
 \examples{
-
+k <- GauPro_kernel$new()
 }
 \keyword{Gaussian}
 \keyword{data,}

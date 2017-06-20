@@ -32,7 +32,7 @@
 #' k2 <- Gaussian$new(theta=2)
 #' k <- k1 + k2
 #' k$k(matrix(c(2,1), ncol=1))
-kernel_sum <- R6::R6Class(classname = "GauPro_kernel_sum",
+kernel_product <- R6::R6Class(classname = "GauPro_kernel_product",
   inherit = GauPro_kernel,
   public = list(
     k1 = NULL,
@@ -42,7 +42,7 @@ kernel_sum <- R6::R6Class(classname = "GauPro_kernel_sum",
       self$k2 <- k2
     },
     k = function(x, y=NULL, ...) {
-      self$k1$k(x=x, y=y) + self$k2$k(x=x, y=y)
+      self$k1$k(x=x, y=y) * self$k2$k(x=x, y=y)
     },
     # k1 = function(x, y, theta=self$theta) {
     #   self$s2 * exp(-sum(theta * (x-y)^2))
@@ -54,19 +54,19 @@ kernel_sum <- R6::R6Class(classname = "GauPro_kernel_sum",
     #   R <- self$r(X, theta)
     #   n*log(s2) + log(det(R)) + sum(y - mu, Rinv %*% (y-mu))
     # },
-    dl_dthetas2 = function(X, y, theta, mu, s2, n, firstiter) {
-      R <- self$r(X, theta)
-      dl_ds2 <- n / s2 - s2^2 * sum((y - mu) * solve(R, y - mu))
-      # p should be theta length
-      dl_dt <- sapply(1:self$p, function(l) {
-        # dR_dti <- R
-        dr_dtl <- outer(1:n, 1:n, function(i, j) {-(X[i,k] - X[j,k])^2 * R[i,j]})
-        dR_dtl_Rinv <- solve(dR_dtl, R)
-        dl_dtl <- diag(dR_dtl) / s2 + sum(Rinv %*% (y-mu), dR_dtl %*% (y-mu))/ s2^2
-        dl_dtl
-      })
-      c(cl_dtl, dl_ds2)
-    },
+    # dl_dthetas2 = function(X, y, theta, mu, s2, n, firstiter) {
+    #   R <- self$r(X, theta)
+    #   dl_ds2 <- n / s2 - s2^2 * sum((y - mu) * solve(R, y - mu))
+    #   # p should be theta length
+    #   dl_dt <- sapply(1:self$p, function(l) {
+    #     # dR_dti <- R
+    #     dr_dtl <- outer(1:n, 1:n, function(i, j) {-(X[i,k] - X[j,k])^2 * R[i,j]})
+    #     dR_dtl_Rinv <- solve(dR_dtl, R)
+    #     dl_dtl <- diag(dR_dtl) / s2 + sum(Rinv %*% (y-mu), dR_dtl %*% (y-mu))/ s2^2
+    #     dl_dtl
+    #   })
+    #   c(cl_dtl, dl_ds2)
+    # },
     optim_param_start = function(random, y) {
       c(self$k1$optim_param_start(random=random, y=y),
         self$k2$optim_param_start(random=random, y=y))

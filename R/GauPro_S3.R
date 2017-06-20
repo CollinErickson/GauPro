@@ -32,6 +32,25 @@ predict.GauPro <- function(gp, XX, se.fit=F, covmat=F, split_speed=T) {
 #' k1 <- Gaussian$new(theta=1)
 #' k2 <- Gaussian$new(theta=2)
 #' k <- k1 + k2
+#' k$k(matrix(c(2,1), ncol=1))
 '+.GauPro_kernel' <- function(k1, k2) {
   kernel_sum$new(k1=k1, k2=k2)
+}
+
+
+#' Kernel product
+#'
+#' @param k1 First kernel
+#' @param k2 Second kernel
+#'
+#' @return Kernel which is product of two kernels
+#' @export
+#'
+#' @examples
+#' k1 <- Gaussian$new(theta=1)
+#' k2 <- Gaussian$new(theta=2)
+#' k <- k1 * k2
+#' k$k(matrix(c(2,1), ncol=1))
+'*.GauPro_kernel' <- function(k1, k2) {
+  kernel_product$new(k1=k1, k2=k2)
 }
