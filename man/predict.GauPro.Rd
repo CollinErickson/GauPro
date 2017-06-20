@@ -4,10 +4,11 @@
 \alias{predict.GauPro}
 \title{Predict for class GauPro}
 \usage{
-\method{predict}{GauPro}(gp, XX, se.fit = F, covmat = F, split_speed = T)
+\method{predict}{GauPro}(object, XX, se.fit = F, covmat = F,
+  split_speed = T, ...)
 }
 \arguments{
-\item{gp}{Object of class GauPro}
+\item{object}{Object of class GauPro}
 
 \item{XX}{new points to predict}
 
@@ -16,6 +17,8 @@
 \item{covmat}{Should the covariance matrix be returned?}
 
 \item{split_speed}{Should the calculation be split up to speed it up?}
+
+\item{...}{Additional parameters}
 }
 \description{
 Predict for class GauPro

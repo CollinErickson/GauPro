@@ -1,10 +1,11 @@
 #' Predict for class GauPro
 #'
-#' @param gp Object of class GauPro
+#' @param object Object of class GauPro
 #' @param XX new points to predict
 #' @param se.fit Should standard error be returned (and variance)?
 #' @param covmat Should the covariance matrix be returned?
 #' @param split_speed Should the calculation be split up to speed it up?
+#' @param ... Additional parameters
 #'
 #' @return
 #' @export
@@ -15,8 +16,8 @@
 #' y <- sin(2*pi*x) + rnorm(n,0,1e-1)
 #' gp <- GauPro(X=x, Z=y, parallel=FALSE)
 #' predict(gp, .448)
-predict.GauPro <- function(gp, XX, se.fit=F, covmat=F, split_speed=T) {
-  gp$predict(XX=XX, se.fit=se.fit, covmat=covmat, split_speed=split_speed)
+predict.GauPro <- function(object, XX, se.fit=F, covmat=F, split_speed=T, ...) {
+  object$predict(XX=XX, se.fit=se.fit, covmat=covmat, split_speed=split_speed)
 }
 
 
