@@ -7,7 +7,7 @@
 #' @param split_speed Should the calculation be split up to speed it up?
 #' @param ... Additional parameters
 #'
-#' @return
+#' @return Prediction from object at XX
 #' @export
 #'
 #' @examples
