@@ -45,22 +45,24 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
       self$theta_lower <- theta_lower
       self$theta_upper <- theta_upper
     },
-    k = function(x, y=NULL, theta=self$theta) {
+    k = function(x, y=NULL, theta=self$theta, s2=self$s2) {
+      if (is.null(theta)) {theta <- self$theta}
+      if (is.null(s2)) {s2 <- self$s2}
       if (is.null(y)) {
         if (is.matrix(x)) {
-          return(self$s2 * corr_gauss_matrix_symC(x, theta))
+          return(s2 * corr_gauss_matrix_symC(x, theta))
         } else {
-          return(self$s2 * 1)
+          return(s2 * 1)
         }
       }
       if (is.matrix(x) & is.matrix(y)) {
-        self$s2 * corr_gauss_matrixC(x, y, theta)
+        s2 * corr_gauss_matrixC(x, y, theta)
       } else if (is.matrix(x) & !is.matrix(y)) {
-        self$s2 * corr_gauss_matrixvecC(x, y, theta)
+        s2 * corr_gauss_matrixvecC(x, y, theta)
       } else if (is.matrix(y)) {
-        self$s2 * corr_gauss_matrixvecC(y, x, theta)
+        s2 * corr_gauss_matrixvecC(y, x, theta)
       } else {
-        self$s2 * exp(-sum(theta * (x-y)^2))
+        s2 * exp(-sum(theta * (x-y)^2))
       }
     },
     k1 = function(x, y, theta=self$theta) {

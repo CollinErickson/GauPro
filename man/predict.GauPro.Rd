@@ -20,6 +20,9 @@
 
 \item{...}{Additional parameters}
 }
+\value{
+Prediction from object at XX
+}
 \description{
 Predict for class GauPro
 }

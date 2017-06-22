@@ -13,7 +13,7 @@
 #' n <- 12
 #' x <- matrix(seq(0,1,length.out = n), ncol=1)
 #' y <- sin(2*pi*x) + rnorm(n,0,1e-1)
-#' gp <- GauPro(X=x, Z=y, parallel=FALSE)
+#' gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian$new(1), parallel=FALSE)
 #' @field X Design matrix
 #' @field Z Responses
 #' @field kernel The kernel (covariance function)
@@ -44,16 +44,17 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro_kernel_model",
     Z = NULL,
     N = NULL,
     D = NULL,
-    # nug = NULL,
-    # nug.min = NULL,
-    # nug.est = NULL,
+    kernel = NULL,
+    nug = NULL,
+    nug.min = NULL,
+    nug.est = NULL,
     param.est = NULL, # Whether parameters besides nugget (theta) should be updated
     mu_hat = NULL,
     # s2_hat = NULL,
     # corr_func = function(...){}, # When this was NULL the child didn't overwrite with own method, it stayed as NULL
-    # K = NULL,
-    # Kchol = NULL,
-    # Kinv = NULL,
+    K = NULL,
+    Kchol = NULL,
+    Kinv = NULL,
     verbose = 0,
     useC = TRUE,
     useGrad = FALSE,
@@ -101,10 +102,10 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro_kernel_model",
     fit = function(X, Z) {
       self$update()
     },
-    update_K_and_estimates = function () {
+    update_K_and_estimates = function () {browser()
       # Update K, Kinv, mu_hat, and s2_hat, maybe nugget too
       while(T) {
-        self$K <- self$corr_func(self$X) + diag(self$nug, self$N)
+        self$K <- self$kernel$k(self$X) + diag(self$nug, self$N)
         try.chol <- try(self$Kchol <- chol(self$K), silent = T)
         if (!inherits(try.chol, "try-error")) {break}
         warning("Can't Cholesky, increasing nugget #7819553")
@@ -169,8 +170,11 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro_kernel_model",
     },
     pred_one_matrix = function(XX, se.fit=F, covmat=F) {
       # input should already be check for matrix
-      kxx <- self$corr_func(XX) + self$nug
-      kx.xx <- self$corr_func(self$X, XX)
+      kxx <- self$kernel$k(XX)
+      #kxx <- self$corr_func(XX) + self$nug
+      # kx.xx <- self$corr_func(self$X, XX)
+      kx.xx <- self$kernel$k(self$X, XX)
+      browser()
       mn <- pred_meanC(XX, kx.xx, self$mu_hat, self$Kinv, self$Z)
 
       if (!se.fit & !covmat) {
@@ -196,6 +200,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro_kernel_model",
       c(self$mu_hat + t(kx.xx) %*% self$Kinv %*% (self$Z - self$mu_hat))
     },
     pred_meanC = function(XX, kx.xx) { # Don't use if R uses pass by copy(?)
+      # browser()
       pred_meanC(XX, kx.xx, self$mu_hat, self$Kinv, self$Z)
     },
     pred_var = function(XX, kxx, kx.xx, covmat=F) { # 2-4x faster to use C functions pred_var and pred_cov
