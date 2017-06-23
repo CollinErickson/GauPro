@@ -107,13 +107,14 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
         },
         update_K_and_estimates = function () {
           # Update K, Kinv, mu_hat, and s2_hat, maybe nugget too
+          self$K <- self$kernel$k(self$X) + diag(self$kernel$s2 * self$nug, self$N)
           while(T) {
-            self$K <- self$kernel$k(self$X) + diag(self$nug, self$N)
             try.chol <- try(self$Kchol <- chol(self$K), silent = T)
             if (!inherits(try.chol, "try-error")) {break}
             warning("Can't Cholesky, increasing nugget #7819553")
             oldnug <- self$nug
             self$nug <- max(1e-8, 2 * self$nug)
+            self$K <- self$K + diag(self$kernel$s2 * (self$nug - oldnug), self$N)
             print(c(oldnug, self$nug))
           }
           self$Kinv <- chol2inv(self$Kchol)
@@ -171,11 +172,11 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
             return(self$pred_one_matrix(XX=XX, se.fit=se.fit, covmat=covmat))
           }
         },
-        pred_one_matrix = function(XX, se.fit=F, covmat=F) {browser()
+        pred_one_matrix = function(XX, se.fit=F, covmat=F) {#browser()
           # input should already be check for matrix
           kxx <- self$kernel$k(XX) + self$nug
           kx.xx <- self$kernel$k(self$X, XX)
-          browser()
+          #browser()
           mn <- pred_meanC(XX, kx.xx, self$mu_hat, self$Kinv, self$Z)
 
           if (!se.fit & !covmat) {
@@ -456,7 +457,7 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
         #   self$update_K_and_estimates()
         # },
         deviance = function(..., nug=self$nug) {
-          K <- self$kernel$k(self$X, ...) + diag(nug, self$N)
+          K <- self$kernel$k(self$X, ...) + diag(nug, self$N) * self$kernel$s2
           log(det(K)) + sum(self$Z - self$mu_hat, solve(K, self$Z - self$mu_hat))
         },
         grad_norm = function (XX) {
