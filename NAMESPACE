@@ -2,6 +2,7 @@
 
 S3method("*",GauPro_kernel)
 S3method("+",GauPro_kernel)
+S3method(plot,GauPro)
 S3method(predict,GauPro)
 export(GauPr_LB)
 export(GauPro)
