@@ -394,6 +394,13 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
             if (param_update) {start.par.i[theta_indices] <- start.par.i[theta_indices] + self$param_optim_jitter(start.par.i[theta_indices])} # jitter betas
             if (nug.update) {start.par.i[length(start.par.i)] <- start.par.i[length(start.par.i)] + min(4, rexp(1,1))} # jitter nugget
           }
+
+          if (runif(1) < .33) { # Start at 0 params
+            start.par.i <- self$kernel$param_optim_start0(jitter=jit)
+          } else { # Start at current params
+            start.par.i <- self$kernel$param_optim_start(jitter=jit)
+          }
+
           if (self$verbose >= 2) {cat("\tRestart (parallel): starts pars =",start.par.i,"\n")}
           current <- try(
             if (self$useGrad) {

@@ -88,17 +88,29 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
       })
       c(cl_dtl, dl_ds2)
     },
-    optim_param_start = function(random, y) {
-      if (random) {
-        c(log(self$theta, 10) + rnorm(self$p, 0, 1), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
-      } else {
-        c(log(self$theta, 10), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
-      }
+    beta_optim_jitter = function() {
+      rnorm(self$p, 0, 1)
     },
-    optim_param_lower = function() {
+    param_optim_start = function(jitter, y) {
+      # Use current values for theta, partial MLE for s2
+      vec <- c(log(self$theta, 10), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
+      if (jitter) {
+        vec <- vec + c(self$beta_optim_jitter,  0)
+      }
+      vec
+    },
+    param_optim_start0 = function(jitter, y) {
+      # Use 0 for theta, partial MLE for s2
+      vec <- c(rep(0, length(self$theta)), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
+      if (jitter) {
+        vec <- vec + c(self$beta_optim_jitter,  0)
+      }
+      vec
+    },
+    param_optim_lower = function() {
       c(rep(-5, self$p), 8)
     },
-    optim_param_upper = function() {
+    param_optim_upper = function() {
       c(rep(5, self$p), 8)
     },
     optim_fngr = function(X, y, params, mu, n) {
