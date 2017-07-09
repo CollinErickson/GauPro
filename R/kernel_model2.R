@@ -476,8 +476,19 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
           K <- self$kernel$k(self$X, ...) + diag(nug, self$N) * self$kernel$s2
           log(det(K)) + sum(self$Z - self$mu_hat, solve(K, self$Z - self$mu_hat))
         },
-        deviance_grad = function(params=NULL, X=self$X) {
-          dC_dparams = self$kernel$dC_dparams(params=params, X=X)
+        deviance_grad = function(params=NULL, X=self$X) {browser()
+          C_nonug <- self$kernel$k(x=self$X)
+          C <- C_nonug + diag(self$nug, self$N)
+          dC_dparams = self$kernel$dC_dparams(params=params, X=X, C=C, C_nonug=C_nonug)
+          yminusmu <- self$Z - self$mu_hat
+          Cinv_yminusmu <- solve(C, yminusmu)
+          gradfunc <- function(di) {browser()
+            t1 <- sum(diag(solve(C, di)))
+            t2 <- sum(Cinv_yminusmu * (di %*% Cinv_yminusmu))
+            t1 - t2
+          }
+          out <- c(sapply(dC_dparams[[1]],gradfunc), gradfunc(dC_dparams[[2]]))
+          out
         },
         grad_norm = function (XX) {
           grad1 <- self$grad(XX)

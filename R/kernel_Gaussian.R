@@ -45,9 +45,14 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
       self$theta_lower <- theta_lower
       self$theta_upper <- theta_upper
     },
-    k = function(x, y=NULL, theta=self$theta, s2=self$s2) {
-      if (is.null(theta)) {theta <- self$theta}
-      if (is.null(s2)) {s2 <- self$s2}
+    k = function(x, y=NULL, theta=self$theta, s2=self$s2, params=NULL) {
+      if (!is.null(params)) {
+        theta <- params[1:(length(params)-1)]
+        s2 <- params[length(params)]
+      } else {
+        if (is.null(theta)) {theta <- self$theta}
+        if (is.null(s2)) {s2 <- self$s2}
+      }
       if (is.null(y)) {
         if (is.matrix(x)) {
           return(s2 * corr_gauss_matrix_symC(x, theta))
@@ -123,21 +128,21 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
     get_optim_functions = function(param_update) {
 
     },
-    dC_dparams = function(params=NULL, C, X) {
+    dC_dparams = function(params=NULL, C, X, C_nonug) {browser()
       if (is.null(params)) {params <- c(self$theta, self$s2)}
       theta <- params[1:(length(params) - 1)]
       s2 <- tail(params, 1)
       dC_ds2 <- C / s2
-      dC_dthetas <- rep(list(C), length(theta))
+      dC_dthetas <- rep(list(C_nonug), length(theta))
       n <- nrow(X)
       for (k in 1:length(theta)) {
         for (i in seq(1, n-1, 1)) {
           for (j in seq(i+1, n, 1)) {
-            dC_thetas[[k]][i,j] <- dC_thetas[[k]][i,j] * (X[i,k] - X[j,k])^2
+            dC_dthetas[[k]][i,j] <- dC_dthetas[[k]][i,j] * (X[i,k] - X[j,k])^2
           }
         }
         for (i in seq(1, n, 1)) { # Get diagonal set to zero
-          dC_thetas[[k]][i,j] <- 0
+          dC_dthetas[[k]][i,i] <- 0
         }
       }
 
