@@ -283,6 +283,9 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
         loglikelihood = function(mu=self$mu_hat, s2=self$s2_hat) {
           -.5 * (self$N*log(s2) + log(det(self$K)) + t(self$Z - mu)%*%self$Kinv%*%(self$Z - mu)/s2)
         },
+        get_optim_functions = function(param_update, nug.update=nug.update) {
+          self$kernel$get_optim_functions(param_update=param_update)
+        },
         optim = function (restarts = 5, param_update = T, nug.update = self$nug.est, parallel=self$parallel, parallel_cores=self$parallel_cores) {
           # Does parallel
           # Joint MLE search with L-BFGS-B, with restarts
@@ -301,6 +304,7 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
           #} else {
           #  stop("Can't optimize over no variables")
           #}
+          browser()
           optim_functions <- self$get_optim_functions(param_update=param_update, nug.update=nug.update)
           #optim.func <- self$get_optim_func(param_update=param_update, nug.update=nug.update)
           #optim.grad <- self$get_optim_grad(param_update=param_update, nug.update=nug.update)
@@ -434,6 +438,11 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
 
           invisible(self)
         },
+        update_params = function(...) {browser()
+          # start_params = self$kernel$get_optim_start_params()
+          optim_out <- self$optim(...)
+          self$kernel$set_params_from_optim(optim_out)
+        },
         update_data = function(Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL) {
           if (!is.null(Xall)) {
             self$X <- if (is.matrix(Xall)) Xall else matrix(Xall,nrow=1)
@@ -466,6 +475,9 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
         deviance = function(..., nug=self$nug) {
           K <- self$kernel$k(self$X, ...) + diag(nug, self$N) * self$kernel$s2
           log(det(K)) + sum(self$Z - self$mu_hat, solve(K, self$Z - self$mu_hat))
+        },
+        deviance_grad = function(params=NULL, X=self$X) {
+          dC_dparams = self$kernel$dC_dparams(params=params, X=X)
         },
         grad_norm = function (XX) {
           grad1 <- self$grad(XX)

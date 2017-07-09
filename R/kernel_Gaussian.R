@@ -120,6 +120,29 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
            gr=self$dl_dthetas2(X=X, y=y, theta=theta, s2=s2, mu=mu, n=n, firstiter=FALSE)
       )
     },
+    get_optim_functions = function(param_update) {
+
+    },
+    dC_dparams = function(params=NULL, C, X) {
+      if (is.null(params)) {params <- c(self$theta, self$s2)}
+      theta <- params[1:(length(params) - 1)]
+      s2 <- tail(params, 1)
+      dC_ds2 <- C / s2
+      dC_dthetas <- rep(list(C), length(theta))
+      n <- nrow(X)
+      for (k in 1:length(theta)) {
+        for (i in seq(1, n-1, 1)) {
+          for (j in seq(i+1, n, 1)) {
+            dC_thetas[[k]][i,j] <- dC_thetas[[k]][i,j] * (X[i,k] - X[j,k])^2
+          }
+        }
+        for (i in seq(1, n, 1)) { # Get diagonal set to zero
+          dC_thetas[[k]][i,j] <- 0
+        }
+      }
+
+      list(dC_dthetas, dC_ds2)
+    },
     param_set = function(optim_out) {
       self$theta <- 10^optim_out[1:self$p]
       self$s2 <- 10^optim_out[self$p+1]
