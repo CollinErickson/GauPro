@@ -35,9 +35,11 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
     theta = NULL,
     theta_lower = NULL,
     theta_upper = NULL,
+    theta_length = NULL,
     s2 = NULL, # variance coefficient to scale correlation matrix to covariance
     initialize = function(theta, s2=1, theta_lower=0, theta_upper=1e6) {
       self$theta <- theta
+      self$theta_length <- length(theta)
       # if (length(theta) == 1) {
       #   self$theta <- rep(theta, self$d)
       # }
@@ -93,42 +95,44 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
       })
       c(cl_dtl, dl_ds2)
     },
-    beta_optim_jitter = function() {
-      rnorm(self$p, 0, 1)
-    },
-    param_optim_start = function(jitter, y) {
+    # beta_optim_jitter = function() {
+    #   rnorm(self$p, 0, 1)
+    # },
+    param_optim_start = function(jitter=F, y) {
       # Use current values for theta, partial MLE for s2
-      vec <- c(log(self$theta, 10), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
+      # vec <- c(log(self$theta, 10), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
+      vec <- c(self$theta, self$s2)
       if (jitter) {
-        vec <- vec + c(self$beta_optim_jitter,  0)
+        # vec <- vec + c(self$beta_optim_jitter,  0)
       }
       vec
     },
-    param_optim_start0 = function(jitter, y) {
+    param_optim_start0 = function(jitter=F, y) {
       # Use 0 for theta, partial MLE for s2
-      vec <- c(rep(0, length(self$theta)), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
+      # vec <- c(rep(0, length(self$theta)), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
+      vec <- c(rep(1, self$theta_length), 1)
       if (jitter) {
-        vec <- vec + c(self$beta_optim_jitter,  0)
+        # vec <- vec + c(self$beta_optim_jitter,  0)
       }
       vec
     },
     param_optim_lower = function() {
-      c(rep(-5, self$p), 8)
+      c(rep(0, self$theta_length), 1e-8)
     },
     param_optim_upper = function() {
-      c(rep(5, self$p), 8)
+      c(rep(1e5, self$theta_length), 1e8)
     },
-    optim_fngr = function(X, y, params, mu, n) {
-      theta <- 10^params[1:self$p]
-      s2 <- 10^params[self$p+1]
-      list(fn=self$l(X=X, y=y, theta=theta, s2=s2, mu=mu, n=n),
-           gr=self$dl_dthetas2(X=X, y=y, theta=theta, s2=s2, mu=mu, n=n, firstiter=FALSE)
-      )
-    },
-    get_optim_functions = function(param_update) {
-
-    },
-    dC_dparams = function(params=NULL, C, X, C_nonug) {browser()
+    # optim_fngr = function(X, y, params, mu, n) {
+    #   theta <- 10^params[1:self$p]
+    #   s2 <- 10^params[self$p+1]
+    #   list(fn=self$l(X=X, y=y, theta=theta, s2=s2, mu=mu, n=n),
+    #        gr=self$dl_dthetas2(X=X, y=y, theta=theta, s2=s2, mu=mu, n=n, firstiter=FALSE)
+    #   )
+    # },
+    # get_optim_functions = function(param_update) {
+    #
+    # },
+    dC_dparams = function(params=NULL, C, X, C_nonug) {#browser()
       if (is.null(params)) {params <- c(self$theta, self$s2)}
       theta <- params[1:(length(params) - 1)]
       s2 <- tail(params, 1)
@@ -138,7 +142,8 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
       for (k in 1:length(theta)) {
         for (i in seq(1, n-1, 1)) {
           for (j in seq(i+1, n, 1)) {
-            dC_dthetas[[k]][i,j] <- dC_dthetas[[k]][i,j] * (X[i,k] - X[j,k])^2
+            dC_dthetas[[k]][i,j] <- - dC_dthetas[[k]][i,j] * (X[i,k] - X[j,k])^2
+            dC_dthetas[[k]][j,i] <- dC_dthetas[[k]][i,j]
           }
         }
         for (i in seq(1, n, 1)) { # Get diagonal set to zero
@@ -149,8 +154,10 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
       list(dC_dthetas, dC_ds2)
     },
     param_set = function(optim_out) {
-      self$theta <- 10^optim_out[1:self$p]
-      self$s2 <- 10^optim_out[self$p+1]
+      # self$theta <- 10^optim_out[1:self$p]
+      # self$s2 <- 10^optim_out[self$p+1]
+      self$theta <- optim_out[1:self$theta_length]
+      self$s2 <- optim_out[self$theta_length+1]
     }
   ),
   private = list(

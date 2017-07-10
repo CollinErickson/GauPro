@@ -67,7 +67,7 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
                               kernel,
                               verbose=0, useC=F,useGrad=T,
                               parallel=T,
-                              nug=1e-6, nug.min=1e-8, nug.est=T,
+                              nug=1e-6, nug.min=1e-8, nug.est=FALSE,
                               param.est = TRUE,
                               ...) {
           #self$initialize_GauPr(X=X,Z=Z,verbose=verbose,useC=useC,useGrad=useGrad,
@@ -89,6 +89,7 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
           self$nug <- nug
           self$nug.min <- nug.min
           self$nug.est <- nug.est
+          if (nug.est) {stop("Can't estimate nugget now")}
           self$param.est <- param.est
           self$useC <- useC
           self$useGrad <- useGrad
@@ -284,7 +285,29 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
           -.5 * (self$N*log(s2) + log(det(self$K)) + t(self$Z - mu)%*%self$Kinv%*%(self$Z - mu)/s2)
         },
         get_optim_functions = function(param_update, nug.update=nug.update) {
-          self$kernel$get_optim_functions(param_update=param_update)
+          # self$kernel$get_optim_functions(param_update=param_update)
+          list(
+            fn=function(params) {self$deviance(params=params)},
+            gr=function(params) {self$deviance_grad(params=params)},
+            fngr=function(params) {
+              list(
+                fn=function(params) {self$deviance(params=params)},
+                gr=function(params) {self$deviance_grad(params=params)}
+              )
+            }
+          )
+        },
+        param_optim_lower = function() {
+          self$kernel$param_optim_lower()
+        },
+        param_optim_upper = function() {
+          self$kernel$param_optim_upper()
+        },
+        param_optim_start = function() {
+          self$kernel$param_optim_start()
+        },
+        param_optim_start0 = function() {
+          self$kernel$param_optim_start0()
         },
         optim = function (restarts = 5, param_update = T, nug.update = self$nug.est, parallel=self$parallel, parallel_cores=self$parallel_cores) {
           # Does parallel
@@ -382,7 +405,7 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
           if (nug.update) best$par[length(best$par)] <- 10 ^ (best$par[length(best$par)])
           best
         },
-        optimRestart = function (start.par, start.par0, param_update, nug.update, optim.func, optim.grad, optim.fngr, lower, upper, jit=T) {
+        optimRestart = function (start.par, start.par0, param_update, nug.update, optim.func, optim.grad, optim.fngr, lower, upper, jit=T) {browser()
           # FOR lognug RIGHT NOW, seems to be at least as fast, up to 5x on big data, many fewer func_evals
           #    still want to check if it is better or not
 
@@ -399,11 +422,11 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
             if (nug.update) {start.par.i[length(start.par.i)] <- start.par.i[length(start.par.i)] + min(4, rexp(1,1))} # jitter nugget
           }
 
-          if (runif(1) < .33) { # Start at 0 params
-            start.par.i <- self$kernel$param_optim_start0(jitter=jit)
-          } else { # Start at current params
-            start.par.i <- self$kernel$param_optim_start(jitter=jit)
-          }
+          # if (runif(1) < .33) { # Start at 0 params
+          #   start.par.i <- self$kernel$param_optim_start0(jitter=jit)
+          # } else { # Start at current params
+          #   start.par.i <- self$kernel$param_optim_start(jitter=jit)
+          # }
 
           if (self$verbose >= 2) {cat("\tRestart (parallel): starts pars =",start.par.i,"\n")}
           current <- try(
@@ -472,17 +495,18 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
         #   self$nug <- nug
         #   self$update_K_and_estimates()
         # },
-        deviance = function(..., nug=self$nug) {
-          K <- self$kernel$k(self$X, ...) + diag(nug, self$N) * self$kernel$s2
-          log(det(K)) + sum(self$Z - self$mu_hat, solve(K, self$Z - self$mu_hat))
+        deviance = function(params=NULL, nug=self$nug) {
+          K <- self$kernel$k(x=self$X, params=params) +
+            diag(nug, self$N) * self$kernel$s2
+          log(det(K)) + sum((self$Z - self$mu_hat) * solve(K, self$Z - self$mu_hat))
         },
-        deviance_grad = function(params=NULL, X=self$X) {browser()
-          C_nonug <- self$kernel$k(x=self$X)
-          C <- C_nonug + diag(self$nug, self$N)
+        deviance_grad = function(params=NULL, X=self$X, nug=self$nug) {#browser()
+          C_nonug <- self$kernel$k(x=self$X, params=params)
+          C <- C_nonug + diag(nug, self$N)
           dC_dparams = self$kernel$dC_dparams(params=params, X=X, C=C, C_nonug=C_nonug)
           yminusmu <- self$Z - self$mu_hat
           Cinv_yminusmu <- solve(C, yminusmu)
-          gradfunc <- function(di) {browser()
+          gradfunc <- function(di) {#browser()
             t1 <- sum(diag(solve(C, di)))
             t2 <- sum(Cinv_yminusmu * (di %*% Cinv_yminusmu))
             t1 - t2
