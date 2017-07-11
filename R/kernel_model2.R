@@ -101,8 +101,8 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
           self$fit()
           invisible(self)
         },
-        initialize_GauPr = function() {
-        },
+        # initialize_GauPr = function() {
+        # },
         fit = function(X, Z) {
           self$update()
         },
