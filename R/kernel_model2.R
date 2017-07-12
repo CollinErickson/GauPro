@@ -241,7 +241,7 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
           x <- seq(x1, x2, length.out = nn)
           px <- self$pred(x, covmat = T)
           # n2 <- 20
-          browser()
+          # browser()
           Sigma.try <- try(newy <- MASS::mvrnorm(n=n2, mu=px$mean, Sigma=px$cov), silent = TRUE)
           if (inherits(Sigma.try, "try-error")) {
             message("Adding nugget to cool1Dplot")
@@ -327,7 +327,7 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
           #} else {
           #  stop("Can't optimize over no variables")
           #}
-          browser()
+          #browser()
           optim_functions <- self$get_optim_functions(param_update=param_update, nug.update=nug.update)
           #optim.func <- self$get_optim_func(param_update=param_update, nug.update=nug.update)
           #optim.grad <- self$get_optim_grad(param_update=param_update, nug.update=nug.update)
@@ -405,7 +405,8 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
           if (nug.update) best$par[length(best$par)] <- 10 ^ (best$par[length(best$par)])
           best
         },
-        optimRestart = function (start.par, start.par0, param_update, nug.update, optim.func, optim.grad, optim.fngr, lower, upper, jit=T) {browser()
+        optimRestart = function (start.par, start.par0, param_update, nug.update, optim.func, optim.grad, optim.fngr, lower, upper, jit=T) {
+          #browser()
           # FOR lognug RIGHT NOW, seems to be at least as fast, up to 5x on big data, many fewer func_evals
           #    still want to check if it is better or not
 
@@ -415,7 +416,7 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
           } else { # jitter from current params
             start.par.i <- start.par
           }
-          if (jit) {
+          if (FALSE) {#jit) {
             #if (param_update) {start.par.i[1:self$theta_length] <- start.par.i[1:self$theta_length] + rnorm(self$theta_length,0,2)} # jitter betas
             theta_indices <- 1:length(self$param_optim_start()) #if () -length(start.par.i)
             if (param_update) {start.par.i[theta_indices] <- start.par.i[theta_indices] + self$param_optim_jitter(start.par.i[theta_indices])} # jitter betas
@@ -431,7 +432,7 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
           if (self$verbose >= 2) {cat("\tRestart (parallel): starts pars =",start.par.i,"\n")}
           current <- try(
             if (self$useGrad) {
-              if (is.null(optim.fngr)) {
+              if (TRUE) {#is.null(optim.fngr)) {
                 lbfgs::lbfgs(optim.func, optim.grad, start.par.i, invisible=1)
               } else {
                 lbfgs_share(optim.fngr, start.par.i, invisible=1) # 1.7x speedup uses grad_share
@@ -454,7 +455,7 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
           self$update_data(Xnew=Xnew, Znew=Znew, Xall=Xall, Zall=Zall) # Doesn't update Kinv, etc
 
           # if (!no_update || (!param_update && !nug.update)) { # This option lets it skip parameter optimization entirely
-          #   self$update_params(restarts=restarts, param_update=param_update,nug.update=nug.update)
+            self$update_params(restarts=restarts, param_update=param_update,nug.update=nug.update)
           # }
 
           self$update_K_and_estimates()
@@ -464,7 +465,7 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
         update_params = function(...) {browser()
           # start_params = self$kernel$get_optim_start_params()
           optim_out <- self$optim(...)
-          self$kernel$set_params_from_optim(optim_out)
+          self$kernel$set_params_from_optim(optim_out$par)
         },
         update_data = function(Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL) {
           if (!is.null(Xall)) {

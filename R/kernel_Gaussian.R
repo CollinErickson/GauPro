@@ -51,13 +51,15 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
       if (!is.null(params)) {
         theta <- params[1:(length(params)-1)]
         s2 <- params[length(params)]
-      } else {
+      } else {#browser()
         if (is.null(theta)) {theta <- self$theta}
         if (is.null(s2)) {s2 <- self$s2}
       }
       if (is.null(y)) {
-        if (is.matrix(x)) {
-          return(s2 * corr_gauss_matrix_symC(x, theta))
+        if (is.matrix(x)) {#browser()
+          cgmtry <- try(val <- s2 * corr_gauss_matrix_symC(x, theta))
+          if (inherits(cgmtry,"try-error")) {browser()}
+          return(val)
         } else {
           return(s2 * 1)
         }
@@ -121,6 +123,11 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
     },
     param_optim_upper = function() {
       c(rep(1e5, self$theta_length), 1e8)
+    },
+    set_params_from_optim = function(optim_out) {
+      loo <- length(optim_out)
+      self$theta <- optim_out[1:(loo-1)]
+      self$s2 <- optim_out[loo]
     },
     # optim_fngr = function(X, y, params, mu, n) {
     #   theta <- 10^params[1:self$p]
