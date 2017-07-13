@@ -89,7 +89,7 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
           self$nug <- nug
           self$nug.min <- nug.min
           self$nug.est <- nug.est
-          if (nug.est) {stop("Can't estimate nugget now")}
+          # if (nug.est) {stop("Can't estimate nugget now")}
           self$param.est <- param.est
           self$useC <- useC
           self$useGrad <- useGrad
@@ -145,7 +145,7 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
 
             ni <- 40 # batch size
             Nni <- ceiling(N/ni)-1
-            for (j in 0:Nni) {#browser()
+            for (j in 0:Nni) {
               XXj <- XX[(j*ni+1):(min((j+1)*ni,N)), , drop=FALSE]
               # kxxj <- self$corr_func(XXj)
               # kx.xxj <- self$corr_func(self$X, XXj)
@@ -173,11 +173,10 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
             return(self$pred_one_matrix(XX=XX, se.fit=se.fit, covmat=covmat))
           }
         },
-        pred_one_matrix = function(XX, se.fit=F, covmat=F) {#browser()
+        pred_one_matrix = function(XX, se.fit=F, covmat=F) {
           # input should already be check for matrix
           kxx <- self$kernel$k(XX) + self$nug
           kx.xx <- self$kernel$k(self$X, XX)
-          #browser()
           mn <- pred_meanC(XX, kx.xx, self$mu_hat, self$Kinv, self$Z)
 
           if (!se.fit & !covmat) {
@@ -241,7 +240,6 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
           x <- seq(x1, x2, length.out = nn)
           px <- self$pred(x, covmat = T)
           # n2 <- 20
-          # browser()
           Sigma.try <- try(newy <- MASS::mvrnorm(n=n2, mu=px$mean, Sigma=px$cov), silent = TRUE)
           if (inherits(Sigma.try, "try-error")) {
             message("Adding nugget to cool1Dplot")
@@ -284,30 +282,69 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
         loglikelihood = function(mu=self$mu_hat, s2=self$s2_hat) {
           -.5 * (self$N*log(s2) + log(det(self$K)) + t(self$Z - mu)%*%self$Kinv%*%(self$Z - mu)/s2)
         },
-        get_optim_functions = function(param_update, nug.update=nug.update) {
+        get_optim_functions = function(param_update, nug.update) {
           # self$kernel$get_optim_functions(param_update=param_update)
-          list(
-            fn=function(params) {self$deviance(params=params)},
-            gr=function(params) {self$deviance_grad(params=params)},
-            fngr=function(params) {
-              list(
-                fn=function(params) {self$deviance(params=params)},
-                gr=function(params) {self$deviance_grad(params=params)}
-              )
-            }
-          )
+          if (nug.update) { # Nug will be last in vector of parameters
+            list(
+              fn=function(params) {#browser()
+                l <- length(params)
+                self$deviance(params=params[1:(l-1)], nuglog=params[l])
+              },
+              gr=function(params) {
+                l <- length(params)
+                self$deviance_grad(params=params[1:(l-1)], nuglog=params[l], nug.update=nug.update)
+              },
+              fngr=function(params) {
+                l <- length(params)
+                list(
+                  fn=function(params) {
+                    self$deviance(params=params[1:(l-1)], nuglog=params[l])
+                  },
+                  gr=function(params) {self$deviance_grad(params=params[1:(l-1)], nuglog=params[l], nug.update=nug.update)
+                  }
+                )
+              }
+            )
+          } else {
+            list(
+              fn=function(params) {self$deviance(params=params)},
+              gr=function(params) {self$deviance_grad(params=params, nug.update=nug.update)},
+              fngr=function(params) {
+                list(
+                  fn=function(params) {self$deviance(params=params)},
+                  gr=function(params) {self$deviance_grad(params=params, nug.update=nug.update)}
+                )
+              }
+            )
+          }
         },
-        param_optim_lower = function() {
-          self$kernel$param_optim_lower()
+        param_optim_lower = function(nug.update) {
+          # if (nug.update) {
+          #   c(self$kernel$param_optim_lower(), self$nug.min)
+          # } else {
+            self$kernel$param_optim_lower()
+          # }
         },
         param_optim_upper = function() {
-          self$kernel$param_optim_upper()
+          # if (nug.update) {
+          #   c(self$kernel$param_optim_upper(), Inf)
+          # } else {
+            self$kernel$param_optim_upper()
+          # }
         },
         param_optim_start = function() {
-          self$kernel$param_optim_start()
+          # if (nug.update) {
+          #   c(self$kernel$param_optim_start(), 1e-4)
+          # } else {
+            self$kernel$param_optim_start()
+          # }
         },
         param_optim_start0 = function() {
-          self$kernel$param_optim_start0()
+          # if (nug.update) {
+          #   c(self$kernel$param_optim_start0(), 1e-4)
+          # } else {
+            self$kernel$param_optim_start0()
+          # }
         },
         optim = function (restarts = 5, param_update = T, nug.update = self$nug.est, parallel=self$parallel, parallel_cores=self$parallel_cores) {
           # Does parallel
@@ -327,7 +364,6 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
           #} else {
           #  stop("Can't optimize over no variables")
           #}
-          #browser()
           optim_functions <- self$get_optim_functions(param_update=param_update, nug.update=nug.update)
           #optim.func <- self$get_optim_func(param_update=param_update, nug.update=nug.update)
           #optim.grad <- self$get_optim_grad(param_update=param_update, nug.update=nug.update)
@@ -352,9 +388,9 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
             lower <- c(lower, log(self$nug.min,10))
             upper <- c(upper, Inf)
             start.par <- c(start.par, log(self$nug,10))
-            start.par0 <- c(start.par0, -6)
+            start.par0 <- c(start.par0, -4)
           }
-
+          #browser()
 
           # This will make sure it at least can start
           # Run before it sets initial parameters
@@ -462,10 +498,16 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
 
           invisible(self)
         },
-        update_params = function(...) {browser()
+        update_params = function(..., nug.update) {#browser()
           # start_params = self$kernel$get_optim_start_params()
-          optim_out <- self$optim(...)
-          self$kernel$set_params_from_optim(optim_out$par)
+          optim_out <- self$optim(..., nug.update=nug.update)
+          lpar <- length(optim_out$par)
+          if (nug.update) {
+            self$nug <- optim_out$par[lpar]
+            self$kernel$set_params_from_optim(optim_out$par[1:(lpar-1)])
+          } else {
+            self$kernel$set_params_from_optim(optim_out$par)
+          }
         },
         update_data = function(Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL) {
           if (!is.null(Xall)) {
@@ -496,23 +538,36 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
         #   self$nug <- nug
         #   self$update_K_and_estimates()
         # },
-        deviance = function(params=NULL, nug=self$nug) {
+        deviance = function(params=NULL, nug=self$nug, nuglog) {
+          if (!missing(nuglog)) {
+            nug <- 10^nuglog
+          }
           K <- self$kernel$k(x=self$X, params=params) +
             diag(nug, self$N) * self$kernel$s2
           log(det(K)) + sum((self$Z - self$mu_hat) * solve(K, self$Z - self$mu_hat))
         },
-        deviance_grad = function(params=NULL, X=self$X, nug=self$nug) {#browser()
+        deviance_grad = function(params=NULL, X=self$X, nug=self$nug, nug.update, nuglog) {if (browsethis) browser("Check nugget")
+          if (!missing(nuglog)) {
+            nug <- 10^nuglog
+          }
           C_nonug <- self$kernel$k(x=self$X, params=params)
           C <- C_nonug + diag(nug, self$N)
-          dC_dparams = self$kernel$dC_dparams(params=params, X=X, C=C, C_nonug=C_nonug)
+          dC_dparams_out <- self$kernel$dC_dparams(params=params, X=X, C=C, C_nonug=C_nonug)
+          dC_dparams <- dC_dparams_out[[1]] # First of list should be list of dC_dparams
+          s2_from_kernel <- dC_dparams_out[[2]] # Second should be s2 for nugget deriv
           yminusmu <- self$Z - self$mu_hat
           Cinv_yminusmu <- solve(C, yminusmu)
-          gradfunc <- function(di) {#browser()
+          gradfunc <- function(di) {
             t1 <- sum(diag(solve(C, di)))
             t2 <- sum(Cinv_yminusmu * (di %*% Cinv_yminusmu))
             t1 - t2
           }
-          out <- c(sapply(dC_dparams[[1]],gradfunc), gradfunc(dC_dparams[[2]]))
+          # out <- c(sapply(dC_dparams[[1]],gradfunc), gradfunc(dC_dparams[[2]]))
+          out <- sapply(dC_dparams,gradfunc)
+          if (nug.update) {
+            # out <- c(out, gradfunc(diag(s2_from_kernel*nug*log(10), nrow(C))))
+            out <- c(out, gradfunc(diag(s2_from_kernel, nrow(C))))
+          }
           out
         },
         grad_norm = function (XX) {

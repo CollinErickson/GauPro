@@ -139,7 +139,7 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
     # get_optim_functions = function(param_update) {
     #
     # },
-    dC_dparams = function(params=NULL, C, X, C_nonug) {#browser()
+    dC_dparams = function(params=NULL, C, X, C_nonug) {#browser(text = "Make sure all in one list")
       if (is.null(params)) {params <- c(self$theta, self$s2)}
       theta <- params[1:(length(params) - 1)]
       s2 <- tail(params, 1)
@@ -158,7 +158,10 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
         }
       }
 
-      list(dC_dthetas, dC_ds2)
+      mats <- c(dC_dthetas, list(dC_ds2))
+      return(list(dC_dparams=mats,
+                  s2
+                  ))
     },
     param_set = function(optim_out) {
       # self$theta <- 10^optim_out[1:self$p]
