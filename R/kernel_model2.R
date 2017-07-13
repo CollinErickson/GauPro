@@ -97,7 +97,8 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
           if (self$parallel) {self$parallel_cores <- parallel::detectCores()}
           else {self$parallel_cores <- 1}
 
-
+          self$update_K_and_estimates() # Need to get mu_hat before starting
+          self$mu_hat <- mean(Z)
           self$fit()
           invisible(self)
         },
@@ -503,7 +504,7 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
           optim_out <- self$optim(..., nug.update=nug.update)
           lpar <- length(optim_out$par)
           if (nug.update) {
-            self$nug <- optim_out$par[lpar]
+            self$nug <- 10^optim_out$par[lpar]
             self$kernel$set_params_from_optim(optim_out$par[1:(lpar-1)])
           } else {
             self$kernel$set_params_from_optim(optim_out$par)
@@ -543,7 +544,8 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
             nug <- 10^nuglog
           }
           K <- self$kernel$k(x=self$X, params=params) +
-            diag(nug, self$N) * self$kernel$s2
+            diag(nug, self$N) * self$kernel$s2_from_params(params=params)
+          if (is.nan(log(det(K)))) {browser()}
           log(det(K)) + sum((self$Z - self$mu_hat) * solve(K, self$Z - self$mu_hat))
         },
         deviance_grad = function(params=NULL, X=self$X, nug=self$nug, nug.update, nuglog) {if (browsethis) browser("Check nugget")
@@ -565,8 +567,8 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
           # out <- c(sapply(dC_dparams[[1]],gradfunc), gradfunc(dC_dparams[[2]]))
           out <- sapply(dC_dparams,gradfunc)
           if (nug.update) {
-            # out <- c(out, gradfunc(diag(s2_from_kernel*nug*log(10), nrow(C))))
-            out <- c(out, gradfunc(diag(s2_from_kernel, nrow(C))))
+            out <- c(out, gradfunc(diag(s2_from_kernel*nug*log(10), nrow(C))))
+            # out <- c(out, gradfunc(diag(s2_from_kernel*, nrow(C)))*nug*log(10))
           }
           out
         },
