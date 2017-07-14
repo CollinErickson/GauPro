@@ -320,32 +320,46 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           }
         },
         param_optim_lower = function(nug.update) {
-          # if (nug.update) {
-          #   c(self$kernel$param_optim_lower(), self$nug.min)
-          # } else {
+          if (nug.update) {
+            c(self$kernel$param_optim_lower(), log(self$nug.min,10))
+          } else {
             self$kernel$param_optim_lower()
-          # }
+          }
         },
-        param_optim_upper = function() {
-          # if (nug.update) {
-          #   c(self$kernel$param_optim_upper(), Inf)
-          # } else {
+        param_optim_upper = function(nug.update) {
+          if (nug.update) {
+            c(self$kernel$param_optim_upper(), Inf)
+          } else {
             self$kernel$param_optim_upper()
-          # }
+          }
         },
-        param_optim_start = function() {
-          # if (nug.update) {
-          #   c(self$kernel$param_optim_start(), 1e-4)
-          # } else {
-            self$kernel$param_optim_start()
-          # }
+        param_optim_start = function(nug.update, jitter) {
+          param_start <- self$kernel$param_optim_start(jitter=jitter)
+          if (nug.update) {
+            c(param_start, log(self$nug,10))
+          } else {
+            param_start
+          }
         },
-        param_optim_start0 = function() {
-          # if (nug.update) {
-          #   c(self$kernel$param_optim_start0(), 1e-4)
-          # } else {
+        param_optim_start0 = function(nug.update, jitter) {
+          if (nug.update) {
+            c(self$kernel$param_optim_start0(), -4)
+          } else {
             self$kernel$param_optim_start0()
-          # }
+          }
+        },
+        param_optim_start_mat = function(restarts, nug.update, l) {#browser()
+          s0 <- sample(c(T,F), size=restarts+1, replace=TRUE, prob = c(.33,.67))
+          s0[1] <- TRUE
+          sapply(1:(restarts+1), function(i) {
+            if (s0[i]) {
+              self$param_optim_start0(nug.update=nug.update, jitter=(i!=1))
+            } else {
+              self$param_optim_start(nug.update=nug.update, jitter=(i!=1))
+            }
+          })
+          # mat <- matrix(0, nrow=restarts, ncol=l)
+          # mat[1,] <- self$param_optim_start0(nug.update=nug.update)
         },
         optim = function (restarts = 5, param_update = T, nug.update = self$nug.est, parallel=self$parallel, parallel_cores=self$parallel_cores) {
           # Does parallel
@@ -374,50 +388,64 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           optim.fngr <- optim_functions[[3]]
 
 
-          # Set starting parameters and bounds
-          lower <- c()
-          upper <- c()
-          start.par <- c()
-          start.par0 <- c() # Some default params
-          if (param_update) {
-            lower <- c(lower, self$param_optim_lower())#rep(-5, self$theta_length))
-            upper <- c(upper, self$param_optim_upper())#rep(7, self$theta_length))
-            start.par <- c(start.par, self$param_optim_start())#log(self$theta_short, 10))
-            start.par0 <- c(start.par0, self$param_optim_start0())#rep(0, self$theta_length))
-          }
-          if (nug.update) {
-            lower <- c(lower, log(self$nug.min,10))
-            upper <- c(upper, Inf)
-            start.par <- c(start.par, log(self$nug,10))
-            start.par0 <- c(start.par0, -4)
-          }
-          #browser()
+          # # Set starting parameters and bounds
+          # lower <- c()
+          # upper <- c()
+          # start.par <- c()
+          # start.par0 <- c() # Some default params
+          # if (param_update) {
+          #   lower <- c(lower, self$param_optim_lower())#rep(-5, self$theta_length))
+          #   upper <- c(upper, self$param_optim_upper())#rep(7, self$theta_length))
+          #   start.par <- c(start.par, self$param_optim_start())#log(self$theta_short, 10))
+          #   start.par0 <- c(start.par0, self$param_optim_start0())#rep(0, self$theta_length))
+          # }
+          # if (nug.update) {
+          #   lower <- c(lower, log(self$nug.min,10))
+          #   upper <- c(upper, Inf)
+          #   start.par <- c(start.par, log(self$nug,10))
+          #   start.par0 <- c(start.par0, -4)
+          # }
+          # #browser()
+
+          # Changing so all are gotten by self function
+          lower <- self$param_optim_lower(nug.update=nug.update)
+          upper <- self$param_optim_upper(nug.update=nug.update)
+          # start.par <- self$param_optim_start(nug.update=nug.update)
+          # start.par0 <- self$param_optim_start0(nug.update=nug.update)
+          # browser()
+          param_optim_start_mat <- self$param_optim_start_mat(restarts=restarts,
+                                                              nug.update=nug.update,
+                                                              l=length(lower))
+
 
           # This will make sure it at least can start
           # Run before it sets initial parameters
-          try.devlog <- try(devlog <- optim.func(start.par), silent = T)
+          # try.devlog <- try(devlog <- optim.func(start.par), silent = T)
+          try.devlog <- try(devlog <- optim.func(param_optim_start_mat[,1]), silent = T)
           if (inherits(try.devlog, "try-error")) {
             warning("Current nugget doesn't work, increasing it #31973")
             self$update_K_and_estimates() # This will increase the nugget until cholesky works
-            devlog <- optim.func(start.par)
+            # devlog <- optim.func(start.par)
+            devlog <- optim.func(param_optim_start_mat[,1])
           }
 
           # Find best params with optimization, start with current params in case all give error
           # Current params
           #best <- list(par=c(log(self$theta_short, 10), log(self$nug,10)), value = devlog)
-          best <- list(par=start.par, value = devlog)
+          # best <- list(par=start.par, value = devlog)
+          best <- list(par=param_optim_start_mat[,1], value = devlog)
           if (self$verbose >= 2) {cat("Optimizing\n");cat("\tInitial values:\n");print(best)}
           #details <- data.frame(start=paste(c(self$theta_short,self$nug),collapse=","),end=NA,value=best$value,func_evals=1,grad_evals=NA,convergence=NA, message=NA, stringsAsFactors=F)
-          details <- data.frame(start=paste(start.par,collapse=","),end=NA,value=best$value,func_evals=1,grad_evals=NA,convergence=NA, message=NA, stringsAsFactors=F)
+          details <- data.frame(start=paste(param_optim_start_mat[,1],collapse=","),end=NA,value=best$value,func_evals=1,grad_evals=NA,convergence=NA, message=NA, stringsAsFactors=F)
 
 
           # runs them in parallel, first starts from current, rest are jittered or random
           sys_name <- Sys.info()["sysname"]
           if (sys_name == "Windows" | !self$parallel) {
             # Trying this so it works on Windows
-            restarts.out <- lapply( 1:(1+restarts), function(i){self$optimRestart(start.par=start.par, start.par0=start.par0, param_update=param_update, nug.update=nug.update, optim.func=optim.func, optim.grad=optim.grad, optim.fngr=optim.fngr, lower=lower, upper=upper, jit=(i!=1))})#, mc.cores = parallel_cores)
+            restarts.out <- lapply( 1:(1+restarts), function(i){self$optimRestart(start.par=start.par, start.par0=start.par0, param_update=param_update, nug.update=nug.update, optim.func=optim.func, optim.grad=optim.grad, optim.fngr=optim.fngr, lower=lower, upper=upper, jit=(i!=1), start.par.i=param_optim_start_mat[,i])})#, mc.cores = parallel_cores)
           } else { # Mac/Unix
-            restarts.out <- parallel::mclapply(1:(1+restarts), function(i){self$optimRestart(start.par=start.par, start.par0=start.par0, param_update=param_update, nug.update=nug.update, optim.func=optim.func, optim.grad=optim.grad, optim.fngr=optim.fngr,lower=lower, upper=upper, jit=(i!=1))}, mc.cores = parallel_cores)
+            restarts.out <- parallel::mclapply(1:(1+restarts), function(i){self$optimRestart(start.par=start.par, start.par0=start.par0, param_update=param_update, nug.update=nug.update, optim.func=optim.func, optim.grad=optim.grad, optim.fngr=optim.fngr,lower=lower, upper=upper, jit=(i!=1))}, start.par.i=param_optim_start_mat[,i], mc.cores = parallel_cores)
           }
           new.details <- t(sapply(restarts.out,function(dd){dd$deta}))
           vals <- sapply(restarts.out,
@@ -442,23 +470,23 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           if (nug.update) best$par[length(best$par)] <- 10 ^ (best$par[length(best$par)])
           best
         },
-        optimRestart = function (start.par, start.par0, param_update, nug.update, optim.func, optim.grad, optim.fngr, lower, upper, jit=T) {
+        optimRestart = function (start.par, start.par0, param_update, nug.update, optim.func, optim.grad, optim.fngr, lower, upper, jit=T, start.par.i) {
           #browser()
           # FOR lognug RIGHT NOW, seems to be at least as fast, up to 5x on big data, many fewer func_evals
           #    still want to check if it is better or not
 
-          if (runif(1) < .33 & jit) { # restart near some spot to avoid getting stuck in bad spot
-            start.par.i <- start.par0
-            #print("start at zero par")
-          } else { # jitter from current params
-            start.par.i <- start.par
-          }
-          if (FALSE) {#jit) {
-            #if (param_update) {start.par.i[1:self$theta_length] <- start.par.i[1:self$theta_length] + rnorm(self$theta_length,0,2)} # jitter betas
-            theta_indices <- 1:length(self$param_optim_start()) #if () -length(start.par.i)
-            if (param_update) {start.par.i[theta_indices] <- start.par.i[theta_indices] + self$param_optim_jitter(start.par.i[theta_indices])} # jitter betas
-            if (nug.update) {start.par.i[length(start.par.i)] <- start.par.i[length(start.par.i)] + min(4, rexp(1,1))} # jitter nugget
-          }
+          # if (runif(1) < .33 & jit) { # restart near some spot to avoid getting stuck in bad spot
+          #   start.par.i <- start.par0
+          #   #print("start at zero par")
+          # } else { # jitter from current params
+          #   start.par.i <- start.par
+          # }
+          # if (FALSE) {#jit) {
+          #   #if (param_update) {start.par.i[1:self$theta_length] <- start.par.i[1:self$theta_length] + rnorm(self$theta_length,0,2)} # jitter betas
+          #   theta_indices <- 1:length(self$param_optim_start()) #if () -length(start.par.i)
+          #   if (param_update) {start.par.i[theta_indices] <- start.par.i[theta_indices] + self$param_optim_jitter(start.par.i[theta_indices])} # jitter betas
+          #   if (nug.update) {start.par.i[length(start.par.i)] <- start.par.i[length(start.par.i)] + min(4, rexp(1,1))} # jitter nugget
+          # }
 
           # if (runif(1) < .33) { # Start at 0 params
           #   start.par.i <- self$kernel$param_optim_start0(jitter=jit)

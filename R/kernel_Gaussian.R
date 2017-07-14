@@ -106,6 +106,7 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
       vec <- c(self$theta, self$s2)
       if (jitter) {
         # vec <- vec + c(self$beta_optim_jitter,  0)
+        vec[1:length(self$theta)] = vec[1:length(self$theta)] + exp(rnorm(length(self$theta), 0, 1))
       }
       vec
     },
