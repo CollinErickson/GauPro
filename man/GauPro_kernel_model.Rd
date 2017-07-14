@@ -3,7 +3,7 @@
 \docType{class}
 \name{GauPro_kernel_model}
 \alias{GauPro_kernel_model}
-\title{Class providing object with methods for fitting a GP model using kernels}
+\title{Class providing object with methods for fitting a GP model}
 \format{\code{\link{R6Class}} object.}
 \usage{
 GauPro_kernel_model
@@ -12,7 +12,7 @@ GauPro_kernel_model
 Object of \code{\link{R6Class}} with methods for fitting GP model.
 }
 \description{
-Class providing object with methods for fitting a GP model using kernels
+Class providing object with methods for fitting a GP model
 }
 \section{Fields}{
 
@@ -20,8 +20,6 @@ Class providing object with methods for fitting a GP model using kernels
 \item{\code{X}}{Design matrix}
 
 \item{\code{Z}}{Responses}
-
-\item{\code{kernel}}{The kernel (covariance function)}
 
 \item{\code{N}}{Number of data points}
 
@@ -64,6 +62,7 @@ n <- 12
 x <- matrix(seq(0,1,length.out = n), ncol=1)
 y <- sin(2*pi*x) + rnorm(n,0,1e-1)
 gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian$new(1), parallel=FALSE)
+gp$predict(.454)
 }
 \keyword{Gaussian}
 \keyword{data,}
