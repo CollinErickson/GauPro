@@ -499,12 +499,12 @@ GauPro_kernel_model2 <- R6::R6Class(classname = "GauPro",
 
           invisible(self)
         },
-        update_params = function(..., nug.update) {#browser()
+        update_params = function(..., nug.update) {browser()
           # start_params = self$kernel$get_optim_start_params()
           optim_out <- self$optim(..., nug.update=nug.update)
           lpar <- length(optim_out$par)
           if (nug.update) {
-            self$nug <- 10^optim_out$par[lpar]
+            self$nug <- optim_out$par[lpar] # optim already does 10^
             self$kernel$set_params_from_optim(optim_out$par[1:(lpar-1)])
           } else {
             self$kernel$set_params_from_optim(optim_out$par)
