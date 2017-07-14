@@ -37,15 +37,21 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
     theta_upper = NULL,
     theta_length = NULL,
     s2 = NULL, # variance coefficient to scale correlation matrix to covariance
-    initialize = function(theta, s2=1, theta_lower=0, theta_upper=1e6) {
+    s2_lower = NULL,
+    s2_upper = NULL,
+    initialize = function(theta, s2=1, theta_lower=0, theta_upper=1e6,
+                          s2_lower=1e-8, s2_upper=1e8) {
       self$theta <- theta
       self$theta_length <- length(theta)
       # if (length(theta) == 1) {
       #   self$theta <- rep(theta, self$d)
       # }
-      self$s2 <- s2
       self$theta_lower <- theta_lower
       self$theta_upper <- theta_upper
+
+      self$s2 <- s2
+      self$s2_lower <- s2_lower
+      self$s2_upper <- s2_upper
     },
     k = function(x, y=NULL, theta=self$theta, s2=self$s2, params=NULL) {
       if (!is.null(params)) {
@@ -120,10 +126,10 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
       vec
     },
     param_optim_lower = function() {
-      c(rep(0, self$theta_length), 1e-8)
+      c(rep(self$theta_lower, self$theta_length), self$s2_lower)
     },
     param_optim_upper = function() {
-      c(rep(1e5, self$theta_length), 1e8)
+      c(rep(self$theta_upper, self$theta_length), self$s2_upper)
     },
     set_params_from_optim = function(optim_out) {
       loo <- length(optim_out)
