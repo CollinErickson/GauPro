@@ -567,14 +567,16 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
         #   self$nug <- nug
         #   self$update_K_and_estimates()
         # },
-        deviance = function(params=NULL, nug=self$nug, nuglog) {
+        deviance = function(params=NULL, nug=self$nug, nuglog) {#print(c(params, nuglog))
           if (!missing(nuglog)) {
             nug <- 10^nuglog
           }
           K <- self$kernel$k(x=self$X, params=params) +
             diag(nug, self$N) * self$kernel$s2_from_params(params=params)
           if (is.nan(log(det(K)))) {browser()}
-          log(det(K)) + sum((self$Z - self$mu_hat) * solve(K, self$Z - self$mu_hat))
+          dev <- log(det(K)) + sum((self$Z - self$mu_hat) * solve(K, self$Z - self$mu_hat))
+          print(c(params, nuglog, dev))
+          dev
         },
         deviance_grad = function(params=NULL, X=self$X, nug=self$nug, nug.update, nuglog) {#if (browsethis) browser("Check nugget")
           if (!missing(nuglog)) {
@@ -598,6 +600,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
             out <- c(out, gradfunc(diag(s2_from_kernel*nug*log(10), nrow(C))))
             # out <- c(out, gradfunc(diag(s2_from_kernel*, nrow(C)))*nug*log(10))
           }
+          print(c(params, nuglog, out))
           out
         },
         grad_norm = function (XX) {

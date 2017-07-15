@@ -28,40 +28,44 @@
 #' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
 #' @format \code{\link{R6Class}} object.
 #' @examples
-#' k1 <- Gaussian_beta$new(beta=1)
-Gaussian_beta <- R6::R6Class(classname = "GauPro_kernel_Gaussian_beta",
+#' k1 <- Gaussian_l$new(beta=1)
+Gaussian_l <- R6::R6Class(classname = "GauPro_kernel_Gaussian_lengthscale",
   inherit = GauPro_kernel,
   public = list(
-    beta = NULL,
-    beta_lower = NULL,
-    beta_upper = NULL,
-    beta_length = NULL,
+    l = NULL,
+    # l_lower = NULL,
+    # l_upper = NULL,
+    logl_lower = NULL,
+    logl_upper = NULL,
+    l_length = NULL,
     s2 = NULL, # variance coefficient to scale correlation matrix to covariance
     s2_lower = NULL,
     s2_upper = NULL,
-    initialize = function(beta, s2=1, beta_lower=-8, beta_upper=6,
+    initialize = function(l, s2=1, l_lower=1e-8, l_upper=1e6,
                           s2_lower=1e-8, s2_upper=1e8) {
-      self$beta <- beta
-      self$beta_length <- length(beta)
+      if (any(l <= 0)) {stop("l must be > 0")}
+      self$l <- l
+      self$l_length <- length(l)
       # if (length(theta) == 1) {
       #   self$theta <- rep(theta, self$d)
       # }
-      self$beta_lower <- beta_lower
-      self$beta_upper <- beta_upper
+      self$logl_lower <- log(l_lower, 10)
+      self$logl_upper <- log(l_upper, 10)
 
       self$s2 <- s2
       self$s2_lower <- s2_lower
       self$s2_upper <- s2_upper
     },
-    k = function(x, y=NULL, beta=self$beta, s2=self$s2, params=NULL) {
+    k = function(x, y=NULL, l=self$l, s2=self$s2, params=NULL) {
       if (!is.null(params)) {
-        beta <- params[1:(length(params)-1)]
+        logl <- params[1:(length(params)-1)]
+        l <- 10 ^ logl
         s2 <- params[length(params)]
       } else {#browser()
-        if (is.null(beta)) {beta <- self$beta}
+        if (is.null(l)) {l <- self$l}
         if (is.null(s2)) {s2 <- self$s2}
       }
-      theta <- 10^beta
+      theta <- .5 / l^2
       if (is.null(y)) {
         if (is.matrix(x)) {#browser()
           cgmtry <- try(val <- s2 * corr_gauss_matrix_symC(x, theta))
@@ -81,8 +85,8 @@ Gaussian_beta <- R6::R6Class(classname = "GauPro_kernel_Gaussian_beta",
         s2 * exp(-sum(theta * (x-y)^2))
       }
     },
-    k1 = function(x, y, beta=self$beta) {
-      theta <- 10^beta
+    k1 = function(x, y, l=self$l) {
+      theta <- .5 / l^2
       self$s2 * exp(-sum(theta * (x-y)^2))
     },
     # l = function(X, y, beta, s2, mu, n) {
@@ -109,31 +113,31 @@ Gaussian_beta <- R6::R6Class(classname = "GauPro_kernel_Gaussian_beta",
     param_optim_start = function(jitter=F, y) {
       # Use current values for theta, partial MLE for s2
       # vec <- c(log(self$theta, 10), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
-      vec <- c(self$beta, self$s2)
+      vec <- c(log(self$l, 10), self$s2)
       if (jitter) {
         # vec <- vec + c(self$beta_optim_jitter,  0)
-        vec[1:length(self$beta)] = vec[1:length(self$beta)] + rnorm(length(self$beta), 0, 1)
+        vec[1:length(self$l)] = vec[1:length(self$l)] + rnorm(length(self$l), 0, 1)
       }
       vec
     },
     param_optim_start0 = function(jitter=F, y) {
       # Use 0 for theta, partial MLE for s2
       # vec <- c(rep(0, length(self$theta)), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
-      vec <- c(rep(0, self$beta_length), 1)
+      vec <- c(rep(1, self$l_length), 1)
       if (jitter) {
-        vec[1:length(self$beta)] = vec[1:length(self$beta)] + rnorm(length(self$beta), 0, 1)
+        vec[1:length(self$l)] = vec[1:length(self$l)] + rnorm(length(self$l), 0, 1)
       }
       vec
     },
     param_optim_lower = function() {
-      c(self$beta_lower, self$s2_lower)
+      c(self$logl_lower, self$s2_lower)
     },
     param_optim_upper = function() {
-      c(self$beta_upper, self$s2_upper)
+      c(self$logl_upper, self$s2_upper)
     },
     set_params_from_optim = function(optim_out) {
       loo <- length(optim_out)
-      self$beta <- optim_out[1:(loo-1)]
+      self$l <- 10 ^ optim_out[1:(loo-1)]
       self$s2 <- optim_out[loo]
     },
     # optim_fngr = function(X, y, params, mu, n) {
@@ -147,27 +151,29 @@ Gaussian_beta <- R6::R6Class(classname = "GauPro_kernel_Gaussian_beta",
     #
     # },
     dC_dparams = function(params=NULL, C, X, C_nonug) {#browser(text = "Make sure all in one list")
-      if (is.null(params)) {params <- c(self$beta, self$s2)}
-      beta <- params[1:(length(params) - 1)]
-      theta <- 10^beta
+      if (is.null(params)) {params <- c(log(self$l,10), self$s2)}
+      logl <- params[1:(length(params) - 1)]
+      l <- 10 ^ logl
+      one_over_l2 <- 1 / l^2
+      theta <- .5 * one_over_l2 #/ l^2
       log10 <- log(10)
       s2 <- tail(params, 1)
       dC_ds2 <- C / s2
-      dC_dbetas <- rep(list(C_nonug), length(beta))
+      dC_dls <- rep(list(C_nonug), length(l))
       n <- nrow(X)
-      for (k in 1:length(beta)) {
+      for (k in 1:length(l)) {
         for (i in seq(1, n-1, 1)) {
           for (j in seq(i+1, n, 1)) {
-            dC_dbetas[[k]][i,j] <- - dC_dbetas[[k]][i,j] * (X[i,k] - X[j,k])^2 * theta[k] * log10
-            dC_dbetas[[k]][j,i] <- dC_dbetas[[k]][i,j]
+            dC_dls[[k]][i,j] <- dC_dls[[k]][i,j] * (X[i,k] - X[j,k])^2 * one_over_l2[k] * log10
+            dC_dls[[k]][j,i] <- dC_dls[[k]][i,j]
           }
         }
         for (i in seq(1, n, 1)) { # Get diagonal set to zero
-          dC_dbetas[[k]][i,i] <- 0
+          dC_dls[[k]][i,i] <- 0
         }
       }
 
-      mats <- c(dC_dbetas, list(dC_ds2))
+      mats <- c(dC_dls, list(dC_ds2))
       return(list(dC_dparams=mats,
                   s2
       ))
@@ -175,8 +181,8 @@ Gaussian_beta <- R6::R6Class(classname = "GauPro_kernel_Gaussian_beta",
     param_set = function(optim_out) {
       # self$theta <- 10^optim_out[1:self$p]
       # self$s2 <- 10^optim_out[self$p+1]
-      self$beta <- optim_out[1:self$beta_length]
-      self$s2 <- optim_out[self$beta_length+1]
+      self$l <- optim_out[1:self$l_length]
+      self$s2 <- optim_out[self$l_length+1]
     },
     s2_from_params = function(params=params) {
       params[length(params)]
