@@ -7,8 +7,8 @@ f <- Vectorize(function(x) {sin(2*pi*x) + .5*sin(4*pi*x) +rnorm(1,0,.3)})
 y <- f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
 gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian_beta$new(1), parallel=FALSE, verbose=10, nug.est=T)
 gp$cool1Dplot()
-numDeriv::grad(func = gp$deviance, x=c(2,1))
-gp$deviance_grad(params = c(2,1), nug.update=F)
+numDeriv::grad(func = function(x)gp$deviance(params=x[1:2], nuglog=x[3]), x=c(2,1, -4))
+gp$deviance_grad(params = c(2,1), nug.update=T, nuglog=-4)
 
 # Check dC_dtheta
 m1 <- (gp$kernel$k(gp$X, beta=100) - gp$kernel$k(gp$X, beta=100-1e-6)) / 1e-6
@@ -26,6 +26,6 @@ x <- lhs::maximinLHS(n=n, k=2)
 f <- function(x) {sin(2*pi*x[1]) + .5*sin(4*pi*x[1]) +rnorm(1,0,.03) + x[2]^2}
 y <- apply(x, 1, f) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
 gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian_beta$new(c(1, 1)), parallel=FALSE, verbose=10, nug.est=T)
-ContourFunctions::cf(gp$predict)
+ContourFunctions::cf(gp$predict, pts=x)
 numDeriv::grad(func = function(x)gp$deviance(params = x[1:3], nuglog=x[4]), x=c(1,1, 1, -4))
 gp$deviance_grad(params = c(1,1,1), nug.update=T, nuglog=-4)
