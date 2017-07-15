@@ -58,7 +58,7 @@ Gaussian_beta <- R6::R6Class(classname = "GauPro_kernel_Gaussian_beta",
         beta <- params[1:(length(params)-1)]
         s2 <- params[length(params)]
       } else {#browser()
-        if (is.null(beta)) {theta <- self$beta}
+        if (is.null(beta)) {beta <- self$beta}
         if (is.null(s2)) {s2 <- self$s2}
       }
       theta <- 10^beta
