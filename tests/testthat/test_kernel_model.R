@@ -32,19 +32,19 @@ test_that("kernel_Gaussian_beta works", {
   # numDeriv::grad(func = gp$deviance, x=c(5,1))
   # gp$deviance_grad(params = c(5,1), nug.update=F)
 
-  expect_equal(gp$kernel$beta, 1.804936, tolerance=.1)
-  expect_equal(gp$kernel$s2, .895724, tolerance=.1)
-  expect_equal(gp$nug, 0.0000020596, tolerance=.0001)
+  expect_equal(gp$kernel$beta, 0.8360693, tolerance=.1)
+  expect_equal(gp$kernel$s2, 0.6292807, tolerance=.1)
+  expect_equal(gp$nug, 0.000937203, tolerance=.0001)
   expect_equal(
     # numDeriv::grad(func = gp$deviance, x=c(5,1)),
-    c(6.799652, 11.370354),
-    gp$deviance_grad(params = c(3,1), nug.update=F),
-    tol=.01
+    c(8.344209, 16.450576),
+    gp$deviance_grad(params = c(1,0), nug.update=F),
+    tol=.001
   )
   expect_equal(
-    # numDeriv::grad(func = function(x) {gp$deviance(params=x[1:2], nuglog=x[3])}, x=c(2.5,.7, -5)),
-    c(30.00001, 17.82337, 6.405043e-4),
-    gp$deviance_grad(params = c(2.5,.7), nug.update=T, nuglog = -5),
-    tol=.01
+    # numDeriv::grad(func = function(x) {gp$deviance(params=x[1:2], nuglog=x[3])}, x=c(2.5,-.2, -5)),
+    c(30.948458901, 26.684818099,  0.000629267),
+    gp$deviance_grad(params = c(2.5,-.2), nug.update=T, nuglog = -5),
+    tol=.001
   )
 })
