@@ -336,16 +336,21 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
         param_optim_start = function(nug.update, jitter) {
           param_start <- self$kernel$param_optim_start(jitter=jitter)
           if (nug.update) {
-            c(param_start, log(self$nug,10))
+            nug_start <- log(self$nug,10)
+            if (jitter) {nug_start <- nug_start + rexp(1, 1)}
+            c(param_start, nug_start)
           } else {
             param_start
           }
         },
         param_optim_start0 = function(nug.update, jitter) {
+          param_start <- self$kernel$param_optim_start0(jitter=jitter)
           if (nug.update) {
-            c(self$kernel$param_optim_start0(), -4)
+            nug_start <- -4
+            if (jitter) {nug_start <- nug_start + rexp(1, 1)}
+            c(param_start, nug_start)
           } else {
-            self$kernel$param_optim_start0()
+            param_start
           }
         },
         param_optim_start_mat = function(restarts, nug.update, l) {#browser()
@@ -571,24 +576,29 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           if (!missing(nuglog)) {
             nug <- 10^nuglog
           }
+          if (any(is.nan(params), is.nan(nug))) {if (self$verbose >= 2) {print("In deviance, returning Inf #92387")};return(Inf)}
           K <- self$kernel$k(x=self$X, params=params) +
             diag(nug, self$N) * self$kernel$s2_from_params(params=params)
-          if (is.nan(log(det(K)))) {browser()}
-          dev <- log(det(K)) + sum((self$Z - self$mu_hat) * solve(K, self$Z - self$mu_hat))
-          print(c(params, nuglog, dev))
+          if (is.nan(log(det(K)))) {browser();return(Inf)}
+          dev.try <- try(dev <- log(det(K)) + sum((self$Z - self$mu_hat) * solve(K, self$Z - self$mu_hat)))
+          if (inherits(dev.try, "try-error")) {if (self$verbose>=2) {print("Deviance error #87126, returning Inf")}; return(Inf)}
+          # print(c(params, nuglog, dev))
+          if (is.infinite(abs(dev))) {if (self$verbose>=2) {print("Deviance infinite #2332, returning Inf")};return(Inf)}
           dev
         },
         deviance_grad = function(params=NULL, X=self$X, nug=self$nug, nug.update, nuglog) {#if (browsethis) browser("Check nugget")
           if (!missing(nuglog)) {
             nug <- 10^nuglog
           }
+          if (any(is.nan(params), is.nan(nug))) {if (self$verbose>=2) {print("In deviance_grad, returning NaN #92387")};return(rep(NaN, length(params)+as.integer(isTRUE(nug.update))))}
           C_nonug <- self$kernel$k(x=self$X, params=params)
           C <- C_nonug + diag(nug, self$N)
           dC_dparams_out <- self$kernel$dC_dparams(params=params, X=X, C=C, C_nonug=C_nonug)
           dC_dparams <- dC_dparams_out[[1]] # First of list should be list of dC_dparams
           s2_from_kernel <- dC_dparams_out[[2]] # Second should be s2 for nugget deriv
           yminusmu <- self$Z - self$mu_hat
-          Cinv_yminusmu <- solve(C, yminusmu)
+          solve.try <- try(Cinv_yminusmu <- solve(C, yminusmu))
+          if (inherits(solve.try, "try-error")) { if (self$verbose>=2) {print("Deviance grad error #63466, returning Inf")};  return(Inf)}
           gradfunc <- function(di) {
             t1 <- sum(diag(solve(C, di)))
             t2 <- sum(Cinv_yminusmu * (di %*% Cinv_yminusmu))
@@ -600,7 +610,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
             out <- c(out, gradfunc(diag(s2_from_kernel*nug*log(10), nrow(C))))
             # out <- c(out, gradfunc(diag(s2_from_kernel*, nrow(C)))*nug*log(10))
           }
-          print(c(params, nuglog, out))
+          # print(c(params, nuglog, out))
           out
         },
         grad_norm = function (XX) {
