@@ -19,6 +19,16 @@ numDeriv::grad(func = function(x) gp$deviance(params=x[1:2], nuglog=x[3]),
                x=c(log(gp$kernel$l,10),gp$kernel$logs2, log(gp$nug,10)))
 gp$deviance_grad(params = c(log(gp$kernel$l,10),gp$kernel$logs2), nug.update=T, nuglog=log(gp$nug,10))
 
+N <- 1e2
+rs <- replicate(N, dgc())
+to <- sapply(1:N, function(i) {
+  maxerr <- max(abs(rs[,4,i]))
+  c(rs[1,1,i], rs[2,1,i], rs[3,1,i], log(maxerr,10))})
+plot(to[1,], to[4,])
+plot(to[2,], to[4,])
+plot(to[3,], to[4,])
+
+
 # Check dC_dlogl
 l <- gp$kernel$l
 s2 <- gp$kernel$s2
