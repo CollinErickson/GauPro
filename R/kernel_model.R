@@ -591,11 +591,12 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
             nug <- 10^nuglog
           }
           if (any(is.nan(params), is.nan(nug))) {if (self$verbose>=2) {print("In deviance_grad, returning NaN #92387")};return(rep(NaN, length(params)+as.integer(isTRUE(nug.update))))}
-          C_nonug <- self$kernel$k(x=self$X, params=params)
-          C <- C_nonug + diag(nug, self$N)
+          C_nonug <- self$kernel$k(x=X, params=params)
+          s2_from_kernel <- self$kernel$s2_from_params(params=params)
+          C <- C_nonug + s2_from_kernel * diag(nug, self$N)
           dC_dparams_out <- self$kernel$dC_dparams(params=params, X=X, C=C, C_nonug=C_nonug)
           dC_dparams <- dC_dparams_out[[1]] # First of list should be list of dC_dparams
-          s2_from_kernel <- dC_dparams_out[[2]] # Second should be s2 for nugget deriv
+          # s2_from_kernel <- dC_dparams_out[[2]] # Second should be s2 for nugget deriv
           yminusmu <- self$Z - self$mu_hat
           solve.try <- try(Cinv_yminusmu <- solve(C, yminusmu))
           if (inherits(solve.try, "try-error")) { if (self$verbose>=2) {print("Deviance grad error #63466, returning Inf")};  return(Inf)}
