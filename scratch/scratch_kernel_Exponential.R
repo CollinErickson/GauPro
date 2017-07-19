@@ -14,11 +14,31 @@ gp$deviance_grad(params = c(gp$kernel$beta, gp$kernel$logs2), nug.update=T, nugl
 
 # Check dC_dtheta
 m1 <- (gp$kernel$k(gp$X, beta=1) - gp$kernel$k(gp$X, beta=1-1e-6)) / 1e-6
-C <- gp$kernel$k(gp$X, beta=1)
-m2 <- gp$kernel$dC_dparams(params = c(1, 1), X = gp$X, C = C, C_nonug = C)[[1]][[1]]
+C_nonug <- gp$kernel$k(gp$X, beta=1)
+C <- C_nonug + gp$kernel$s2 * diag(gp$nug, nrow(C_nonug))
+m2 <- gp$kernel$dC_dparams(params = c(1, 1), X = gp$X, C = C, C_nonug = C_nonug)[[1]][[1]]
 c(m1-m2) %>% summary
+plot(m1, m2)
+
+gp$deviance_grad()
+dsign <- 1
+mm1 <- gp$kernel$dC_dparams(C = C, C_nonug = C_nonug, X=gp$X)[[1]]
+dsign <- -1
+mm2 <- gp$kernel$dC_dparams(C = C, C_nonug = C_nonug, X=gp$X)[[1]]
+plot(c(mm1[[1]]), c(mm2[[1]]))
 
 
+# Check dC_dlogs2
+beta <- gp$kernel$beta
+s2 <- gp$kernel$s2+.2
+nug <- gp$nug
+eps <- 1e-6
+m1 <- (gp$kernel$k(gp$X, beta=beta, s2=s2+eps) - gp$kernel$k(gp$X, beta=beta, s2=s2-eps)) / eps / 2
+C_nonug <- gp$kernel$k(gp$X, beta=beta, s2=s2)
+C <- C_nonug + s2 * diag(nug, nrow(C_nonug))
+m2 <- gp$kernel$dC_dparams(params = log(c(beta, s2),10), X = gp$X, C = C, C_nonug = C)[[1]][[2]]
+c(m1 * s2 * log(10) -m2) %>% summary
+plot(c(m1 * s2 * log(10)), c(m2))
 
 
 # Check 2D

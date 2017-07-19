@@ -69,7 +69,7 @@ Exponential <- R6::R6Class(classname = "GauPro_kernel_Exponential",
       if (is.null(y)) {
         if (is.matrix(x)) {#browser()
           # cgmtry <- try(val <- s2 * corr_gauss_matrix_symC(x, theta))
-          val <- outer(1:nrow(x), 1:nrow(x), Vectorize(function(i,j){self$kone(x[i,],x[j,],theta=theta)}))
+          val <- outer(1:nrow(x), 1:nrow(x), Vectorize(function(i,j){self$kone(x[i,],x[j,],theta=theta, s2=s2)}))
           # if (inherits(cgmtry,"try-error")) {browser()}
           return(val)
         } else {
@@ -78,20 +78,20 @@ Exponential <- R6::R6Class(classname = "GauPro_kernel_Exponential",
       }
       if (is.matrix(x) & is.matrix(y)) {
         # s2 * corr_gauss_matrixC(x, y, theta)
-        outer(1:nrow(x), 1:nrow(y), Vectorize(function(i,j){self$kone(x[i,],y[j,],theta=theta)}))
+        outer(1:nrow(x), 1:nrow(y), Vectorize(function(i,j){self$kone(x[i,],y[j,],theta=theta, s2=s2)}))
       } else if (is.matrix(x) & !is.matrix(y)) {
         # s2 * corr_gauss_matrixvecC(x, y, theta)
-        apply(x, 1, function(xx) {self$kone(xx, y, theta=theta)})
+        apply(x, 1, function(xx) {self$kone(xx, y, theta=theta, s2=s2)})
       } else if (is.matrix(y)) {
         # s2 * corr_gauss_matrixvecC(y, x, theta)
-        apply(y, 1, function(yy) {self$kone(yy, x, theta=theta)})
+        apply(y, 1, function(yy) {self$kone(yy, x, theta=theta, s2=s2)})
       } else {
-        self$kone(x, y, theta=theta)
+        self$kone(x, y, theta=theta, s2=s2)
       }
     },
-    kone = function(x, y, beta=self$beta, theta) {
+    kone = function(x, y, beta, theta, s2) {
       if (missing(theta)) {theta <- 10^beta}
-      self$s2 * exp(-sqrt(sum(theta * (x-y)^2)))
+      s2 * exp(-sqrt(sum(theta * (x-y)^2)))
     },
     # l = function(X, y, beta, s2, mu, n) {
     #   theta <- 10^beta
@@ -169,13 +169,15 @@ Exponential <- R6::R6Class(classname = "GauPro_kernel_Exponential",
       for (k in 1:length(beta)) {
         for (i in seq(1, n-1, 1)) {
           for (j in seq(i+1, n, 1)) {
-            dC_dbetas[[k]][i,j] <- - dC_dbetas[[k]][i,j] * (X[i,k] - X[j,k])^2 * theta[k] * log10 * .5 * (-log(dC_dbetas[[k]][i,j]))
+            dC_dbetas[[k]][i,j] <- dsign * dC_dbetas[[k]][i,j] * (X[i,k] - X[j,k])^2 * theta[k] * log10 * .5 / (-log(C[i,j]/s2))
             dC_dbetas[[k]][j,i] <- dC_dbetas[[k]][i,j]
           }
         }
         for (i in seq(1, n, 1)) { # Get diagonal set to zero
           dC_dbetas[[k]][i,i] <- 0
         }
+        # Trying this, delete
+        # dC_dbetas[[k]] <- -1 * dC_dbetas[[k]]
       }
 
       mats <- c(dC_dbetas, list(dC_dlogs2))

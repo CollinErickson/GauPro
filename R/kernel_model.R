@@ -107,7 +107,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
         fit = function(X, Z) {
           self$update()
         },
-        update_K_and_estimates = function () {
+        update_K_and_estimates = function () {#browser()
           # Update K, Kinv, mu_hat, and s2_hat, maybe nugget too
           self$K <- self$kernel$k(self$X) + diag(self$kernel$s2 * self$nug, self$N)
           while(T) {

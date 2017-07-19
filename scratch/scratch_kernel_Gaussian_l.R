@@ -42,7 +42,7 @@ c(m1 * l * log(10) -m2) %>% summary
 # Check dC_dlogs2
 m1 <- (gp$kernel$k(gp$X, l=l, s2=s2+eps) - gp$kernel$k(gp$X, l=l, s2=s2-eps)) / eps / 2
 C_nonug <- gp$kernel$k(gp$X, l=l, s2=s2)
-C <- C_nonug + diag(nug, nrow(C_nonug))
+C <- C_nonug + s2 * diag(nug, nrow(C_nonug))
 m2 <- gp$kernel$dC_dparams(params = log(c(l, s2),10), X = gp$X, C = C, C_nonug = C)[[1]][[2]]
 c(m1 * s2 * log(10) -m2) %>% summary
 
