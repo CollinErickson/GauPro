@@ -15,7 +15,7 @@ Object of \code{\link{R6Class}} with methods for fitting GP model.
 Gaussian Kernel R6 class
 }
 \examples{
-k1 <- Gaussian_logl$new(beta=0)
+k1 <- Gaussian_logl$new(logl=0)
 }
 \keyword{Gaussian}
 \keyword{data,}

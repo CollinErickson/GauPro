@@ -13,7 +13,7 @@
 #' n <- 12
 #' x <- matrix(seq(0,1,length.out = n), ncol=1)
 #' y <- sin(2*pi*x) + rnorm(n,0,1e-1)
-#' gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian$new(1), parallel=FALSE)
+#' gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian_beta$new(1), parallel=FALSE)
 #' gp$predict(.454)
 #' @field X Design matrix
 #' @field Z Responses
@@ -582,7 +582,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           if (is.nan(log(det(K)))) {browser();return(Inf)}
           dev.try <- try(dev <- log(det(K)) + sum((self$Z - self$mu_hat) * solve(K, self$Z - self$mu_hat)))
           if (inherits(dev.try, "try-error")) {if (self$verbose>=2) {print("Deviance error #87126, returning Inf")}; return(Inf)}
-          print(c(params, nuglog, dev))
+          # print(c(params, nuglog, dev))
           if (is.infinite(abs(dev))) {if (self$verbose>=2) {print("Deviance infinite #2332, returning Inf")};return(Inf)}
           dev
         },
@@ -611,7 +611,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
             out <- c(out, gradfunc(diag(s2_from_kernel*nug*log(10), nrow(C))))
             # out <- c(out, gradfunc(diag(s2_from_kernel*, nrow(C)))*nug*log(10))
           }
-          print(c(params, nuglog, out))
+          # print(c(params, nuglog, out))
           out
         },
         grad_norm = function (XX) {

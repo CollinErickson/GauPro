@@ -28,7 +28,7 @@
 #' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
 #' @format \code{\link{R6Class}} object.
 #' @examples
-#' k1 <- Gaussian_logl$new(beta=0)
+#' k1 <- Gaussian_logl$new(logl=0)
 Gaussian_logl <- R6::R6Class(classname = "GauPro_kernel_Gaussian_logl",
   inherit = GauPro_kernel,
   public = list(

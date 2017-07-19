@@ -169,7 +169,7 @@ Exponential <- R6::R6Class(classname = "GauPro_kernel_Exponential",
       for (k in 1:length(beta)) {
         for (i in seq(1, n-1, 1)) {
           for (j in seq(i+1, n, 1)) {
-            dC_dbetas[[k]][i,j] <- dsign * dC_dbetas[[k]][i,j] * (X[i,k] - X[j,k])^2 * theta[k] * log10 * .5 / (-log(C[i,j]/s2))
+            dC_dbetas[[k]][i,j] <- -1 * dC_dbetas[[k]][i,j] * (X[i,k] - X[j,k])^2 * theta[k] * log10 * .5 / (-log(C[i,j]/s2))
             dC_dbetas[[k]][j,i] <- dC_dbetas[[k]][i,j]
           }
         }
