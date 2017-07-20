@@ -16,7 +16,7 @@
 
 
 
-#' Matern 3/2 Kernel R6 class
+#' Matern 5/2 Kernel R6 class
 #'
 #' @docType class
 #' @importFrom R6 R6Class
@@ -28,8 +28,8 @@
 #' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
 #' @format \code{\link{R6Class}} object.
 #' @examples
-#' k1 <- Matern32$new(beta=0)
-Matern32 <- R6::R6Class(classname = "GauPro_kernel_Matern32",
+#' k1 <- Matern52$new(beta=0)
+Matern52 <- R6::R6Class(classname = "GauPro_kernel_Matern52",
   inherit = GauPro_kernel,
   public = list(
     beta = NULL,
@@ -40,7 +40,7 @@ Matern32 <- R6::R6Class(classname = "GauPro_kernel_Matern32",
     logs2 = NULL,
     logs2_lower = NULL,
     logs2_upper = NULL,
-    sqrt3 = sqrt(3),
+    sqrt5 = sqrt(5),
     initialize = function(beta, s2=1, beta_lower=-8, beta_upper=6,
                           s2_lower=1e-8, s2_upper=1e8) {
       self$beta <- beta
@@ -94,8 +94,8 @@ Matern32 <- R6::R6Class(classname = "GauPro_kernel_Matern32",
       if (missing(theta)) {theta <- 10^beta}
       # t1 <- self$sqrt
       r <- sqrt(sum(theta * (x-y)^2))
-      t1 <- self$sqrt3 * r
-      s2 * (1 + t1) * exp(-t1)
+      t1 <- self$sqrt5 * r
+      s2 * (1 + t1 + t1^2 / 3) * exp(-t1)
     },
     # l = function(X, y, beta, s2, mu, n) {
     #   theta <- 10^beta
@@ -175,10 +175,10 @@ Matern32 <- R6::R6Class(classname = "GauPro_kernel_Matern32",
           for (j in seq(i+1, n, 1)) {
             # dC_dbetas[[k]][i,j] <- -1 * dC_dbetas[[k]][i,j] * (X[i,k] - X[j,k])^2 * theta[k] * log10 * .5 / (-log(C[i,j]/s2))
             tx2 <- sum(theta * (X[i,]-X[j,])^2)
-            t1 <- sqrt(3 * tx2)
+            t1 <- sqrt(5 * tx2)
             dt1dbk <- .5 * (X[i,k] - X[j,k])^2 / sqrt(tx2)
             # dC_dbetas[[k]][i,j] <- s2 * (1+t1) * exp(-t1) *-dt1dbk + s2 * dt1dbk * exp(-t1)
-            dC_dbetas[[k]][i,j] <- C[i,j] * (1/(1+t1) - 1) * self$sqrt3 * dt1dbk * theta[k] * log10   #s2 * (1+t1) * exp(-t1) *-dt1dbk + s2 * dt1dbk * exp(-t1)
+            dC_dbetas[[k]][i,j] <- C[i,j] * ((1+2*t1/3)/(1+t1+t1^2/3) - 1) * self$sqrt5 * dt1dbk * theta[k] * log10   #s2 * (1+t1) * exp(-t1) *-dt1dbk + s2 * dt1dbk * exp(-t1)
             dC_dbetas[[k]][j,i] <- dC_dbetas[[k]][i,j]
           }
         }
