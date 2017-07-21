@@ -37,12 +37,28 @@ kernel_sum <- R6::R6Class(classname = "GauPro_kernel_sum",
   public = list(
     k1 = NULL,
     k2 = NULL,
+    k1_param_length = NULL,
+    k2_param_length = NULL,
+    k1pl = NULL,
+    k2pl = NULL,
+    s2 = NULL,
     initialize = function(k1, k2) {
       self$k1 <- k1
       self$k2 <- k2
+      self$k1_param_length <- length(self$k1$param_optim_start())
+      self$k1pl <- self$k1_param_length
+      self$k2_param_length <- length(self$k2$param_optim_start())
+      self$k2pl <- self$k2_param_length
+      self$s2 <- self$k1$s2 + self$k2$s2
     },
-    k = function(x, y=NULL, ...) {
-      self$k1$k(x=x, y=y) + self$k2$k(x=x, y=y)
+    k = function(x, y=NULL, params, ...) {
+      if (missing(params)) {
+        self$k1$k(x=x, y=y) + self$k2$k(x=x, y=y)
+      } else {
+        params1 <- params[1:self$k1pl]
+        params2 <- params[(self$k1pl+1):(self$k1pl+self$k2pl)]
+        self$k1$k(x=x, y=y, params=params1) + self$k2$k(x=x, y=y, params=params2)
+      }
     },
     # k1 = function(x, y, theta=self$theta) {
     #   self$s2 * exp(-sum(theta * (x-y)^2))
@@ -54,41 +70,53 @@ kernel_sum <- R6::R6Class(classname = "GauPro_kernel_sum",
     #   R <- self$r(X, theta)
     #   n*log(s2) + log(det(R)) + sum(y - mu, Rinv %*% (y-mu))
     # },
-    dl_dthetas2 = function(X, y, theta, mu, s2, n, firstiter) {
-      R <- self$r(X, theta)
-      dl_ds2 <- n / s2 - s2^2 * sum((y - mu) * solve(R, y - mu))
-      # p should be theta length
-      dl_dt <- sapply(1:self$p, function(l) {
-        # dR_dti <- R
-        dr_dtl <- outer(1:n, 1:n, function(i, j) {-(X[i,k] - X[j,k])^2 * R[i,j]})
-        dR_dtl_Rinv <- solve(dR_dtl, R)
-        dl_dtl <- diag(dR_dtl) / s2 + sum(Rinv %*% (y-mu), dR_dtl %*% (y-mu))/ s2^2
-        dl_dtl
-      })
-      c(cl_dtl, dl_ds2)
-    },
-    optim_param_start = function(random, y) {
-      c(self$k1$optim_param_start(random=random, y=y),
-        self$k2$optim_param_start(random=random, y=y))
-    },
-    optim_param_lower = function() {
-      c(self$k1$optim_param_lower(),
-        self$k2$optim_param_lower())
-    },
-    optim_param_upper = function() {
-      c(self$k1$optim_param_upper(),
-        self$k2$optim_param_upper())
-    }
-    # optim_fngr = function(X, y, params, mu, n) {
-    #   theta <- 10^params[1:self$p]
-    #   s2 <- 10^params[self$p+1]
-    #   list(fn=self$l(X=X, y=y, theta=theta, s2=s2, mu=mu, n=n),
-    #        gr=self$dl_dthetas2(X=X, y=y, theta=theta, s2=s2, mu=mu, n=n, firstiter=FALSE)
-    #   )
+    # dl_dthetas2 = function(X, y, theta, mu, s2, n, firstiter) {
+    #   R <- self$r(X, theta)
+    #   dl_ds2 <- n / s2 - s2^2 * sum((y - mu) * solve(R, y - mu))
+    #   # p should be theta length
+    #   dl_dt <- sapply(1:self$p, function(l) {
+    #     # dR_dti <- R
+    #     dr_dtl <- outer(1:n, 1:n, function(i, j) {-(X[i,k] - X[j,k])^2 * R[i,j]})
+    #     dR_dtl_Rinv <- solve(dR_dtl, R)
+    #     dl_dtl <- diag(dR_dtl) / s2 + sum(Rinv %*% (y-mu), dR_dtl %*% (y-mu))/ s2^2
+    #     dl_dtl
+    #   })
+    #   c(cl_dtl, dl_ds2)
     # },
-    # param_set = function(optim_out) {
-    #   self$theta <- 10^optim_out[1:self$p]
-    #   self$s2 <- 10^optim_out[self$p+1]
-    # }
+    param_optim_start = function(jitter=F, y) {
+      # Use current values for theta, partial MLE for s2
+      # vec <- c(log(self$theta, 10), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
+      c(self$k1$param_optim_start(jitter=jitter), self$k2$param_optim_start(jitter=jitter))
+    },
+    param_optim_start0 = function(jitter=F, y) {
+      # Use 0 for theta, partial MLE for s2
+      # vec <- c(rep(0, length(self$theta)), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
+      c(self$k1$param_optim_start0(jitter=jitter), self$k2$param_optim_start0(jitter=jitter))
+    },
+    param_optim_lower = function() {
+      c(self$k1$param_optim_lower(), self$k2$param_optim_lower())
+    },
+    param_optim_upper = function() {
+      c(self$k1$param_optim_upper(), self$k2$param_optim_upper())
+    },
+    set_params_from_optim = function(optim_out) {
+      oo1 <- optim_out[1:self$k1pl]
+      self$k1$set_params_from_optim(optim_out=oo1)
+      oo2 <- optim_out[(self$k1pl+1):(self$k1pl+self$k2pl)]
+      self$k2$set_params_from_optim(optim_out=oo2)
+      self$s2 <- self$k1$s2 + self$k2$s2
+    },
+    dC_dparams = function(params=NULL, C, X, C_nonug) {#browser(text = "Make sure all in one list")
+      params1 <- params[1:self$k1pl]
+      params2 <- params[(self$k1pl+1):(self$k1pl+self$k2pl)]
+      out1 <- self$k1$dC_dparams(params=params1, C=C, X=X, C_nonug=C_nonug)
+      out2 <- self$k2$dC_dparams(params=params2, C=C, X=X, C_nonug=C_nonug)
+      list(c(out1[[1]],out2[[1]]), c(out1[[2]]+out2[[2]]))
+    },
+    s2_from_params = function(params) {
+      params1 <- params[1:self$k1pl]
+      params2 <- params[(self$k1pl+1):(self$k1pl+self$k2pl)]
+      self$k1$s2_from_params(params=params1) + self$k2$s2_from_params(params=params2)
+    }
   )
 )
