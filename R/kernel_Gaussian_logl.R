@@ -187,7 +187,7 @@ Gaussian_logl <- R6::R6Class(classname = "GauPro_kernel_Gaussian_logl",
     #   self$beta <- optim_out[1:self$beta_length]
     #   self$s2 <- optim_out[self$beta_length+1]
     # },
-    s2_from_params = function(params=params) {
+    s2_from_params = function(params) {
       10 ^ params[length(params)]
     }
   ),

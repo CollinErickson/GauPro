@@ -176,7 +176,7 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
       self$theta <- optim_out[1:self$theta_length]
       self$s2 <- optim_out[self$theta_length+1]
     },
-    s2_from_params = function(params=params) {
+    s2_from_params = function(params) {
       params[length(params)]
     }
   ),
