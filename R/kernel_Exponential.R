@@ -30,16 +30,8 @@
 #' @examples
 #' k1 <- Exponential$new(beta=0)
 Exponential <- R6::R6Class(classname = "GauPro_kernel_Exponential",
-  inherit = GauPro_kernel,
+  inherit = GauPro_kernel_beta,
   public = list(
-    beta = NULL,
-    beta_lower = NULL,
-    beta_upper = NULL,
-    beta_length = NULL,
-    s2 = NULL, # variance coefficient to scale correlation matrix to covariance
-    logs2 = NULL,
-    logs2_lower = NULL,
-    logs2_upper = NULL,
     initialize = function(beta, s2=1, beta_lower=-8, beta_upper=6,
                           s2_lower=1e-8, s2_upper=1e8) {
       self$beta <- beta
@@ -93,68 +85,6 @@ Exponential <- R6::R6Class(classname = "GauPro_kernel_Exponential",
       if (missing(theta)) {theta <- 10^beta}
       s2 * exp(-sqrt(sum(theta * (x-y)^2)))
     },
-    # l = function(X, y, beta, s2, mu, n) {
-    #   theta <- 10^beta
-    #   R <- self$r(X, theta)
-    #   n*log(s2) + log(det(R)) + sum(y - mu, Rinv %*% (y-mu))
-    # },
-    # dl_dbetas2 = function(X, y, beta, mu, s2, n, firstiter) {
-    #   R <- self$r(X, theta)
-    #   dl_ds2 <- n / s2 - s2^2 * sum((y - mu) * solve(R, y - mu))
-    #   # p should be theta length
-    #   dl_dt <- sapply(1:self$p, function(l) {
-    #     # dR_dti <- R
-    #     dr_dtl <- outer(1:n, 1:n, function(i, j) {-(X[i,k] - X[j,k])^2 * R[i,j]})
-    #     dR_dtl_Rinv <- solve(dR_dtl, R)
-    #     dl_dtl <- diag(dR_dtl) / s2 + sum(Rinv %*% (y-mu), dR_dtl %*% (y-mu))/ s2^2
-    #     dl_dtl
-    #   })
-    #   c(cl_dtl, dl_ds2)
-    # },
-    # beta_optim_jitter = function() {
-    #   rnorm(self$p, 0, 1)
-    # },
-    param_optim_start = function(jitter=F, y) {
-      # Use current values for theta, partial MLE for s2
-      # vec <- c(log(self$theta, 10), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
-      vec <- c(self$beta, self$logs2)
-      if (jitter) {
-        # vec <- vec + c(self$beta_optim_jitter,  0)
-        vec[1:length(self$beta)] = vec[1:length(self$beta)] + rnorm(length(self$beta), 0, 1)
-      }
-      vec
-    },
-    param_optim_start0 = function(jitter=F, y) {
-      # Use 0 for theta, partial MLE for s2
-      # vec <- c(rep(0, length(self$theta)), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
-      vec <- c(rep(0, self$beta_length), 0)
-      if (jitter) {
-        vec[1:length(self$beta)] = vec[1:length(self$beta)] + rnorm(length(self$beta), 0, 1)
-      }
-      vec
-    },
-    param_optim_lower = function() {
-      c(self$beta_lower, self$logs2_lower)
-    },
-    param_optim_upper = function() {
-      c(self$beta_upper, self$logs2_upper)
-    },
-    set_params_from_optim = function(optim_out) {
-      loo <- length(optim_out)
-      self$beta <- optim_out[1:(loo-1)]
-      self$logs2 <- optim_out[loo]
-      self$s2 <- 10 ^ self$logs2
-    },
-    # optim_fngr = function(X, y, params, mu, n) {
-    #   theta <- 10^params[1:self$p]
-    #   s2 <- 10^params[self$p+1]
-    #   list(fn=self$l(X=X, y=y, theta=theta, s2=s2, mu=mu, n=n),
-    #        gr=self$dl_dthetas2(X=X, y=y, theta=theta, s2=s2, mu=mu, n=n, firstiter=FALSE)
-    #   )
-    # },
-    # get_optim_functions = function(param_update) {
-    #
-    # },
     dC_dparams = function(params=NULL, C, X, C_nonug) {#browser(text = "Make sure all in one list")
       if (is.null(params)) {params <- c(self$beta, self$logs2)}
       lenparams <- length(params)
@@ -184,18 +114,6 @@ Exponential <- R6::R6Class(classname = "GauPro_kernel_Exponential",
       return(list(dC_dparams=mats,
                   s2
       ))
-    },
-    # param_set = function(optim_out) {
-    #   # self$theta <- 10^optim_out[1:self$p]
-    #   # self$s2 <- 10^optim_out[self$p+1]
-    #   self$beta <- optim_out[1:self$beta_length]
-    #   self$s2 <- optim_out[self$beta_length+1]
-    # },
-    s2_from_params = function(params) {
-      10 ^ params[length(params)]
     }
-  ),
-  private = list(
-
   )
 )
