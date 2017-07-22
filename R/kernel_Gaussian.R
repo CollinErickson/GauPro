@@ -16,11 +16,11 @@
 
 
 
-#' Gaussian Kernel R6 class
+#' Gaussian Kernel R6 class- bad since params aren't on log scale
 #'
 #' @docType class
 #' @importFrom R6 R6Class
-#' @export
+# @export
 #' @useDynLib GauPro, .registration = TRUE
 #' @importFrom Rcpp evalCpp
 #' @importFrom stats optim
@@ -28,8 +28,8 @@
 #' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
 #' @format \code{\link{R6Class}} object.
 #' @examples
-#' k1 <- Gaussian$new(theta=1)
-Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
+#' k1 <- Gaussian_bad$new(theta=1)
+Gaussian_bad <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
   inherit = GauPro_kernel,
   public = list(
     theta = NULL,
