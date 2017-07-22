@@ -30,16 +30,16 @@
 #' @examples
 #' k1 <- Matern52$new(beta=0)
 Matern52 <- R6::R6Class(classname = "GauPro_kernel_Matern52",
-  inherit = GauPro_kernel,
+  inherit = GauPro_kernel_beta,
   public = list(
-    beta = NULL,
-    beta_lower = NULL,
-    beta_upper = NULL,
-    beta_length = NULL,
-    s2 = NULL, # variance coefficient to scale correlation matrix to covariance
-    logs2 = NULL,
-    logs2_lower = NULL,
-    logs2_upper = NULL,
+    # beta = NULL,
+    # beta_lower = NULL,
+    # beta_upper = NULL,
+    # beta_length = NULL,
+    # s2 = NULL, # variance coefficient to scale correlation matrix to covariance
+    # logs2 = NULL,
+    # logs2_lower = NULL,
+    # logs2_upper = NULL,
     sqrt5 = sqrt(5),
     initialize = function(beta, s2=1, beta_lower=-8, beta_upper=6,
                           s2_lower=1e-8, s2_upper=1e8) {
@@ -118,37 +118,37 @@ Matern52 <- R6::R6Class(classname = "GauPro_kernel_Matern52",
     # beta_optim_jitter = function() {
     #   rnorm(self$p, 0, 1)
     # },
-    param_optim_start = function(jitter=F, y) {
-      # Use current values for theta, partial MLE for s2
-      # vec <- c(log(self$theta, 10), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
-      vec <- c(self$beta, self$logs2)
-      if (jitter) {
-        # vec <- vec + c(self$beta_optim_jitter,  0)
-        vec[1:length(self$beta)] = vec[1:length(self$beta)] + rnorm(length(self$beta), 0, 1)
-      }
-      vec
-    },
-    param_optim_start0 = function(jitter=F, y) {
-      # Use 0 for theta, partial MLE for s2
-      # vec <- c(rep(0, length(self$theta)), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
-      vec <- c(rep(0, self$beta_length), 0)
-      if (jitter) {
-        vec[1:length(self$beta)] = vec[1:length(self$beta)] + rnorm(length(self$beta), 0, 1)
-      }
-      vec
-    },
-    param_optim_lower = function() {
-      c(self$beta_lower, self$logs2_lower)
-    },
-    param_optim_upper = function() {
-      c(self$beta_upper, self$logs2_upper)
-    },
-    set_params_from_optim = function(optim_out) {
-      loo <- length(optim_out)
-      self$beta <- optim_out[1:(loo-1)]
-      self$logs2 <- optim_out[loo]
-      self$s2 <- 10 ^ self$logs2
-    },
+    # param_optim_start = function(jitter=F, y) {
+    #   # Use current values for theta, partial MLE for s2
+    #   # vec <- c(log(self$theta, 10), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
+    #   vec <- c(self$beta, self$logs2)
+    #   if (jitter) {
+    #     # vec <- vec + c(self$beta_optim_jitter,  0)
+    #     vec[1:length(self$beta)] = vec[1:length(self$beta)] + rnorm(length(self$beta), 0, 1)
+    #   }
+    #   vec
+    # },
+    # param_optim_start0 = function(jitter=F, y) {
+    #   # Use 0 for theta, partial MLE for s2
+    #   # vec <- c(rep(0, length(self$theta)), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
+    #   vec <- c(rep(0, self$beta_length), 0)
+    #   if (jitter) {
+    #     vec[1:length(self$beta)] = vec[1:length(self$beta)] + rnorm(length(self$beta), 0, 1)
+    #   }
+    #   vec
+    # },
+    # param_optim_lower = function() {
+    #   c(self$beta_lower, self$logs2_lower)
+    # },
+    # param_optim_upper = function() {
+    #   c(self$beta_upper, self$logs2_upper)
+    # },
+    # set_params_from_optim = function(optim_out) {
+    #   loo <- length(optim_out)
+    #   self$beta <- optim_out[1:(loo-1)]
+    #   self$logs2 <- optim_out[loo]
+    #   self$s2 <- 10 ^ self$logs2
+    # },
     # optim_fngr = function(X, y, params, mu, n) {
     #   theta <- 10^params[1:self$p]
     #   s2 <- 10^params[self$p+1]
@@ -193,16 +193,10 @@ Matern52 <- R6::R6Class(classname = "GauPro_kernel_Matern52",
       return(list(dC_dparams=mats,
                   s2
       ))
-    },
-    # param_set = function(optim_out) {
-    #   # self$theta <- 10^optim_out[1:self$p]
-    #   # self$s2 <- 10^optim_out[self$p+1]
-    #   self$beta <- optim_out[1:self$beta_length]
-    #   self$s2 <- optim_out[self$beta_length+1]
-    # },
-    s2_from_params = function(params) {
-      10 ^ params[length(params)]
     }
+    # s2_from_params = function(params) {
+    #   10 ^ params[length(params)]
+    # }
   ),
   private = list(
 
