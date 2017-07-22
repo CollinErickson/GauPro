@@ -18,8 +18,8 @@ Kernel which is product of two kernels
 Kernel product
 }
 \examples{
-k1 <- Gaussian$new(theta=1)
-k2 <- Gaussian$new(theta=2)
+k1 <- Exponential$new(beta=1)
+k2 <- Matern32$new(beta=0)
 k <- k1 * k2
 k$k(matrix(c(2,1), ncol=1))
 }

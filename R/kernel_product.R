@@ -28,8 +28,8 @@
 #' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
 #' @format \code{\link{R6Class}} object.
 #' @examples
-#' k1 <- Gaussian$new(theta=1)
-#' k2 <- Gaussian$new(theta=2)
+#' k1 <- Exponential$new(beta=1)
+#' k2 <- Matern32$new(beta=2)
 #' k <- k1 + k2
 #' k$k(matrix(c(2,1), ncol=1))
 kernel_product <- R6::R6Class(classname = "GauPro_kernel_product",

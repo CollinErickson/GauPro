@@ -15,7 +15,7 @@ Object of \code{\link{R6Class}} with methods for fitting GP model.
 Gaussian Kernel R6 class- bad since params aren't on log scale
 }
 \examples{
-k1 <- Gaussian_bad$new(theta=1)
+#k1 <- Gaussian_bad$new(theta=1)
 }
 \keyword{Gaussian}
 \keyword{data,}

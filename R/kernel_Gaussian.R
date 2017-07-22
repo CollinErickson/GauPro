@@ -28,7 +28,7 @@
 #' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
 #' @format \code{\link{R6Class}} object.
 #' @examples
-#' k1 <- Gaussian_bad$new(theta=1)
+#' #k1 <- Gaussian_bad$new(theta=1)
 Gaussian_bad <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
   inherit = GauPro_kernel,
   public = list(
