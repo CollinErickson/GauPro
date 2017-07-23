@@ -12,14 +12,19 @@ gp$deviance_grad(params = c(2,1), nug.update=T, nuglog=-4)
 numDeriv::grad(func = function(x)gp$deviance(params=x[1:2], nuglog=x[3]), x=c(gp$kernel$beta, gp$kernel$logs2, log(gp$nug,10)))
 gp$deviance_grad(params = c(gp$kernel$beta, gp$kernel$logs2), nug.update=T, nuglog=log(gp$nug,10))
 
-# Check dC_dtheta
+# Check dC_dparams
 m1 <- (gp$kernel$k(gp$X, beta=100) - gp$kernel$k(gp$X, beta=100-1e-6)) / 1e-6
 C <- gp$kernel$k(gp$X, beta=100)
 m2 <- gp$kernel$dC_dparams(params = c(100, 1), X = gp$X, C = C, C_nonug = C)[[1]][[1]]
 c(m1-m2) %>% summary
 
-
-
+# Check C_dC_dparams
+params <- c(1.2,.8)
+nug <- .001
+gp$deviance(params=params, nug=nug)
+gp$deviance_grad(params=params, nug=nug, nug.update=T)
+gp$deviance_fngr(params=params, nug=nug, nug.update=T)
+microbenchmark::microbenchmark(sep={gp$deviance(params=params, nug=nug);gp$deviance_grad(params=params, nug=nug, nug.update=T)}, fngr=gp$deviance_fngr(params=params, nug=nug, nug.update=T))
 
 # Check 2D
 set.seed(0)

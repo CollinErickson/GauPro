@@ -104,6 +104,37 @@ Gaussian_beta <- R6::R6Class(classname = "GauPro_kernel_Gaussian_beta",
       return(list(dC_dparams=mats,
                   s2
       ))
+    },
+    C_dC_dparams = function(params=NULL, X, nug) {#browser(text = "Make sure all in one list")
+      if (is.null(params)) {params <- c(self$beta, self$logs2)}
+      lenparams <- length(params)
+      beta <- params[1:(lenparams - 1)]
+      theta <- 10^beta
+      log10 <- log(10)
+      logs2 <- params[lenparams]
+      s2 <- 10 ^ logs2
+
+      # Calculate C
+      C_nonug <- self$k(x=X, beta=beta, s2=s2)
+      C <- C_nonug + diag(nug*s2, nrow(C_nonug))
+
+      dC_dlogs2 <- C * log10 #/ s2 * s2 *
+      dC_dbetas <- rep(list(C_nonug), length(beta))
+      n <- nrow(X)
+      for (k in 1:length(beta)) {
+        for (i in seq(1, n-1, 1)) {
+          for (j in seq(i+1, n, 1)) {
+            dC_dbetas[[k]][i,j] <- - C[i,j] * (X[i,k] - X[j,k])^2 * theta[k] * log10
+            dC_dbetas[[k]][j,i] <- dC_dbetas[[k]][i,j]
+          }
+        }
+        for (i in seq(1, n, 1)) { # Get diagonal set to zero
+          dC_dbetas[[k]][i,i] <- 0
+        }
+      }
+
+      mats <- c(dC_dbetas, list(dC_dlogs2))
+      return(list(C = C, dC_dparams=mats))
     }
   )
 )
