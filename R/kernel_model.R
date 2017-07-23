@@ -614,6 +614,53 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           # print(c(params, nuglog, out))
           out
         },
+        deviance_fngr = function(params=NULL, X=self$X, nug=self$nug, nug.update, nuglog) {if (exists('browsethis') && browsethis) browser("Check nugget")
+          if (!missing(nuglog)) {
+            nug <- 10^nuglog
+          }
+          if (any(is.nan(params), is.nan(nug))) {if (self$verbose>=2) {print("In deviance_grad, returning NaN #92387")};return(rep(NaN, length(params)+as.integer(isTRUE(nug.update))))}
+          # C_nonug <- self$kernel$k(x=X, params=params)
+          # C <- C_nonug + s2_from_kernel * diag(nug, self$N)
+          C_dC_try <- try(
+            C_dC_dparams_out <- self$kernel$C_dC_dparams(params=params, X=X, nug=nug), #C=C, C_nonug=C_nonug)
+            silent = TRUE
+          )
+          if (inherits(C_dC_try, 'try-error')) {
+            return(list(fn=self$deviance(params=params, nug=nug),
+                        gr=self$deviance_grad(params=params, X=X, nug=nug, nug.update=nug.update)))
+          }
+          C <- C_dC_dparams_out[[1]]
+          dC_dparams <- C_dC_dparams_out[[2]] # First of list should be list of dC_dparams
+          # s2_from_kernel <- dC_dparams_out[[2]] # Second should be s2 for nugget deriv
+          yminusmu <- self$Z - self$mu_hat
+          s2_from_kernel <- self$kernel$s2_from_params(params=params)
+          solve.try <- try(Cinv_yminusmu <- solve(C, yminusmu))
+          if (inherits(solve.try, "try-error")) { if (self$verbose>=2) {print("Deviance grad error #63466, returning Inf")};  return(Inf)}
+          gradfunc <- function(di) {
+            t1 <- sum(diag(solve(C, di)))
+            t2 <- sum(Cinv_yminusmu * (di %*% Cinv_yminusmu))
+            t1 - t2
+          }
+          # out <- c(sapply(dC_dparams[[1]],gradfunc), gradfunc(dC_dparams[[2]]))
+          gr <- sapply(dC_dparams,gradfunc)
+          if (nug.update) {
+            gr <- c(gr, gradfunc(diag(s2_from_kernel*nug*log(10), nrow(C))))
+            # out <- c(out, gradfunc(diag(s2_from_kernel*, nrow(C)))*nug*log(10))
+          }
+
+          # Calculate fn
+          logdetC <- log(det(C))
+          if (is.nan(logdetC)) {browser();return(Inf)}
+          dev.try <- try(dev <- logdetC + sum((yminusmu) * solve(C, yminusmu)))
+          if (inherits(dev.try, "try-error")) {if (self$verbose>=2) {print("Deviance error #87126, returning Inf")}; return(Inf)}
+          # print(c(params, nuglog, dev))
+          if (is.infinite(abs(dev))) {if (self$verbose>=2) {print("Deviance infinite #2332, returning Inf")};return(Inf)}
+          dev
+
+          # print(c(params, nuglog, out))
+          out <- list(fn=dev, gr=gr)
+          out
+        },
         grad_norm = function (XX) {
           grad1 <- self$grad(XX)
           if (!is.matrix(grad1)) return(abs(grad1))
