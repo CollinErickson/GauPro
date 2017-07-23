@@ -41,6 +41,16 @@ c(m1 * s2 * log(10) -m2) %>% summary
 plot(c(m1 * s2 * log(10)), c(m2))
 
 
+# Check C_dC_dparams
+params <- c(1.2,.8)
+nug <- .001
+gp$deviance(params=params, nug=nug)
+gp$deviance_grad(params=params, nug=nug, nug.update=T)
+gp$deviance_fngr(params=params, nug=nug, nug.update=T)
+microbenchmark::microbenchmark(sep={gp$deviance(params=params, nug=nug);gp$deviance_grad(params=params, nug=nug, nug.update=T)}, fngr=gp$deviance_fngr(params=params, nug=nug, nug.update=T))
+
+
+
 # Check 2D
 set.seed(0)
 n <- 30
