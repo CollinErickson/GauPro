@@ -85,8 +85,12 @@ Exponential <- R6::R6Class(classname = "GauPro_kernel_Exponential",
       if (missing(theta)) {theta <- 10^beta}
       s2 * exp(-sqrt(sum(theta * (x-y)^2)))
     },
-    dC_dparams = function(params=NULL, C, X, C_nonug, nug) {#browser(text = "Make sure all in one list")
+    dC_dparams = function(params=NULL, X, C_nonug, C, nug) {#browser(text = "Make sure all in one list")
       if (is.null(params)) {params <- c(self$beta, self$logs2)}
+      if (missing(C_nonug)) { # Assume C missing too, must have nug
+        C_nonug <- self$k(x=X, params=params)
+        C <- C_nonug + diag(nug*10^params[length(params)], nrow(C_nonug))
+      }
       lenparams <- length(params)
       beta <- params[1:(lenparams - 1)]
       theta <- 10^beta

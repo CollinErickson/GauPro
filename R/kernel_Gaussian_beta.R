@@ -79,8 +79,7 @@ Gaussian_beta <- R6::R6Class(classname = "GauPro_kernel_Gaussian_beta",
     },
     dC_dparams = function(params=NULL, X, C_nonug, C, nug) {#browser(text = "Make sure all in one list")
       if (is.null(params)) {params <- c(self$beta, self$logs2)}
-      if (missing(C_nonug)) { # Assume C missing too
-        # cat('Calculating C in dC_dparams\n')
+      if (missing(C_nonug)) { # Assume C missing too, must have nug
         C_nonug <- self$k(x=X, params=params)
         C <- C_nonug + diag(nug*10^params[length(params)], nrow(C_nonug))
       }
