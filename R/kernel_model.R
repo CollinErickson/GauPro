@@ -594,7 +594,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           C_nonug <- self$kernel$k(x=X, params=params)
           s2_from_kernel <- self$kernel$s2_from_params(params=params)
           C <- C_nonug + s2_from_kernel * diag(nug, self$N)
-          dC_dparams_out <- self$kernel$dC_dparams(params=params, X=X, C=C, C_nonug=C_nonug)
+          dC_dparams_out <- self$kernel$dC_dparams(params=params, X=X, C=C, C_nonug=C_nonug, nug=nug)
           dC_dparams <- dC_dparams_out[[1]] # First of list should be list of dC_dparams
           # s2_from_kernel <- dC_dparams_out[[2]] # Second should be s2 for nugget deriv
           yminusmu <- self$Z - self$mu_hat

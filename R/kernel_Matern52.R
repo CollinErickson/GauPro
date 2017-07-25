@@ -159,7 +159,7 @@ Matern52 <- R6::R6Class(classname = "GauPro_kernel_Matern52",
     # get_optim_functions = function(param_update) {
     #
     # },
-    dC_dparams = function(params=NULL, C, X, C_nonug) {#browser(text = "Make sure all in one list")
+    dC_dparams = function(params=NULL, C, X, C_nonug, nug) {#browser(text = "Make sure all in one list")
       if (is.null(params)) {params <- c(self$beta, self$logs2)}
       lenparams <- length(params)
       beta <- params[1:(lenparams - 1)]

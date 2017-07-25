@@ -3,12 +3,13 @@
 set.seed(0)
 n <- 20
 x <- matrix(seq(0,1,length.out = n), ncol=1)
-f <- Vectorize(function(x) {sin(2*pi*x) + .5*sin(4*pi*x) +rnorm(1,0,.03)})
+f <- Vectorize(function(x) {sin(2*pi*x) + .5*sin(4*pi*x) +rnorm(1,0,.3)})
 y <- f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
-gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian_beta$new(1)+Exponential$new(1), parallel=FALSE, verbose=10, nug.est=T)
+gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian_beta$new(3)+Gaussian_beta$new(-1), parallel=FALSE, verbose=10, nug.est=T)
 gp$cool1Dplot()
-numDeriv::grad(func = function(x)gp$deviance(params=x[1:4], nuglog=x[5]), x=c(2,1, -1,1, -4))
-gp$deviance_grad(params = c(2,1, -1,1), nug.update=T, nuglog=-4)
+params <- c(2,-0, -1,1, -5)
+numDeriv::grad(func = function(x)gp$deviance(params=x[1:4], nuglog=x[5]), x=params)
+gp$deviance_grad(params = params[1:4], nug.update=T, nuglog=params[5])
 numDeriv::grad(func = function(x)gp$deviance(params=x[1:4], nuglog=x[5]), x=c(gp$kernel$k1$beta, gp$kernel$k1$logs2, gp$kernel$k2$beta, gp$kernel$k2$logs2, log(gp$nug,10)))
 gp$deviance_grad(params = c(gp$kernel$k1$beta, gp$kernel$k1$logs2, gp$kernel$k2$beta, gp$kernel$k2$logs2), nug.update=T, nuglog=log(gp$nug,10))
 
@@ -42,11 +43,12 @@ plot(c(m1 * s2 * log(10)), c(m2))
 
 
 # Check C_dC_dparams
-params <- c(1.2,.8)
+params <- c(1.2,.8, .9, .4)
 nug <- .001
 gp$deviance(params=params, nug=nug)
 gp$deviance_grad(params=params, nug=nug, nug.update=T)
 gp$deviance_fngr(params=params, nug=nug, nug.update=T)
+numDeriv::grad(func = function(x)gp$deviance(params=x[1:4], nuglog=x[5]), x=c(params, nug))
 microbenchmark::microbenchmark(sep={gp$deviance(params=params, nug=nug);gp$deviance_grad(params=params, nug=nug, nug.update=T)}, fngr=gp$deviance_fngr(params=params, nug=nug, nug.update=T))
 
 

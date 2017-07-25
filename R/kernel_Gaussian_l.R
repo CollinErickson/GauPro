@@ -154,7 +154,7 @@ Gaussian_l <- R6::R6Class(classname = "GauPro_kernel_Gaussian_lengthscale",
     # get_optim_functions = function(param_update) {
     #
     # },
-    dC_dparams = function(params=NULL, C, X, C_nonug) {#browser(text = "Make sure all in one list")
+    dC_dparams = function(params=NULL, C, X, C_nonug, nug) {#browser(text = "Make sure all in one list")
       if (is.null(params)) {params <- c(log(self$l,10), self$logs2)}
       lenpar <- length(params)
       logl <- params[1:(lenpar - 1)]

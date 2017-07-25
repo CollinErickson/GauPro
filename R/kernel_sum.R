@@ -106,12 +106,31 @@ kernel_sum <- R6::R6Class(classname = "GauPro_kernel_sum",
       self$k2$set_params_from_optim(optim_out=oo2)
       self$s2 <- self$k1$s2 + self$k2$s2
     },
-    dC_dparams = function(params=NULL, C, X, C_nonug) {#browser(text = "Make sure all in one list")
+    dC_dparams = function(params=NULL, C, X, C_nonug, nug) {#browser(text = "Make sure all in one list")
       params1 <- params[1:self$k1pl]
       params2 <- params[(self$k1pl+1):(self$k1pl+self$k2pl)]
-      out1 <- self$k1$dC_dparams(params=params1, C=C, X=X, C_nonug=C_nonug)
-      out2 <- self$k2$dC_dparams(params=params2, C=C, X=X, C_nonug=C_nonug)
+      # #
+      # out1 <- self$k1$dC_dparams(params=params1, C=C, X=X, C_nonug=C_nonug)
+      # out2 <- self$k2$dC_dparams(params=params2, C=C, X=X, C_nonug=C_nonug)
+      # Can't pass in C, no longer specific to each one
+      out1 <- self$k1$dC_dparams(params=params1, X=X, nug=nug)
+      out2 <- self$k2$dC_dparams(params=params2, X=X, nug=nug)
       list(c(out1[[1]],out2[[1]]), c(out1[[2]]+out2[[2]]))
+    },
+    C_dC_dparams = function(params=NULL, X, nug) {#browser(text = "Make sure all in one list")
+      params1 <- params[1:self$k1pl]
+      params2 <- params[(self$k1pl+1):(self$k1pl+self$k2pl)]
+      # out1 <- self$k1$dC_dparams(params=params1, C=C, X=X, C_nonug=C_nonug)
+      # out2 <- self$k2$dC_dparams(params=params2, C=C, X=X, C_nonug=C_nonug)
+      # list(c(out1[[1]],out2[[1]]), c(out1[[2]]+out2[[2]]))
+      # cat('In kernel_sum C_dC_params\n')
+
+      # Need to recalculate C for each so pass nug instead
+      out1 <- self$k1$C_dC_dparams(params=params1, X=X, nug=nug)
+      out2 <- self$k2$C_dC_dparams(params=params2, X=X, nug=nug)
+      C <- out1[[1]] + out2[[1]]
+      dC_dparams <- c(out1[[2]],out2[[2]])#, c(out1[[2]]+out2[[2]])
+      list(C=C, dC_dparams=dC_dparams)
     },
     s2_from_params = function(params) {
       params1 <- params[1:self$k1pl]

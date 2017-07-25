@@ -77,8 +77,13 @@ Gaussian_beta <- R6::R6Class(classname = "GauPro_kernel_Gaussian_beta",
         s2 * exp(-sum(theta * (x-y)^2))
       }
     },
-    dC_dparams = function(params=NULL, C, X, C_nonug) {#browser(text = "Make sure all in one list")
+    dC_dparams = function(params=NULL, X, C_nonug, C, nug) {#browser(text = "Make sure all in one list")
       if (is.null(params)) {params <- c(self$beta, self$logs2)}
+      if (missing(C_nonug)) { # Assume C missing too
+        # cat('Calculating C in dC_dparams\n')
+        C_nonug <- self$k(x=X, params=params)
+        C <- C_nonug + diag(nug*10^params[length(params)], nrow(C_nonug))
+      }
       lenparams <- length(params)
       beta <- params[1:(lenparams - 1)]
       theta <- 10^beta

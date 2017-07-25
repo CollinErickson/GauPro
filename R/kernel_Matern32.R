@@ -89,7 +89,7 @@ Matern32 <- R6::R6Class(classname = "GauPro_kernel_Matern32",
       t1 <- self$sqrt3 * r
       s2 * (1 + t1) * exp(-t1)
     },
-    dC_dparams = function(params=NULL, C, X, C_nonug) {#browser(text = "Make sure all in one list")
+    dC_dparams = function(params=NULL, C, X, C_nonug, nug) {#browser(text = "Make sure all in one list")
       if (is.null(params)) {params <- c(self$beta, self$logs2)}
       lenparams <- length(params)
       beta <- params[1:(lenparams - 1)]

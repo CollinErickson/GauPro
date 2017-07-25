@@ -13,10 +13,19 @@ numDeriv::grad(func = function(x)gp$deviance(params=x[1:2], nuglog=x[3]), x=c(gp
 gp$deviance_grad(params = c(gp$kernel$beta, gp$kernel$logs2), nug.update=T, nuglog=log(gp$nug,10))
 
 # Check dC_dparams
-m1 <- (gp$kernel$k(gp$X, beta=100) - gp$kernel$k(gp$X, beta=100-1e-6)) / 1e-6
-C <- gp$kernel$k(gp$X, beta=100)
-m2 <- gp$kernel$dC_dparams(params = c(100, 1), X = gp$X, C = C, C_nonug = C)[[1]][[1]]
+beta <- .6
+s2 <- .3
+nug <- 1e-4*10
+m1 <- (gp$kernel$k(gp$X, beta=beta+1e-6, s2=s2) - gp$kernel$k(gp$X, beta=beta-1e-6, s2=s2)) / 1e-6/2
+C_nonug <- gp$kernel$k(gp$X, beta=beta, s2=s2)
+C <- C_nonug + diag(s2*nug, nrow(C_nonug))
+m2 <- gp$kernel$dC_dparams(params = c(beta, log(s2,10)), X = gp$X, C = C, C_nonug = C_nonug)[[1]][[1]]
 c(m1-m2) %>% summary
+
+# Check if not passing C and C_nonug is okay
+gp$kernel$dC_dparams(params = c(beta, log(s2,10)), X = gp$X, C = C, C_nonug = C_nonug)[[1]][[1]]
+gp$kernel$dC_dparams(params = c(beta, log(s2,10)), X = gp$X, nug=nug)[[1]][[1]]
+
 
 # Check C_dC_dparams
 params <- c(1.2,.8)
