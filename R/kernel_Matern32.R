@@ -33,21 +33,21 @@ Matern32 <- R6::R6Class(classname = "GauPro_kernel_Matern32",
   inherit = GauPro_kernel_beta,
   public = list(
     sqrt3 = sqrt(3),
-    initialize = function(beta, s2=1, beta_lower=-8, beta_upper=6,
-                          s2_lower=1e-8, s2_upper=1e8) {
-      self$beta <- beta
-      self$beta_length <- length(beta)
-      # if (length(theta) == 1) {
-      #   self$theta <- rep(theta, self$d)
-      # }
-      self$beta_lower <- beta_lower
-      self$beta_upper <- beta_upper
-
-      self$s2 <- s2
-      self$logs2 <- log(s2, 10)
-      self$logs2_lower <- log(s2_lower, 10)
-      self$logs2_upper <- log(s2_upper, 10)
-    },
+    # initialize = function(beta, s2=1, beta_lower=-8, beta_upper=6,
+    #                       s2_lower=1e-8, s2_upper=1e8) {
+    #   self$beta <- beta
+    #   self$beta_length <- length(beta)
+    #   # if (length(theta) == 1) {
+    #   #   self$theta <- rep(theta, self$d)
+    #   # }
+    #   self$beta_lower <- beta_lower
+    #   self$beta_upper <- beta_upper
+    #
+    #   self$s2 <- s2
+    #   self$logs2 <- log(s2, 10)
+    #   self$logs2_lower <- log(s2_lower, 10)
+    #   self$logs2_upper <- log(s2_upper, 10)
+    # },
     k = function(x, y=NULL, beta=self$beta, s2=self$s2, params=NULL) {#browser()
       if (!is.null(params)) {
         lenpar <- length(params)
