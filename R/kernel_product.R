@@ -130,17 +130,43 @@ kernel_product <- R6::R6Class(classname = "GauPro_kernel_product",
     C_dC_dparams = function(params=NULL, X, nug) {#browser(text = "Make sure all in one list")
       params1 <- params[1:self$k1pl]
       params2 <- params[(self$k1pl+1):(self$k1pl+self$k2pl)]
+      s2_1 <- self$k1$s2_from_params(params1)
+      s2_2 <- self$k2$s2_from_params(params2)
+      # #
       # out1 <- self$k1$dC_dparams(params=params1, C=C, X=X, C_nonug=C_nonug)
       # out2 <- self$k2$dC_dparams(params=params2, C=C, X=X, C_nonug=C_nonug)
-      # list(c(out1[[1]],out2[[1]]), c(out1[[2]]+out2[[2]]))
-      # cat('In kernel_sum C_dC_params\n')
+      # Can't pass in C, no longer specific to each one
+      out1 <- self$k1$C_dC_dparams(params=params1, X=X, nug=s2_2 * nug)
+      out2 <- self$k2$C_dC_dparams(params=params2, X=X, nug=s2_1 * nug)
+      C1_nonug <- (out1[[1]] - diag(s2_1 * s2_2*nug, nrow(X)))
+      C2_nonug <- (out2[[1]] - diag(s2_1 * s2_2*nug, nrow(X)))
+      C <- C1_nonug * C2_nonug + diag(s2_1*s2_2*nug, nrow(X))
 
-      # Need to recalculate C for each so pass nug instead
-      out1 <- self$k1$C_dC_dparams(params=params1, X=X, nug=nug)
-      out2 <- self$k2$C_dC_dparams(params=params2, X=X, nug=nug)
-      C <- out1[[1]] * out2[[1]]
-      dC_dparams <- c(out1[[2]],out2[[2]])#, c(out1[[2]]+out2[[2]])
-      list(C=C, dC_dparams=dC_dparams)
+      # Multiply beta params by opposite C_nonug
+      n_beta1 <- length(params1) - self$k1$s2_est
+      if (n_beta1 > 0) { # At least 1 beta param
+        # out1[[2]][[1:n_beta1]] <- lapply(out1[[2]][1:n_beta1], function(m) {m * C2_nonug})
+        for (i in 1:n_beta1) {
+          out1[[2]][[i]] <- out1[[2]][[i]] * C2_nonug
+        }
+      }
+      n_beta2 <- length(params2) - self$k2$s2_est
+      if (n_beta2 > 0) { # At least 1 beta param
+        # out2[[2]][[1:n_beta2]] <- lapply(out2[[2]][1:n_beta2], function(m) {m * C1_nonug})
+        for (i in 1:n_beta2) {
+          out2[[2]][[i]] <- out2[[2]][[i]] * C1_nonug
+        }
+      }
+
+      # Fix s2
+      if (self$k1$s2_est) { # Fix here, don't like this
+        out1[[2]][[length(params1)]] <- C * log(10) # on log scale/ s2_1
+      }
+      if (self$k2$s2_est) { # Fix here, don't like this
+        out2[[2]][[length(params2)]] <- C * log(10) # on log scale/ s2_2
+      }
+
+      list(C=C, dC_dparams=c(out1[[2]],out2[[2]]))#, c(out1[[2]]*out2[[2]]))
     },
     s2_from_params = function(params, s2_est=self$s2_est) {
       params1 <- params[1:self$k1pl]
