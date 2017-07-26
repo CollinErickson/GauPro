@@ -172,3 +172,56 @@ test_that("kernel_sum works", {
     tol=100
   )
 })
+test_that("kernel_product works", {
+  set.seed(0)
+  n <- 20
+  x <- matrix(seq(0,1,length.out = n), ncol=1)
+  f <- Vectorize(function(x) {sin(2*pi*x) + .001*sin(8*pi*x) +rnorm(1,0,.03)})
+  y <- f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
+  gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian_beta$new(.7,.01)*Matern32$new(1.2,1.8), parallel=FALSE, verbose=10, nug.est=T)
+
+  expect_equal(gp$kernel$k1$beta, 0.7671658, tolerance=.01)
+  expect_equal(gp$kernel$k1$s2, 0.06598874, tolerance=.01)
+  expect_equal(gp$kernel$k2$beta, -0.0775485, tolerance=.01)
+  expect_equal(gp$kernel$k2$s2, 11.87797, tolerance=.01)
+  expect_equal(log(gp$nug,10), -3.344504, tolerance=.1)
+  expect_equal(
+    # numDeriv::grad(func = function(x) {gp$deviance(params=x[1:4], nuglog=x[5])}, x=c(-.7,.227,1.1,.3, -3.66)),
+    c(0.2117085, 42.9840666, 47.8857571, 42.9840666,  0.9225288),
+    gp$deviance_grad(params = c(-.7,.227,1.1,.3), nug.update=T, nuglog=-3.66),
+    tol=.001
+  )
+  expect_equal(
+    # numDeriv::grad(func = function(x) {gp$deviance(params=x[1:4], nuglog=x[5])}, x=c(2.5,-.2, -.9,-.2, -5)),
+    c(36.06449032, 15.57771736,  0.02086093, 15.57771736,  0.00056776),
+    gp$deviance_grad(params = c(2.5,-.2,-.9,-.2), nug.update=T, nuglog = -5),
+    tol=100
+  )
+
+  # Again with different kernels
+  set.seed(0)
+  n <- 20
+  x <- matrix(seq(0,1,length.out = n), ncol=1)
+  f <- Vectorize(function(x) {sin(2*pi*x) + .001*sin(8*pi*x) +rnorm(1,0,.03)})
+  y <- f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
+  gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Exponential$new(.7)*Matern52$new(1.2), parallel=FALSE, verbose=10, nug.est=T)
+
+  expect_equal(gp$kernel$k1$beta, -20.25548, tolerance=.01)
+  expect_equal(gp$kernel$k1$s2, 0.976513, tolerance=.01)
+  expect_equal(gp$kernel$k2$beta, 0.7997657, tolerance=.01)
+  expect_equal(gp$kernel$k2$s2, 0.976513, tolerance=.01)
+  expect_equal(log(gp$nug,10), -3.49013, tolerance=.1)
+  expect_equal(
+    # numDeriv::grad(func = function(x) {gp$deviance(params=x[1:4], nuglog=x[5])}, x=c(-.7,.227,1.1,.3, -3.66)),
+    c(14.2077686, 43.3416492, 14.9012499, 43.3416491,  0.3427752),
+    gp$deviance_grad(params = c(-.7,.227,1.1,.3), nug.update=T, nuglog=-3.66),
+    tol=.001
+  )
+  expect_equal(
+    # numDeriv::grad(func = function(x) {gp$deviance(params=x[1:4], nuglog=x[5])}, x=c(2.5,-.2, -.9,-.2, -5)),
+    c(1.626385e+01, 1.892872e+01, 1.355478e-02, 1.892872e+01, 4.854032e-04),
+    gp$deviance_grad(params = c(2.5,-.2,-.9,-.2), nug.update=T, nuglog = -5),
+    tol=100
+  )
+})
+
