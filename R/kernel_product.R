@@ -95,10 +95,10 @@ kernel_product <- R6::R6Class(classname = "GauPro_kernel_product",
       # out1 <- self$k1$dC_dparams(params=params1, C=C, X=X, C_nonug=C_nonug)
       # out2 <- self$k2$dC_dparams(params=params2, C=C, X=X, C_nonug=C_nonug)
       # Can't pass in C, no longer specific to each one
-      out1 <- self$k1$C_dC_dparams(params=params1, X=X, nug=s2_1 * nug)
-      out2 <- self$k2$C_dC_dparams(params=params2, X=X, nug=s2_2 * nug)
-      C1_nonug <- (out1[[1]] - diag(s2_2*nug, nrow(X)))
-      C2_nonug <- (out2[[1]] - diag(s2_1*nug, nrow(X)))
+      out1 <- self$k1$C_dC_dparams(params=params1, X=X, nug=s2_2 * nug)
+      out2 <- self$k2$C_dC_dparams(params=params2, X=X, nug=s2_1 * nug)
+      C1_nonug <- (out1[[1]] - diag(s2_1 * s2_2*nug, nrow(X)))
+      C2_nonug <- (out2[[1]] - diag(s2_1 * s2_2*nug, nrow(X)))
       C <- C1_nonug * C2_nonug + diag(s2_1*s2_2*nug, nrow(X))
 
       # Multiply beta params by opposite C_nonug
@@ -119,10 +119,10 @@ kernel_product <- R6::R6Class(classname = "GauPro_kernel_product",
 
       # Fix s2
       if (self$k1$s2_est) { # Fix here, don't like this
-        out1[[2]][[length(params1)]] <- C / s2_1
+        out1[[2]][[length(params1)]] <- C * log(10) # on log scale/ s2_1
       }
       if (self$k2$s2_est) { # Fix here, don't like this
-        out2[[2]][[length(params2)]] <- C / s2_2
+        out2[[2]][[length(params2)]] <- C * log(10) # on log scale/ s2_2
       }
 
       list(dC_dparams=c(out1[[2]],out2[[2]]))#, c(out1[[2]]*out2[[2]]))
