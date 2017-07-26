@@ -175,6 +175,13 @@ GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
     # dC_dparams = function(params=NULL, C, X, C_nonug) {
     #   Kernels that inherit from this must implement this.
     # },
+    C_dC_dparams = function(params=NULL, X, nug) {
+      s2 <- self$s2_from_params(params)
+      C_nonug <- self$k(x=X, params=params)
+      C <- C_nonug + diag(s2*nug, nrow(X))
+      dC_dparams <- self$dC_dparams(params=params, X=X, C_nonug=C_nonug, C=C, nug=nug)
+      list(C=C, dC_dparams=dC_dparams[[1]])
+    },
     s2_from_params = function(params, s2_est=self$s2_est) {
       # 10 ^ params[length(params)]
       if (s2_est) { # Is last if in params
