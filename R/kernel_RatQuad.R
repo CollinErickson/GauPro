@@ -41,8 +41,9 @@ RatQuad <- R6::R6Class(classname = "GauPro_kernel_RatQuad",
     # logs2_lower = NULL,
     # logs2_upper = NULL,
     alpha = NULL,
-    alpha_lower = NULL,
-    alpha_upper = NULL,
+    logalpha = NULL,
+    logalpha_lower = NULL,
+    logalpha_upper = NULL,
     alpha_est = NULL,
     initialize = function(beta, alpha, s2=1,
                           beta_lower=-8, beta_upper=6, beta_est=TRUE,
@@ -53,24 +54,26 @@ RatQuad <- R6::R6Class(classname = "GauPro_kernel_RatQuad",
                        beta_upper=beta_upper, beta_est=beta_est,
                        s2_lower=s2_lower,s2_upper=s2_upper, s2_est=s2_est)
       self$alpha <- alpha
-      self$alpha_lower <- alpha_lower
-      self$alpha_upper <- alpha_upper
+      self$logalpha <- log(alpha, 10)
+      self$logalpha_lower <- log(alpha_lower, 10)
+      self$logalpha_upper <- log(alpha_upper, 10)
       self$alpha_est <- alpha_est
 
     },
-    k = function(x, y=NULL, beta=self$beta, alpha=self$alpha, s2=self$s2, params=NULL) {#browser()
+    k = function(x, y=NULL, beta=self$beta, logalpha=self$logalpha, s2=self$s2, params=NULL) {#browser()
       if (!is.null(params)) {
         lenpar <- length(params)
         beta <- params[1:(lenpar-2)]
-        alpha <- params[lenpar-1]
+        logalpha <- params[lenpar-1]
         logs2 <- params[lenpar]
         s2 <- 10^logs2
       } else {#browser()
         if (is.null(beta)) {beta <- self$beta}
-        if (is.null(alpha)) {alpha <- self$alpha}
+        if (is.null(logalpha)) {logalpha <- self$logalpha}
         if (is.null(s2)) {s2 <- self$s2}
       }
       theta <- 10^beta
+      alpha <- 10^logalpha
       if (is.null(y)) {
         if (is.matrix(x)) {#browser()
           # cgmtry <- try(val <- s2 * corr_gauss_matrix_symC(x, theta))
@@ -112,8 +115,9 @@ RatQuad <- R6::R6Class(classname = "GauPro_kernel_RatQuad",
       }
       lenparams <- length(params)
       beta <- params[1:(lenparams - 2)]
-      alpha <- params[lenparams-1]
       theta <- 10^beta
+      logalpha <- params[lenparams-1]
+      alpha <- 10^logalpha
       log10 <- log(10)
       logs2 <- params[lenparams]
       s2 <- 10 ^ logs2
@@ -137,7 +141,7 @@ RatQuad <- R6::R6Class(classname = "GauPro_kernel_RatQuad",
         for (j in seq(i+1, n, 1)) {
           r2 <- sum(theta * (X[i,]-X[j,])^2)
           t1 <- 1 + r2 / alpha
-          dC_dparams[lenparams-1, i,j] <- C[i,j] * (- log(t1) + r2 / alpha / t1)
+          dC_dparams[lenparams-1, i,j] <- C[i,j] * (- log(t1) + r2 / alpha / t1) * alpha * log10
           dC_dparams[lenparams-1, j,i] <- dC_dparams[lenparams-1, i,j]
         }
       }
@@ -151,7 +155,7 @@ RatQuad <- R6::R6Class(classname = "GauPro_kernel_RatQuad",
       # Use current values for theta, partial MLE for s2
       # vec <- c(log(self$theta, 10), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
       if (beta_est) {vec <- c(self$beta)} else {vec <- c()}
-      if (alpha_est) {vec <- c(vec, self$alpha)} else {}
+      if (alpha_est) {vec <- c(vec, self$logalpha)} else {}
       if (s2_est) {vec <- c(vec, self$s2)} else {}
       if (jitter && beta_est) {
         # vec <- vec + c(self$beta_optim_jitter,  0)
@@ -164,7 +168,7 @@ RatQuad <- R6::R6Class(classname = "GauPro_kernel_RatQuad",
       # Use 0 for theta, partial MLE for s2
       # vec <- c(rep(0, length(self$theta)), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
       if (beta_est) {vec <- rep(0, self$beta_length)} else {vec <- c()}
-      if (alpha_est) {vec <- c(vec, 2)} else {}
+      if (alpha_est) {vec <- c(vec, 1)} else {}
       if (s2_est) {vec <- c(vec, 0)} else {}
       if (jitter && beta_est) {
         vec[1:length(self$beta)] = vec[1:length(self$beta)] + rnorm(length(self$beta), 0, 1)
@@ -176,7 +180,7 @@ RatQuad <- R6::R6Class(classname = "GauPro_kernel_RatQuad",
                                  s2_est=self$s2_est) {
       # c(self$beta_lower, self$logs2_lower)
       if (beta_est) {vec <- c(self$beta_lower)} else {vec <- c()}
-      if (alpha_est) {vec <- c(vec, self$alpha_lower)} else {}
+      if (alpha_est) {vec <- c(vec, self$logalpha_lower)} else {}
       if (s2_est) {vec <- c(vec, self$logs2_lower)} else {}
       vec
     },
@@ -185,7 +189,7 @@ RatQuad <- R6::R6Class(classname = "GauPro_kernel_RatQuad",
                                  s2_est=self$s2_est) {
       # c(self$beta_upper, self$logs2_upper)
       if (beta_est) {vec <- c(self$beta_upper)} else {vec <- c()}
-      if (alpha_est) {vec <- c(vec, self$alpha_upper)} else {}
+      if (alpha_est) {vec <- c(vec, self$logalpha_upper)} else {}
       if (s2_est) {vec <- c(vec, self$logs2_upper)} else {}
       vec
     },
@@ -196,7 +200,8 @@ RatQuad <- R6::R6Class(classname = "GauPro_kernel_RatQuad",
         self$beta <- optim_out[1:(self$beta_length)]
       }
       if (alpha_est) {
-        self$alpha <- optim_out[(1 + beta_est * self$beta_length)]
+        self$logalpha <- optim_out[(1 + beta_est * self$beta_length)]
+        self$alpha <- 10 ^ self$logalpha
       }
       if (s2_est) {
         self$logs2 <- optim_out[loo]
