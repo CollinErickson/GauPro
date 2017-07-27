@@ -28,7 +28,7 @@
 #' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
 #' @format \code{\link{R6Class}} object.
 #' @examples
-#' k1 <- RatQuad$new(beta=0)
+#' k1 <- RatQuad$new(beta=0, alpha=0)
 RatQuad <- R6::R6Class(classname = "GauPro_kernel_RatQuad",
   inherit = GauPro_kernel_beta,
   public = list(
