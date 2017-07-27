@@ -3,7 +3,7 @@
 set.seed(0)
 n <- 20
 x <- matrix(seq(0,1,length.out = n), ncol=1)
-f <- Vectorize(function(x) {sin(2*pi*x) + .5*sin(4*pi*x) +rnorm(1,0,.3)})
+f <- Vectorize(function(x) {sin(2*pi*x) + .5*sin(4*pi*x) +rnorm(1,0,.03)})
 y <- f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
 gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian_beta$new(3)+Matern32$new(-1), parallel=FALSE, verbose=10, nug.est=T)
 gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Exponential$new(3)+Matern52$new(-1), parallel=FALSE, verbose=10, nug.est=T)
@@ -49,7 +49,7 @@ nug <- .001
 gp$deviance(params=params, nug=nug)
 gp$deviance_grad(params=params, nug=nug, nug.update=T)
 gp$deviance_fngr(params=params, nug=nug, nug.update=T)
-numDeriv::grad(func = function(x)gp$deviance(params=x[1:4], nuglog=x[5]), x=c(params, nug))
+numDeriv::grad(func = function(x)gp$deviance(params=x[1:4], nuglog=x[5]), x=c(params, log(nug,10)))
 microbenchmark::microbenchmark(sep={gp$deviance(params=params, nug=nug);gp$deviance_grad(params=params, nug=nug, nug.update=T)}, fngr=gp$deviance_fngr(params=params, nug=nug, nug.update=T))
 
 

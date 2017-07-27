@@ -180,7 +180,7 @@ GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
       C_nonug <- self$k(x=X, params=params)
       C <- C_nonug + diag(s2*nug, nrow(X))
       dC_dparams <- self$dC_dparams(params=params, X=X, C_nonug=C_nonug, C=C, nug=nug)
-      list(C=C, dC_dparams=dC_dparams[[1]])
+      list(C=C, dC_dparams=dC_dparams)
     },
     s2_from_params = function(params, s2_est=self$s2_est) {
       # 10 ^ params[length(params)]

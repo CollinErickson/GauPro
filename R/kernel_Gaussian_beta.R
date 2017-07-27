@@ -78,6 +78,7 @@ Gaussian_beta <- R6::R6Class(classname = "GauPro_kernel_Gaussian_beta",
       }
     },
     dC_dparams = function(params=NULL, X, C_nonug, C, nug) {#browser(text = "Make sure all in one list")
+      n <- nrow(X)
       if (is.null(params)) {params <- c(self$beta, self$logs2)}
       if (missing(C_nonug)) { # Assume C missing too, must have nug
         C_nonug <- self$k(x=X, params=params)
@@ -89,27 +90,26 @@ Gaussian_beta <- R6::R6Class(classname = "GauPro_kernel_Gaussian_beta",
       log10 <- log(10)
       logs2 <- params[lenparams]
       s2 <- 10 ^ logs2
-      dC_dlogs2 <- C * log10 #/ s2 * s2 *
-      dC_dbetas <- rep(list(C_nonug), length(beta))
-      n <- nrow(X)
+      dC_dparams <- array(dim=c(lenparams, n, n))
+      dC_dparams[lenparams,,] <- C * log10 #/ s2 * s2 *
+      # dC_dparams <- rep(list(C_nonug), length(beta))
       for (k in 1:length(beta)) {
         for (i in seq(1, n-1, 1)) {
           for (j in seq(i+1, n, 1)) {
-            dC_dbetas[[k]][i,j] <- - dC_dbetas[[k]][i,j] * (X[i,k] - X[j,k])^2 * theta[k] * log10
-            dC_dbetas[[k]][j,i] <- dC_dbetas[[k]][i,j]
+            dC_dparams[k,i,j] <- - C_nonug[i,j] * (X[i,k] - X[j,k])^2 * theta[k] * log10
+            dC_dparams[k,j,i] <- dC_dparams[k,i,j]
           }
         }
         for (i in seq(1, n, 1)) { # Get diagonal set to zero
-          dC_dbetas[[k]][i,i] <- 0
+          dC_dparams[k,i,i] <- 0
         }
       }
 
-      mats <- c(dC_dbetas, list(dC_dlogs2))
-      return(list(dC_dparams=mats,
-                  s2
-      ))
+      # mats <- c(dC_dbetas, list(dC_dlogs2))
+      return(dC_dparams)
     },
     C_dC_dparams = function(params=NULL, X, nug) {#browser(text = "Make sure all in one list")
+      n <- nrow(X)
       if (is.null(params)) {params <- c(self$beta, self$logs2)}
       lenparams <- length(params)
       beta <- params[1:(lenparams - 1)]
@@ -121,24 +121,24 @@ Gaussian_beta <- R6::R6Class(classname = "GauPro_kernel_Gaussian_beta",
       # Calculate C
       C_nonug <- self$k(x=X, beta=beta, s2=s2)
       C <- C_nonug + diag(nug*s2, nrow(C_nonug))
-
-      dC_dlogs2 <- C * log10 #/ s2 * s2 *
-      dC_dbetas <- rep(list(C_nonug), length(beta))
-      n <- nrow(X)
+      dC_dparams <- array(dim=c(lenparams, n, n))
+      dC_dparams[lenparams,,] <- C * log10 #/ s2 * s2 *
+      # dC_dbetas <- rep(list(C_nonug), length(beta))
+      # n <- nrow(X)
       for (k in 1:length(beta)) {
         for (i in seq(1, n-1, 1)) {
           for (j in seq(i+1, n, 1)) {
-            dC_dbetas[[k]][i,j] <- - C[i,j] * (X[i,k] - X[j,k])^2 * theta[k] * log10
-            dC_dbetas[[k]][j,i] <- dC_dbetas[[k]][i,j]
+            dC_dparams[k,i,j] <- - C[i,j] * (X[i,k] - X[j,k])^2 * theta[k] * log10
+            dC_dparams[k,j,i] <- dC_dparams[k,i,j]
           }
         }
         for (i in seq(1, n, 1)) { # Get diagonal set to zero
-          dC_dbetas[[k]][i,i] <- 0
+          dC_dparams[k,i,i] <- 0
         }
       }
 
-      mats <- c(dC_dbetas, list(dC_dlogs2))
-      return(list(C = C, dC_dparams=mats))
+      # mats <- c(dC_dbetas, list(dC_dlogs2))
+      return(list(C = C, dC_dparams))
     }
   )
 )

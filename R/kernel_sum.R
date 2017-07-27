@@ -115,7 +115,13 @@ kernel_sum <- R6::R6Class(classname = "GauPro_kernel_sum",
       # Can't pass in C, no longer specific to each one
       out1 <- self$k1$dC_dparams(params=params1, X=X, nug=nug)
       out2 <- self$k2$dC_dparams(params=params2, X=X, nug=nug)
-      list(c(out1[[1]],out2[[1]]), c(out1[[2]]+out2[[2]]))
+      dim1 <- dim(out1)
+      dim2 <- dim(out2)
+      dC_dparams <- array(dim=c(dim1[1]+dim2[1], dim1[2], dim1[3]))
+      dC_dparams[1:dim1[1],,] <- out1
+      dC_dparams[(1+dim1[1]):(dim1[1]+dim2[1]),,] <- out2
+      dC_dparams
+      # list(c(out1[[1]],out2[[1]]), c(out1[[2]]+out2[[2]]))
     },
     C_dC_dparams = function(params=NULL, X, nug) {#browser(text = "Make sure all in one list")
       params1 <- params[1:self$k1pl]
@@ -129,7 +135,13 @@ kernel_sum <- R6::R6Class(classname = "GauPro_kernel_sum",
       out1 <- self$k1$C_dC_dparams(params=params1, X=X, nug=nug)
       out2 <- self$k2$C_dC_dparams(params=params2, X=X, nug=nug)
       C <- out1[[1]] + out2[[1]]
-      dC_dparams <- c(out1[[2]],out2[[2]])#, c(out1[[2]]+out2[[2]])
+      # dC_dparams <- c(out1[[2]],out2[[2]])#, c(out1[[2]]+out2[[2]])
+      dim1 <- dim(out1[[2]])
+      dim2 <- dim(out2[[2]])
+      dC_dparams <- array(dim=c(dim1[1]+dim2[1], dim1[2], dim1[3]))
+      dC_dparams[1:dim1[1],,] <- out1[[2]]
+      dC_dparams[(1+dim1[1]):(dim1[1]+dim2[1]),,] <- out2[[2]]
+      # dC_dparams
       list(C=C, dC_dparams=dC_dparams)
     },
     s2_from_params = function(params) {

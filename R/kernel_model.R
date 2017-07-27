@@ -595,7 +595,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           s2_from_kernel <- self$kernel$s2_from_params(params=params)
           C <- C_nonug + s2_from_kernel * diag(nug, self$N)
           dC_dparams_out <- self$kernel$dC_dparams(params=params, X=X, C=C, C_nonug=C_nonug, nug=nug)
-          dC_dparams <- dC_dparams_out[[1]] # First of list should be list of dC_dparams
+          dC_dparams <- dC_dparams_out#[[1]] # First of list should be list of dC_dparams
           # s2_from_kernel <- dC_dparams_out[[2]] # Second should be s2 for nugget deriv
           yminusmu <- self$Z - self$mu_hat
           solve.try <- try(Cinv_yminusmu <- solve(C, yminusmu))
@@ -605,8 +605,10 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
             t2 <- sum(Cinv_yminusmu * (di %*% Cinv_yminusmu))
             t1 - t2
           }
-          # out <- c(sapply(dC_dparams[[1]],gradfunc), gradfunc(dC_dparams[[2]]))
-          out <- sapply(dC_dparams,gradfunc)
+          # browser()
+          out <- apply(dC_dparams, 1, gradfunc)
+          # # out <- c(sapply(dC_dparams[[1]],gradfunc), gradfunc(dC_dparams[[2]]))
+          # out <- sapply(dC_dparams,gradfunc)
           if (nug.update) {
             out <- c(out, gradfunc(diag(s2_from_kernel*nug*log(10), nrow(C))))
             # out <- c(out, gradfunc(diag(s2_from_kernel*, nrow(C)))*nug*log(10))

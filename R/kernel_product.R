@@ -103,29 +103,35 @@ kernel_product <- R6::R6Class(classname = "GauPro_kernel_product",
 
       # Multiply beta params by opposite C_nonug
       n_beta1 <- length(params1) - self$k1$s2_est
+      # browser()
       if (n_beta1 > 0) { # At least 1 beta param
         # out1[[2]][[1:n_beta1]] <- lapply(out1[[2]][1:n_beta1], function(m) {m * C2_nonug})
         for (i in 1:n_beta1) {
-          out1[[2]][[i]] <- out1[[2]][[i]] * C2_nonug
+          out1[[2]][i,,] <- out1[[2]][i,,] * C2_nonug
         }
       }
       n_beta2 <- length(params2) - self$k2$s2_est
       if (n_beta2 > 0) { # At least 1 beta param
         # out2[[2]][[1:n_beta2]] <- lapply(out2[[2]][1:n_beta2], function(m) {m * C1_nonug})
         for (i in 1:n_beta2) {
-          out2[[2]][[i]] <- out2[[2]][[i]] * C1_nonug
+          out2[[2]][i,,] <- out2[[2]][i,,] * C1_nonug
         }
       }
 
       # Fix s2
       if (self$k1$s2_est) { # Fix here, don't like this
-        out1[[2]][[length(params1)]] <- C * log(10) # on log scale/ s2_1
+        out1[[2]][length(params1),,] <- C * log(10) # on log scale/ s2_1
       }
       if (self$k2$s2_est) { # Fix here, don't like this
-        out2[[2]][[length(params2)]] <- C * log(10) # on log scale/ s2_2
+        out2[[2]][length(params2),,] <- C * log(10) # on log scale/ s2_2
       }
+      dim1 <- dim(out1[[2]])
+      dim2 <- dim(out2[[2]])
+      dC_dparams <- array(dim=c(dim1[1]+dim2[1], dim1[2], dim1[3]))
+      dC_dparams[1:dim1[1],,] <- out1[[2]]
+      dC_dparams[(1+dim1[1]):(dim1[1]+dim2[1]),,] <- out2[[2]]
 
-      list(dC_dparams=c(out1[[2]],out2[[2]]))#, c(out1[[2]]*out2[[2]]))
+      dC_dparams #c(out1[[2]],out2[[2]]))#, c(out1[[2]]*out2[[2]]))
     },
     C_dC_dparams = function(params=NULL, X, nug) {#browser(text = "Make sure all in one list")
       params1 <- params[1:self$k1pl]
@@ -147,24 +153,29 @@ kernel_product <- R6::R6Class(classname = "GauPro_kernel_product",
       if (n_beta1 > 0) { # At least 1 beta param
         # out1[[2]][[1:n_beta1]] <- lapply(out1[[2]][1:n_beta1], function(m) {m * C2_nonug})
         for (i in 1:n_beta1) {
-          out1[[2]][[i]] <- out1[[2]][[i]] * C2_nonug
+          out1[[2]][i,,] <- out1[[2]][i,,] * C2_nonug
         }
       }
       n_beta2 <- length(params2) - self$k2$s2_est
       if (n_beta2 > 0) { # At least 1 beta param
         # out2[[2]][[1:n_beta2]] <- lapply(out2[[2]][1:n_beta2], function(m) {m * C1_nonug})
         for (i in 1:n_beta2) {
-          out2[[2]][[i]] <- out2[[2]][[i]] * C1_nonug
+          out2[[2]][i,,] <- out2[[2]][i,,] * C1_nonug
         }
       }
 
       # Fix s2
       if (self$k1$s2_est) { # Fix here, don't like this
-        out1[[2]][[length(params1)]] <- C * log(10) # on log scale/ s2_1
+        out1[[2]][length(params1),,] <- C * log(10) # on log scale/ s2_1
       }
       if (self$k2$s2_est) { # Fix here, don't like this
-        out2[[2]][[length(params2)]] <- C * log(10) # on log scale/ s2_2
+        out2[[2]][length(params2),,] <- C * log(10) # on log scale/ s2_2
       }
+      dim1 <- dim(out1[[2]])
+      dim2 <- dim(out2[[2]])
+      dC_dparams <- array(dim=c(dim1[1]+dim2[1], dim1[2], dim1[3]))
+      dC_dparams[1:dim1[1],,] <- out1[[2]]
+      dC_dparams[(1+dim1[1]):(dim1[1]+dim2[1]),,] <- out2[[2]]
 
       list(C=C, dC_dparams=c(out1[[2]],out2[[2]]))#, c(out1[[2]]*out2[[2]]))
     },
