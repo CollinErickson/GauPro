@@ -102,31 +102,29 @@ Matern32 <- R6::R6Class(classname = "GauPro_kernel_Matern32",
       log10 <- log(10)
       logs2 <- params[lenparams]
       s2 <- 10 ^ logs2
-      # dC_dlogs2 <- C * log10 #/ s2 * s2 *
-      dC_dparams <- array(dim=c(lenparams, n, n))
-      dC_dparams[lenparams, , ] <- C * log10 #/ s2 * s2 *
-      # dC_dbetas <- rep(list(C_nonug), length(beta))
-      # n <- nrow(X)
-      for (k in 1:length(beta)) {
-        for (i in seq(1, n-1, 1)) {
-          for (j in seq(i+1, n, 1)) {
-            # dC_dbetas[[k]][i,j] <- -1 * dC_dbetas[[k]][i,j] * (X[i,k] - X[j,k])^2 * theta[k] * log10 * .5 / (-log(C[i,j]/s2))
-            tx2 <- sum(theta * (X[i,]-X[j,])^2)
-            t1 <- sqrt(3 * tx2)
-            dt1dbk <- .5 * (X[i,k] - X[j,k])^2 / sqrt(tx2)
-            # # dC_dbetas[[k]][i,j] <- s2 * (1+t1) * exp(-t1) *-dt1dbk + s2 * dt1dbk * exp(-t1)
-            # dC_dbetas[[k]][i,j] <- C[i,j] * (1/(1+t1) - 1) * self$sqrt3 * dt1dbk * theta[k] * log10   #s2 * (1+t1) * exp(-t1) *-dt1dbk + s2 * dt1dbk * exp(-t1)
-            # dC_dbetas[[k]][j,i] <- dC_dbetas[[k]][i,j]
-            dC_dparams[k,i,j] <- C[i,j] * (1/(1+t1) - 1) * self$sqrt3 * dt1dbk * theta[k] * log10   #s2 * (1+t1) * exp(-t1) *-dt1dbk + s2 * dt1dbk * exp(-t1)
+      dC_dparams <- array(dim=c(lenparams, n, n)) # Return as array
+      dC_dparams[lenparams, , ] <- C * log10 # Deriv for logs2
+
+      # Loop to set beta derivatives
+      for (i in seq(1, n-1, 1)) {
+        for (j in seq(i+1, n, 1)) {
+          tx2 <- sum(theta * (X[i,]-X[j,])^2)
+          t1 <- sqrt(3 * tx2)
+          t3 <- C[i,j] * (1/(1+t1) - 1) * self$sqrt3 * log10
+          sqrttx2 <- sqrt(tx2)
+          for (k in 1:length(beta)) {
+            dt1dbk <- .5 * (X[i,k] - X[j,k])^2 / sqrttx2
+            dC_dparams[k,i,j] <- t3 * dt1dbk * theta[k]   #s2 * (1+t1) * exp(-t1) *-dt1dbk + s2 * dt1dbk * exp(-t1)
             dC_dparams[k,j,i] <- dC_dparams[k,i,j]
           }
         }
-        for (i in seq(1, n, 1)) { # Get diagonal set to zero
-          # dC_dbetas[[k]][i,i] <- 0
+      }
+      for (i in seq(1, n, 1)) { # Get diagonal set to zero
+        for (k in 1:length(beta)) {
           dC_dparams[k,i,i] <- 0
         }
       }
-      # mats <- c(dC_dbetas, list(dC_dlogs2))
+
       return(dC_dparams=dC_dparams)
     }
   )

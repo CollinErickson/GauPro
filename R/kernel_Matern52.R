@@ -32,46 +32,21 @@
 Matern52 <- R6::R6Class(classname = "GauPro_kernel_Matern52",
   inherit = GauPro_kernel_beta,
   public = list(
-    # beta = NULL,
-    # beta_lower = NULL,
-    # beta_upper = NULL,
-    # beta_length = NULL,
-    # s2 = NULL, # variance coefficient to scale correlation matrix to covariance
-    # logs2 = NULL,
-    # logs2_lower = NULL,
-    # logs2_upper = NULL,
     sqrt5 = sqrt(5),
-    # initialize = function(beta, s2=1, beta_lower=-8, beta_upper=6,
-    #                       s2_lower=1e-8, s2_upper=1e8) {
-    #   self$beta <- beta
-    #   self$beta_length <- length(beta)
-    #   # if (length(theta) == 1) {
-    #   #   self$theta <- rep(theta, self$d)
-    #   # }
-    #   self$beta_lower <- beta_lower
-    #   self$beta_upper <- beta_upper
-    #
-    #   self$s2 <- s2
-    #   self$logs2 <- log(s2, 10)
-    #   self$logs2_lower <- log(s2_lower, 10)
-    #   self$logs2_upper <- log(s2_upper, 10)
-    # },
     k = function(x, y=NULL, beta=self$beta, s2=self$s2, params=NULL) {#browser()
       if (!is.null(params)) {
         lenpar <- length(params)
         beta <- params[1:(lenpar-1)]
         logs2 <- params[lenpar]
         s2 <- 10^logs2
-      } else {#browser()
+      } else {
         if (is.null(beta)) {beta <- self$beta}
         if (is.null(s2)) {s2 <- self$s2}
       }
       theta <- 10^beta
       if (is.null(y)) {
-        if (is.matrix(x)) {#browser()
-          # cgmtry <- try(val <- s2 * corr_gauss_matrix_symC(x, theta))
+        if (is.matrix(x)) {
           val <- outer(1:nrow(x), 1:nrow(x), Vectorize(function(i,j){self$kone(x[i,],x[j,],theta=theta, s2=s2)}))
-          # if (inherits(cgmtry,"try-error")) {browser()}
           return(val)
         } else {
           return(s2 * 1)
@@ -92,73 +67,10 @@ Matern52 <- R6::R6Class(classname = "GauPro_kernel_Matern52",
     },
     kone = function(x, y, beta, theta, s2) {
       if (missing(theta)) {theta <- 10^beta}
-      # t1 <- self$sqrt
       r <- sqrt(sum(theta * (x-y)^2))
       t1 <- self$sqrt5 * r
       s2 * (1 + t1 + t1^2 / 3) * exp(-t1)
     },
-    # l = function(X, y, beta, s2, mu, n) {
-    #   theta <- 10^beta
-    #   R <- self$r(X, theta)
-    #   n*log(s2) + log(det(R)) + sum(y - mu, Rinv %*% (y-mu))
-    # },
-    # dl_dbetas2 = function(X, y, beta, mu, s2, n, firstiter) {
-    #   R <- self$r(X, theta)
-    #   dl_ds2 <- n / s2 - s2^2 * sum((y - mu) * solve(R, y - mu))
-    #   # p should be theta length
-    #   dl_dt <- sapply(1:self$p, function(l) {
-    #     # dR_dti <- R
-    #     dr_dtl <- outer(1:n, 1:n, function(i, j) {-(X[i,k] - X[j,k])^2 * R[i,j]})
-    #     dR_dtl_Rinv <- solve(dR_dtl, R)
-    #     dl_dtl <- diag(dR_dtl) / s2 + sum(Rinv %*% (y-mu), dR_dtl %*% (y-mu))/ s2^2
-    #     dl_dtl
-    #   })
-    #   c(cl_dtl, dl_ds2)
-    # },
-    # beta_optim_jitter = function() {
-    #   rnorm(self$p, 0, 1)
-    # },
-    # param_optim_start = function(jitter=F, y) {
-    #   # Use current values for theta, partial MLE for s2
-    #   # vec <- c(log(self$theta, 10), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
-    #   vec <- c(self$beta, self$logs2)
-    #   if (jitter) {
-    #     # vec <- vec + c(self$beta_optim_jitter,  0)
-    #     vec[1:length(self$beta)] = vec[1:length(self$beta)] + rnorm(length(self$beta), 0, 1)
-    #   }
-    #   vec
-    # },
-    # param_optim_start0 = function(jitter=F, y) {
-    #   # Use 0 for theta, partial MLE for s2
-    #   # vec <- c(rep(0, length(self$theta)), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
-    #   vec <- c(rep(0, self$beta_length), 0)
-    #   if (jitter) {
-    #     vec[1:length(self$beta)] = vec[1:length(self$beta)] + rnorm(length(self$beta), 0, 1)
-    #   }
-    #   vec
-    # },
-    # param_optim_lower = function() {
-    #   c(self$beta_lower, self$logs2_lower)
-    # },
-    # param_optim_upper = function() {
-    #   c(self$beta_upper, self$logs2_upper)
-    # },
-    # set_params_from_optim = function(optim_out) {
-    #   loo <- length(optim_out)
-    #   self$beta <- optim_out[1:(loo-1)]
-    #   self$logs2 <- optim_out[loo]
-    #   self$s2 <- 10 ^ self$logs2
-    # },
-    # optim_fngr = function(X, y, params, mu, n) {
-    #   theta <- 10^params[1:self$p]
-    #   s2 <- 10^params[self$p+1]
-    #   list(fn=self$l(X=X, y=y, theta=theta, s2=s2, mu=mu, n=n),
-    #        gr=self$dl_dthetas2(X=X, y=y, theta=theta, s2=s2, mu=mu, n=n, firstiter=FALSE)
-    #   )
-    # },
-    # get_optim_functions = function(param_update) {
-    #
-    # },
     dC_dparams = function(params=NULL, X, C_nonug, C, nug) {#browser(text = "Make sure all in one list")
       n <- nrow(X)
       if (is.null(params)) {params <- c(self$beta, self$logs2)}
@@ -173,36 +85,29 @@ Matern52 <- R6::R6Class(classname = "GauPro_kernel_Matern52",
       logs2 <- params[lenparams]
       s2 <- 10 ^ logs2
       dC_dparams <- array(dim=c(lenparams, n, n))
-      dC_dparams[lenparams,,] <- C * log10 #/ s2 * s2 *
-      # dC_dbetas <- rep(list(C_nonug), length(beta))
-      # n <- nrow(X)
-      for (k in 1:length(beta)) {
-        for (i in seq(1, n-1, 1)) {
-          for (j in seq(i+1, n, 1)) {
-            # dC_dbetas[[k]][i,j] <- -1 * dC_dbetas[[k]][i,j] * (X[i,k] - X[j,k])^2 * theta[k] * log10 * .5 / (-log(C[i,j]/s2))
-            tx2 <- sum(theta * (X[i,]-X[j,])^2)
-            t1 <- sqrt(5 * tx2)
-            dt1dbk <- .5 * (X[i,k] - X[j,k])^2 / sqrt(tx2)
-            # dC_dbetas[[k]][i,j] <- s2 * (1+t1) * exp(-t1) *-dt1dbk + s2 * dt1dbk * exp(-t1)
-            dC_dparams[k,i,j] <- C[i,j] * ((1+2*t1/3)/(1+t1+t1^2/3) - 1) * self$sqrt5 * dt1dbk * theta[k] * log10   #s2 * (1+t1) * exp(-t1) *-dt1dbk + s2 * dt1dbk * exp(-t1)
+      dC_dparams[lenparams,,] <- C * log10 # Deriv for logs2
+
+      # Deriv for beta
+      for (i in seq(1, n-1, 1)) {
+        for (j in seq(i+1, n, 1)) {
+          tx2 <- sum(theta * (X[i,]-X[j,])^2)
+          t1 <- sqrt(5 * tx2)
+          t3 <- C[i,j] * ((1+2*t1/3)/(1+t1+t1^2/3) - 1) * self$sqrt5 * log10
+          half_over_sqrttx2 <- .5 / sqrt(tx2)
+          for (k in 1:length(beta)) {
+            dt1dbk <- half_over_sqrttx2 * (X[i,k] - X[j,k])^2
+            dC_dparams[k,i,j] <- t3 * dt1dbk * theta[k]
             dC_dparams[k,j,i] <- dC_dparams[k,i,j]
           }
         }
-        for (i in seq(1, n, 1)) { # Get diagonal set to zero
+      }
+      for (i in seq(1, n, 1)) { # Get diagonal set to zero
+        for (k in 1:length(beta)) {
           dC_dparams[k,i,i] <- 0
         }
-        # Trying this, delete
-        # dC_dbetas[[k]] <- -1 * dC_dbetas[[k]]
       }
 
-      # mats <- c(dC_dbetas, list(dC_dlogs2))
       return(dC_dparams)
     }
-    # s2_from_params = function(params) {
-    #   10 ^ params[length(params)]
-    # }
-  ),
-  private = list(
-
   )
 )

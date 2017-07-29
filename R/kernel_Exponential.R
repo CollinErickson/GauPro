@@ -32,50 +32,30 @@
 Exponential <- R6::R6Class(classname = "GauPro_kernel_Exponential",
   inherit = GauPro_kernel_beta,
   public = list(
-    # initialize = function(beta, s2=1, beta_lower=-8, beta_upper=6,
-    #                       s2_lower=1e-8, s2_upper=1e8) {
-    #   self$beta <- beta
-    #   self$beta_length <- length(beta)
-    #   # if (length(theta) == 1) {
-    #   #   self$theta <- rep(theta, self$d)
-    #   # }
-    #   self$beta_lower <- beta_lower
-    #   self$beta_upper <- beta_upper
-    #
-    #   self$s2 <- s2
-    #   self$logs2 <- log(s2, 10)
-    #   self$logs2_lower <- log(s2_lower, 10)
-    #   self$logs2_upper <- log(s2_upper, 10)
-    # },
-    k = function(x, y=NULL, beta=self$beta, s2=self$s2, params=NULL) {#browser()
+    k = function(x, y=NULL, beta=self$beta, s2=self$s2, params=NULL) {
       if (!is.null(params)) {
         lenpar <- length(params)
         beta <- params[1:(lenpar-1)]
         logs2 <- params[lenpar]
         s2 <- 10^logs2
-      } else {#browser()
+      } else {
         if (is.null(beta)) {beta <- self$beta}
         if (is.null(s2)) {s2 <- self$s2}
       }
       theta <- 10^beta
       if (is.null(y)) {
-        if (is.matrix(x)) {#browser()
-          # cgmtry <- try(val <- s2 * corr_gauss_matrix_symC(x, theta))
+        if (is.matrix(x)) {
           val <- outer(1:nrow(x), 1:nrow(x), Vectorize(function(i,j){self$kone(x[i,],x[j,],theta=theta, s2=s2)}))
-          # if (inherits(cgmtry,"try-error")) {browser()}
           return(val)
         } else {
           return(s2 * 1)
         }
       }
       if (is.matrix(x) & is.matrix(y)) {
-        # s2 * corr_gauss_matrixC(x, y, theta)
         outer(1:nrow(x), 1:nrow(y), Vectorize(function(i,j){self$kone(x[i,],y[j,],theta=theta, s2=s2)}))
       } else if (is.matrix(x) & !is.matrix(y)) {
-        # s2 * corr_gauss_matrixvecC(x, y, theta)
         apply(x, 1, function(xx) {self$kone(xx, y, theta=theta, s2=s2)})
       } else if (is.matrix(y)) {
-        # s2 * corr_gauss_matrixvecC(y, x, theta)
         apply(y, 1, function(yy) {self$kone(yy, x, theta=theta, s2=s2)})
       } else {
         self$kone(x, y, theta=theta, s2=s2)
@@ -85,7 +65,7 @@ Exponential <- R6::R6Class(classname = "GauPro_kernel_Exponential",
       if (missing(theta)) {theta <- 10^beta}
       s2 * exp(-sqrt(sum(theta * (x-y)^2)))
     },
-    dC_dparams = function(params=NULL, X, C_nonug, C, nug) {#browser(text = "Make sure all in one list")
+    dC_dparams = function(params=NULL, X, C_nonug, C, nug) {
       n <- nrow(X)
       if (is.null(params)) {params <- c(self$beta, self$logs2)}
       if (missing(C_nonug)) { # Assume C missing too, must have nug
@@ -98,26 +78,25 @@ Exponential <- R6::R6Class(classname = "GauPro_kernel_Exponential",
       log10 <- log(10)
       logs2 <- params[lenparams]
       s2 <- 10 ^ logs2
-      # browser()
       dC_dparams <- array(dim=c(lenparams, n, n))
-      dC_dparams[lenparams,,] <- C * log10 #/ s2 * s2 *
-      # dC_dparams <- rep(list(C_nonug), length(beta))
-      # n <- nrow(X)
-      for (k in 1:length(beta)) {
-        for (i in seq(1, n-1, 1)) {
-          for (j in seq(i+1, n, 1)) {
-            dC_dparams[k,i,j] <- -1 * C_nonug[i,j] * (X[i,k] - X[j,k])^2 * theta[k] * log10 * .5 / (-log(C[i,j]/s2))
+      dC_dparams[lenparams,,] <- C * log10 # Deriv for logs2
+
+      # Derivs for beta
+      for (i in seq(1, n-1, 1)) {
+        for (j in seq(i+1, n, 1)) {
+          t1 <- -1 * C_nonug[i,j] * log10 * .5 / (-log(C[i,j]/s2))
+          for (k in 1:length(beta)) {
+            dC_dparams[k,i,j] <- t1 * (X[i,k] - X[j,k])^2 * theta[k]
             dC_dparams[k,j,i] <- dC_dparams[k,i,j]
           }
         }
-        for (i in seq(1, n, 1)) { # Get diagonal set to zero
+      }
+      for (i in seq(1, n, 1)) { # Get diagonal set to zero
+        for (k in 1:length(beta)) {
           dC_dparams[k,i,i] <- 0
         }
-        # Trying this, delete
-        # dC_dbetas[[k]] <- -1 * dC_dbetas[[k]]
       }
 
-      # mats <- c(dC_dbetas, list(dC_dlogs2))
       return(dC_dparams)
     }
   )

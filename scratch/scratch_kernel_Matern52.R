@@ -3,7 +3,7 @@
 set.seed(0)
 n <- 20
 x <- matrix(seq(0,1,length.out = n), ncol=1)
-f <- Vectorize(function(x) {sin(2*pi*x) + .5*sin(4*pi*x) +rnorm(1,0,.3)})
+f <- Vectorize(function(x) {sin(2*pi*x) + .5*sin(4*pi*x) +rnorm(1,0,.03)})
 y <- f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
 gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Matern52$new(1), parallel=FALSE, verbose=10, nug.est=T)
 gp$cool1Dplot()
@@ -54,11 +54,11 @@ microbenchmark::microbenchmark(sep={gp$deviance(params=params, nug=nug);gp$devia
 
 # Check 2D
 set.seed(0)
-n <- 30
+n <- 60
 x <- lhs::maximinLHS(n=n, k=2)
 f <- function(x) {sin(2*pi*x[1]) + .5*sin(4*pi*x[1]) +rnorm(1,0,.03) + x[2]^2}
 y <- apply(x, 1, f) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
-gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Matern52$new(c(1, 1)), parallel=FALSE, verbose=10, nug.est=T)
+system.time(gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Matern52$new(c(1, 1)), parallel=FALSE, verbose=10, nug.est=T))
 ContourFunctions::cf(gp$predict, pts=x, batchmax=Inf)
 ContourFunctions::cf(f, pts=x)
 numDeriv::grad(func = function(x)gp$deviance(params = x[1:3], nuglog=x[4]), x=c(1,1, 1, -4))
