@@ -65,7 +65,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
         #deviance_grad_out = NULL, #(theta, nug, overwhat)
         #deviance_fngr_out = NULL,
         initialize = function(X, Z,
-                              kernel,
+                              kernel, trend,
                               verbose=0, useC=F,useGrad=T,
                               parallel=T,
                               nug=1e-6, nug.min=1e-8, nug.est=FALSE,
@@ -76,7 +76,11 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           self$X <- X
           self$Z <- matrix(Z, ncol=1)
           self$kernel <- kernel
-          self$trend <- trend_c$new()
+          if (missing(trend)) {
+            self$trend <- trend_c$new()
+          } else {
+            self$trend <- trend
+          }
           self$verbose <- verbose
           if (!is.matrix(self$X)) {
             if (length(self$X) == length(self$Z)) {

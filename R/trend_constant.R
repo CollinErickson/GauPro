@@ -24,7 +24,8 @@
 #' @format \code{\link{R6Class}} object.
 #' @examples
 #' t1 <- trend_c$new()
-trend_c <- R6::R6Class(classname = "GauPro_trend_c",
+trend_c <- R6::R6Class(
+  classname = "GauPro_trend_c",
   inherit = GauPro_trend,
   public = list(
     m = NULL,
@@ -45,7 +46,7 @@ trend_c <- R6::R6Class(classname = "GauPro_trend_c",
         m
       }
     },
-    dZ_dparams = function(X, m=m$est, params=NULL) {
+    dZ_dparams = function(X, m=self$m_est, params=NULL) {
       # Gradient is -2 * t(yminusmu) %*% Siginv %*% du/db
       if (!is.null(params)) {m <- params}
       matrix(1, nrow=nrow(X), ncol=1)
