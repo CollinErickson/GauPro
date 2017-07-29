@@ -38,13 +38,13 @@ test_that("kernel_Gaussian_beta works", {
   expect_equal(
     # numDeriv::grad(func = function(x) gp$deviance(params=x[1:2], nuglog=x[3]), x=c(.2,1.1, -4.5)),
     c(-272.12230, -102.95356,  -63.01746),
-    gp$deviance_grad(params = c(.2,1.1), nug.update=T, nuglog=-4.5),
+    gp$deviance_grad(params = c(.2,1.1), nug.update=T, nuglog=-4.5, trend_update=FALSE),
     tol=.001
   )
   expect_equal(
     # numDeriv::grad(func = function(x) {gp$deviance(params=x[1:2], nuglog=x[3])}, x=c(2.5,-.2, -5)),
     c(30.89216, 26.80619,  0.0006299453),
-    gp$deviance_grad(params = c(2.5,-.2), nug.update=T, nuglog = -5),
+    gp$deviance_grad(params = c(2.5,-.2), nug.update=T, nuglog = -5, trend_update=FALSE),
     tol=.001
   )
 })
@@ -86,13 +86,13 @@ test_that("kernel_Exponential works", {
   expect_equal(
     # numDeriv::grad(func = function(x) {gp$deviance(params=x[1:2], nuglog=x[3])}, x=c(-.7,.227, -3.66)),
     c(6.4639755,  16.3037264,  0.3593728),
-    gp$deviance_grad(params = c(-.7,.227), nug.update=T, nuglog=-3.66),
+    gp$deviance_grad(params = c(-.7,.227), nug.update=T, nuglog=-3.66, trend_update=FALSE),
     tol=.001
   )
   expect_equal(
     # numDeriv::grad(func = function(x) {gp$deviance(params=x[1:2], nuglog=x[3])}, x=c(2.5,-.2, -5)),
     c(13.011660214, 28.946608363, 0.000535044),
-    gp$deviance_grad(params = c(2.5,-.2), nug.update=T, nuglog = -5),
+    gp$deviance_grad(params = c(2.5,-.2), nug.update=T, nuglog = -5, trend_update=FALSE),
     tol=100
   )
 })
@@ -110,13 +110,13 @@ test_that("kernel_Matern32 works", {
   expect_equal(
     # numDeriv::grad(func = function(x) {gp$deviance(params=x[1:2], nuglog=x[3])}, x=c(-.7,.227, -3.66)),
     c(-877.52290, -643.49553, -30.76981),
-    gp$deviance_grad(params = c(-.7,.227), nug.update=T, nuglog=-3.66),
+    gp$deviance_grad(params = c(-.7,.227), nug.update=T, nuglog=-3.66, trend_update=FALSE),
     tol=.001
   )
   expect_equal(
     # numDeriv::grad(func = function(x) {gp$deviance(params=x[1:2], nuglog=x[3])}, x=c(2.5,-.2, -5)),
     c(2.393571e+01, 3.066583e+01, 7.917006e-04),
-    gp$deviance_grad(params = c(2.5,-.2), nug.update=T, nuglog = -5),
+    gp$deviance_grad(params = c(2.5,-.2), nug.update=T, nuglog = -5, trend_update=FALSE),
     tol=100
   )
 })
@@ -136,13 +136,13 @@ test_that("kernel_sum works", {
   expect_equal(
     # numDeriv::grad(func = function(x) {gp$deviance(params=x[1:4], nuglog=x[5])}, x=c(-.7,.227,1.1,.3, -3.66)),
     c(0.219613,  2.603450, 45.827544, 38.221117,  1.613496),
-    gp$deviance_grad(params = c(-.7,.227,1.1,.3), nug.update=T, nuglog=-3.66),
+    gp$deviance_grad(params = c(-.7,.227,1.1,.3), nug.update=T, nuglog=-3.66, trend_update=FALSE),
     tol=.001
   )
   expect_equal(
     # numDeriv::grad(func = function(x) {gp$deviance(params=x[1:4], nuglog=x[5])}, x=c(2.5,-.2, -.9,-.2, -5)),
     c(30.065840109, 28.008131903, -1.052814855,  0.993413933,  0.001268154),
-    gp$deviance_grad(params = c(2.5,-.2,-.9,-.2), nug.update=T, nuglog = -5),
+    gp$deviance_grad(params = c(2.5,-.2,-.9,-.2), nug.update=T, nuglog = -5, trend_update=FALSE),
     tol=100
   )
 
@@ -162,13 +162,13 @@ test_that("kernel_sum works", {
   expect_equal(
     # numDeriv::grad(func = function(x) {gp$deviance(params=x[1:4], nuglog=x[5])}, x=c(-.7,.227,1.1,.3, -3.66)),
     c(13.4913194, 29.1705405, 15.2660073, 12.2975015, 0.7419428),
-    gp$deviance_grad(params = c(-.7,.227,1.1,.3), nug.update=T, nuglog=-3.66),
+    gp$deviance_grad(params = c(-.7,.227,1.1,.3), nug.update=T, nuglog=-3.66, trend_update=FALSE),
     tol=.001
   )
   expect_equal(
     # numDeriv::grad(func = function(x) {gp$deviance(params=x[1:4], nuglog=x[5])}, x=c(2.5,-.2, -.9,-.2, -5)),
     c(13.029202435, 28.573028878, -0.604253831,  1.499179095,  0.001062688),
-    gp$deviance_grad(params = c(2.5,-.2,-.9,-.2), nug.update=T, nuglog = -5),
+    gp$deviance_grad(params = c(2.5,-.2,-.9,-.2), nug.update=T, nuglog = -5, trend_update=FALSE),
     tol=100
   )
 })
@@ -188,13 +188,13 @@ test_that("kernel_product works", {
   expect_equal(
     # numDeriv::grad(func = function(x) {gp$deviance(params=x[1:4], nuglog=x[5])}, x=c(-.7,.227,1.1,.3, -3.66)),
     c(0.2117085, 42.9840666, 47.8857571, 42.9840666,  0.9225288),
-    gp$deviance_grad(params = c(-.7,.227,1.1,.3), nug.update=T, nuglog=-3.66),
+    gp$deviance_grad(params = c(-.7,.227,1.1,.3), nug.update=T, nuglog=-3.66, trend_update=FALSE),
     tol=.001
   )
   expect_equal(
     # numDeriv::grad(func = function(x) {gp$deviance(params=x[1:4], nuglog=x[5])}, x=c(2.5,-.2, -.9,-.2, -5)),
     c(36.06449032, 15.57771736,  0.02086093, 15.57771736,  0.00056776),
-    gp$deviance_grad(params = c(2.5,-.2,-.9,-.2), nug.update=T, nuglog = -5),
+    gp$deviance_grad(params = c(2.5,-.2,-.9,-.2), nug.update=T, nuglog = -5, trend_update=FALSE),
     tol=100
   )
 
@@ -214,13 +214,13 @@ test_that("kernel_product works", {
   expect_equal(
     # numDeriv::grad(func = function(x) {gp$deviance(params=x[1:4], nuglog=x[5])}, x=c(-.7,.227,1.1,.3, -3.66)),
     c(14.2077686, 43.3416492, 14.9012499, 43.3416491,  0.3427752),
-    gp$deviance_grad(params = c(-.7,.227,1.1,.3), nug.update=T, nuglog=-3.66),
+    gp$deviance_grad(params = c(-.7,.227,1.1,.3), nug.update=T, nuglog=-3.66, trend_update=FALSE),
     tol=.001
   )
   expect_equal(
     # numDeriv::grad(func = function(x) {gp$deviance(params=x[1:4], nuglog=x[5])}, x=c(2.5,-.2, -.9,-.2, -5)),
     c(1.626385e+01, 1.892872e+01, 1.355478e-02, 1.892872e+01, 4.854032e-04),
-    gp$deviance_grad(params = c(2.5,-.2,-.9,-.2), nug.update=T, nuglog = -5),
+    gp$deviance_grad(params = c(2.5,-.2,-.9,-.2), nug.update=T, nuglog = -5, trend_update=FALSE),
     tol=100
   )
 })
