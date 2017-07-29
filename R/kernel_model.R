@@ -666,7 +666,11 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           if (is.infinite(abs(dev))) {if (self$verbose>=2) {print("Deviance infinite #2332, returning Inf")};return(Inf)}
           dev
         },
-        deviance_grad = function(params=NULL, X=self$X, nug=self$nug, nug.update, nuglog, trend_params=NULL) {if (exists('browsethis') && browsethis) browser("Check nugget")
+        deviance_grad = function(params=NULL, kernel_update=TRUE,
+                                 X=self$X,
+                                 nug=self$nug, nug.update, nuglog,
+                                 trend_params=NULL, trend_update=TRUE) {
+          if (exists('browsethis') && browsethis) browser("Check nugget")
           # browser()
           if (!missing(nuglog) && !is.null(nuglog)) {
             nug <- 10^nuglog
@@ -685,13 +689,16 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           solve.try <- try(Cinv_yminusmu <- solve(C, yminusmu))
           if (inherits(solve.try, "try-error")) { if (self$verbose>=2) {print("Deviance grad error #63466, returning Inf")};  return(Inf)}
 
-          if (length(dZ_dparams) > 0) {
+
+          out <- c()
+          if (length(dZ_dparams) > 0 && trend_update) {
             trend_gradfunc <- function(di) {#browser()
               -2 * t(yminusmu) %*% solve(C, di) # Siginv %*% du/db
             }
             trend_out <- apply(dZ_dparams, 2, trend_gradfunc)
+            out <- trend_out
           } else {
-            trend_out <- c()
+            # trend_out <- c()
           }
 
           gradfunc <- function(di) {
@@ -700,18 +707,25 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
             t1 - t2
           }
           # browser()
-          out <- apply(dC_dparams, 1, gradfunc)
-          out <- c(trend_out, out)
+          if (kernel_update) {
+            kernel_out <- apply(dC_dparams, 1, gradfunc)
+            out <- c(out, kernel_out)
+          }
           # # out <- c(sapply(dC_dparams[[1]],gradfunc), gradfunc(dC_dparams[[2]]))
           # out <- sapply(dC_dparams,gradfunc)
           if (nug.update) {
-            out <- c(out, gradfunc(diag(s2_from_kernel*nug*log(10), nrow(C))))
+            nug_out <- gradfunc(diag(s2_from_kernel*nug*log(10), nrow(C)))
+            out <- c(out, nug_out)
             # out <- c(out, gradfunc(diag(s2_from_kernel*, nrow(C)))*nug*log(10))
           }
           # print(c(params, nuglog, out))
           out
         },
-        deviance_fngr = function(params=NULL, X=self$X, nug=self$nug, nug.update, nuglog, trend_params=NULL) {if (exists('browsethis') && browsethis) browser("Check nugget")
+        deviance_fngr = function(params=NULL, kernel_update=TRUE,
+                                 X=self$X,
+                                 nug=self$nug, nug.update, nuglog,
+                                 trend_params=NULL, trend_update=TRUE) {
+          if (exists('browsethis') && browsethis) browser("Check nugget")
           if (!missing(nuglog)) {
             nug <- 10^nuglog
           }
@@ -737,14 +751,15 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           solve.try <- try(Cinv_yminusmu <- solve(C, yminusmu))
           if (inherits(solve.try, "try-error")) { if (self$verbose>=2) {print("Deviance grad error #63466, returning Inf")};  return(Inf)}
 
-
-          if (length(dZ_dparams) > 0) {
+          gr <- c()
+          if (length(dZ_dparams) > 0 && trend_update) {
             trend_gradfunc <- function(di) {#browser()
               -2 * t(yminusmu) %*% solve(C, di) # Siginv %*% du/db
             }
-            trend_out <- apply(dZ_dparams, 2, trend_gradfunc)
+            trend_gr <- apply(dZ_dparams, 2, trend_gradfunc)
+            gr <- trend_gr
           } else {
-            trend_out <- c()
+            # trend_out <- c()
           }
 
           gradfunc <- function(di) {
@@ -754,8 +769,10 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           }
           # out <- c(sapply(dC_dparams[[1]],gradfunc), gradfunc(dC_dparams[[2]]))
           # gr <- sapply(dC_dparams,gradfunc)
-          gr <- apply(dC_dparams, 1, gradfunc)
-          gr <- c(trend_out, gr)
+          if (kernel_update) {
+            kernel_gr <- apply(dC_dparams, 1, gradfunc)
+            gr <- c(gr, kernel_gr)
+          }
           if (nug.update) {
             gr <- c(gr, gradfunc(diag(s2_from_kernel*nug*log(10), nrow(C))))
             # out <- c(out, gradfunc(diag(s2_from_kernel*, nrow(C)))*nug*log(10))
