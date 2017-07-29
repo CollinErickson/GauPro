@@ -50,6 +50,7 @@ trend_c <- R6::R6Class(
       # Gradient is -2 * t(yminusmu) %*% Siginv %*% du/db
       if (!is.null(params)) {m <- params}
       matrix(1, nrow=nrow(X), ncol=1)
+      # array(1, dim=c(1, nrow(X), 1))
     },
     param_optim_start = function(jitter, trend_est) {
       0

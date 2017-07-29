@@ -23,7 +23,7 @@
 #' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
 #' @format \code{\link{R6Class}} object.
 #' @examples
-#' t1 <- trend_LM$new()
+#' t1 <- trend_LM$new(D=2)
 trend_LM <- R6::R6Class(
   classname = "GauPro_trend_LM",
   inherit = GauPro_trend,

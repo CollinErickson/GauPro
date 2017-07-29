@@ -689,7 +689,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           solve.try <- try(Cinv_yminusmu <- solve(C, yminusmu))
           if (inherits(solve.try, "try-error")) { if (self$verbose>=2) {print("Deviance grad error #63466, returning Inf")};  return(Inf)}
 
-
+          # browser()
           out <- c()
           if (length(dZ_dparams) > 0 && trend_update) {
             trend_gradfunc <- function(di) {#browser()
