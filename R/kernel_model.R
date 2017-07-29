@@ -331,20 +331,30 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           ni <- if (nl>0) {tl+kl+1:nl} else {c()}
           list(
             fn=function(params) {#browser()
-              l <- length(params)
-              self$deviance(params=params[ki], nuglog=params[ni], trend_params=params[ti])
+              tparams <- if (tl>0) {params[ti]} else {NULL}
+              kparams <- if (kl>0) {params[ki]} else {NULL}
+              nparams <- if (nl>0) {params[ni]} else {NULL}
+              self$deviance(params=kparams, nuglog=nparams, trend_params=tparams)
             },
             gr=function(params) {
-              l <- length(params)
-              self$deviance_grad(params=params[ki], nuglog=params[ni], trend_params=params[ti], nug.update=nug.update)
+              tparams <- if (tl>0) {params[ti]} else {NULL}
+              kparams <- if (kl>0) {params[ki]} else {NULL}
+              nparams <- if (nl>0) {params[ni]} else {NULL}
+              self$deviance_grad(params=kparams, nuglog=nparams, trend_params=tparams, nug.update=nug.update)
             },
             fngr=function(params) {
-              l <- length(params)
               list(
                 fn=function(params) {
-                  self$deviance(params=params[ki], nuglog=params[ni], trend_params=params[ti])
+                  tparams <- if (tl>0) {params[ti]} else {NULL}
+                  kparams <- if (kl>0) {params[ki]} else {NULL}
+                  nparams <- if (nl>0) {params[ni]} else {NULL}
+                  self$deviance(params=kparams, nuglog=nparams, trend_params=tparams)
                 },
-                gr=function(params) {self$deviance_grad(params=params[ki], nuglog=params[ni], trend_params=ti, nug.update=nug.update)
+                gr=function(params) {
+                  tparams <- if (tl>0) {params[ti]} else {NULL}
+                  kparams <- if (kl>0) {params[ki]} else {NULL}
+                  nparams <- if (nl>0) {params[ni]} else {NULL}
+                  self$deviance_grad(params=kparams, nuglog=nparams, trend_params=tparams, nug.update=nug.update)
                 }
               )
             }
@@ -595,7 +605,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           ti <- if (tl>0) {1:tl} else {c()}
           ki <- if (kl>0) {tl + 1:kl} else {c()}
           ni <- if (nl>0) {tl+kl+1:nl} else {c()}
-          browser()
+          # browser()
           if (nug.update) {
             # self$nug <- optim_out$par[lpar] # optim already does 10^
             # self$kernel$set_params_from_optim(optim_out$par[1:(lpar-1)])
@@ -637,7 +647,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
         # },
         deviance = function(params=NULL, nug=self$nug, nuglog, trend_params=NULL) {#print(c(params, nuglog))
           # browser()
-          if (!missing(nuglog)) {
+          if (!missing(nuglog) && !is.null(nuglog)) {
             nug <- 10^nuglog
           }
           if (any(is.nan(params), is.nan(nug))) {if (self$verbose >= 2) {print("In deviance, returning Inf #92387")};return(Inf)}
@@ -654,7 +664,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
         },
         deviance_grad = function(params=NULL, X=self$X, nug=self$nug, nug.update, nuglog, trend_params=NULL) {if (exists('browsethis') && browsethis) browser("Check nugget")
           # browser()
-          if (!missing(nuglog)) {
+          if (!missing(nuglog) && !is.null(nuglog)) {
             nug <- 10^nuglog
           }
           if (any(is.nan(params), is.nan(nug))) {if (self$verbose>=2) {print("In deviance_grad, returning NaN #92387")};return(rep(NaN, length(params)+as.integer(isTRUE(nug.update))))}
