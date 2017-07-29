@@ -45,6 +45,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
         N = NULL,
         D = NULL,
         kernel = NULL,
+        trend = NULL,
         nug = NULL,
         nug.min = NULL,
         nug.est = NULL,
@@ -75,6 +76,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           self$X <- X
           self$Z <- matrix(Z, ncol=1)
           self$kernel <- kernel
+          self$trend <- trend_c$new()
           self$verbose <- verbose
           if (!is.matrix(self$X)) {
             if (length(self$X) == length(self$Z)) {
@@ -285,73 +287,124 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
         },
         get_optim_functions = function(param_update, nug.update) {
           # self$kernel$get_optim_functions(param_update=param_update)
-          if (nug.update) { # Nug will be last in vector of parameters
-            list(
-              fn=function(params) {#browser()
-                l <- length(params)
-                self$deviance(params=params[1:(l-1)], nuglog=params[l])
-              },
-              gr=function(params) {
-                l <- length(params)
-                self$deviance_grad(params=params[1:(l-1)], nuglog=params[l], nug.update=nug.update)
-              },
-              fngr=function(params) {
-                l <- length(params)
-                list(
-                  fn=function(params) {
-                    self$deviance(params=params[1:(l-1)], nuglog=params[l])
-                  },
-                  gr=function(params) {self$deviance_grad(params=params[1:(l-1)], nuglog=params[l], nug.update=nug.update)
-                  }
-                )
-              }
-            )
-          } else {
-            list(
-              fn=function(params) {self$deviance(params=params)},
-              gr=function(params) {self$deviance_grad(params=params, nug.update=nug.update)},
-              fngr=function(params) {
-                list(
-                  fn=function(params) {self$deviance(params=params)},
-                  gr=function(params) {self$deviance_grad(params=params, nug.update=nug.update)}
-                )
-              }
-            )
-          }
+          # if (nug.update) { # Nug will be last in vector of parameters
+          #   list(
+          #     fn=function(params) {#browser()
+          #       l <- length(params)
+          #       self$deviance(params=params[1:(l-1)], nuglog=params[l])
+          #     },
+          #     gr=function(params) {
+          #       l <- length(params)
+          #       self$deviance_grad(params=params[1:(l-1)], nuglog=params[l], nug.update=nug.update)
+          #     },
+          #     fngr=function(params) {
+          #       l <- length(params)
+          #       list(
+          #         fn=function(params) {
+          #           self$deviance(params=params[1:(l-1)], nuglog=params[l])
+          #         },
+          #         gr=function(params) {self$deviance_grad(params=params[1:(l-1)], nuglog=params[l], nug.update=nug.update)
+          #         }
+          #       )
+          #     }
+          #   )
+          # } else {
+          #   list(
+          #     fn=function(params) {self$deviance(params=params)},
+          #     gr=function(params) {self$deviance_grad(params=params, nug.update=nug.update)},
+          #     fngr=function(params) {
+          #       list(
+          #         fn=function(params) {self$deviance(params=params)},
+          #         gr=function(params) {self$deviance_grad(params=params, nug.update=nug.update)}
+          #       )
+          #     }
+          #   )
+          # }
+
+          # browser()
+          # Need to get trend, kernel, and nug separated out into args
+          tl <- length(self$trend$param_optim_start())
+          kl <- length(self$kernel$param_optim_start())
+          nl <- as.integer(nug.update)
+          ti <- if (tl>0) {1:tl} else {c()}
+          ki <- if (kl>0) {tl + 1:kl} else {c()}
+          ni <- if (nl>0) {tl+kl+1:nl} else {c()}
+          list(
+            fn=function(params) {#browser()
+              l <- length(params)
+              self$deviance(params=params[ki], nuglog=params[ni], trend_params=params[ti])
+            },
+            gr=function(params) {
+              l <- length(params)
+              self$deviance_grad(params=params[ki], nuglog=params[ni], trend_params=params[ti], nug.update=nug.update)
+            },
+            fngr=function(params) {
+              l <- length(params)
+              list(
+                fn=function(params) {
+                  self$deviance(params=params[ki], nuglog=params[ni], trend_params=params[ti])
+                },
+                gr=function(params) {self$deviance_grad(params=params[ki], nuglog=params[ni], trend_params=ti, nug.update=nug.update)
+                }
+              )
+            }
+          )
         },
         param_optim_lower = function(nug.update) {
           if (nug.update) {
-            c(self$kernel$param_optim_lower(), log(self$nug.min,10))
+          #   c(self$kernel$param_optim_lower(), log(self$nug.min,10))
+            nug_lower <- Inf
           } else {
-            self$kernel$param_optim_lower()
+          #   self$kernel$param_optim_lower()
+            nug_lower <- c()
           }
+          trend_lower <- self$trend$param_optim_lower()
+          kern_lower <- self$kernel$param_optim_lower()
+          c(trend_lower, kern_lower, nug_lower)
         },
         param_optim_upper = function(nug.update) {
           if (nug.update) {
-            c(self$kernel$param_optim_upper(), Inf)
+          #   c(self$kernel$param_optim_upper(), Inf)
+            nug_upper <- Inf
           } else {
-            self$kernel$param_optim_upper()
+          #   self$kernel$param_optim_upper()
+            nug_upper <- 0
           }
+          trend_upper <- self$trend$param_optim_upper()
+          kern_upper <- self$kernel$param_optim_upper()
+          c(trend_upper, kern_upper, nug_upper)
+
         },
         param_optim_start = function(nug.update, jitter) {
-          param_start <- self$kernel$param_optim_start(jitter=jitter)
+          # param_start <- self$kernel$param_optim_start(jitter=jitter)
           if (nug.update) {
             nug_start <- log(self$nug,10)
             if (jitter) {nug_start <- nug_start + rexp(1, 1)}
-            c(param_start, nug_start)
+            # c(param_start, nug_start)
           } else {
-            param_start
+            # param_start
+            nug_start <- c()
           }
+
+          trend_start <- self$trend$param_optim_start()
+          kern_start <- self$kernel$param_optim_start(jitter=jitter)
+          # nug_start <- Inf
+          c(trend_start, kern_start, nug_start)
         },
         param_optim_start0 = function(nug.update, jitter) {
-          param_start <- self$kernel$param_optim_start0(jitter=jitter)
+          # param_start <- self$kernel$param_optim_start0(jitter=jitter)
           if (nug.update) {
             nug_start <- -4
             if (jitter) {nug_start <- nug_start + rexp(1, 1)}
-            c(param_start, nug_start)
+            # c(param_start, nug_start)
           } else {
-            param_start
+            # param_start
+            nug_start <- c()
           }
+          trend_start <- self$trend$param_optim_start()
+          kern_start <- self$kernel$param_optim_start(jitter=jitter)
+          # nug_start <- Inf
+          c(trend_start, kern_start, nug_start)
         },
         param_optim_start_mat = function(restarts, nug.update, l) {#browser()
           s0 <- sample(c(T,F), size=restarts+1, replace=TRUE, prob = c(.33,.67))
@@ -535,13 +588,23 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
         update_params = function(..., nug.update) {
           # start_params = self$kernel$get_optim_start_params()
           optim_out <- self$optim(..., nug.update=nug.update)
-          lpar <- length(optim_out$par)
+          # lpar <- length(optim_out$par)
+          tl <- length(self$trend$param_optim_start())
+          kl <- length(self$kernel$param_optim_start())
+          nl <- as.integer(nug.update)
+          ti <- if (tl>0) {1:tl} else {c()}
+          ki <- if (kl>0) {tl + 1:kl} else {c()}
+          ni <- if (nl>0) {tl+kl+1:nl} else {c()}
+          browser()
           if (nug.update) {
-            self$nug <- optim_out$par[lpar] # optim already does 10^
-            self$kernel$set_params_from_optim(optim_out$par[1:(lpar-1)])
+            # self$nug <- optim_out$par[lpar] # optim already does 10^
+            # self$kernel$set_params_from_optim(optim_out$par[1:(lpar-1)])
+            self$nug <- optim_out$par[ni] # optim already does 10^
           } else {
-            self$kernel$set_params_from_optim(optim_out$par)
+            # self$kernel$set_params_from_optim(optim_out$par)
           }
+          self$kernel$set_params_from_optim(optim_out$par[ki])
+          self$trend$set_params_from_optim(optim_out$par[ti])
         },
         update_data = function(Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL) {
           if (!is.null(Xall)) {
@@ -572,7 +635,8 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
         #   self$nug <- nug
         #   self$update_K_and_estimates()
         # },
-        deviance = function(params=NULL, nug=self$nug, nuglog) {#print(c(params, nuglog))
+        deviance = function(params=NULL, nug=self$nug, nuglog, trend_params=NULL) {#print(c(params, nuglog))
+          # browser()
           if (!missing(nuglog)) {
             nug <- 10^nuglog
           }
@@ -580,13 +644,16 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           K <- self$kernel$k(x=self$X, params=params) +
             diag(nug, self$N) * self$kernel$s2_from_params(params=params)
           if (is.nan(log(det(K)))) {browser();return(Inf)}
-          dev.try <- try(dev <- log(det(K)) + sum((self$Z - self$mu_hat) * solve(K, self$Z - self$mu_hat)))
+          Z_hat <- self$trend$Z(X=self$X, params=trend_params)
+          # dev.try <- try(dev <- log(det(K)) + sum((self$Z - self$mu_hat) * solve(K, self$Z - self$mu_hat)))
+          dev.try <- try(dev <- log(det(K)) + sum((self$Z - Z_hat) * solve(K, self$Z - Z_hat)))
           if (inherits(dev.try, "try-error")) {if (self$verbose>=2) {print("Deviance error #87126, returning Inf")}; return(Inf)}
           # print(c(params, nuglog, dev))
           if (is.infinite(abs(dev))) {if (self$verbose>=2) {print("Deviance infinite #2332, returning Inf")};return(Inf)}
           dev
         },
-        deviance_grad = function(params=NULL, X=self$X, nug=self$nug, nug.update, nuglog) {if (exists('browsethis') && browsethis) browser("Check nugget")
+        deviance_grad = function(params=NULL, X=self$X, nug=self$nug, nug.update, nuglog, trend_params=NULL) {if (exists('browsethis') && browsethis) browser("Check nugget")
+          # browser()
           if (!missing(nuglog)) {
             nug <- 10^nuglog
           }
@@ -597,9 +664,22 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           dC_dparams_out <- self$kernel$dC_dparams(params=params, X=X, C=C, C_nonug=C_nonug, nug=nug)
           dC_dparams <- dC_dparams_out#[[1]] # First of list should be list of dC_dparams
           # s2_from_kernel <- dC_dparams_out[[2]] # Second should be s2 for nugget deriv
-          yminusmu <- self$Z - self$mu_hat
+          Z_hat <- self$trend$Z(X=X, params=trend_params)
+          dZ_dparams <- self$trend$dZ_dparams(X=X, params=trend_params)
+          # yminusmu <- self$Z - self$mu_hat
+          yminusmu <- self$Z - Z_hat
           solve.try <- try(Cinv_yminusmu <- solve(C, yminusmu))
           if (inherits(solve.try, "try-error")) { if (self$verbose>=2) {print("Deviance grad error #63466, returning Inf")};  return(Inf)}
+
+          if (length(dZ_dparams) > 0) {
+            trend_gradfunc <- function(di) {#browser()
+              -2 * t(yminusmu) %*% solve(C, di) # Siginv %*% du/db
+            }
+            trend_out <- apply(dZ_dparams, 2, trend_gradfunc)
+          } else {
+            trend_out <- c()
+          }
+
           gradfunc <- function(di) {
             t1 <- sum(diag(solve(C, di)))
             t2 <- sum(Cinv_yminusmu * (di %*% Cinv_yminusmu))
@@ -607,6 +687,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           }
           # browser()
           out <- apply(dC_dparams, 1, gradfunc)
+          out <- c(trend_out, out)
           # # out <- c(sapply(dC_dparams[[1]],gradfunc), gradfunc(dC_dparams[[2]]))
           # out <- sapply(dC_dparams,gradfunc)
           if (nug.update) {

@@ -23,8 +23,8 @@
 #' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
 #' @format \code{\link{R6Class}} object.
 #' @examples
-#' t1 <- trend_c$new()
-trend_c <- R6::R6Class(classname = "GauPro_trend_c",
+#' t1 <- trend_0$new()
+trend_0 <- R6::R6Class(classname = "GauPro_trend_0",
   inherit = GauPro_trend,
   public = list(
     m = NULL,
@@ -40,30 +40,33 @@ trend_c <- R6::R6Class(classname = "GauPro_trend_c",
     Z = function(X, m=self$m, params=NULL) {
       if (!is.null(params)) {m <- params}
       if (is.matrix(X)) {
-        matrix(m, nrow=nrow(X), ncol=1)
+        # matrix(m, nrow=nrow(X), ncol=1)
+        matrix(0, nrow(X), 1)
       } else { # If a vector then just a single value
-        m
+        # m
+        c()
       }
     },
     dZ_dparams = function(X, m=m$est, params=NULL) {
       # Gradient is -2 * t(yminusmu) %*% Siginv %*% du/db
       if (!is.null(params)) {m <- params}
-      matrix(1, nrow=nrow(X), ncol=1)
+      matrix(0, nrow=nrow(X), ncol=0)
+      array(0, dim = c(nrow(X), ncol=0))
     },
     param_optim_start = function(jitter, trend_est) {
-      0
+      c()
     },
     param_optim_start0 = function(jitter, trend_est) {
-      0
+      c()
     },
     param_optim_lower = function(jitter, trend_est) {
-      -Inf
+      c()
     },
     param_optim_upper = function(jitter, trend_est) {
-      Inf
+      c()
     },
     set_params_from_optim = function(optim_out) {
-      self$m <- optim_out
+      # Nothing to set
     }
   )
 )

@@ -4,7 +4,7 @@ set.seed(0)
 n <- 20
 x <- matrix(seq(0,1,length.out = n), ncol=1)
 f <- Vectorize(function(x) {sin(2*pi*x) + .5*sin(4*pi*x) +rnorm(1,0,.3)})
-y <- f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
+y <- 123 + f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
 gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian_beta$new(1), parallel=FALSE, verbose=10, nug.est=T)
 gp$cool1Dplot()
 numDeriv::grad(func = function(x)gp$deviance(params=x[1:2], nuglog=x[3]), x=c(2,1, -4))
