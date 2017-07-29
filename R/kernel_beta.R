@@ -184,7 +184,7 @@ GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
     },
     s2_from_params = function(params, s2_est=self$s2_est) {
       # 10 ^ params[length(params)]
-      if (s2_est) { # Is last if in params
+      if (s2_est && !is.null(params)) { # Is last if in params
         10 ^ params[length(params)]
       } else { # Else it is just using set value, not being estimated
         self$s2

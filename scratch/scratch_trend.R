@@ -23,6 +23,11 @@ numDeriv::grad(func = function(x)gp$deviance(params=x[2:3], nuglog=x[4], trend_p
 gp$deviance_grad(params = c(2,1), nug.update=T, nuglog=-4, trend_params=10)
 numDeriv::grad(func = function(x)gp$deviance(trend_params=x[1], params=x[2:3], nuglog=x[4]), x=c(gp$trend$m, gp$kernel$beta, gp$kernel$logs2, log(gp$nug,10)))
 gp$deviance_grad(params = c(gp$kernel$beta, gp$kernel$logs2), trend_params=gp$trend$m, nug.update=T, nuglog=log(gp$nug,10))
+# Check fngr
+gp$deviance(params = c(2,1), nuglog=-4, trend_params=10)
+gp$deviance_grad(params = c(2,1), nug.update=T, nuglog=-4, trend_params=10)
+gp$deviance_fngr(params = c(2,1), nug.update=T, nuglog=-4, trend_params=10)
+
 
 
 

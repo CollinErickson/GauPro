@@ -31,7 +31,7 @@ trend_0 <- R6::R6Class(classname = "GauPro_trend_0",
     m_lower = NULL,
     m_upper = NULL,
     m_est = NULL,
-    initialize = function(m = 0, m_lower=-Inf, m_upper=Inf, m_est=TRUE) {
+    initialize = function(m = 0, m_lower=0, m_upper=0, m_est=FALSE) {
       self$m <- m
       self$m_lower <- m_lower
       self$m_upper <- m_upper
