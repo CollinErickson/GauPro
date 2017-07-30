@@ -248,4 +248,29 @@ test_that("kernel_product works", {
     tol=.001
   )
 })
+test_that("kernel_RatQuad works", {
+  set.seed(0)
+  n <- 20
+  x <- matrix(seq(0,1,length.out = n), ncol=1)
+  f <- Vectorize(function(x) {sin(2*pi*x) + .001*sin(8*pi*x) +rnorm(1,0,.03)})
+  y <- f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
+  gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=RatQuad$new(1, alpha=1), parallel=FALSE, verbose=10, nug.est=T)
+
+  expect_equal(gp$kernel$beta, 1.10732, tolerance=.01)
+  expect_equal(gp$kernel$alpha, 12.37519, tolerance=.01)
+  expect_equal(gp$kernel$logs2, -0.365198, tolerance=.01)
+  expect_equal(log(gp$nug,10), -3.0309, tolerance=.1)
+  expect_equal(
+    # numDeriv::grad(func = function(x) {gp$deviance(params=x[1:3], nuglog=x[4])}, x=c(-.7,.227, .65, -3.66)),
+    c(-6659.246, 2182.775, -3746.691, -1451.918),
+    gp$deviance_grad(params = c(-.7,.227, .65), nug.update=T, nuglog=-3.66, trend_update=FALSE),
+    tol=.1
+  )
+  expect_equal(
+    # numDeriv::grad(func = function(x) {gp$deviance(params=x[1:3], nuglog=x[4])}, x=c(2.5, 1.2, -.2, -5)),
+    c(3.000658e+01, 7.499106e-01, 2.720578e+01, 6.428928e-04),
+    gp$deviance_grad(params = c(2.5, 1.2, -.2), nug.update=T, nuglog = -5, trend_update=FALSE),
+    tol=.01
+  )
+})
 

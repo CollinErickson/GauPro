@@ -7,10 +7,10 @@ f <- Vectorize(function(x) {sin(2*pi*x) + .5*sin(4*pi*x) +rnorm(1,0,.3)})
 y <- f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
 gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=RatQuad$new(1, 1.5), parallel=FALSE, verbose=10, nug.est=T)
 gp$cool1Dplot()
-numDeriv::grad(func = function(x)gp$deviance(params=x[1:3], nuglog=x[4]), x=c(2,-1, .2, -4))
-gp$deviance_grad(params = c(2,-1, .2), nug.update=T, nuglog=-4)
-numDeriv::grad(func = function(x)gp$deviance(params=x[1:3], nuglog=x[4]), x=c(gp$kernel$beta, gp$kernel$logalpha, gp$kernel$logs2, log(gp$nug,10)))
-gp$deviance_grad(params = c(gp$kernel$beta, gp$kernel$logalpha, gp$kernel$logs2), nug.update=T, nuglog=log(gp$nug,10))
+numDeriv::grad(func = function(x)gp$deviance(params=x[2:4], trend_params=x[1], nuglog=x[5]), x=c(-.8, 2,-1, .2, -4))
+gp$deviance_grad(params = c(2,-1, .2), nug.update=T, nuglog=-4, trend_params=-.8)
+numDeriv::grad(func = function(x)gp$deviance(params=x[2:4], trend_params=x[1], nuglog=x[5]), x=c(gp$trend$m, gp$kernel$beta, gp$kernel$logalpha, gp$kernel$logs2, log(gp$nug,10)))
+gp$deviance_grad(params = c(gp$kernel$beta, gp$kernel$logalpha, gp$kernel$logs2), nug.update=T, nuglog=log(gp$nug,10), trend_params=gp$trend$b)
 
 # Check dC_dtheta
 m1 <- (gp$kernel$k(gp$X, beta=1,alpha=5) - gp$kernel$k(gp$X, beta=1-1e-6, alpha=5)) / 1e-6
