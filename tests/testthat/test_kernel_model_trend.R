@@ -19,7 +19,7 @@ test_that("trend_0 works", {
     # numDeriv::grad(func = function(x) {gp$deviance(params=x[1:2], nuglog=x[3])}, x=c(2.5,-.2, -5)),
     c(2.393571e+01, 3.066583e+01, 7.917006e-04),
     gp$deviance_grad(params = c(2.5,-.2), nug.update=T, nuglog = -5, trend_update=TRUE),
-    tol=100
+    tol=.01
   )
 })
 
@@ -45,7 +45,7 @@ test_that("trend_c works", {
     # numDeriv::grad(func = function(x) {gp$deviance(params=x[2:3], nuglog=x[4],trend_params=x[1])}, x=c(-4.5, 2.5,-.2, -5)),
     c(-1.221971e+02,  2.985039e+02, -6.024080e+02, -2.102204e-03),
     gp$deviance_grad(params = c(2.5,-.2), nug.update=T, nuglog = -5, trend_params=-4.5, trend_update=TRUE),
-    tol=100
+    tol=.01
   )
 })
 
@@ -72,6 +72,6 @@ test_that("trend_LM works", {
     # numDeriv::grad(func = function(x) {gp$deviance(params=x[3:4], nuglog=x[5],trend_params=x[1:2])}, x=c(-4.5, -3.2, 2.5,-.2, -5)),
     c(-1.656454e+02, -8.804362e+01,  5.253556e+02, -1.137605e+03, -4.612252e-03),
     gp$deviance_grad(params = c(2.5,-.2), nug.update=T, nuglog = -5, trend_params=c(-4.5,-3.2), trend_update=TRUE),
-    tol=100
+    tol=.01
   )
 })
