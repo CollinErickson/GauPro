@@ -177,7 +177,8 @@ kernel_product <- R6::R6Class(classname = "GauPro_kernel_product",
       dC_dparams[1:dim1[1],,] <- out1[[2]]
       dC_dparams[(1+dim1[1]):(dim1[1]+dim2[1]),,] <- out2[[2]]
 
-      list(C=C, dC_dparams=c(out1[[2]],out2[[2]]))#, c(out1[[2]]*out2[[2]]))
+      # list(C=C, dC_dparams=c(out1[[2]],out2[[2]]))#, c(out1[[2]]*out2[[2]]))
+      list(C=C, dC_dparams=dC_dparams)
     },
     s2_from_params = function(params, s2_est=self$s2_est) {
       params1 <- params[1:self$k1pl]
