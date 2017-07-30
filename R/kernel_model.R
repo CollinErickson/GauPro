@@ -347,20 +347,10 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
               self$deviance_grad(params=kparams, nuglog=nparams, trend_params=tparams, nug.update=nug.update)
             },
             fngr=function(params) {
-              list(
-                fn=function(params) {
-                  tparams <- if (tl>0) {params[ti]} else {NULL}
-                  kparams <- if (kl>0) {params[ki]} else {NULL}
-                  nparams <- if (nl>0) {params[ni]} else {NULL}
-                  self$deviance(params=kparams, nuglog=nparams, trend_params=tparams)
-                },
-                gr=function(params) {
-                  tparams <- if (tl>0) {params[ti]} else {NULL}
-                  kparams <- if (kl>0) {params[ki]} else {NULL}
-                  nparams <- if (nl>0) {params[ni]} else {NULL}
-                  self$deviance_grad(params=kparams, nuglog=nparams, trend_params=tparams, nug.update=nug.update)
-                }
-              )
+              tparams <- if (tl>0) {params[ti]} else {NULL}
+              kparams <- if (kl>0) {params[ki]} else {NULL}
+              nparams <- if (nl>0) {params[ni]} else {NULL}
+              self$deviance_fngr(params=kparams, nuglog=nparams, trend_params=tparams, nug.update=nug.update)
             }
           )
         },
@@ -565,11 +555,11 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           # } else { # Start at current params
           #   start.par.i <- self$kernel$param_optim_start(jitter=jit)
           # }
-
+          # browser()
           if (self$verbose >= 2) {cat("\tRestart (parallel): starts pars =",start.par.i,"\n")}
           current <- try(
             if (self$useGrad) {
-              if (TRUE) {#is.null(optim.fngr)) {
+              if (is.null(optim.fngr)) {
                 lbfgs::lbfgs(optim.func, optim.grad, start.par.i, invisible=1)
               } else {
                 lbfgs_share(optim.fngr, start.par.i, invisible=1) # 1.7x speedup uses grad_share
@@ -732,6 +722,8 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           if (any(is.nan(params), is.nan(nug))) {if (self$verbose>=2) {print("In deviance_grad, returning NaN #92387")};return(rep(NaN, length(params)+as.integer(isTRUE(nug.update))))}
           # C_nonug <- self$kernel$k(x=X, params=params)
           # C <- C_nonug + s2_from_kernel * diag(nug, self$N)
+
+          # s2_from_kernel <- self$kernel$s2_from_params(params=params)
           C_dC_try <- try(
             C_dC_dparams_out <- self$kernel$C_dC_dparams(params=params, X=X, nug=nug), #C=C, C_nonug=C_nonug)
             silent = TRUE
@@ -740,6 +732,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
             return(list(fn=self$deviance(params=params, nug=nug),
                         gr=self$deviance_grad(params=params, X=X, nug=nug, nug.update=nug.update)))
           }
+          if (length(C_dC_dparams_out) < 2) {browser()}
           C <- C_dC_dparams_out[[1]]
           dC_dparams <- C_dC_dparams_out[[2]] # First of list should be list of dC_dparams
           # s2_from_kernel <- dC_dparams_out[[2]] # Second should be s2 for nugget deriv
@@ -780,12 +773,25 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
 
           # Calculate fn
           logdetC <- log(det(C))
-          if (is.nan(logdetC)) {browser();return(Inf)}
-          dev.try <- try(dev <- logdetC + sum((yminusmu) * solve(C, yminusmu)))
-          if (inherits(dev.try, "try-error")) {if (self$verbose>=2) {print("Deviance error #87126, returning Inf")}; return(Inf)}
-          # print(c(params, nuglog, dev))
-          if (is.infinite(abs(dev))) {if (self$verbose>=2) {print("Deviance infinite #2332, returning Inf")};return(Inf)}
-          dev
+          if (is.nan(logdetC)) {
+            dev <- Inf #return(Inf)
+          } else {
+            dev.try <- try(dev <- logdetC + sum((yminusmu) * solve(C, yminusmu)))
+            if (inherits(dev.try, "try-error")) {
+              if (self$verbose>=2) {
+                print("Deviance error #87126, returning Inf")
+              }
+              dev <- Inf #return(Inf)
+            }
+            # print(c(params, nuglog, dev))
+            if (is.infinite(abs(dev))) {
+              if (self$verbose>=2) {
+                print("Deviance infinite #2332, returning Inf")
+              }
+            dev <- Inf
+            }
+          }
+          # dev
 
           # print(c(params, nuglog, out))
           out <- list(fn=dev, gr=gr)
