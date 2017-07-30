@@ -292,3 +292,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// pred_meanC_mumat
+arma::vec pred_meanC_mumat(arma::mat XX, arma::mat kx_xx, arma::mat mu_hatX, arma::mat mu_hatXX, arma::mat Kinv, arma::mat Z);
+RcppExport SEXP GauPro_pred_meanC_mumat(SEXP XXSEXP, SEXP kx_xxSEXP, SEXP mu_hatXSEXP, SEXP mu_hatXXSEXP, SEXP KinvSEXP, SEXP ZSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type XX(XXSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type kx_xx(kx_xxSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type mu_hatX(mu_hatXSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type mu_hatXX(mu_hatXXSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Kinv(KinvSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Z(ZSEXP);
+    rcpp_result_gen = Rcpp::wrap(pred_meanC_mumat(XX, kx_xx, mu_hatX, mu_hatXX, Kinv, Z));
+    return rcpp_result_gen;
+END_RCPP
+}

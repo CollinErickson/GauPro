@@ -43,5 +43,5 @@ f <- function(x) {sin(2*pi*x[1]) + .5*sin(4*pi*x[1]) +rnorm(1,0,.03) + x[2]^2}
 y <- apply(x, 1, f) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
 gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian_beta$new(c(1, 1)), parallel=FALSE, verbose=10, nug.est=T)
 ContourFunctions::cf(gp$predict, pts=x)
-numDeriv::grad(func = function(x)gp$deviance(params = x[1:3], nuglog=x[4]), x=c(1,1, 1, -4))
-gp$deviance_grad(params = c(1,1,1), nug.update=T, nuglog=-4)
+numDeriv::grad(func = function(x)gp$deviance(trend_params=x[1], params = x[2:4], nuglog=x[5]), x=c(-1.2, 1,1, 1, -4))
+gp$deviance_grad(params = c(1,1,1), nug.update=T, nuglog=-4, trend_params=-1.2)

@@ -29,6 +29,14 @@ arma::mat pred_cov(arma::mat XX, arma::mat kxx, arma::mat kx_xx, double s2_hat, 
 }
 
 
+// Creating versions that take in mu_hat as vector
+
+// [[Rcpp::export]]
+arma::vec pred_meanC_mumat(arma::mat XX, arma::mat kx_xx, arma::mat mu_hatX, arma::mat mu_hatXX, arma::mat Kinv, arma::mat Z) {
+  return mu_hatXX + trans(kx_xx) * Kinv * (Z - mu_hatX);
+}
+
+
 // You can include R code blocks in C++ files processed with sourceCpp
 // (useful for testing and development). The R code will be automatically
 // run after the compilation.

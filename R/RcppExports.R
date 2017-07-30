@@ -119,3 +119,7 @@ pred_cov <- function(XX, kxx, kx_xx, s2_hat, Kinv, Z) {
     .Call(GauPro_pred_cov, XX, kxx, kx_xx, s2_hat, Kinv, Z)
 }
 
+pred_meanC_mumat <- function(XX, kx_xx, mu_hatX, mu_hatXX, Kinv, Z) {
+    .Call(GauPro_pred_meanC_mumat, XX, kx_xx, mu_hatX, mu_hatXX, Kinv, Z)
+}
+

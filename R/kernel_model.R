@@ -51,8 +51,9 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
         nug.max = NULL,
         nug.est = NULL,
         param.est = NULL, # Whether parameters besides nugget (theta) should be updated
-        mu_hat = NULL,
-        # s2_hat = NULL,
+        # mu_hat = NULL,
+        mu_hatX = NULL,
+        s2_hat = NULL,
         # corr_func = function(...){}, # When this was NULL the child didn't overwrite with own method, it stayed as NULL
         K = NULL,
         Kchol = NULL,
@@ -106,7 +107,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           else {self$parallel_cores <- 1}
 
           self$update_K_and_estimates() # Need to get mu_hat before starting
-          self$mu_hat <- mean(Z)
+          # self$mu_hat <- mean(Z)
           self$fit()
           invisible(self)
         },
@@ -128,8 +129,10 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
             print(c(oldnug, self$nug))
           }
           self$Kinv <- chol2inv(self$Kchol)
-          self$mu_hat <- sum(self$Kinv %*% self$Z) / sum(self$Kinv)
+          # self$mu_hat <- sum(self$Kinv %*% self$Z) / sum(self$Kinv)
+          self$mu_hatX <- self$trend$Z(X=self$X)
           # self$s2_hat <- c(t(self$Z - self$mu_hat) %*% self$Kinv %*% (self$Z - self$mu_hat) / self$N)
+          self$s2_hat <- self$kernel$s2
         },
         predict = function(XX, se.fit=F, covmat=F, split_speed=T) {
           self$pred(XX=XX, se.fit=se.fit, covmat=covmat, split_speed=split_speed)
@@ -186,7 +189,12 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           # input should already be check for matrix
           kxx <- self$kernel$k(XX) + self$nug
           kx.xx <- self$kernel$k(self$X, XX)
-          mn <- pred_meanC(XX, kx.xx, self$mu_hat, self$Kinv, self$Z)
+          # mn <- pred_meanC(XX, kx.xx, self$mu_hat, self$Kinv, self$Z)
+          # Changing to use trend, mu_hat is matrix
+          # mu_hat_matX <- self$trend$Z(self$X)
+          mu_hat_matXX <- self$trend$Z(XX)
+          # browser()
+          mn <- pred_meanC_mumat(XX, kx.xx, self$mu_hatX, mu_hat_matXX, self$Kinv, self$Z)
 
           if (!se.fit & !covmat) {
             return(mn)
@@ -216,10 +224,16 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           data.frame(mean=mn, s2=s2, se=se)
         },
         pred_mean = function(XX, kx.xx) { # 2-8x faster to use pred_meanC
-          c(self$mu_hat + t(kx.xx) %*% self$Kinv %*% (self$Z - self$mu_hat))
+          # c(self$mu_hat + t(kx.xx) %*% self$Kinv %*% (self$Z - self$mu_hat))
+          # mu_hat_matX <- self$trend$Z(self$X)
+          mu_hat_matXX <- self$trend$Z(XX)
+          c(mu_hat_matXX + t(kx.xx) %*% self$Kinv %*% (self$Z - self$mu_hatX))
         },
         pred_meanC = function(XX, kx.xx) { # Don't use if R uses pass by copy(?)
-          pred_meanC(XX, kx.xx, self$mu_hat, self$Kinv, self$Z)
+          # pred_meanC(XX, kx.xx, self$mu_hat, self$Kinv, self$Z)
+          # mu_hat_matX <- self$trend$Z(self$X)
+          mu_hat_matXX <- self$trend$Z(XX)
+          pred_meanC_mumat(XX, kx.xx, self$mu_hatX, mu_hat_matXX, self$Kinv, self$Z)
         },
         pred_var = function(XX, kxx, kx.xx, covmat=F) { # 2-4x faster to use C functions pred_var and pred_cov
           self$s2_hat * diag(kxx - t(kx.xx) %*% self$Kinv %*% kx.xx)
@@ -288,7 +302,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           points(x,px$me, type='l', lwd=4)
           points(self$X, self$Z, pch=19, col=1, cex=2)
         },
-        loglikelihood = function(mu=self$mu_hat, s2=self$s2_hat) {
+        loglikelihood = function(mu=self$mu_hatX, s2=self$s2_hat) {
           -.5 * (self$N*log(s2) + log(det(self$K)) + t(self$Z - mu)%*%self$Kinv%*%(self$Z - mu)/s2)
         },
         get_optim_functions = function(param_update, nug.update) {
