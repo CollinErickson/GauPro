@@ -48,6 +48,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
         trend = NULL,
         nug = NULL,
         nug.min = NULL,
+        nug.max = NULL,
         nug.est = NULL,
         param.est = NULL, # Whether parameters besides nugget (theta) should be updated
         mu_hat = NULL,
@@ -68,7 +69,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
                               kernel, trend,
                               verbose=0, useC=F,useGrad=T,
                               parallel=T,
-                              nug=1e-6, nug.min=1e-8, nug.est=FALSE,
+                              nug=1e-6, nug.min=1e-8, nug.max=Inf, nug.est=FALSE,
                               param.est = TRUE,
                               ...) {
           #self$initialize_GauPr(X=X,Z=Z,verbose=verbose,useC=useC,useGrad=useGrad,
@@ -94,6 +95,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
 
           self$nug <- nug
           self$nug.min <- nug.min
+          self$nug.max <- nug.max
           self$nug.est <- nug.est
           # if (nug.est) {stop("Can't estimate nugget now")}
           self$param.est <- param.est
@@ -357,7 +359,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
         param_optim_lower = function(nug.update) {
           if (nug.update) {
           #   c(self$kernel$param_optim_lower(), log(self$nug.min,10))
-            nug_lower <- Inf
+            nug_lower <- log(self$nug.min, 10)
           } else {
           #   self$kernel$param_optim_lower()
             nug_lower <- c()
@@ -369,10 +371,10 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
         param_optim_upper = function(nug.update) {
           if (nug.update) {
           #   c(self$kernel$param_optim_upper(), Inf)
-            nug_upper <- Inf
+            nug_upper <- log(self$nug.max, 10)
           } else {
           #   self$kernel$param_optim_upper()
-            nug_upper <- 0
+            nug_upper <- c()
           }
           trend_upper <- self$trend$param_optim_upper()
           kern_upper <- self$kernel$param_optim_upper()
@@ -562,7 +564,12 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
               if (is.null(optim.fngr)) {
                 lbfgs::lbfgs(optim.func, optim.grad, start.par.i, invisible=1)
               } else {
-                lbfgs_share(optim.fngr, start.par.i, invisible=1) # 1.7x speedup uses grad_share
+                # Two options for shared grad
+                if (TRUE) { # optim uses L-BFGS-B which uses upper and lower
+                  optim_share(fngr=optim.fngr, par=start.par.i, method='L-BFGS-B', upper=upper, lower=lower)
+                } else { # lbfgs does not, so no longer using it
+                  lbfgs_share(optim.fngr, start.par.i, invisible=1) # 1.7x speedup uses grad_share
+                }
               }
             } else {
               optim(start.par.i, optim.func, method="L-BFGS-B", lower=lower, upper=upper, hessian=F)
@@ -786,9 +793,10 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
             # print(c(params, nuglog, dev))
             if (is.infinite(abs(dev))) {
               if (self$verbose>=2) {
-                print("Deviance infinite #2332, returning Inf")
+                # print("Deviance infinite #2333, returning Inf")
+                print("Deviance infinite #2333, returning 1e100, this is a hack and gives noticeable worse results on this restart.")
               }
-            dev <- Inf
+              dev <- 1e100 # .Machine$double.xmax # Inf
             }
           }
           # dev
