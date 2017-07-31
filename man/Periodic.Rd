@@ -15,7 +15,7 @@ Object of \code{\link{R6Class}} with methods for fitting GP model.
 Periodic Kernel R6 class
 }
 \examples{
-k1 <- Periodic$new(logp=0, alpha=1)
+k1 <- Periodic$new(p=1, alpha=1)
 }
 \keyword{Gaussian}
 \keyword{data,}
