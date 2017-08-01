@@ -135,9 +135,7 @@ Periodic <- R6::R6Class(
         for (i in seq(1, n-1, 1)) {
           for (j in seq(i+1, n, 1)) {
             r2 <- sum(p * (X[i,]-X[j,])^2)
-            # t1 <- 1 + r2 / alpha
-            # dC_dparams[k,i,j] <- -C[i,j] * (X[i,k] - X[j,k])^2  / t1 * p[k] * log10   #s2 * (1+t1) * exp(-t1) *-dt1dbk + s2 * dt1dbk * exp(-t1)
-            dC_dparams[k,i,j] <- -C[i,j] * alpha * sin(2*p*(X[i,k] - X[j,k])) * (X[i,k] - X[j,k]) * p[k] * log10
+            dC_dparams[k,i,j] <- -C[i,j] * alpha * sin(2*p[k]*(X[i,k] - X[j,k])) * (X[i,k] - X[j,k]) * p[k] * log10
             dC_dparams[k,j,i] <- dC_dparams[k,i,j]
           }
         }

@@ -76,7 +76,7 @@ n <- 30
 x <- lhs::maximinLHS(n=n, k=2)
 f <- function(x) {sin(2*pi*x[1]) + .5*sin(4*pi*x[1]) +rnorm(1,0,.03) + x[2]^2}
 y <- apply(x, 1, f) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
-gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Periodic$new(c(1, 1)), parallel=FALSE, verbose=10, nug.est=T)
+gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Periodic$new(p=c(1, 1), alpha=1), parallel=FALSE, verbose=10, nug.est=T)
 ContourFunctions::cf(gp$predict, pts=x, batchmax=Inf)
 ContourFunctions::cf(f, pts=x)
 numDeriv::grad(func = function(x)gp$deviance(params = x[1:3], nuglog=x[4]), x=c(1,1, 1, -4))
