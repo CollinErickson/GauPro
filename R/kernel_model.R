@@ -819,6 +819,12 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           out <- list(fn=dev, gr=gr)
           out
         },
+        grad = function(XX, X=self$X, Z=self$Z) {
+          dtrend_dx <- self$trend$dtrend_dx(X=XX)
+          dC_dx <- self$kernel$dC_dx(XX=XX, X=X)
+          trendX <- self$trend$Z(X=X)
+          dtrend_dx + dC_dx %*% solve(C, Z - trendX)
+        },
         grad_norm = function (XX) {
           grad1 <- self$grad(XX)
           if (!is.matrix(grad1)) return(abs(grad1))

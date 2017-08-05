@@ -8,7 +8,7 @@ using namespace Rcpp;
 
 // cholC
 arma::mat cholC(arma::mat x);
-RcppExport SEXP GauPro_cholC(SEXP xSEXP) {
+RcppExport SEXP _GauPro_cholC(SEXP xSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -19,7 +19,7 @@ END_RCPP
 }
 // solveC
 arma::mat solveC(arma::mat A, arma::vec b);
-RcppExport SEXP GauPro_solveC(SEXP ASEXP, SEXP bSEXP) {
+RcppExport SEXP _GauPro_solveC(SEXP ASEXP, SEXP bSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -31,7 +31,7 @@ END_RCPP
 }
 // corr_gauss_matrixC
 NumericMatrix corr_gauss_matrixC(NumericMatrix x, NumericMatrix y, NumericVector theta);
-RcppExport SEXP GauPro_corr_gauss_matrixC(SEXP xSEXP, SEXP ySEXP, SEXP thetaSEXP) {
+RcppExport SEXP _GauPro_corr_gauss_matrixC(SEXP xSEXP, SEXP ySEXP, SEXP thetaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -44,7 +44,7 @@ END_RCPP
 }
 // corr_gauss_matrix_symC
 NumericMatrix corr_gauss_matrix_symC(NumericMatrix x, NumericVector theta);
-RcppExport SEXP GauPro_corr_gauss_matrix_symC(SEXP xSEXP, SEXP thetaSEXP) {
+RcppExport SEXP _GauPro_corr_gauss_matrix_symC(SEXP xSEXP, SEXP thetaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -56,7 +56,7 @@ END_RCPP
 }
 // corr_gauss_matrixvecC
 NumericVector corr_gauss_matrixvecC(NumericMatrix x, NumericVector y, NumericVector theta);
-RcppExport SEXP GauPro_corr_gauss_matrixvecC(SEXP xSEXP, SEXP ySEXP, SEXP thetaSEXP) {
+RcppExport SEXP _GauPro_corr_gauss_matrixvecC(SEXP xSEXP, SEXP ySEXP, SEXP thetaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -69,7 +69,7 @@ END_RCPP
 }
 // corr_gauss_matrix_sym_armaC
 arma::mat corr_gauss_matrix_sym_armaC(arma::mat x, arma::vec theta);
-RcppExport SEXP GauPro_corr_gauss_matrix_sym_armaC(SEXP xSEXP, SEXP thetaSEXP) {
+RcppExport SEXP _GauPro_corr_gauss_matrix_sym_armaC(SEXP xSEXP, SEXP thetaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -81,7 +81,7 @@ END_RCPP
 }
 // deviance_part
 double deviance_part(arma::vec theta, double nug, arma::mat X, arma::mat Z, arma::mat Kinv);
-RcppExport SEXP GauPro_deviance_part(SEXP thetaSEXP, SEXP nugSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP KinvSEXP) {
+RcppExport SEXP _GauPro_deviance_part(SEXP thetaSEXP, SEXP nugSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP KinvSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -96,7 +96,7 @@ END_RCPP
 }
 // devianceC
 double devianceC(arma::vec theta, double nug, arma::mat X, arma::mat Z, arma::mat K);
-RcppExport SEXP GauPro_devianceC(SEXP thetaSEXP, SEXP nugSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP KSEXP) {
+RcppExport SEXP _GauPro_devianceC(SEXP thetaSEXP, SEXP nugSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP KSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -111,7 +111,7 @@ END_RCPP
 }
 // deviance_fngr_theta
 arma::vec deviance_fngr_theta(arma::mat X, arma::vec Z, arma::mat K);
-RcppExport SEXP GauPro_deviance_fngr_theta(SEXP XSEXP, SEXP ZSEXP, SEXP KSEXP) {
+RcppExport SEXP _GauPro_deviance_fngr_theta(SEXP XSEXP, SEXP ZSEXP, SEXP KSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -124,7 +124,7 @@ END_RCPP
 }
 // deviance_fngr_nug
 arma::vec deviance_fngr_nug(arma::mat X, arma::vec Z, arma::mat K);
-RcppExport SEXP GauPro_deviance_fngr_nug(SEXP XSEXP, SEXP ZSEXP, SEXP KSEXP) {
+RcppExport SEXP _GauPro_deviance_fngr_nug(SEXP XSEXP, SEXP ZSEXP, SEXP KSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -137,7 +137,7 @@ END_RCPP
 }
 // deviance_fngr_joint
 arma::vec deviance_fngr_joint(arma::mat X, arma::mat Z, arma::mat K);
-RcppExport SEXP GauPro_deviance_fngr_joint(SEXP XSEXP, SEXP ZSEXP, SEXP KSEXP) {
+RcppExport SEXP _GauPro_deviance_fngr_joint(SEXP XSEXP, SEXP ZSEXP, SEXP KSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -150,7 +150,7 @@ END_RCPP
 }
 // deviance_grad_theta
 arma::vec deviance_grad_theta(arma::mat X, arma::mat K, arma::mat Kinv, arma::vec y);
-RcppExport SEXP GauPro_deviance_grad_theta(SEXP XSEXP, SEXP KSEXP, SEXP KinvSEXP, SEXP ySEXP) {
+RcppExport SEXP _GauPro_deviance_grad_theta(SEXP XSEXP, SEXP KSEXP, SEXP KinvSEXP, SEXP ySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -164,7 +164,7 @@ END_RCPP
 }
 // deviance_grad_nug
 double deviance_grad_nug(arma::mat X, arma::mat K, arma::mat Kinv, arma::vec y);
-RcppExport SEXP GauPro_deviance_grad_nug(SEXP XSEXP, SEXP KSEXP, SEXP KinvSEXP, SEXP ySEXP) {
+RcppExport SEXP _GauPro_deviance_grad_nug(SEXP XSEXP, SEXP KSEXP, SEXP KinvSEXP, SEXP ySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -178,7 +178,7 @@ END_RCPP
 }
 // deviance_grad_joint
 arma::vec deviance_grad_joint(arma::mat X, arma::mat K, arma::mat Kinv, arma::vec y);
-RcppExport SEXP GauPro_deviance_grad_joint(SEXP XSEXP, SEXP KSEXP, SEXP KinvSEXP, SEXP ySEXP) {
+RcppExport SEXP _GauPro_deviance_grad_joint(SEXP XSEXP, SEXP KSEXP, SEXP KinvSEXP, SEXP ySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -192,7 +192,7 @@ END_RCPP
 }
 // Gaussian_deviance_part
 double Gaussian_deviance_part(arma::vec theta, double nug, arma::mat X, arma::mat Z, arma::mat Kinv);
-RcppExport SEXP GauPro_Gaussian_deviance_part(SEXP thetaSEXP, SEXP nugSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP KinvSEXP) {
+RcppExport SEXP _GauPro_Gaussian_deviance_part(SEXP thetaSEXP, SEXP nugSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP KinvSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -207,7 +207,7 @@ END_RCPP
 }
 // Gaussian_devianceC
 double Gaussian_devianceC(arma::vec theta, double nug, arma::mat X, arma::mat Z);
-RcppExport SEXP GauPro_Gaussian_devianceC(SEXP thetaSEXP, SEXP nugSEXP, SEXP XSEXP, SEXP ZSEXP) {
+RcppExport SEXP _GauPro_Gaussian_devianceC(SEXP thetaSEXP, SEXP nugSEXP, SEXP XSEXP, SEXP ZSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -221,7 +221,7 @@ END_RCPP
 }
 // Gaussian_hessianCC
 arma::mat Gaussian_hessianCC(arma::vec XX, arma::mat X, arma::vec Z, arma::mat Kinv, double mu_hat, arma::vec theta);
-RcppExport SEXP GauPro_Gaussian_hessianCC(SEXP XXSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP KinvSEXP, SEXP mu_hatSEXP, SEXP thetaSEXP) {
+RcppExport SEXP _GauPro_Gaussian_hessianCC(SEXP XXSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP KinvSEXP, SEXP mu_hatSEXP, SEXP thetaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -237,7 +237,7 @@ END_RCPP
 }
 // rcpp_hello_world
 List rcpp_hello_world();
-RcppExport SEXP GauPro_rcpp_hello_world() {
+RcppExport SEXP _GauPro_rcpp_hello_world() {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -247,7 +247,7 @@ END_RCPP
 }
 // pred_meanC
 arma::vec pred_meanC(arma::mat XX, arma::mat kx_xx, double mu_hat, arma::mat Kinv, arma::mat Z);
-RcppExport SEXP GauPro_pred_meanC(SEXP XXSEXP, SEXP kx_xxSEXP, SEXP mu_hatSEXP, SEXP KinvSEXP, SEXP ZSEXP) {
+RcppExport SEXP _GauPro_pred_meanC(SEXP XXSEXP, SEXP kx_xxSEXP, SEXP mu_hatSEXP, SEXP KinvSEXP, SEXP ZSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -262,7 +262,7 @@ END_RCPP
 }
 // pred_var
 arma::vec pred_var(arma::mat XX, arma::mat kxx, arma::mat kx_xx, double s2_hat, arma::mat Kinv, arma::mat Z);
-RcppExport SEXP GauPro_pred_var(SEXP XXSEXP, SEXP kxxSEXP, SEXP kx_xxSEXP, SEXP s2_hatSEXP, SEXP KinvSEXP, SEXP ZSEXP) {
+RcppExport SEXP _GauPro_pred_var(SEXP XXSEXP, SEXP kxxSEXP, SEXP kx_xxSEXP, SEXP s2_hatSEXP, SEXP KinvSEXP, SEXP ZSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -278,7 +278,7 @@ END_RCPP
 }
 // pred_cov
 arma::mat pred_cov(arma::mat XX, arma::mat kxx, arma::mat kx_xx, double s2_hat, arma::mat Kinv, arma::mat Z);
-RcppExport SEXP GauPro_pred_cov(SEXP XXSEXP, SEXP kxxSEXP, SEXP kx_xxSEXP, SEXP s2_hatSEXP, SEXP KinvSEXP, SEXP ZSEXP) {
+RcppExport SEXP _GauPro_pred_cov(SEXP XXSEXP, SEXP kxxSEXP, SEXP kx_xxSEXP, SEXP s2_hatSEXP, SEXP KinvSEXP, SEXP ZSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -294,7 +294,7 @@ END_RCPP
 }
 // pred_meanC_mumat
 arma::vec pred_meanC_mumat(arma::mat XX, arma::mat kx_xx, arma::mat mu_hatX, arma::mat mu_hatXX, arma::mat Kinv, arma::mat Z);
-RcppExport SEXP GauPro_pred_meanC_mumat(SEXP XXSEXP, SEXP kx_xxSEXP, SEXP mu_hatXSEXP, SEXP mu_hatXXSEXP, SEXP KinvSEXP, SEXP ZSEXP) {
+RcppExport SEXP _GauPro_pred_meanC_mumat(SEXP XXSEXP, SEXP kx_xxSEXP, SEXP mu_hatXSEXP, SEXP mu_hatXXSEXP, SEXP KinvSEXP, SEXP ZSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
