@@ -53,6 +53,11 @@ trend_0 <- R6::R6Class(classname = "GauPro_trend_0",
       matrix(0, nrow=nrow(X), ncol=0)
       array(0, dim = c(nrow(X), ncol=0))
     },
+    dZ_dx = function(X, m=self$m, params=NULL) {
+      if (!is.null(params)) {m <- params}
+      matrix(0, nrow=nrow(X), ncol=1)
+
+    },
     param_optim_start = function(jitter, trend_est) {
       c()
     },

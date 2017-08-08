@@ -140,14 +140,14 @@ Gaussian_beta <- R6::R6Class(classname = "GauPro_kernel_Gaussian_beta",
       # mats <- c(dC_dbetas, list(dC_dlogs2))
       return(list(C = C, dC_dparams))
     },
-    dC_dx = function(XX, X, theta, beta=self$beta, s2=self$s2) {
+    dC_dx = function(XX, X, theta, beta=self$beta, s2=self$s2) {#browser()
       if (missing(theta)) {theta <- 10^beta}
       if (!is.matrix(XX)) {stop()}
       d <- ncol(XX)
       if (ncol(X) != d) {stop()}
       n <- nrow(X)
       nn <- nrow(XX)
-      dC_dx <- array(NA, dim=c(d, n, n))
+      dC_dx <- array(NA, dim=c(nn, d, n))
       for (i in 1:nn) {
         for (j in 1:d) {
           for (k in 1:n) {

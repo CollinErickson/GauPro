@@ -64,6 +64,12 @@ trend_LM <- R6::R6Class(
       # matrix(1, nrow=nrow(X), ncol=1)
       cbind(rep(1,nrow(X)), X)
     },
+    dZ_dx = function(X, m=self$m, params=NULL) {
+      if (!is.null(params)) {m <- params}
+      # matrix(0, nrow=nrow(X), ncol=1)
+      matrix(m, nrow=nrow(X), ncol=length(m), byrow=T)
+
+    },
     param_optim_start = function(jitter, trend_est) {
       c(self$b, self$m)
     },
