@@ -3,7 +3,7 @@
 GauPro
 ======
 
-[![Travis-CI Build Status](https://travis-ci.org/CollinErickson/GauPro.svg?branch=master)](https://travis-ci.org/CollinErickson/GauPro) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/GauPro)](http://cran.r-project.org/package=GauPro)
+[![Travis-CI Build Status](https://travis-ci.org/CollinErickson/GauPro.svg?branch=master)](https://travis-ci.org/CollinErickson/GauPro) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/GauPro)](http://cran.r-project.org/package=GauPro) [![codecov](https://codecov.io/gh/CollinErickson/GauPro/branch/master/graph/badge.svg)](https://codecov.io/gh/CollinErickson/GauPro)
 
 This package allows you to fit a Gaussian process to a dataset. A Gaussian process is a commonly used model in computer simulation. It assumes that the distribution of any set of points is multivariate normal with a constant mean and a correlation function.
 
