@@ -1,5 +1,5 @@
 test_that("All kernels work in 1-D", {
-  kernels <- list(Gaussian_beta$new(0),
+  kernels <- list(Gaussian$new(0),
                   Exponential$new(0),
                   Matern32$new(0),
                   Matern52$new(0),
@@ -37,7 +37,7 @@ test_that("All kernels work in 1-D", {
 })
 
 test_that("All kernels work in 2-D", {
-  kernels <- list(Gaussian_beta$new(c(0,.3)),
+  kernels <- list(Gaussian$new(c(0,.3)),
                   Exponential$new(c(0,.3)),
                   Matern32$new(c(0,.3)),
                   Matern52$new(c(0,.3)),

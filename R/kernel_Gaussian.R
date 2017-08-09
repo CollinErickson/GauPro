@@ -28,8 +28,8 @@
 #' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
 #' @format \code{\link{R6Class}} object.
 #' @examples
-#' k1 <- Gaussian_beta$new(beta=0)
-Gaussian_beta <- R6::R6Class(classname = "GauPro_kernel_Gaussian_beta",
+#' k1 <- Gaussian$new(beta=0)
+Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
   inherit = GauPro_kernel_beta,
   public = list(
     # initialize = function(beta, s2=1, beta_lower=-8, beta_upper=6,
