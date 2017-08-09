@@ -54,7 +54,7 @@ trend_c <- R6::R6Class(
     },
     dZ_dx = function(X, m=self$m, params=NULL) {
       if (!is.null(params)) {m <- params}
-      matrix(0, nrow=nrow(X), ncol=1)
+      matrix(0, nrow=nrow(X), ncol=ncol(X))
 
     },
     param_optim_start = function(jitter, trend_est) {

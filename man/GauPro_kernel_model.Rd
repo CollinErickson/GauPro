@@ -3,7 +3,7 @@
 \docType{class}
 \name{GauPro_kernel_model}
 \alias{GauPro_kernel_model}
-\title{Class providing object with methods for fitting a GP model}
+\title{GauPro model that uses kernels}
 \format{\code{\link{R6Class}} object.}
 \usage{
 GauPro_kernel_model

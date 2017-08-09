@@ -49,7 +49,7 @@ trend_LM <- R6::R6Class(
       self$b_upper <- b_upper
       self$b_est <- b_est
     },
-    Z = function(X, m=self$m, b=self$b, params=NULL) {
+    Z = function(X, m=self$m, b=self$b, params=NULL) {#browser()
       if (!is.null(params)) {m <- params[2:(self$D+1)]; b <- params[1]}
       if (is.matrix(X)) {
         b + X %*% m
