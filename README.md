@@ -25,7 +25,7 @@ curve(gp$pred(x));points(x,y)
 curve(gp$pred(x)+2*gp$pred(x,T)$se,col=2,add=T);curve(gp$pred(x)-2*gp$pred(x,T)$se,col=2,add=T)
 ```
 
-![](README-unnamed-chunk-2-1.png)
+![](tools/README-unnamed-chunk-2-1.png)
 
 This is the likelihood as a function of the log of theta. It is not convex and is difficult to optimize in general.
 
@@ -33,7 +33,7 @@ This is the likelihood as a function of the log of theta. It is not convex and i
 curve(sapply(x, gp$deviance_theta_log),-10,10, n = 300) # deviance profile
 ```
 
-![](README-unnamed-chunk-3-1.png)
+![](tools/README-unnamed-chunk-3-1.png)
 
 Fit a sawtooth function with no noise.
 
@@ -46,10 +46,10 @@ curve(gp$pred(x));points(x,y)
 curve(gp$pred(x)+2*gp$pred(x,T)$se,col=2,add=T);curve(gp$pred(x)-2*gp$pred(x,T)$se,col=2,add=T)
 ```
 
-![](README-unnamed-chunk-4-1.png)
+![](tools/README-unnamed-chunk-4-1.png)
 
 ``` r
 curve(sapply(x, gp$deviance_theta_log),-10,10, n = 300) # deviance profile
 ```
 
-![](README-unnamed-chunk-4-2.png)
+![](tools/README-unnamed-chunk-4-2.png)
