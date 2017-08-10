@@ -126,6 +126,24 @@ Matern32 <- R6::R6Class(classname = "GauPro_kernel_Matern32",
       }
 
       return(dC_dparams=dC_dparams)
+    },
+    dC_dx = function(XX, X, theta, beta=self$beta, s2=self$s2) {#browser()
+      if (missing(theta)) {theta <- 10^beta}
+      if (!is.matrix(XX)) {stop()}
+      d <- ncol(XX)
+      if (ncol(X) != d) {stop()}
+      n <- nrow(X)
+      nn <- nrow(XX)
+      dC_dx <- array(NA, dim=c(nn, d, n))
+      for (i in 1:nn) {
+        for (j in 1:d) {
+          for (k in 1:n) {
+            r <- sqrt(sum(theta * (XX[i,] - X[k,]) ^ 2))
+            dC_dx[i, j, k] <- -3 * s2 * r * exp(-self$sqrt3 * r) * theta[j] * (XX[i, j] - X[k, j]) / r
+          }
+        }
+      }
+      dC_dx
     }
   )
 )
