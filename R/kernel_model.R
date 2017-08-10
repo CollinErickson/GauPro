@@ -834,7 +834,11 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           trendX <- self$trend$Z(X=X)
           Cinv_Z_minus_Zhat <- solve(self$K, Z - trendX)
           t2 <- apply(dC_dx, 1, function(U) {U %*% Cinv_Z_minus_Zhat})
-          dtrend_dx + t(t2)
+          if (ncol(dtrend_dx) > 1) {
+            dtrend_dx + t(t2)
+          } else {
+            dtrend_dx + t2
+          }
           # dtrend_dx + dC_dx %*% solve(self$K, Z - trendX)
         },
         grad_norm = function (XX) {

@@ -98,6 +98,24 @@ Exponential <- R6::R6Class(classname = "GauPro_kernel_Exponential",
       }
 
       return(dC_dparams)
+    },
+    dC_dx = function(XX, X, theta, beta=self$beta, s2=self$s2) {#browser()
+      if (missing(theta)) {theta <- 10^beta}
+      if (!is.matrix(XX)) {stop()}
+      d <- ncol(XX)
+      if (ncol(X) != d) {stop()}
+      n <- nrow(X)
+      nn <- nrow(XX)
+      dC_dx <- array(NA, dim=c(nn, d, n))
+      for (i in 1:nn) {
+        for (j in 1:d) {
+          for (k in 1:n) {
+            r <- sqrt(sum(theta * (XX[i,] - X[k,]) ^ 2))
+            dC_dx[i, j, k] <- - theta[j] * (XX[i, j] - X[k, j]) * s2 * exp(-r) / r
+          }
+        }
+      }
+      dC_dx
     }
   )
 )
