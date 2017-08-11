@@ -65,6 +65,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
         useGrad = FALSE,
         parallel = FALSE,
         parallel_cores = NULL,
+        restarts = NULL,
         #deviance_out = NULL, #(theta, nug)
         #deviance_grad_out = NULL, #(theta, nug, overwhat)
         #deviance_fngr_out = NULL,
@@ -73,7 +74,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
                               verbose=0, useC=F,useGrad=T,
                               parallel=T,
                               nug=1e-6, nug.min=1e-8, nug.max=Inf, nug.est=FALSE,
-                              param.est = TRUE,
+                              param.est = TRUE, restarts = 5,
                               ...) {
           #self$initialize_GauPr(X=X,Z=Z,verbose=verbose,useC=useC,useGrad=useGrad,
           #                      parallel=parallel, nug.est=nug.est)
@@ -107,6 +108,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           self$parallel <- parallel
           if (self$parallel) {self$parallel_cores <- parallel::detectCores()}
           else {self$parallel_cores <- 1}
+          self$restarts <- restarts
 
           self$update_K_and_estimates() # Need to get mu_hat before starting
           # self$mu_hat <- mean(Z)
@@ -600,7 +602,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           list(current=current, details=details.new)
         },
         update = function (Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL,
-                           restarts = 5,
+                           restarts = self$restarts,
                            param_update = self$param.est, nug.update = self$nug.est, no_update=FALSE) {
           self$update_data(Xnew=Xnew, Znew=Znew, Xall=Xall, Zall=Zall) # Doesn't update Kinv, etc
 
