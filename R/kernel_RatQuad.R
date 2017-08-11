@@ -151,6 +151,28 @@ RatQuad <- R6::R6Class(
       }
       return(dC_dparams)
     },
+    dC_dx = function(XX, X, theta, beta=self$beta, alpha=self$alpha, s2=self$s2) {#browser()
+      if (missing(theta)) {theta <- 10^beta}
+      # p <- 10 ^ logp
+      # alpha <- 10 ^ logalpha
+      if (!is.matrix(XX)) {stop()}
+      d <- ncol(XX)
+      if (ncol(X) != d) {stop()}
+      n <- nrow(X)
+      nn <- nrow(XX)
+      dC_dx <- array(NA, dim=c(nn, d, n))
+      for (i in 1:nn) {
+        for (j in 1:d) {
+          for (k in 1:n) {
+            # r <- sqrt(sum(theta * (XX[i,] - X[k,]) ^ 2))
+            r2 <- sum(theta * (XX[i,] - X[k,])^2)
+            CC <- s2 * (1 + r2 / alpha) ^ -alpha
+            dC_dx[i, j, k] <- CC * (-1) / (1 + r2 / alpha) * 2 * theta[j] * (XX[i, j]-X[k, j]) #) * p[j] #* (XX[i, j] - X[k, j])
+          }
+        }
+      }
+      dC_dx
+    },
     param_optim_start = function(jitter=F, y, beta_est=self$beta_est,
                                  alpha_est=self$alpha_est, s2_est=self$s2_est) {
       # Use current values for theta, partial MLE for s2
