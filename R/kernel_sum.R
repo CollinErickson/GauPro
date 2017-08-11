@@ -144,6 +144,9 @@ kernel_sum <- R6::R6Class(classname = "GauPro_kernel_sum",
       # dC_dparams
       list(C=C, dC_dparams=dC_dparams)
     },
+    dC_dx = function(XX, X) {
+      self$k1$dC_dx(XX=XX, X=X) + self$k2$dC_dx(XX=XX, X=X)
+    },
     s2_from_params = function(params) {
       params1 <- params[1:self$k1pl]
       params2 <- params[(self$k1pl+1):(self$k1pl+self$k2pl)]

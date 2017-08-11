@@ -823,7 +823,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           out <- list(fn=dev, gr=gr)
           out
         },
-        grad = function(XX, X=self$X, Z=self$Z) {#browser()
+        grad = function(XX, X=self$X, Z=self$Z) {
           if (!is.matrix(XX)) {
             if (length(XX) == self$D) {
               XX <- matrix(XX, nrow=1)

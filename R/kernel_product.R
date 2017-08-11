@@ -56,7 +56,7 @@ kernel_product <- R6::R6Class(classname = "GauPro_kernel_product",
     },
     k = function(x, y=NULL, params, ...) {
       if (missing(params)) {
-        self$k1$k(x=x, y=y) + self$k2$k(x=x, y=y)
+        self$k1$k(x=x, y=y) * self$k2$k(x=x, y=y)
       } else {
         params1 <- params[1:self$k1pl]
         params2 <- params[(self$k1pl+1):(self$k1pl+self$k2pl)]
@@ -179,6 +179,19 @@ kernel_product <- R6::R6Class(classname = "GauPro_kernel_product",
 
       # list(C=C, dC_dparams=c(out1[[2]],out2[[2]]))#, c(out1[[2]]*out2[[2]]))
       list(C=C, dC_dparams=dC_dparams)
+    },
+    dC_dx = function(XX, X) {
+      C1 <- self$k1$k(x=XX, y=X)
+      C2 <- self$k2$k(x=XX, y=X)
+      dC1 <- self$k1$dC_dx(XX=XX, X=X)
+      dC2 <- self$k2$dC_dx(XX=XX, X=X)
+      for (i in 1:dim(dC2)[2]) {
+        dC2[,i,] <- dC2[,i,] * C1
+      }
+      for (i in 1:dim(dC1)[2]) {
+        dC1[,i,] <- dC1[,i,] * C2
+      }
+      dC2 + dC1
     },
     s2_from_params = function(params, s2_est=self$s2_est) {
       params1 <- params[1:self$k1pl]
