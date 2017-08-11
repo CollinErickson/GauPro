@@ -163,6 +163,27 @@ Periodic <- R6::R6Class(
       dC_dparams <- self$dC_dparams(params=params, X=X, C_nonug=C_nonug, C=C, nug=nug)
       list(C=C, dC_dparams=dC_dparams)
     },
+    dC_dx = function(XX, X, logp=self$logp, logalpha=self$logalpha, s2=self$s2) {#browser()
+      # if (missing(theta)) {theta <- 10^beta}
+      p <- 10 ^ logp
+      alpha <- 10 ^ logalpha
+      if (!is.matrix(XX)) {stop()}
+      d <- ncol(XX)
+      if (ncol(X) != d) {stop()}
+      n <- nrow(X)
+      nn <- nrow(XX)
+      dC_dx <- array(NA, dim=c(nn, d, n))
+      for (i in 1:nn) {
+        for (j in 1:d) {
+          for (k in 1:n) {
+            # r <- sqrt(sum(theta * (XX[i,] - X[k,]) ^ 2))
+            CC <- s2 * exp(-sum(alpha * sin(p * (XX[i, ]-X[k, ]))^2))
+            dC_dx[i, j, k] <- CC * (-alpha) * sin(2*p[j]*(XX[i, j]-X[k, j])) * p[j] #* (XX[i, j] - X[k, j])
+          }
+        }
+      }
+      dC_dx
+    },
     param_optim_start = function(jitter=F, y, p_est=self$p_est,
                                  alpha_est=self$alpha_est, s2_est=self$s2_est) {
       # Use current values for theta, partial MLE for s2
