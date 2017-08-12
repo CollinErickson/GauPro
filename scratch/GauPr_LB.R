@@ -1,3 +1,6 @@
+# Lifted Brownian model from Apley and Plumlee.
+# Never got fully working, removing from exports.
+
 # correlation function should implement:
 # corr: name of correlation
 # corr_func
@@ -20,7 +23,7 @@
 #'
 #' @docType class
 #' @importFrom R6 R6Class
-#' @export
+# @export
 #' @useDynLib GauPro
 #' @importFrom Rcpp evalCpp
 #' @importFrom stats optim
