@@ -1,21 +1,3 @@
-# Kernels should implement:
-# k kernel function for two vectors
-# update_params
-# get_optim_functions: return optim.func, optim.grad, optim.fngr
-# param_optim_lower - lower bound of params
-# param_optim_upper - upper
-# param_optim_start - current param values
-# param_optim_start0 - some central param values that can be used for optimization restarts
-# param_optim_jitter - how to jitter params in optimization
-
-# Suggested
-# deviance
-# deviance_grad
-# deviance_fngr
-# grad
-
-
-
 #' Matern 3/2 Kernel R6 class
 #'
 #' @docType class
@@ -33,22 +15,7 @@ Matern32 <- R6::R6Class(classname = "GauPro_kernel_Matern32",
   inherit = GauPro_kernel_beta,
   public = list(
     sqrt3 = sqrt(3),
-    # initialize = function(beta, s2=1, beta_lower=-8, beta_upper=6,
-    #                       s2_lower=1e-8, s2_upper=1e8) {
-    #   self$beta <- beta
-    #   self$beta_length <- length(beta)
-    #   # if (length(theta) == 1) {
-    #   #   self$theta <- rep(theta, self$d)
-    #   # }
-    #   self$beta_lower <- beta_lower
-    #   self$beta_upper <- beta_upper
-    #
-    #   self$s2 <- s2
-    #   self$logs2 <- log(s2, 10)
-    #   self$logs2_lower <- log(s2_lower, 10)
-    #   self$logs2_upper <- log(s2_upper, 10)
-    # },
-    k = function(x, y=NULL, beta=self$beta, s2=self$s2, params=NULL) {#browser()
+    k = function(x, y=NULL, beta=self$beta, s2=self$s2, params=NULL) {
       if (!is.null(params)) {
         lenpar <- length(params)
         beta <- params[1:(lenpar-1)]
@@ -60,23 +27,18 @@ Matern32 <- R6::R6Class(classname = "GauPro_kernel_Matern32",
       }
       theta <- 10^beta
       if (is.null(y)) {
-        if (is.matrix(x)) {#browser()
-          # cgmtry <- try(val <- s2 * corr_gauss_matrix_symC(x, theta))
+        if (is.matrix(x)) {
           val <- outer(1:nrow(x), 1:nrow(x), Vectorize(function(i,j){self$kone(x[i,],x[j,],theta=theta, s2=s2)}))
-          # if (inherits(cgmtry,"try-error")) {browser()}
           return(val)
         } else {
           return(s2 * 1)
         }
       }
       if (is.matrix(x) & is.matrix(y)) {
-        # s2 * corr_gauss_matrixC(x, y, theta)
         outer(1:nrow(x), 1:nrow(y), Vectorize(function(i,j){self$kone(x[i,],y[j,],theta=theta, s2=s2)}))
       } else if (is.matrix(x) & !is.matrix(y)) {
-        # s2 * corr_gauss_matrixvecC(x, y, theta)
         apply(x, 1, function(xx) {self$kone(xx, y, theta=theta, s2=s2)})
       } else if (is.matrix(y)) {
-        # s2 * corr_gauss_matrixvecC(y, x, theta)
         apply(y, 1, function(yy) {self$kone(yy, x, theta=theta, s2=s2)})
       } else {
         self$kone(x, y, theta=theta, s2=s2)
@@ -84,12 +46,11 @@ Matern32 <- R6::R6Class(classname = "GauPro_kernel_Matern32",
     },
     kone = function(x, y, beta, theta, s2) {
       if (missing(theta)) {theta <- 10^beta}
-      # t1 <- self$sqrt
       r <- sqrt(sum(theta * (x-y)^2))
       t1 <- self$sqrt3 * r
       s2 * (1 + t1) * exp(-t1)
     },
-    dC_dparams = function(params=NULL, X, C_nonug, C, nug) {#browser(text = "Make sure all in one list")
+    dC_dparams = function(params=NULL, X, C_nonug, C, nug) {
       n <- nrow(X)
       if (is.null(params)) {params <- c(self$beta, self$logs2)}
       if (missing(C_nonug)) { # Assume C missing too, must have nug
@@ -127,7 +88,7 @@ Matern32 <- R6::R6Class(classname = "GauPro_kernel_Matern32",
 
       return(dC_dparams=dC_dparams)
     },
-    dC_dx = function(XX, X, theta, beta=self$beta, s2=self$s2) {#browser()
+    dC_dx = function(XX, X, theta, beta=self$beta, s2=self$s2) {
       if (missing(theta)) {theta <- 10^beta}
       if (!is.matrix(XX)) {stop()}
       d <- ncol(XX)
