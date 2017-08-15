@@ -17,7 +17,7 @@ test_that("All kernels work in 1-D", {
 
     # Fit GP using kernel
     #' kernel=RatQuad$new(0.1,0.1)
-    gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=kernel, parallel=FALSE, verbose=10, nug.est=T)
+    gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=kernel, parallel=FALSE, verbose=10, nug.est=T, restarts=1)
 
     x1_C <- gp$kernel$k(x=x1)
     expect_is(object = x1_C, class = 'numeric')
@@ -55,7 +55,7 @@ test_that("All kernels work in 2-D", {
 
     # Fit GP using kernel
     #' kernel=RatQuad$new(0.1,0.1)
-    gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=kernel, parallel=FALSE, verbose=10, nug.est=T)
+    gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=kernel, parallel=FALSE, verbose=10, nug.est=T, restarts=1)
 
     x1_C <- gp$kernel$k(x=x1)
     expect_is(object = x1_C, class = 'numeric')
