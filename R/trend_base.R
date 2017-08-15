@@ -15,7 +15,7 @@
 #'
 #' @docType class
 #' @importFrom R6 R6Class
-#' @export
+# @export
 #' @useDynLib GauPro, .registration = TRUE
 #' @importFrom Rcpp evalCpp
 #' @importFrom stats optim
