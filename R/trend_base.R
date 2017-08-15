@@ -23,7 +23,7 @@
 #' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
 #' @format \code{\link{R6Class}} object.
 #' @examples
-#' k <- GauPro_trend$new()
+#' #k <- GauPro_trend$new()
 GauPro_trend <- R6::R6Class(classname = "GauPro_trend",
                              public = list(
                                # Gradient is -2 * t(yminusmu) %*% Siginv %*% du/db

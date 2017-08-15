@@ -15,7 +15,7 @@ Object of \code{\link{R6Class}} with methods for fitting GP model.
 Trend R6 class
 }
 \examples{
-k <- GauPro_trend$new()
+#k <- GauPro_trend$new()
 }
 \keyword{Gaussian}
 \keyword{data,}

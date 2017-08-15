@@ -33,8 +33,8 @@ test_that("kernel grad works", {
     expect_is(object = grad2, class = 'matrix')
     expect_length(object = grad2, n = 10)
 
-    # Check C_dC
+    # Check grad with numerical grad
 
-    expect_equal(c(gp$grad(x1)), c(numDeriv::grad(gp$predict, x1)), tol=.01)
+    expect_equal(c(gp$grad(x1)), c(numDeriv::grad(gp$predict, x1)), tol=.1)
   }
 })

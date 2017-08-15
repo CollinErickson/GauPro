@@ -18,7 +18,7 @@ It standardizes the params because they all use the same underlying structure.
 Kernels that inherit this only need to implement kone and dC_dparams.
 }
 \examples{
-k1 <- Matern52$new(beta=0)
+#k1 <- Matern52$new(beta=0)
 }
 \keyword{Gaussian}
 \keyword{data,}
