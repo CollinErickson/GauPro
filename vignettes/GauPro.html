@@ -12,7 +12,7 @@
 
 <meta name="author" content="Collin Erickson" />
 
-<meta name="date" content="2017-06-13" />
+<meta name="date" content="2017-08-15" />
 
 <title>A Guide to the GauPro R package</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">A Guide to the GauPro R package</h1>
 <h4 class="author"><em>Collin Erickson</em></h4>
-<h4 class="date"><em>2017-06-13</em></h4>
+<h4 class="date"><em>2017-08-15</em></h4>
 
 
 
@@ -86,209 +86,24 @@ y &lt;-<span class="st"> </span><span class="kw">abs</span>(<span class="kw">sin
 <span class="kw">plot</span>(x, y)
 <span class="kw">abline</span>(<span class="dt">a=</span>lm_mod<span class="op">$</span>coef[<span class="dv">1</span>], <span class="dt">b=</span>lm_mod<span class="op">$</span>coef[<span class="dv">2</span>], <span class="dt">col=</span><span class="st">'red'</span>)</code></pre></div>
 <p><img src="data:image/png;base64,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" /><!-- --></p>
-<p>Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The <code>html_vignette</code> output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The <code>html_vignette</code> format:</p>
-<ul>
-<li>Never uses retina figures</li>
-<li>Has a smaller default figure size</li>
-<li>Uses a custom CSS stylesheet instead of the default Twitter Bootstrap style</li>
-</ul>
-<div id="vignette-info" class="section level2">
-<h2>Vignette Info</h2>
-<p>Note the various macros within the <code>vignette</code> section of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the <code>title</code> field and the <code>\VignetteIndexEntry</code> to match the title of your vignette.</p>
-</div>
-<div id="styles" class="section level2">
-<h2>Styles</h2>
-<p>The <code>html_vignette</code> template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:</p>
-<pre><code>output: 
-  rmarkdown::html_vignette:
-    css: mystyles.css</code></pre>
-</div>
-<div id="figures" class="section level2">
-<h2>Figures</h2>
-<p>The figure sizes have been customised so that you can easily put two images side-by-side.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>)
-<span class="kw">plot</span>(<span class="dv">10</span><span class="op">:</span><span class="dv">1</span>)</code></pre></div>
-<p><img src="data:image/png;base64,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" /><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASAAAAEgCAMAAAAjXV6yAAAAWlBMVEUAAAAAADoAAGYAOjoAOpAAZrY6AAA6ADo6AGY6kNtmAABmADpmZmZmtrZmtv+QOgCQZgCQkGaQ2/+2ZgC2/7a2///bkDrb/9vb////tmb/25D//7b//9v////Y4K3VAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAGd0lEQVR4nO2dDVPjNhQADQVa0pZcyZ2LSfL//2bjjwQoWGvHkq2Q3Rlu5u7EU7KRnxTrRSn2EqRY+gHkjoIABQEKAhQEKAhQEKAgQEGAggAFAQoCFAQoCFAQoCBAQYCCAAUBCgIUBCgIUBCgIEBBgIIABQEKAhQEKAhQEKAgQEGAggAFAQoCFAQoCFAQoCBAQYCCAAUBCgIUBCgIUBCgIEBBgIIABQEKAhQEKAhQEKAgQEGAggAFAQoCFAQoCFAQoCBAQYCCAAUBCgIUBCgIUBCgIEBBgIIABQEKAhQERBZUXAxLCeosxY2agCUFHX+yZkFBRYq40ZlZ0PtLW0EQTkEUzhxE4ZzFZguXDgUBCgIUBCgIyExQfvNaXoIyXBllJSjHtbWCAAUBWQkyB2E4Z7FE4dKhIEBBgIKARII2RXG/Wx9S7tPEcItn7TSCyruXg6P7/X67epwUbvl5P4mg3fqgpbp53reqzg+XwcoxiaDt6nBlVbe/9sc/36KM29H9roIcQcQpBzWqJoT7pjnIWWzGfpdGQYCCAAUBCgIuT9DM89rFCZp7ZXRpgmZfWytoUIcxG6YNp6Ahv2gOCv6ms1hWjBS0Xb3d8vp4KyxVv0szdgTt1pO8jO93aUZfYrv1/az9Ls34HFT13gR7x+Ywzl4fiqK57TqpXyZt1k6TpBs/vz93t+8nhwuSeN5PtKvxeJDUXIrTbtoPIPXKMdm2T3e7ftq2z+DHdWGCmtFTXusIOu4ml4H5fru6/fVuc2xKv4Me2KXloH091zX0LgmufBabPVw6zlgoRnij8Y0FlUW3l1wVPZvKkftdmpGC3u21981PkftdmtHv5k8r48p38180vIgRFHVaG5+DuiGUbw6KuzAaPYsdb5lNGj/pl76RV+oxGy4S7lNkBUFkBYVDL5iD5u73nNgLzmLualBDdzWoobsa1HDQrka8fpcmaZJ+feh1Oa+gCWk70U17TOWzFyBMq7eJ2bCme6OWyQiatHRMdIltV/V7tc+C4m/7DCBHQfv95ubZERSkLB4zEZRhDmp4ffgtE0HZzWIdu3X/ksl10Lzh0qEgQEGAgoArFTR8WrtOQSMWRlcpaMzSWkGD2sZsuEi4czpXULh3c1Cwe2exWCgIUBCgICCRoPJ4Mk5fuXl2gvrSdhpB5c3zfruqt2AvRVDvxJ9EUFvJuFvfvVyKoP6lY6KNw/ZW6+bupUz9aZ84zCzoVAu7uXcEfclRy3aVxdbzAObNQW/Vwr3lRLkJmnkWmz1cOhQEKAhQEKCgPrqsraAein1g7u/7hcj958xp5aigr1EQoCDCHEQ4iw1jMUEXw0KCJnTDTaIEGfuMFRS3+bkoaHo3CprcREFzBFFQhCYTmp+LgqZ3c92CLhcFAQoCFAQoCFAQoCBAQYCCAAUBCgIUBCgImEFQc1Q1H4C6CR8CWn+dB5widvocQG+MP5rKyirwxSCfSC9otz48mpKe3OFRBwVVh/9ti/x7qT8HEDxorD6Sf98eyN97KP8n0gtqz4oJfZdAzXYVFNSWaAeDtMfUbfodVu25WW2oQLuPzJWD6CUr736EBDXfBxOGBFXFY3NW9rAX7MRcgjbhB3QQEMxB1e3PFSUyvMTaw8Rb14PPFZ9JEBxTXQ/7oKCyvjrorEdMvo2VdiwPTkLzCKogRzdfZB8UdMMve/vVVaEXIltBdMx5M+rDgho1gbPBBuWWXC+xklZBZVeS0v/02+cTTNUDRkamSbocdghqcAS1H1ULvuztEw82qbKc5sNp4Y3wSrrOUu++u+HLAMNyUHYLxe76wUcEbzUqfr+yoSbd8Crzeqtx4SgIUBCgIEBBgIIABQEKAhQEKAhQEKAgQEGAggAFAQoCFAQoCFAQoCBAQYCCAAUBCgIUBCgIUBCQn6BPdQXDCw1SoCBAQUCWgrarv1dtvVldqfJPLahsS1vqwrDtaljBURwyFVQX5x9+6pqoquj+UhdH1TVUZbiQKDKZCnpsSuraqrpN9w9N/VN1+/PPWa+4TAU9NWWJp5K5Ng01vjb4qY+4ZC2oPAl6K4MN19LHJ2tB/xtBNbv1X0MLeOOQtaCupLn7h4by7t9wrWtsshbUfT6lm8XabP00vEg+CnkL+rgOOojZNOXSc6bp/ARlhoIABQEKAhQEKAhQEKAgQEGAggAFAQoCFAQoCFAQoCBAQYCCAAUBCgIUBCgIUBCgIOA/QwIfBMPupjoAAAAASUVORK5CYII=" /></p>
-<p>You can enable figure captions by <code>fig_caption: yes</code> in YAML:</p>
-<pre><code>output:
-  rmarkdown::html_vignette:
-    fig_caption: yes</code></pre>
-<p>Then you can use the chunk option <code>fig.cap = &quot;Your figure caption.&quot;</code> in <strong>knitr</strong>.</p>
-</div>
-<div id="more-examples" class="section level2">
-<h2>More Examples</h2>
-<p>You can write math expressions, e.g. <span class="math inline">\(Y = X\beta + \epsilon\)</span>, footnotes<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>, and tables, e.g. using <code>knitr::kable()</code>.</p>
-<table>
-<thead>
-<tr class="header">
-<th></th>
-<th align="right">mpg</th>
-<th align="right">cyl</th>
-<th align="right">disp</th>
-<th align="right">hp</th>
-<th align="right">drat</th>
-<th align="right">wt</th>
-<th align="right">qsec</th>
-<th align="right">vs</th>
-<th align="right">am</th>
-<th align="right">gear</th>
-<th align="right">carb</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Mazda RX4</td>
-<td align="right">21.0</td>
-<td align="right">6</td>
-<td align="right">160.0</td>
-<td align="right">110</td>
-<td align="right">3.90</td>
-<td align="right">2.620</td>
-<td align="right">16.46</td>
-<td align="right">0</td>
-<td align="right">1</td>
-<td align="right">4</td>
-<td align="right">4</td>
-</tr>
-<tr class="even">
-<td>Mazda RX4 Wag</td>
-<td align="right">21.0</td>
-<td align="right">6</td>
-<td align="right">160.0</td>
-<td align="right">110</td>
-<td align="right">3.90</td>
-<td align="right">2.875</td>
-<td align="right">17.02</td>
-<td align="right">0</td>
-<td align="right">1</td>
-<td align="right">4</td>
-<td align="right">4</td>
-</tr>
-<tr class="odd">
-<td>Datsun 710</td>
-<td align="right">22.8</td>
-<td align="right">4</td>
-<td align="right">108.0</td>
-<td align="right">93</td>
-<td align="right">3.85</td>
-<td align="right">2.320</td>
-<td align="right">18.61</td>
-<td align="right">1</td>
-<td align="right">1</td>
-<td align="right">4</td>
-<td align="right">1</td>
-</tr>
-<tr class="even">
-<td>Hornet 4 Drive</td>
-<td align="right">21.4</td>
-<td align="right">6</td>
-<td align="right">258.0</td>
-<td align="right">110</td>
-<td align="right">3.08</td>
-<td align="right">3.215</td>
-<td align="right">19.44</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">3</td>
-<td align="right">1</td>
-</tr>
-<tr class="odd">
-<td>Hornet Sportabout</td>
-<td align="right">18.7</td>
-<td align="right">8</td>
-<td align="right">360.0</td>
-<td align="right">175</td>
-<td align="right">3.15</td>
-<td align="right">3.440</td>
-<td align="right">17.02</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">3</td>
-<td align="right">2</td>
-</tr>
-<tr class="even">
-<td>Valiant</td>
-<td align="right">18.1</td>
-<td align="right">6</td>
-<td align="right">225.0</td>
-<td align="right">105</td>
-<td align="right">2.76</td>
-<td align="right">3.460</td>
-<td align="right">20.22</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">3</td>
-<td align="right">1</td>
-</tr>
-<tr class="odd">
-<td>Duster 360</td>
-<td align="right">14.3</td>
-<td align="right">8</td>
-<td align="right">360.0</td>
-<td align="right">245</td>
-<td align="right">3.21</td>
-<td align="right">3.570</td>
-<td align="right">15.84</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">3</td>
-<td align="right">4</td>
-</tr>
-<tr class="even">
-<td>Merc 240D</td>
-<td align="right">24.4</td>
-<td align="right">4</td>
-<td align="right">146.7</td>
-<td align="right">62</td>
-<td align="right">3.69</td>
-<td align="right">3.190</td>
-<td align="right">20.00</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">4</td>
-<td align="right">2</td>
-</tr>
-<tr class="odd">
-<td>Merc 230</td>
-<td align="right">22.8</td>
-<td align="right">4</td>
-<td align="right">140.8</td>
-<td align="right">95</td>
-<td align="right">3.92</td>
-<td align="right">3.150</td>
-<td align="right">22.90</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">4</td>
-<td align="right">2</td>
-</tr>
-<tr class="even">
-<td>Merc 280</td>
-<td align="right">19.2</td>
-<td align="right">6</td>
-<td align="right">167.6</td>
-<td align="right">123</td>
-<td align="right">3.92</td>
-<td align="right">3.440</td>
-<td align="right">18.30</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">4</td>
-<td align="right">4</td>
-</tr>
-</tbody>
-</table>
-<p>Also a quote using <code>&gt;</code>:</p>
-<blockquote>
-<p>“He who gives up [code] safety for [code] speed deserves neither.” (<a href="https://twitter.com/hadleywickham/status/504368538874703872">via</a>)</p>
-</blockquote>
-</div>
-<div class="footnotes">
-<hr />
-<ol>
-<li id="fn1"><p>A footnote here.<a href="#fnref1">↩</a></p></li>
-</ol>
-</div>
+<p>A Gaussian process is a type of model that assumes that the distribution of points follows a multivariate distribution.</p>
+<p>In GauPro, we can fit a GP model with Gaussian correlation function using the function ``</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(GauPro)
+gp &lt;-<span class="st"> </span><span class="kw">GauPro</span>(x, y)</code></pre></div>
+<pre><code>## Below nug.min, setting nug to nug.min and reoptimizing #82387</code></pre>
+<p>Now we can plot the predictions given by the model. Shown below, this model looks much better than a linear model.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(x, y)
+<span class="kw">curve</span>(gp<span class="op">$</span><span class="kw">predict</span>(x), <span class="dt">add=</span>T, <span class="dt">col=</span><span class="dv">2</span>)</code></pre></div>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASAAAAEgCAMAAAAjXV6yAAAAVFBMVEUAAAAAADoAAGYAOjoAOpAAZrY6AAA6ADo6kNtmAABmADpmZmZmtv+QOgCQZgCQ2/+2ZgC2/7a2///bkDrb/9vb////AAD/tmb/25D//7b//9v///+psxHmAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAHLUlEQVR4nO2dbZubNhBF1XQ3jdtu49atHS///38WAXbMi3Q10gjG+J4PeUKWGcSJkACNva4hUdzWDbAOBQEoCEBBAAoCUBCAggAUBKAgAAUBKAhAQQAKAlAQgIIAFASgIAAFASgIQEEACgJQEICCABQEoCAABQEoCEBBAAoCUBCAggAUBKAgAAUBKAhAQQAKAlAQgIIAFASgIAAFASgIQEEACgJQEICCABQEoCAABQEoCEBBAAoCUBCAggAUBKAgAAUBKAhAQQAKAlAQgIIAFASgIAAFASgIQEEACgJQEICCABQEoCAABQEoCEBBAAoCKAtyT8NWglL3S2+h6PDJaY0LcvpHFqZdWZCw53Z7nXtUjt885BI0QXVHzXR+r/Owr4qhQU2naB+C/KkM+yp0ovP94OfzLgQ1o//pYkH3BC49m2lB/r/5cbQqM/TYA33atB5pWdD8BEqusoXQlGyGBS02P9/QUmRCtpcRtByI09kVFGj7Oefeuo15HUEZbfHTeiAGGjIrKNByl2HIddmWY7YSdHTu/fOj7dl/ZqYLNVxbEDRUR9Dp7b/W0XvTXA/f8tKFBUVONhgTkwoMVRH0+dFqufzyvelVZaQLt9o1qQ8JDzExp1sIuh7aK+vy5Z/m9qc4XaTVoQkpmi4288XT2exB8TaLBZWkqzwGdarE6ZABqSF7ggpnMWVBReks3gfB86cghMhQWbragk4Zs9hLCZpmSXhpn3L2EkMJ+8buKlIPs94lRkEgnbKgpF1jd+6JyAR1U3xLYASKpUs793RDJgWd3HB/eHHiG0VlQaXp6j1q9IgfNRLPXFlQeLd6D6s94odVZUHF+xnrQemP6toiQ3cetcagoQsJx6DIy+MpykNV8JVRpVnseuhnsUD/CTcm/XVh4ew0PXLopaOp+6AtBYWOTEHgyKYEyV44lz1CpB7ZlqD4y+Ppviq73HCB2cGaIEEKXUGhnW0JUn7P8+KCtF/NUlDW3s8sCO2usjpkSpDuehcF7VFQ/KX9qmvKiQFP3YPiARk1Dgv/9tyCohH7EyQ/IwpCUBAgEpKRbSnGkKCcM4oEUVA8SCubXND14EvHStmxIL9m4UKLFcnMj5t1RsqCFqIyL7FiR1qCQmFq2bLHoFOsNGHgx9dQieLeBV268szPj8Cy121VLFLfMTtu5hmFAnPTzeIyBPnT782EFt5vC6qSHqQrSC9bzizWVYjHuR68wtcUlMix1biKoPlSUc6HFYLtqHejeHLfVhE0KzsQVEAssJ6gtv/8mi4o38+07MB12bINrSjIFyquIWiyqi5a4J+zpiBJOjOCpi2pLSi10j5/WJ0NOTkfuQu3xMpL+4J5ZzZpSSog5mwrKJSuwM88WjXZLgSNwzVzVRMkrbQ3JGgSX0eQuNJe8aRKU60hSFwnXXxSPzMopuqoIkhcaV9+VrcUepkG9tKDhhwaX5a3zhgkq7TXEOSTqOQZZ6k0iwkr7ZVOTCfNKoJk6ZROTAsKAlAQ4rE9FLQABQGsCbLmh4IQFASgIMRDiwwIsueHghDbCVp6aU9BIB0FgXQGBT20iYIWsSTIoh8KQlAQ4t4qClqGggB2BNn0U11Q+tr8awoSrM0bFXRv1+Yrqy8pSLA2b9WPmR70moIEa/MvKih5bd6sn3vTNr0PKvpQRW2GWtktBc0qnC1x+whIbUGRQnJXWBJflXvjNnwnTUEgnauRV4t74zYeg6z6yWhgjYfVSr/pWgdXcxYr+cp2Y2z2qPE01BCU8LCalhT8vOzHpeEFuyf0oLSkexWU8LCalnS3gvDDalrS/QpSSkpBZT+nIAoq+zkFvbygPUFBAAoCUBCAggAUBKAgAAUBKAhAQQAKAlAQgIIAmoIuzv38PtjRhjy85Qhe7MbC/bc+B7/sUYSioEvbvsutjaMNebjfRm++I+Env6FjSE9Qvyh0fJ9vyMObbn1AImhy9Hfh0cPoCeq/AncoHBptyMP9397+kggahRsV9Jvv38OS62hDHt5tisagcbjJS6wfAIZhYLQhD++uGJGgyQHlU0QIo4L80naBoGPbk358Lf0dGB02L7FuI/8Sk4+AYWwO0qehRiV9FBmFy/tvGLPTvLAHjcJ7W5L+G8bujaLwTnoUbnIM6i4M38L+LuQknkdG4Y34UWMUfnTlv6eohw+rAAoCUBCAggAUBKAgAAUBKAhAQQAKAlAQgIIAFASgIAAFASgIQEEACgJQEICCABQEoCAABQEoCEBBAAoCUBCAggAUBKAggHVBvmbsetCpZMnCuiBfORb/sqLKWBfUXL78/btOQW8e5gU1R6dSMZ+LfUFKFfO5mBf0+fGHSrVqLuYFnd7+/dhwEjMvyH81oU7BcybWBfla4Hth8BZYF7Q5FASgIAAFASgIQEEACgJQEICCABQEoCAABQEoCEBBAAoCUBCAggAUBKAgAAUBKAhAQQAKAlAQ4H/hFp9Xsm5LkgAAAABJRU5ErkJggg==" /><!-- --></p>
+<p>A very useful property of GP’s is that they give a predicted error. The blue lines give an approximate 95% confidence interval. The width of the prediction interval is largest between points and goes to zero near data points, which is what we would hope for.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(x, y)
+<span class="kw">curve</span>(gp<span class="op">$</span><span class="kw">predict</span>(x), <span class="dt">add=</span>T, <span class="dt">col=</span><span class="dv">2</span>)
+<span class="kw">curve</span>(gp<span class="op">$</span><span class="kw">predict</span>(x)<span class="op">+</span><span class="dv">2</span><span class="op">*</span>gp<span class="op">$</span><span class="kw">predict</span>(x, <span class="dt">se=</span>T)<span class="op">$</span>se, <span class="dt">add=</span>T, <span class="dt">col=</span><span class="dv">4</span>)
+<span class="kw">curve</span>(gp<span class="op">$</span><span class="kw">predict</span>(x)<span class="op">-</span><span class="dv">2</span><span class="op">*</span>gp<span class="op">$</span><span class="kw">predict</span>(x, <span class="dt">se=</span>T)<span class="op">$</span>se, <span class="dt">add=</span>T, <span class="dt">col=</span><span class="dv">4</span>)</code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>GP models give distributions for the predictions. Realizations from these distributions give an idea of what the true function may look like. Calling <code>plot</code> on the 1-D gp object shows 20 realizations. There is no visible difference between the data points, only at the ends.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(gp)</code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
 
 
 

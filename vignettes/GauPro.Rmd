@@ -4,7 +4,7 @@ author: "Collin Erickson"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{A Guide to the GauPro R package}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -31,53 +31,45 @@ plot(x, y)
 abline(a=lm_mod$coef[1], b=lm_mod$coef[2], col='red')
 ```
 
+A Gaussian process is a type of model that assumes that the distribution of points
+follows a multivariate distribution.
 
+In GauPro, we can fit a GP model with Gaussian correlation function using
+the function ``
 
-
-Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format:
-
-- Never uses retina figures
-- Has a smaller default figure size
-- Uses a custom CSS stylesheet instead of the default Twitter Bootstrap style
-
-## Vignette Info
-
-Note the various macros within the `vignette` section of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the `title` field and the `\VignetteIndexEntry` to match the title of your vignette.
-
-## Styles
-
-The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
-
-    output: 
-      rmarkdown::html_vignette:
-        css: mystyles.css
-
-## Figures
-
-The figure sizes have been customised so that you can easily put two images side-by-side. 
-
-```{r, fig.show='hold'}
-plot(1:10)
-plot(10:1)
+```{r}
+library(GauPro)
+gp <- GauPro(x, y)
 ```
 
-You can enable figure captions by `fig_caption: yes` in YAML:
+Now we can plot the predictions given by the model.
+Shown below, this model looks much better than a linear model.
 
-    output:
-      rmarkdown::html_vignette:
-        fig_caption: yes
-
-Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
-
-## More Examples
-
-You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
-
-```{r, echo=FALSE, results='asis'}
-knitr::kable(head(mtcars, 10))
+```{r}
+plot(x, y)
+curve(gp$predict(x), add=T, col=2)
 ```
 
-Also a quote using `>`:
+A very useful property of GP's is that they give a predicted error.
+The blue lines give an approximate 95% confidence interval.
+The width of the prediction interval is largest between points
+and goes to zero near data points, which is what we would hope for.
 
-> "He who gives up [code] safety for [code] speed deserves neither."
-([via](https://twitter.com/hadleywickham/status/504368538874703872))
+```{r}
+plot(x, y)
+curve(gp$predict(x), add=T, col=2)
+curve(gp$predict(x)+2*gp$predict(x, se=T)$se, add=T, col=4)
+curve(gp$predict(x)-2*gp$predict(x, se=T)$se, add=T, col=4)
+```
+
+GP models give distributions for the predictions.
+Realizations from these distributions give an idea of
+what the true function may look like.
+Calling `plot` on the 1-D gp object shows 20 realizations.
+There is no visible difference between the data points,
+only at the ends.
+
+```{r}
+plot(gp)
+```
+

@@ -8,10 +8,20 @@ lm_mod <- lm(y ~ x)
 plot(x, y)
 abline(a=lm_mod$coef[1], b=lm_mod$coef[2], col='red')
 
-## ---- fig.show='hold'----------------------------------------------------
-plot(1:10)
-plot(10:1)
+## ------------------------------------------------------------------------
+library(GauPro)
+gp <- GauPro(x, y)
 
-## ---- echo=FALSE, results='asis'-----------------------------------------
-knitr::kable(head(mtcars, 10))
+## ------------------------------------------------------------------------
+plot(x, y)
+curve(gp$predict(x), add=T, col=2)
+
+## ------------------------------------------------------------------------
+plot(x, y)
+curve(gp$predict(x), add=T, col=2)
+curve(gp$predict(x)+2*gp$predict(x, se=T)$se, add=T, col=4)
+curve(gp$predict(x)-2*gp$predict(x, se=T)$se, add=T, col=4)
+
+## ------------------------------------------------------------------------
+plot(gp)
 
