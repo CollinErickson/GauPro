@@ -39,7 +39,7 @@ the function ``
 
 ```{r}
 library(GauPro)
-gp <- GauPro(x, y)
+gp <- GauPro(x, y, parallel=FALSE)
 ```
 
 Now we can plot the predictions given by the model.
