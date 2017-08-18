@@ -1,3 +1,6 @@
+# GauPro 0.2.0.9000
+
+
 # GauPro 0.2.0
 
 Added kernel models that use kernels and trends.
