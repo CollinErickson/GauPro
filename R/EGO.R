@@ -5,17 +5,21 @@ EGO <- R6::R6Class(
     func = NULL,
     n0 = NULL,
     n = NULL,
-    initialize = function(func, X, Z, n0, n) {
-      self$gp <- GauPro_kernel_model$new(X=X, Z=Z, kernel=kernel)
+    X = NULL,
+    Z = NULL,
+    initialize = function(func, n0, n, d) {
       self$func <- func
       self$n0 <- n0
       self$n <- n
+      self$d <- d
 
       self$initial_run()
       self$run()
     },
     initial_run = function() {
-      X <- lhs::randomLHS(n=n0, k=)
+      self$X <- lhs::randomLHS(n=n0, k=d)
+      self$Z <- apply(self$X, 1, self$func)
+      self$gp <- GauPro_kernel_model$new(X=X, Z=Z, kernel=kernel)
     },
     run = function() {
       for (i in 1:n) {
