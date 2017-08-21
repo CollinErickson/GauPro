@@ -27,7 +27,18 @@ EGO <- R6::R6Class(
       }
     },
     run1 = function() {
+      # Optimize EI with many start points
 
+      # Select best
+      Xbest
+      Zbest <- self$func(Xbest)
+
+      # Add to X and Z
+      self$X <- rbind(self$X, Xbest)
+      self$Z <- c(self$Z, Zbest)
+
+      # Update model
+      self$gp$update(Xall=self$X, Zall=self$Z)
     }
   )
 )
