@@ -22,5 +22,6 @@ Suggests: testthat,
     knitr,
     rmarkdown,
     microbenchmark,
-    numDeriv
+    numDeriv,
+    MASS
 VignetteBuilder: knitr
