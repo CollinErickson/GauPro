@@ -14,9 +14,12 @@ r_check_args: '--use-valgrind'
 
 addons:
   apt:
+    sources:
+      - ubuntu-toolchain-r-test
     packages:
       - valgrind
-      - g++-4.7.2 # "WARNING: Only g++ version 4.7.2 or greater can be used with RcppArmadillo."
+      - g++-4.9 # "WARNING: Only g++ version 4.7.2 or greater can be used with RcppArmadillo."
 
 env:
   - VALGRIND_OPTS='--leak-check=full --track-origins=yes'
+  - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
