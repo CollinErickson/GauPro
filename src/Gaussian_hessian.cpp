@@ -35,9 +35,10 @@ arma::mat Gaussian_hessianCC(arma::vec XX, arma::mat X, arma::vec Z, arma::mat K
     exp_sum(j) = exp(-sum(theta % pow(XX - X.row(j).t(), 2)));
   }
   //Rcpp::Rcout << "at 3" << std::endl;
+  arma::vec d2K_dxidxi(n);// <- numeric(n)
   for (int i=0; i<d; i++) { //(i in 1:d) { # diagonal points
-    arma::vec d2K_dxidxi(n);// <- numeric(n)
-    for (int j = 1; j < n; j++ ){ //(j in 1:n) {
+    // d2K_dxidxi used to initialize here. It overwrites all so I don't need to set each element back to 0.
+    for (int j = 0; j < n; j++ ){ //(j in 1:n) {
       //d2Kj_dxidxi <- (-2 * theta(i) + 4 * theta(i)^2 * (XX(i) - X(j, i))^2) * exp_sum(j)
       //d2K_dxidxi(j) <- d2Kj_dxidxi
       d2K_dxidxi(j) = (-2 * theta(i) + 4 * pow(theta(i), 2) * pow(XX(i) - X(j, i), 2)) * exp_sum(j);
@@ -53,11 +54,12 @@ arma::mat Gaussian_hessianCC(arma::vec XX, arma::mat X, arma::vec Z, arma::mat K
   }
   //Rcout << i << Kinv_Zmu << std::endl;
   //Rcout << d2ZZ << std::endl;
+  arma::vec d2K_dxidxk(n); // initialize outside of if and for to avoid problems
   if (d > 1) {
     for (int i=0; i < d-1; i++ ){ //(i in 1:(d-1)) { # off diagonal points
       for (int k=i+1; k < d; k++ ){ //(k in (i+1):d) {
 
-        arma::vec d2K_dxidxk(n); // <- numeric(n)
+        //arma::vec d2K_dxidxk(n); // <- numeric(n)
         for (int j=0; j < n; j++ ){ //(j in 1:n) {
 
           //d2Kj_dxidxk = 4 * theta(i) * theta(k) * (XX(i) - X(j, i)) * (XX(k) - X(j, k)) * exp_sum(j);
