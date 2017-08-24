@@ -4,24 +4,16 @@ language: R
 sudo: required
 cache: packages
 
-matrix:
-  include:
-    - os: linux
-      compiler: gcc
-      addons:
-        apt:
-          sources: ['ubuntu-toolchain-r-test']
-          packages: ['g++-5']
-      env:
-        - COMPILER=g++-5
-        - CC=gcc=5
-        - CXX=g++-5
-
-before_install:
-  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 100
-  - mkdir -p ~/.R
-  - echo "VkVSPS01CkNDPWdjYyQoVkVSKSAtc3RkPWMxMSAKQ1hYPWcrKyQoVkVSKQpTSExJQl9DWFhMRD1nKyskKFZFUikKRkM9Z2ZvcnRyYW4KRjc3PWdmb3J0cmFuCg==" | base64 -d > ~/.R/Makevars
-  - cat ~/.R/Makevars
+script:
+  - sudo unlink /usr/bin/gcc && sudo ln -s /usr/bin/gcc-5 /usr/bin/gcc
+  - gcc --version
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - gcc-5
+    - g++-5
 
 r_packages:
   - covr
@@ -31,12 +23,3 @@ after_success:
 
 r_check_args: '--use-valgrind'
 
-
-addons:
-  apt:
-    packages:
-      - valgrind
-      #- g++-4.7.2 # "WARNING: Only g++ version 4.7.2 or greater can be used with RcppArmadillo."
-
-env:
-  - VALGRIND_OPTS='--leak-check=full --track-origins=yes'
