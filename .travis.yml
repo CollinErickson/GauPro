@@ -9,3 +9,13 @@ r_packages:
 
 after_success:
   - Rscript -e 'library(covr); codecov()'
+
+r_check_args: '--use-valgrind'
+
+addons:
+  apt:
+    packages:
+      - valgrind
+
+env:
+  - VALGRIND_OPTS='--leak-check=full --track-origins=yes'
