@@ -1,8 +1,27 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 
 language: R
-sudo: true
+sudo: required
 cache: packages
+
+matrix:
+  include:
+    - os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test']
+          packages: ['g++-5']
+      env:
+        - COMPILER=g++-5
+        - CC=gcc=5
+        - CXX=g++-5
+
+before_install:
+  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 100
+  - mkdir -p ~/.R
+  - echo "VkVSPS01CkNDPWdjYyQoVkVSKSAtc3RkPWMxMSAKQ1hYPWcrKyQoVkVSKQpTSExJQl9DWFhMRD1nKyskKFZFUikKRkM9Z2ZvcnRyYW4KRjc3PWdmb3J0cmFuCg==" | base64 -d > ~/.R/Makevars
+  - cat ~/.R/Makevars
 
 r_packages:
   - covr
@@ -12,18 +31,12 @@ after_success:
 
 r_check_args: '--use-valgrind'
 
-matrix:
-  include:
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - valgrind
-            - g++-4.9 # "WARNING: Only g++ version 4.7.2 or greater can be used with RcppArmadillo."
-      env:
-        - VALGRIND_OPTS='--leak-check=full --track-origins=yes'
-        - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
-before_install:
-    - eval "${MATRIX_EVAL}"
+
+addons:
+  apt:
+    packages:
+      - valgrind
+      #- g++-4.7.2 # "WARNING: Only g++ version 4.7.2 or greater can be used with RcppArmadillo."
+
+env:
+  - VALGRIND_OPTS='--leak-check=full --track-origins=yes'
