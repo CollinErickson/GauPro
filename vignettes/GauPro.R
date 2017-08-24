@@ -26,21 +26,29 @@ curve(gp$predict(x)+2*gp$predict(x, se=T)$se, add=T, col=4)
 curve(gp$predict(x)-2*gp$predict(x, se=T)$se, add=T, col=4)
 
 ## ------------------------------------------------------------------------
-plot(gp)
+if (requireNamespace("MASS", quietly = TRUE)) {
+  plot(gp)
+}
 
 ## ------------------------------------------------------------------------
 kern <- Matern52$new(0)
 gpk <- GauPro_kernel_model$new(matrix(x, ncol=1), y, kernel=kern, parallel=FALSE)
-plot(gpk)
+if (requireNamespace("MASS", quietly = TRUE)) {
+  plot(gpk)
+}
 
 ## ------------------------------------------------------------------------
 kern.exp <- Exponential$new(0)
 gpk.exp <- GauPro_kernel_model$new(matrix(x, ncol=1), y, kernel=kern.exp, parallel=FALSE)
-plot(gpk.exp)
+if (requireNamespace("MASS", quietly = TRUE)) {
+  plot(gpk.exp)
+}
 
 ## ------------------------------------------------------------------------
 kern.exp <- Exponential$new(0)
 trend.0 <- trend_0$new()
 gpk.exp <- GauPro_kernel_model$new(matrix(x, ncol=1), y, kernel=kern.exp, trend=trend.0, parallel=FALSE)
-plot(gpk.exp)
+if (requireNamespace("MASS", quietly = TRUE)) {
+  plot(gpk.exp)
+}
 

@@ -34,7 +34,8 @@ test_that("kernel grad works", {
     expect_length(object = grad2, n = 10)
 
     # Check grad with numerical grad
-
-    expect_equal(c(gp$grad(x1)), c(numDeriv::grad(gp$predict, x1)), tol=.1)
+    if (requireNamespace("numDeriv", quietly = TRUE)) {
+      expect_equal(c(gp$grad(x1)), c(numDeriv::grad(gp$predict, x1)), tol=.1)
+    }
   }
 })

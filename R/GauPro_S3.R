@@ -33,7 +33,10 @@ predict.GauPro <- function(object, XX, se.fit=F, covmat=F, split_speed=T, ...) {
 #' x <- matrix(seq(0,1,length.out = n), ncol=1)
 #' y <- sin(2*pi*x) + rnorm(n,0,1e-1)
 #' gp <- GauPro(X=x, Z=y, parallel=FALSE)
-#' plot(gp)
+#' if (requireNamespace("MASS", quietly = TRUE)) {
+#'   plot(gp)
+#' }
+#'
 plot.GauPro <- function(x,  ...) {
   if (x$D == 1) {
     x$cool1Dplot(...)

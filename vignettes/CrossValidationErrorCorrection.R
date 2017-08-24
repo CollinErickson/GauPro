@@ -2,7 +2,9 @@
 n <- 200
 m1 <- matrix(runif(n*n),ncol=n)
 b1 <- runif(n)
-microbenchmark::microbenchmark(solve(m1, b1), m1 %*% b1)
+if (requireNamespace("microbenchmark", quietly = TRUE)) {
+  microbenchmark::microbenchmark(solve(m1, b1), m1 %*% b1)
+}
 
 ## ------------------------------------------------------------------------
 set.seed(0)
@@ -19,5 +21,7 @@ b <- R[n,-n]
 g <- Rinv[n,-n]
 Ainv_shortcut <- E + E %*% b %*% g / (1-sum(g*b))
 summary(c(Ainv - Ainv_shortcut))
-microbenchmark::microbenchmark(solve(A), E + E %*% b %*% g / (1-sum(g*b)))
+if (requireNamespace("microbenchmark", quietly = TRUE)) {
+  microbenchmark::microbenchmark(solve(A), E + E %*% b %*% g / (1-sum(g*b)))
+}
 

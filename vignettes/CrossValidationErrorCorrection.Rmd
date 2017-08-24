@@ -46,7 +46,9 @@ is over 30 times slower than a matrix multiplication.
 n <- 200
 m1 <- matrix(runif(n*n),ncol=n)
 b1 <- runif(n)
-microbenchmark::microbenchmark(solve(m1, b1), m1 %*% b1)
+if (requireNamespace("microbenchmark", quietly = TRUE)) {
+  microbenchmark::microbenchmark(solve(m1, b1), m1 %*% b1)
+}
 ```
 
 ### Getting the inverse of a submatrix
@@ -119,7 +121,9 @@ b <- R[n,-n]
 g <- Rinv[n,-n]
 Ainv_shortcut <- E + E %*% b %*% g / (1-sum(g*b))
 summary(c(Ainv - Ainv_shortcut))
-microbenchmark::microbenchmark(solve(A), E + E %*% b %*% g / (1-sum(g*b)))
+if (requireNamespace("microbenchmark", quietly = TRUE)) {
+  microbenchmark::microbenchmark(solve(A), E + E %*% b %*% g / (1-sum(g*b)))
+}
 ```
 
 In terms of the covariance matrices already calculated, this is the following,

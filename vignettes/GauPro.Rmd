@@ -74,7 +74,9 @@ There is no visible difference between the data points,
 only at the ends.
 
 ```{r}
-plot(gp)
+if (requireNamespace("MASS", quietly = TRUE)) {
+  plot(gp)
+}
 ```
 
 
@@ -94,7 +96,9 @@ The example below shows what the Matern 5/2 kernel gives.
 ```{r}
 kern <- Matern52$new(0)
 gpk <- GauPro_kernel_model$new(matrix(x, ncol=1), y, kernel=kern, parallel=FALSE)
-plot(gpk)
+if (requireNamespace("MASS", quietly = TRUE)) {
+  plot(gpk)
+}
 ```
 
 The exponential kernel is shown below. You can see that it
@@ -107,7 +111,9 @@ and variation in the predictions and sample paths.
 ```{r}
 kern.exp <- Exponential$new(0)
 gpk.exp <- GauPro_kernel_model$new(matrix(x, ncol=1), y, kernel=kern.exp, parallel=FALSE)
-plot(gpk.exp)
+if (requireNamespace("MASS", quietly = TRUE)) {
+  plot(gpk.exp)
+}
 ```
 
 
@@ -135,5 +141,7 @@ this same reversion.
 kern.exp <- Exponential$new(0)
 trend.0 <- trend_0$new()
 gpk.exp <- GauPro_kernel_model$new(matrix(x, ncol=1), y, kernel=kern.exp, trend=trend.0, parallel=FALSE)
-plot(gpk.exp)
+if (requireNamespace("MASS", quietly = TRUE)) {
+  plot(gpk.exp)
+}
 ```
