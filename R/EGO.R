@@ -1,3 +1,16 @@
+#' EGO R6 class
+#'
+#' @docType class
+#' @importFrom R6 R6Class
+#' @export
+#' @useDynLib GauPro, .registration = TRUE
+#' @importFrom Rcpp evalCpp
+#' @importFrom stats optim
+#' @keywords optimization, Bayesian optimization
+#' @return Object of \code{\link{R6Class}} with methods for running EGO.
+#' @format \code{\link{R6Class}} object.
+#' @examples
+#' e1 <- EGO$new(func=sin, n0=10, n=10, d=1)
 EGO <- R6::R6Class(
   classname = "EGO",
   public = list(
