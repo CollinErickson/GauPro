@@ -2,7 +2,7 @@
 #'
 #' @docType class
 #' @importFrom R6 R6Class
-#' @export
+# @export
 #' @useDynLib GauPro, .registration = TRUE
 #' @importFrom Rcpp evalCpp
 #' @importFrom stats optim
@@ -10,7 +10,7 @@
 #' @return Object of \code{\link{R6Class}} with methods for running EGO.
 #' @format \code{\link{R6Class}} object.
 #' @examples
-#' e1 <- EGO$new(func=sin, n0=10, n=10, d=1)
+#' #e1 <- EGO$new(func=sin, n0=10, n=10, d=1)
 EGO <- R6::R6Class(
   classname = "EGO",
   public = list(
@@ -18,6 +18,7 @@ EGO <- R6::R6Class(
     func = NULL,
     n0 = NULL,
     n = NULL,
+    d = NULL,
     X = NULL,
     Z = NULL,
     initialize = function(func, n0, n, d) {
