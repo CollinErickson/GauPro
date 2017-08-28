@@ -1,10 +1,15 @@
+I  just submitted version 0.2.0 last week and got an email
+from Brian Ripley notifying me of some minor issues.
+I believe I have fixed these, but I didn't get the same
+issues on my laptop or Travis so I can't be certain.
+
 ## Test environments
 * local Windows install, R 3.4.1
 * win-builder
 * Ubuntu 12.04.5 LTS, R 3.4.1 (Travis)
 
 ## R CMD check results
-There were no ERRORs or WARNINGs on Windows using R 3.3.1.
+There were no ERRORs or WARNINGs on Windows using R 3.4.1.
 There is 1 note.
 
 "

@@ -1,4 +1,6 @@
-# GauPro 0.2.0.9000
+# GauPro 0.2.1
+
+Fixing minor errors from the 0.2.0 version.
 
 
 # GauPro 0.2.0
