@@ -1,6 +1,7 @@
 #' GauPro model that uses kernels
 #'
-#' Class providing object with methods for fitting a GP model
+#' Class providing object with methods for fitting a GP model.
+#' Allows for different kernel and trend functions to be used.
 #'
 #' @docType class
 #' @importFrom R6 R6Class

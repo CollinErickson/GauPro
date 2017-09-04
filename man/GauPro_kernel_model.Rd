@@ -12,7 +12,8 @@ GauPro_kernel_model
 Object of \code{\link{R6Class}} with methods for fitting GP model.
 }
 \description{
-Class providing object with methods for fitting a GP model
+Class providing object with methods for fitting a GP model.
+Allows for different kernel and trend functions to be used.
 }
 \section{Fields}{
 
