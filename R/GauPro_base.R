@@ -56,13 +56,13 @@ GauPro_base <- R6::R6Class(classname = "GauPro",
         verbose = 0,
         useC = TRUE,
         useGrad = FALSE,
-        parallel = FALSE,
+        parallel = NULL,
         parallel_cores = NULL,
         #deviance_out = NULL, #(theta, nug)
         #deviance_grad_out = NULL, #(theta, nug, overwhat)
         #deviance_fngr_out = NULL,
         initialize = function(X, Z, verbose=0, useC=F,useGrad=T,
-                              parallel=T,
+                              parallel=FALSE,
                               nug=1e-6, nug.min=1e-8, nug.est=T,
                               param.est = TRUE,
                               ...) {
