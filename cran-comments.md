@@ -1,7 +1,6 @@
-I  just submitted version 0.2.0 last week and got an email
-from Brian Ripley notifying me of some minor issues.
-I believe I have fixed these, but I didn't get the same
-issues on my laptop or Travis so I can't be certain.
+Version 0.2.1 was accepted 9/8/17 but there was a
+valgrind error. I believe I have found and fixed
+the issue.
 
 ## Test environments
 * local Windows install, R 3.4.1
@@ -43,11 +42,4 @@ The only note on win-builder is
 
 ## Downstream dependencies
 
-I got an error when I tried to run revdep_check with devtools,
-so I'm certain about this.
-
-I think the only package that uses this is my other package UGP,
-which no one uses.
-I will be updating UGP in the near future
-to make it better, and I don't think the changes to this 
-package it will break it.
+None.

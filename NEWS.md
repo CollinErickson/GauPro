@@ -1,3 +1,7 @@
+# GauPro 0.2.2
+
+Fixing Valgrind error from 0.2.1
+
 # GauPro 0.2.1
 
 Fixing minor errors from the 0.2.0 version.
