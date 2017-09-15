@@ -25,3 +25,5 @@ Suggests: testthat,
     numDeriv,
     MASS
 VignetteBuilder: knitr
+URL: https://github.com/CollinErickson/GauPro
+BugReports: https://github.com/CollinErickson/GauPro/issues

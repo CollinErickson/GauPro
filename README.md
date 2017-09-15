@@ -3,7 +3,7 @@
 GauPro
 ======
 
-[![Travis-CI Build Status](https://travis-ci.org/CollinErickson/GauPro.svg?branch=master)](https://travis-ci.org/CollinErickson/GauPro) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/GauPro)](http://cran.r-project.org/package=GauPro) [![codecov](https://codecov.io/gh/CollinErickson/GauPro/branch/master/graph/badge.svg)](https://codecov.io/gh/CollinErickson/GauPro)
+[![Travis-CI Build Status](https://travis-ci.org/CollinErickson/GauPro.svg?branch=master)](https://travis-ci.org/CollinErickson/GauPro) [![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version/GauPro)](https://cran.r-project.org/package=GauPro) [![codecov](https://codecov.io/gh/CollinErickson/GauPro/branch/master/graph/badge.svg)](https://codecov.io/gh/CollinErickson/GauPro)
 
 Overview
 --------
