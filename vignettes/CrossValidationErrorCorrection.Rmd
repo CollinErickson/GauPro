@@ -9,6 +9,11 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r, results='hide', echo=FALSE}
+set.seed(0)
+```
+
+
 
 Cross-validation is often used in machine learning to judge how well a model is fit.
 Instead of using the entire data set to fit the model,
@@ -27,7 +32,7 @@ This will bias the predictions to better results than if parameters were
 re-estimated.
 
 Normally each prediction point requires solving a matrix equation.
-To predict the output, $y$, at point $mathbf{x}$, given 
+To predict the output, $y$, at point $\mathbf{x}$, given 
 input data in matrix $X_2$ and output $\mathbf{y_2}$, we use the equation
 $$ \hat{y} = \hat{\mu} + R(\mathbf{x},~X_2) R(X_2)^{-1}( \mathbf{y_2} - \mu\mathbf{1_n})) $$
 For leave-one-out predictions, the matrix $X_2$ will have all the design points

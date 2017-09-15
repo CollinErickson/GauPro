@@ -243,6 +243,32 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
         pred_var = function(XX, kxx, kx.xx, covmat=F) { # 2-4x faster to use C functions pred_var and pred_cov
           self$s2_hat * diag(kxx - t(kx.xx) %*% self$Kinv %*% kx.xx)
         },
+        pred_LOO = function(se.fit=FALSE) {#browser()
+          # Predict LOO (leave-one-out) on data used to fit model
+          # See vignette for explanation of equations
+          # If se.fit==T, then calculate the LOO se and the corresponding t score
+          Z_LOO <- numeric(self$N)
+          if (se.fit) {Z_LOO_s2 <- numeric(self$N)}
+          Z_trend <- self$trend$Z(self$X)
+          for (i in 1:self$N) {
+            E <- self$Kinv[-i, -i] # Kinv without i
+            b <- self$K[    i, -i] # K    between i and rest
+            g <- self$Kinv[ i, -i] # Kinv between i and rest
+            Ainv <- E + E %*% b %*% g / (1-sum(g*b)) # Kinv for K if i wasn't in K
+            Zi_LOO <- Z_trend[i] + c(b %*% Ainv %*% (self$Z[-i] - Z_trend[-i]))
+            Z_LOO[i] <- Zi_LOO
+            if (se.fit) {
+              Zi_LOO_s2 <- self$K[i,i] - c(b %*% Ainv %*% b)
+              Z_LOO_s2[i] <- Zi_LOO_s2
+            }
+          }
+          if (se.fit) { # Return df with se and t if se.fit
+            t_LOO <- (self$Z - Z_LOO) / Z_LOO_s2
+            data.frame(fit=Z_LOO, se.fit=Z_LOO_s2, t=t_LOO)
+          } else { # Else just mean LOO
+            Z_LOO
+          }
+        },
         cool1Dplot = function (n2=20, nn=201, col2="gray",
                                xlab='x', ylab='y',
                                xmin=NULL, xmax=NULL,
@@ -607,9 +633,9 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
                            param_update = self$param.est, nug.update = self$nug.est, no_update=FALSE) {
           self$update_data(Xnew=Xnew, Znew=Znew, Xall=Xall, Zall=Zall) # Doesn't update Kinv, etc
 
-          # if (!no_update || (!param_update && !nug.update)) { # This option lets it skip parameter optimization entirely
+          if (!no_update && (param_update || nug.update)) { # This option lets it skip parameter optimization entirely
             self$update_params(restarts=restarts, param_update=param_update,nug.update=nug.update)
-          # }
+          }
 
           self$update_K_and_estimates()
 
