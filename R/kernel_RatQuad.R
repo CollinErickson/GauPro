@@ -161,7 +161,7 @@ RatQuad <- R6::R6Class(
       # vec <- c(log(self$theta, 10), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
       if (beta_est) {vec <- c(self$beta)} else {vec <- c()}
       if (alpha_est) {vec <- c(vec, self$logalpha)} else {}
-      if (s2_est) {vec <- c(vec, self$s2)} else {}
+      if (s2_est) {vec <- c(vec, self$logs2)} else {}
       if (jitter && beta_est) {
         # vec <- vec + c(self$beta_optim_jitter,  0)
         vec[1:length(self$beta)] = vec[1:length(self$beta)] + rnorm(length(self$beta), 0, 1)

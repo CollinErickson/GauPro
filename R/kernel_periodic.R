@@ -190,7 +190,7 @@ Periodic <- R6::R6Class(
       # vec <- c(log(self$theta, 10), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
       if (p_est) {vec <- c(self$logp)} else {vec <- c()}
       if (alpha_est) {vec <- c(vec, self$logalpha)} else {}
-      if (s2_est) {vec <- c(vec, self$s2)} else {}
+      if (s2_est) {vec <- c(vec, self$logs2)} else {}
       if (jitter && p_est) {
         # vec <- vec + c(self$logp_optim_jitter,  0)
         vec[1:length(self$logp)] = vec[1:length(self$logp)] + rnorm(length(self$logp), 0, 1)

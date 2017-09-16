@@ -10,10 +10,10 @@
 #' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
 #' @format \code{\link{R6Class}} object.
 #' @examples
-#' n <- 12
-#' x <- matrix(seq(0,1,length.out = n), ncol=1)
-#' y <- sin(2*pi*x) + rnorm(n,0,1e-1)
-#' gp <- GauPro(X=x, Z=y, parallel=FALSE)
+#' #n <- 12
+#' #x <- matrix(seq(0,1,length.out = n), ncol=1)
+#' #y <- sin(2*pi*x) + rnorm(n,0,1e-1)
+#' #gp <- GauPro(X=x, Z=y, parallel=FALSE)
 #' @field X Design matrix
 #' @field Z Responses
 #' @field N Number of data points
@@ -204,7 +204,7 @@ GauPro_base <- R6::R6Class(classname = "GauPro",
           # See vignette for explanation of equations
           # If se.fit==T, then calculate the LOO se and the corresponding t score
           Z_LOO <- numeric(self$N)
-          if (se.fit) {Z_LOO_s2 <- numeric(self$N)}
+          if (se.fit) {Z_LOO_se <- numeric(self$N)}
           Z_trend <- self$mu_hat #self$trend$Z(self$X)
           for (i in 1:self$N) {
             E <- self$Kinv[-i, -i] # Kinv without i
@@ -214,13 +214,13 @@ GauPro_base <- R6::R6Class(classname = "GauPro",
             Zi_LOO <- Z_trend + c(b %*% Ainv %*% (self$Z[-i] - Z_trend))
             Z_LOO[i] <- Zi_LOO
             if (se.fit) {
-              Zi_LOO_s2 <- self$K[i,i] - c(b %*% Ainv %*% b)
-              Z_LOO_s2[i] <- Zi_LOO_s2
+              Zi_LOO_se <- sqrt(self$K[i,i] - c(b %*% Ainv %*% b))
+              Z_LOO_se[i] <- Zi_LOO_se
             }
           }
           if (se.fit) { # Return df with se and t if se.fit
-            t_LOO <- (self$Z - Z_LOO) / Z_LOO_s2
-            data.frame(fit=Z_LOO, se.fit=Z_LOO_s2, t=t_LOO)
+            t_LOO <- (self$Z - Z_LOO) / Z_LOO_se
+            data.frame(fit=Z_LOO, se.fit=Z_LOO_se, t=t_LOO)
           } else { # Else just mean LOO
             Z_LOO
           }

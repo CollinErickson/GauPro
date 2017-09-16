@@ -61,11 +61,11 @@ test_that("All kernels work in 2-D", {
 
     x1_C <- gp$kernel$k(x=x1)
     expect_is(object = x1_C, class = 'numeric', info = class(kernel)[1])
-    expect_equal(object = x1_C, expected = 1, info = class(kernel)[1])
+    expect_equal(object = length(x1_C), expected = 1, info = class(kernel)[1])
 
     x2_C <- gp$kernel$k(x=x2)
     expect_is(object = x2_C, class = 'matrix', info = class(kernel)[1])
-    expect_equal(object = x2_C, expected = 25, info = class(kernel)[1])
+    expect_equal(object = length(x2_C), expected = 25, info = class(kernel)[1])
 
     # Check C_dC
     C <- gp$kernel$k(x=x)
