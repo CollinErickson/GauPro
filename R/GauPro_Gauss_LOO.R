@@ -1,22 +1,3 @@
-# correlation function should implement:
-# corr: name of correlation
-# corr_func
-# update_params
-# get_optim_functions: return optim.func, optim.grad, optim.fngr
-# param_optim_lower - lower bound of params
-# param_optim_upper - upper
-# param_optim_start - current param values
-# param_optim_start0 - some central param values that can be used for optimization restarts
-# param_optim_jitter - how to jitter params in optimization
-
-# Suggested
-# deviance
-# deviance_grad
-# deviance_fngr
-# grad
-
-
-
 #' Corr Gauss GP using inherited optim
 #'
 #' @docType class
@@ -36,7 +17,8 @@
 GauPro_Gauss_LOO <- R6::R6Class(classname = "GauPro_Gauss_LOO",
   inherit = GauPro_Gauss,
   public = list(
-    tmod = NULL,
+    tmod = NULL, # A second GP model for the t-values of leave-one-out predictions
+    use_LOO = TRUE, # Should predicted errors use leave-one-out correction?
     update = function (Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL,
                        restarts = 5,
                        param_update = self$param.est, nug.update = self$nug.est, no_update=FALSE) {
@@ -51,6 +33,9 @@ GauPro_Gauss_LOO <- R6::R6Class(classname = "GauPro_Gauss_LOO",
 
       # Do LOO stuff
       # browser()
+      # Should I put this in an if use_LOO?
+      # I don't want this not fit, then have user set use_LOO=T and have an error
+      #   when it tries to predict with LOO.
       if (is.null(self$tmod)) {
         Zp <- self$pred_LOO(se.fit=TRUE)
         abs_t <- abs(Zp$t)
@@ -89,10 +74,12 @@ GauPro_Gauss_LOO <- R6::R6Class(classname = "GauPro_Gauss_LOO",
 
       # browser()
       # Do LOO stuff here
-      loo.p <- self$tmod$predict(XX)
-      se <- se * loo.p
-      se <- pmax(se, 1e-8)
-      s2 <- se ^ 2 #s2 * loo.p ^ 2
+      if (self$use_LOO) {
+        loo.p <- self$tmod$predict(XX)
+        se <- se * loo.p
+        se <- pmax(se, 1e-8)
+        s2 <- se ^ 2 #s2 * loo.p ^ 2
+      }
 
 
       # se.fit but not covmat
