@@ -12,7 +12,7 @@
 
 <meta name="author" content="Collin Erickson" />
 
-<meta name="date" content="2017-08-23" />
+<meta name="date" content="2017-09-15" />
 
 <title>Leave-one-out cross-validation and error correction</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Leave-one-out cross-validation and error correction</h1>
 <h4 class="author"><em>Collin Erickson</em></h4>
-<h4 class="date"><em>2017-08-23</em></h4>
+<h4 class="date"><em>2017-09-15</em></h4>
 
 
 
@@ -78,7 +78,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div id="leave-one-out-predictions-using-gaussian-processes" class="section level2">
 <h2>Leave-one-out predictions using Gaussian processes</h2>
 <p>Leave-one-out prediction uses an entire model fit to all the data except a single point, and then makes a prediction at that point which can be compared to the actual value. It seems like this may be very expensive to do, but it is actually an inexpensive computation for a Gaussian process model, as long as the same parameters are used from the full model. This will bias the predictions to better results than if parameters were re-estimated.</p>
-<p>Normally each prediction point requires solving a matrix equation. To predict the output, <span class="math inline">\(y\)</span>, at point <span class="math inline">\(mathbf{x}\)</span>, given input data in matrix <span class="math inline">\(X_2\)</span> and output <span class="math inline">\(\mathbf{y_2}\)</span>, we use the equation <span class="math display">\[ \hat{y} = \hat{\mu} + R(\mathbf{x},~X_2) R(X_2)^{-1}( \mathbf{y_2} - \mu\mathbf{1_n})) \]</span> For leave-one-out predictions, the matrix <span class="math inline">\(X_2\)</span> will have all the design points except for the one we are predicting at, and thus will be different for each one. However, we will have the correlation matrix <span class="math inline">\(R\)</span> for the full data set from estimating the parameters, and there is a shortcut to find the inverse of a matrix leaving out a single row and column.</p>
+<p>Normally each prediction point requires solving a matrix equation. To predict the output, <span class="math inline">\(y\)</span>, at point <span class="math inline">\(\mathbf{x}\)</span>, given input data in matrix <span class="math inline">\(X_2\)</span> and output <span class="math inline">\(\mathbf{y_2}\)</span>, we use the equation <span class="math display">\[ \hat{y} = \hat{\mu} + R(\mathbf{x},~X_2) R(X_2)^{-1}( \mathbf{y_2} - \mu\mathbf{1_n})) \]</span> For leave-one-out predictions, the matrix <span class="math inline">\(X_2\)</span> will have all the design points except for the one we are predicting at, and thus will be different for each one. However, we will have the correlation matrix <span class="math inline">\(R\)</span> for the full data set from estimating the parameters, and there is a shortcut to find the inverse of a matrix leaving out a single row and column.</p>
 <p>There is significant speed-up by using a multiplication instead of a matrix solve. The code chunk below shows that solving with a square matrix with 200 rows is over 30 times slower than a matrix multiplication.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">n &lt;-<span class="st"> </span><span class="dv">200</span>
 m1 &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">runif</span>(n<span class="op">*</span>n),<span class="dt">ncol=</span>n)
@@ -87,9 +87,9 @@ b1 &lt;-<span class="st"> </span><span class="kw">runif</span>(n)
   microbenchmark<span class="op">::</span><span class="kw">microbenchmark</span>(<span class="kw">solve</span>(m1, b1), m1 <span class="op">%*%</span><span class="st"> </span>b1)
 }</code></pre></div>
 <pre><code>## Unit: microseconds
-##           expr      min       lq       mean   median        uq      max
-##  solve(m1, b1) 1983.427 1998.252 2335.99674 2036.452 2266.8015 6881.177
-##      m1 %*% b1   58.157   58.917   69.73936   59.488   64.8095  195.378
+##           expr      min       lq       mean   median       uq      max
+##  solve(m1, b1) 1963.288 2004.340 2200.78682 2059.266 2135.670 4618.383
+##      m1 %*% b1   56.257   57.397   62.87476   59.298   63.669  185.495
 ##  neval
 ##    100
 ##    100</code></pre>
@@ -129,12 +129,12 @@ Ainv_shortcut &lt;-<span class="st"> </span>E <span class="op">+</span><span cla
   microbenchmark<span class="op">::</span><span class="kw">microbenchmark</span>(<span class="kw">solve</span>(A), E <span class="op">+</span><span class="st"> </span>E <span class="op">%*%</span><span class="st"> </span>b <span class="op">%*%</span><span class="st"> </span>g <span class="op">/</span><span class="st"> </span>(<span class="dv">1</span><span class="op">-</span><span class="kw">sum</span>(g<span class="op">*</span>b)))
 }</code></pre></div>
 <pre><code>## Unit: microseconds
-##                                expr      min       lq      mean   median
-##                            solve(A) 6121.332 6276.417 7239.7903 6406.986
-##  E + E %*% b %*% g/(1 - sum(g * b))  283.944  322.526  372.8981  344.762
-##         uq       max neval
-##  7370.9520 27068.573   100
-##   368.7095  2173.483   100</code></pre>
+##                                expr      min      lq     mean    median
+##                            solve(A) 6341.819 6444.07 6807.645 6589.6535
+##  E + E %*% b %*% g/(1 - sum(g * b))  286.226  333.55  386.899  354.4565
+##        uq      max neval
+##  6770.207 8594.754   100
+##   374.982 2519.394   100</code></pre>
 <p>In terms of the covariance matrices already calculated, this is the following, where <span class="math inline">\(M_{-i}\)</span> is the matrix <span class="math inline">\(M\)</span> with the ith row and column removed, and <span class="math inline">\(M_{i,-i}\)</span> is the ith row of the matrix <span class="math inline">\(M\)</span> with the value from the ith column removed.</p>
 <p><span class="math display">\[ R(X_{-i})^{-1} = R(X)_{-i} -
 \frac{(R(X)_{-i}R(X)_{-i,i}) (R(X)^{-1})_{i,-i}^T }{1 + (R(X)^{-1})_{i,-i}^T R(X)_{-i,i}}\]</span></p>

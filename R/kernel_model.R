@@ -690,7 +690,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
         #   self$nug <- nug
         #   self$update_K_and_estimates()
         # },
-        deviance = function(params=NULL, nug=self$nug, nuglog, trend_params=NULL) {#print(c(params, nuglog))
+        deviance = function(params=NULL, nug=self$nug, nuglog, trend_params=NULL) {#browser()#print(c(params, nuglog))
           if (!missing(nuglog) && !is.null(nuglog)) {
             nug <- 10^nuglog
           }

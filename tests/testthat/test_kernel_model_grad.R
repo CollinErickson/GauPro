@@ -10,7 +10,8 @@ test_that("kernel grad works", {
                   Matern32$new(c(0,.3)),
                   Matern52$new(c(0,.3)),
                   RatQuad$new(c(0,.3),0),
-                  Periodic$new(p=c(.4,.3),alpha=1))
+                  Periodic$new(p=c(.4,.3),alpha=1),
+                  White$new(s2=.96))
   set.seed(0)
   n <- 30
   x <- matrix(runif(2*n), ncol=2)

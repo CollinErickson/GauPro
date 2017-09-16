@@ -299,3 +299,28 @@ test_that("kernel_Periodic works", {
   )
 })
 
+test_that("kernel_White works", {
+  set.seed(0)
+  n <- 20
+  x <- matrix(seq(0,1,length.out = n), ncol=1)
+  f <- Vectorize(function(x) {sin(2*pi*x) + .001*sin(8*pi*x) +rnorm(1,0,.03)})
+  y <- f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
+  gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=White$new(s2=1), parallel=FALSE, verbose=10, nug.est=F)
+
+  expect_equal(gp$kernel$logs2, -0.3164508, tolerance=.01)
+  # expect_equal(log(gp$nug,10), -3.017538, tolerance=.1)
+  expect_equal(
+    # numDeriv::grad(func = function(x) {gp$deviance(params=x[1])}, x=c(-.7)),
+    c(-65.32514),
+    gp$deviance_grad(params = c(-.7), nug.update=F, trend_update=FALSE),
+    tol=.1
+  )
+  expect_equal(
+    # numDeriv::grad(func = function(x) {gp$deviance(params=x[1])}, x=c(.5)),
+    c(39.0243),
+    gp$deviance_grad(params = c(.5), nug.update=F, trend_update=FALSE),
+    tol=.01
+  )
+})
+
+

@@ -4,7 +4,8 @@ test_that("All kernels work in 1-D", {
                   Matern32$new(0),
                   Matern52$new(0),
                   RatQuad$new(0,0),
-                  Periodic$new(p=1,alpha=1))
+                  Periodic$new(p=1,alpha=1),
+                  White$new(s2=.65))
   set.seed(0)
   n <- 20
   x <- matrix(seq(0,1,length.out = n), ncol=1)
@@ -17,22 +18,23 @@ test_that("All kernels work in 1-D", {
 
     # Fit GP using kernel
     #' kernel=RatQuad$new(0.1,0.1)
-    gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=kernel, parallel=FALSE, verbose=10, nug.est=T, restarts=1)
+    gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=kernel, parallel=FALSE, verbose=0, nug.est=T, restarts=1)
 
     x1_C <- gp$kernel$k(x=x1)
-    expect_is(object = x1_C, class = 'numeric')
-    expect_length(object = x1_C, n = 1)
+    expect_is(object = x1_C, class = 'numeric', info = class(kernel)[1])
+    expect_equal(object = length(x1_C), expected = 1, info = class(kernel)[1])
 
     x2_C <- gp$kernel$k(x=x2)
-    expect_is(object = x2_C, class = 'matrix')
-    expect_length(object = x2_C, n = 100)
+    expect_is(object = x2_C, class = 'matrix', info = class(kernel)[1])
+    # expect_length(object = x2_C, n = 100, info = class(kernel)[1])
+    expect_equal(object = length(x2_C), expected = 100, info = class(kernel)[1])
 
     # Check C_dC
     C <- gp$kernel$k(x=x)
     dC <- gp$kernel$dC_dparams(X=x, nug=gp$nug)
     C_dC <- gp$kernel$C_dC_dparams(X=x, nug=gp$nug)
-    expect_equal(object = C+diag(gp$s2_hat * gp$nug, n), expected = C_dC[[1]])
-    expect_equal(object = dC, expected = C_dC[[2]])
+    expect_equal(object = C+diag(gp$s2_hat * gp$nug, n), expected = C_dC[[1]], info = class(kernel)[1])
+    expect_equal(object = dC, expected = C_dC[[2]], info = class(kernel)[1])
   }
 })
 
@@ -55,21 +57,21 @@ test_that("All kernels work in 2-D", {
 
     # Fit GP using kernel
     #' kernel=RatQuad$new(0.1,0.1)
-    gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=kernel, parallel=FALSE, verbose=10, nug.est=T, restarts=1)
+    gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=kernel, parallel=FALSE, verbose=0, nug.est=T, restarts=1)
 
     x1_C <- gp$kernel$k(x=x1)
-    expect_is(object = x1_C, class = 'numeric')
-    expect_length(object = x1_C, n = 1)
+    expect_is(object = x1_C, class = 'numeric', info = class(kernel)[1])
+    expect_equal(object = x1_C, expected = 1, info = class(kernel)[1])
 
     x2_C <- gp$kernel$k(x=x2)
-    expect_is(object = x2_C, class = 'matrix')
-    expect_length(object = x2_C, n = 25)
+    expect_is(object = x2_C, class = 'matrix', info = class(kernel)[1])
+    expect_equal(object = x2_C, expected = 25, info = class(kernel)[1])
 
     # Check C_dC
     C <- gp$kernel$k(x=x)
     dC <- gp$kernel$dC_dparams(X=x, nug=gp$nug)
     C_dC <- gp$kernel$C_dC_dparams(X=x, nug=gp$nug)
-    expect_equal(object = C+diag(gp$s2_hat * gp$nug, n), expected = C_dC[[1]])
-    expect_equal(object = dC, expected = C_dC[[2]])
+    expect_equal(object = C+diag(gp$s2_hat * gp$nug, n), expected = C_dC[[1]], info = class(kernel)[1])
+    expect_equal(object = dC, expected = C_dC[[2]], info = class(kernel)[1])
   }
 })
