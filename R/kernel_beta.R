@@ -47,17 +47,31 @@ GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
     logs2_lower = NULL,
     logs2_upper = NULL,
     s2_est = NULL, # Should s2 be estimated?
-    initialize = function(beta, s2=1,
+    initialize = function(beta, s2=1, D,
                           beta_lower=-8, beta_upper=6, beta_est=TRUE,
                           s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE
                           ) {
+      # Check beta and D
+      missing_beta <- missing(beta)
+      missing_D    <- missing(D)
+      if (missing_beta && missing_D) {stop("Must give kernel beta or D")}
+      else if (missing_beta) {beta <- rep(0, D)}
+      else if (missing_D) {D <- length(beta)}
+      else {if (length(beta) != D) {stop("beta and D should have same length")}}
+
+      self$D <- D
       self$beta <- beta
       self$beta_length <- length(beta)
-      # if (length(theta) == 1) {
-      #   self$theta <- rep(theta, self$d)
-      # }
-      self$beta_lower <- beta_lower
-      self$beta_upper <- beta_upper
+
+      # Setting beta_lower so dimensions are right
+      self$beta_lower <- if (length(beta_lower) == self$beta_length) {beta_lower}
+                         else if (length(beta_lower)==1) {rep(beta_lower, self$beta_length)}
+                         else {stop("Error for kernel_beta beta_lower")}
+
+      #self$beta_upper <- beta_upper
+      self$beta_upper <- if (length(beta_upper) == self$beta_length) {beta_upper}
+      else if (length(beta_upper)==1) {rep(beta_upper, self$beta_length)}
+      else {stop("Error for kernel_beta beta_upper")}
       self$beta_est <- beta_est
 
       self$s2 <- s2

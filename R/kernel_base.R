@@ -31,7 +31,7 @@
 #' #k <- GauPro_kernel$new()
 GauPro_kernel <- R6::R6Class(classname = "GauPro_kernel",
   public = list(
-
+    D = NULL
   ),
   private = list(
 

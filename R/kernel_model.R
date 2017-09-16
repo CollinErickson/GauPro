@@ -81,12 +81,6 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           #                      parallel=parallel, nug.est=nug.est)
           self$X <- X
           self$Z <- matrix(Z, ncol=1)
-          self$kernel <- kernel
-          if (missing(trend)) {
-            self$trend <- trend_c$new()
-          } else {
-            self$trend <- trend
-          }
           self$verbose <- verbose
           if (!is.matrix(self$X)) {
             if (length(self$X) == length(self$Z)) {
@@ -97,6 +91,20 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           }
           self$N <- nrow(self$X)
           self$D <- ncol(self$X)
+
+          # Set kernel
+          if (class(kernel) == "R6ClassGenerator") { # Let generator be given so D can be set auto
+            self$kernel <- kernel$new(D=self$D)
+          } else if ("GauPro_kernel" %in% class(kernel)) { # Otherwise it should already be a kernel
+            self$kernel <- kernel
+          } else {
+            stop("Error: bad kernel #68347")
+          }
+          if (missing(trend)) {
+            self$trend <- trend_c$new()
+          } else {
+            self$trend <- trend
+          }
 
           self$nug <- nug
           self$nug.min <- nug.min
