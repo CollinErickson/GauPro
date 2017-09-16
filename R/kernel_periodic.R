@@ -18,6 +18,8 @@
 
 #' Periodic Kernel R6 class
 #'
+#' p is the period for each dimension, a is a single number for scaling
+#'
 #' @docType class
 #' @importFrom R6 R6Class
 #' @export
@@ -49,11 +51,23 @@ Periodic <- R6::R6Class(
     logalpha_lower = NULL,
     logalpha_upper = NULL,
     alpha_est = NULL,
-    initialize = function(p, alpha, s2=1,
+    initialize = function(p, alpha=1, s2=1, D,
                           p_lower=0, p_upper=1e2, p_est=TRUE,
                           alpha_lower=0, alpha_upper=1e2, alpha_est=TRUE,
                           s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE
     ) {
+
+      # Check p and D
+      missing_p <- missing(p)
+      missing_D    <- missing(D)
+      if (missing_p && missing_D) {stop("Must give kernel p or D")}
+      else if (missing_p) {p <- rep(pi, D)}
+      else if (missing_D) {D <- length(p)}
+      else {if (length(p) != D) {stop("p and D should have same length")}}
+
+      self$D <- D
+
+
       self$alpha <- alpha
       self$logalpha <- log(alpha, 10)
       self$logalpha_lower <- log(alpha_lower, 10)
@@ -62,8 +76,20 @@ Periodic <- R6::R6Class(
       self$p <- p
       self$p_length <- length(p)
       self$logp <- log(p, 10)
-      self$logp_lower <- log(p_lower, 10)
-      self$logp_upper <- log(p_upper, 10)
+
+      # Now set upper and lower so they have correct length
+      # self$logp_lower <- log(p_lower, 10)
+      # self$logp_upper <- log(p_upper, 10)
+      # Setting logp_lower so dimensions are right
+      logp_lower <- log(p_lower, 10)
+      logp_upper <- log(p_upper, 10)
+      self$logp_lower <- if (length(logp_lower) == self$p_length) {logp_lower}
+      else if (length(logp_lower)==1) {rep(logp_lower, self$p_length)}
+      else {stop("Error for kernel_Periodic logp_lower")}
+      self$logp_upper <- if (length(logp_upper) == self$p_length) {logp_upper}
+      else if (length(logp_upper)==1) {rep(logp_upper, self$p_length)}
+      else {stop("Error for kernel_Periodic logp_upper")}
+
       self$p_est <- p_est
       self$s2 <- s2
       self$logs2 <- log(s2, 10)

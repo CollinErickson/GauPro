@@ -28,12 +28,12 @@ RatQuad <- R6::R6Class(
     logalpha_lower = NULL,
     logalpha_upper = NULL,
     alpha_est = NULL,
-    initialize = function(beta, alpha, s2=1,
+    initialize = function(beta, alpha=1, s2=1, D,
                           beta_lower=-8, beta_upper=6, beta_est=TRUE,
                           alpha_lower=0, alpha_upper=Inf, alpha_est=TRUE,
                           s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE
     ) {
-      super$initialize(beta=beta, s2=s2, beta_lower=beta_lower,
+      super$initialize(beta=beta, s2=s2, D=D, beta_lower=beta_lower,
                        beta_upper=beta_upper, beta_est=beta_est,
                        s2_lower=s2_lower,s2_upper=s2_upper, s2_est=s2_est)
       self$alpha <- alpha

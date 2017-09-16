@@ -20,12 +20,15 @@ White <- R6::R6Class(
     logs2_lower = NULL,
     logs2_upper = NULL,
     s2_est = NULL,
-    initialize = function(s2=1, s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE) {
+    initialize = function(s2=1, D, s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE) {
       self$s2 <- s2
       self$logs2 <- log(s2, 10)
       self$logs2_lower <- log(s2_lower, 10)
       self$logs2_upper <- log(s2_upper, 10)
       self$s2_est <- s2_est
+
+      if (missing(D)) {self$D <- NA}
+      else {self$D <- D}
 
     },
     k = function(x, y=NULL, s2=self$s2, params=NULL) {#browser()

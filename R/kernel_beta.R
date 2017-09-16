@@ -70,8 +70,8 @@ GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
 
       #self$beta_upper <- beta_upper
       self$beta_upper <- if (length(beta_upper) == self$beta_length) {beta_upper}
-      else if (length(beta_upper)==1) {rep(beta_upper, self$beta_length)}
-      else {stop("Error for kernel_beta beta_upper")}
+                         else if (length(beta_upper)==1) {rep(beta_upper, self$beta_length)}
+                         else {stop("Error for kernel_beta beta_upper")}
       self$beta_est <- beta_est
 
       self$s2 <- s2

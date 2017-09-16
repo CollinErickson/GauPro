@@ -93,7 +93,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           self$D <- ncol(self$X)
 
           # Set kernel
-          if (class(kernel) == "R6ClassGenerator") { # Let generator be given so D can be set auto
+          if ("R6ClassGenerator" %in% class(kernel)) { # Let generator be given so D can be set auto
             self$kernel <- kernel$new(D=self$D)
           } else if ("GauPro_kernel" %in% class(kernel)) { # Otherwise it should already be a kernel
             self$kernel <- kernel
