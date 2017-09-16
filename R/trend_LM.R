@@ -36,7 +36,7 @@ trend_LM <- R6::R6Class(
     b_lower = NULL,
     b_upper = NULL,
     b_est = NULL,
-    D = NULL,
+    # D = NULL,
     initialize = function(D, m = rep(0,D), m_lower=rep(-Inf,D), m_upper=rep(Inf,D), m_est=rep(TRUE,D),
                           b = 0, b_lower=-Inf, b_upper=Inf, b_est=TRUE) {
       self$D <- D

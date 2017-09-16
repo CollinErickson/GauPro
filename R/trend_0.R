@@ -31,11 +31,12 @@ trend_0 <- R6::R6Class(classname = "GauPro_trend_0",
     m_lower = NULL,
     m_upper = NULL,
     m_est = NULL,
-    initialize = function(m = 0, m_lower=0, m_upper=0, m_est=FALSE) {
+    initialize = function(m = 0, m_lower=0, m_upper=0, m_est=FALSE, D=NA) {
       self$m <- m
       self$m_lower <- m_lower
       self$m_upper <- m_upper
       self$m_est <- m_est
+      self$D <- D
     },
     Z = function(X, m=self$m, params=NULL) {
       if (!is.null(params)) {m <- params}

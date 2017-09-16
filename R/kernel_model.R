@@ -100,10 +100,14 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           } else {
             stop("Error: bad kernel #68347")
           }
+
+          # Set trend
           if (missing(trend)) {
             self$trend <- trend_c$new()
-          } else {
+          } else if ("GauPro_trend" %in% class(trend)) {
             self$trend <- trend
+          } else if ("R6ClassGenerator" %in% class(trend)) {
+            self$trend <- trend$new(D=self$D)
           }
 
           self$nug <- nug

@@ -27,6 +27,7 @@
 GauPro_trend <- R6::R6Class(classname = "GauPro_trend",
                              public = list(
                                # Gradient is -2 * t(yminusmu) %*% Siginv %*% du/db
+                               D = NULL
                              ),
                              private = list(
 
