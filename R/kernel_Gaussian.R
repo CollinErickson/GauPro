@@ -117,9 +117,11 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
         C_nonug <- self$k(x=X, params=params)
         C <- C_nonug + diag(nug*s2, nrow(C_nonug))
       }
-      dC_dparams <- array(dim=c(lenparams, n, n), data=0)
+
+      lenparams_D <- self$beta_length*self$beta_est + self$s2_est
+      dC_dparams <- array(dim=c(lenparams_D, n, n), data=0)
       if (self$s2_est) {
-        dC_dparams[lenparams,,] <- C * log10 #/ s2 * s2 *
+        dC_dparams[lenparams_D,,] <- C * log10 #/ s2 * s2 *
       }
       # dC_dparams <- rep(list(C_nonug), length(beta))
       if (self$beta_est) {
@@ -168,9 +170,11 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
       # Calculate C
       C_nonug <- self$k(x=X, beta=beta, s2=s2)
       C <- C_nonug + diag(nug*s2, nrow(C_nonug))
-      dC_dparams <- array(dim=c(lenparams, n, n), data=0)
+
+      lenparams_D <- self$beta_length*self$beta_est + self$s2_est
+      dC_dparams <- array(dim=c(lenparams_D, n, n), data=0)
       if (self$s2_est) {
-        dC_dparams[lenparams,,] <- C * log10 #/ s2 * s2 *
+        dC_dparams[lenparams_D,,] <- C * log10 #/ s2 * s2 *
       }
       # dC_dbetas <- rep(list(C_nonug), length(beta))
       # n <- nrow(X)

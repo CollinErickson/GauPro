@@ -86,6 +86,7 @@ White <- R6::R6Class(
         C <- C_nonug + diag(nug*s2, nrow(C_nonug))
       }
 
+      lenparams_D <- as.integer(self$s2_est)
       dC_dparams <- array(dim=c(lenparams, n, n), data=0)
       if (self$s2_est) {
         dC_dparams[lenparams,,] <- C * log10

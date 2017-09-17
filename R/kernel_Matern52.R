@@ -98,9 +98,11 @@ Matern52 <- R6::R6Class(classname = "GauPro_kernel_Matern52",
         C_nonug <- self$k(x=X, params=params)
         C <- C_nonug + diag(nug*s2, nrow(C_nonug))
       }
-      dC_dparams <- array(dim=c(lenparams, n, n), data = 0)
+
+      lenparams_D <- self$beta_length*self$beta_est + self$s2_est
+      dC_dparams <- array(dim=c(lenparams_D, n, n), data = 0)
       if (self$s2_est) {
-        dC_dparams[lenparams,,] <- C * log10 # Deriv for logs2
+        dC_dparams[lenparams_D,,] <- C * log10 # Deriv for logs2
       }
 
       # Deriv for beta

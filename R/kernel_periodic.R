@@ -201,9 +201,11 @@ Periodic <- R6::R6Class(
         C_nonug <- self$k(x=X, params=params)
         C <- C_nonug + diag(nug*s2, nrow(C_nonug))
       }
-      dC_dparams <- array(dim=c(lenparams, n, n), data=0)
+
+      lenparams_D <- self$p_length*self$p_est + 1*self$alpha_est +self$s2_est
+      dC_dparams <- array(dim=c(lenparams_D, n, n), data=0)
       if (self$s2_est) {
-        dC_dparams[lenparams,,] <- C * log10
+        dC_dparams[lenparams_D,,] <- C * log10
       }
       if (self$p_est) {
         for (k in 1:length(logp)) {
@@ -221,7 +223,7 @@ Periodic <- R6::R6Class(
       }
       # Grad for logalpha
       if (self$alpha_est) {
-        alph_ind <- lenparams - as.integer(self$s2_est)
+        alph_ind <- lenparams_D - as.integer(self$s2_est)
         for (i in seq(1, n-1, 1)) {
           for (j in seq(i+1, n, 1)) {
             r2 <- -sum(sin(p * (X[i,]-X[j,]))^2)

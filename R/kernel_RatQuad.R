@@ -145,9 +145,11 @@ RatQuad <- R6::R6Class(
         C_nonug <- self$k(x=X, params=params)
         C <- C_nonug + diag(nug*s2, nrow(C_nonug))
       }
-      dC_dparams <- array(dim=c(lenparams, n, n), data=0)
+
+      lenparams_D <- self$beta_length*self$beta_est + 1*self$alpha_est +self$s2_est
+      dC_dparams <- array(dim=c(lenparams_D, n, n), data=0)
       if (self$s2_est) {
-        dC_dparams[lenparams,,] <- C * log10
+        dC_dparams[lenparams_D,,] <- C * log10
       }
       if (self$beta_est) {
         for (k in 1:length(beta)) {
@@ -166,12 +168,13 @@ RatQuad <- R6::R6Class(
       }
       if (self$alpha_est) {
         # Grad for alpha
+        alpha_ind <- lenparams_D - self$s2_est
         for (i in seq(1, n-1, 1)) {
           for (j in seq(i+1, n, 1)) {
             r2 <- sum(theta * (X[i,]-X[j,])^2)
             t1 <- 1 + r2 / alpha
-            dC_dparams[lenparams-1, i,j] <- C[i,j] * (- log(t1) + r2 / alpha / t1) * alpha * log10
-            dC_dparams[lenparams-1, j,i] <- dC_dparams[lenparams-1, i,j]
+            dC_dparams[alpha_ind, i,j] <- C[i,j] * (- log(t1) + r2 / alpha / t1) * alpha * log10
+            dC_dparams[alpha_ind, j,i] <- dC_dparams[alpha_ind, i,j]
           }
         }
         for (i in seq(1, n, 1)) {
