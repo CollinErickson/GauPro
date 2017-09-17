@@ -17,9 +17,22 @@ Matern32 <- R6::R6Class(classname = "GauPro_kernel_Matern32",
     sqrt3 = sqrt(3),
     k = function(x, y=NULL, beta=self$beta, s2=self$s2, params=NULL) {
       if (!is.null(params)) {
-        lenpar <- length(params)
-        beta <- params[1:(lenpar-1)]
-        logs2 <- params[lenpar]
+        # lenpar <- length(params)
+        # beta <- params[1:(lenpar-1)]
+        # logs2 <- params[lenpar]
+
+        lenparams <- length(params)
+        if (self$beta_est) {
+          beta <- params[1:self$beta_length]
+        } else {
+          beta <- self$beta
+        }
+        if (self$s2_est) {
+          logs2 <- params[lenparams]
+        } else {
+          logs2 <- self$logs2
+        }
+
         s2 <- 10^logs2
       } else {#browser()
         if (is.null(beta)) {beta <- self$beta}
@@ -52,37 +65,60 @@ Matern32 <- R6::R6Class(classname = "GauPro_kernel_Matern32",
     },
     dC_dparams = function(params=NULL, X, C_nonug, C, nug) {
       n <- nrow(X)
-      if (is.null(params)) {params <- c(self$beta, self$logs2)}
-      if (missing(C_nonug)) { # Assume C missing too, must have nug
-        C_nonug <- self$k(x=X, params=params)
-        C <- C_nonug + diag(nug*10^params[length(params)], nrow(C_nonug))
-      }
+
       lenparams <- length(params)
-      beta <- params[1:(lenparams - 1)]
+      if (lenparams > 0) {
+        if (self$beta_est) {
+          beta <- params[1:self$beta_length]
+        } else {
+          beta <- self$beta
+        }
+        if (self$s2_est) {
+          logs2 <- params[lenparams]
+        } else {
+          logs2 <- self$logs2
+        }
+      } else {
+        beta <- self$beta
+        logs2 <- self$logs2
+      }
+
+      # lenparams <- length(params)
+      # beta <- params[1:(lenparams - 1)]
       theta <- 10^beta
       log10 <- log(10)
-      logs2 <- params[lenparams]
+      # logs2 <- params[lenparams]
       s2 <- 10 ^ logs2
+
+      # if (is.null(params)) {params <- c(self$beta, self$logs2)}
+      if (missing(C_nonug)) { # Assume C missing too, must have nug
+        C_nonug <- self$k(x=X, params=params)
+        C <- C_nonug + diag(nug*s2, nrow(C_nonug))
+      }
       dC_dparams <- array(dim=c(lenparams, n, n)) # Return as array
-      dC_dparams[lenparams, , ] <- C * log10 # Deriv for logs2
+      if (self$s2_est) {
+        dC_dparams[lenparams, , ] <- C * log10 # Deriv for logs2
+      }
 
       # Loop to set beta derivatives
-      for (i in seq(1, n-1, 1)) {
-        for (j in seq(i+1, n, 1)) {
-          tx2 <- sum(theta * (X[i,]-X[j,])^2)
-          t1 <- sqrt(3 * tx2)
-          t3 <- C[i,j] * (1/(1+t1) - 1) * self$sqrt3 * log10
-          sqrttx2 <- sqrt(tx2)
-          for (k in 1:length(beta)) {
-            dt1dbk <- .5 * (X[i,k] - X[j,k])^2 / sqrttx2
-            dC_dparams[k,i,j] <- t3 * dt1dbk * theta[k]   #s2 * (1+t1) * exp(-t1) *-dt1dbk + s2 * dt1dbk * exp(-t1)
-            dC_dparams[k,j,i] <- dC_dparams[k,i,j]
+      if (self$beta_est) {
+        for (i in seq(1, n-1, 1)) {
+          for (j in seq(i+1, n, 1)) {
+            tx2 <- sum(theta * (X[i,]-X[j,])^2)
+            t1 <- sqrt(3 * tx2)
+            t3 <- C[i,j] * (1/(1+t1) - 1) * self$sqrt3 * log10
+            sqrttx2 <- sqrt(tx2)
+            for (k in 1:length(beta)) {
+              dt1dbk <- .5 * (X[i,k] - X[j,k])^2 / sqrttx2
+              dC_dparams[k,i,j] <- t3 * dt1dbk * theta[k]   #s2 * (1+t1) * exp(-t1) *-dt1dbk + s2 * dt1dbk * exp(-t1)
+              dC_dparams[k,j,i] <- dC_dparams[k,i,j]
+            }
           }
         }
-      }
-      for (i in seq(1, n, 1)) { # Get diagonal set to zero
-        for (k in 1:length(beta)) {
-          dC_dparams[k,i,i] <- 0
+        for (i in seq(1, n, 1)) { # Get diagonal set to zero
+          for (k in 1:length(beta)) {
+            dC_dparams[k,i,i] <- 0
+          }
         }
       }
 

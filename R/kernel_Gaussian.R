@@ -49,10 +49,18 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
     # },
     k = function(x, y=NULL, beta=self$beta, s2=self$s2, params=NULL) {
       if (!is.null(params)) {
-        lenpar <- length(params)
-        beta <- params[1:(lenpar-1)]
-        logs2 <- params[lenpar]
-        s2 <- 10^logs2
+        lenparams <- length(params)
+        if (self$beta_est) {
+          beta <- params[1:self$beta_length]
+        } else {
+          beta <- self$beta
+        }
+        if (self$s2_est) {
+          logs2 <- params[lenparams]
+        } else {
+          logs2 <- self$logs2
+        }
+        s2 <- 10 ^ logs2
       } else {#browser()
         if (is.null(beta)) {beta <- self$beta}
         if (is.null(s2)) {s2 <- self$s2}
@@ -79,29 +87,53 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
     },
     dC_dparams = function(params=NULL, X, C_nonug, C, nug) {#browser(text = "Make sure all in one list")
       n <- nrow(X)
-      if (is.null(params)) {params <- c(self$beta, self$logs2)}
-      if (missing(C_nonug)) { # Assume C missing too, must have nug
-        C_nonug <- self$k(x=X, params=params)
-        C <- C_nonug + diag(nug*10^params[length(params)], nrow(C_nonug))
-      }
       lenparams <- length(params)
-      beta <- params[1:(lenparams - 1)]
+      if (lenparams > 0) {
+        if (self$beta_est) {
+          beta <- params[1:self$beta_length]
+        } else {
+          beta <- self$beta
+        }
+        if (self$s2_est) {
+          logs2 <- params[lenparams]
+        } else {
+          logs2 <- self$logs2
+        }
+      } else {
+        beta <- self$beta
+        logs2 <- self$logs2
+      }
+
+      # lenparams <- length(params)
+      # beta <- params[1:(lenparams - 1)]
       theta <- 10^beta
       log10 <- log(10)
-      logs2 <- params[lenparams]
+      # logs2 <- params[lenparams]
       s2 <- 10 ^ logs2
-      dC_dparams <- array(dim=c(lenparams, n, n))
-      dC_dparams[lenparams,,] <- C * log10 #/ s2 * s2 *
+
+      # if (inherits(try(diag(nug*s2, nrow(C_nonug))), "try-error")) {browser()}
+      # if (is.null(params)) {params <- c(self$beta, self$logs2)}
+      if (missing(C_nonug)) { # Assume C missing too, must have nug
+        C_nonug <- self$k(x=X, params=params)
+        C <- C_nonug + diag(nug*s2, nrow(C_nonug))
+      }
+      dC_dparams <- array(dim=c(lenparams, n, n), data=0)
+      if (self$s2_est) {
+        dC_dparams[lenparams,,] <- C * log10 #/ s2 * s2 *
+      }
       # dC_dparams <- rep(list(C_nonug), length(beta))
-      for (k in 1:length(beta)) {
-        for (i in seq(1, n-1, 1)) {
-          for (j in seq(i+1, n, 1)) {
-            dC_dparams[k,i,j] <- - C_nonug[i,j] * (X[i,k] - X[j,k])^2 * theta[k] * log10
-            dC_dparams[k,j,i] <- dC_dparams[k,i,j]
+      if (self$beta_est) {
+        for (k in 1:length(beta)) {
+          for (i in seq(1, n-1, 1)) {
+            for (j in seq(i+1, n, 1)) {
+              if (inherits(try(C_nonug[i,j] * (X[i,k] - X[j,k])^2 * theta[k] * log10), "try-error")) {browser()}
+              dC_dparams[k,i,j] <- - C_nonug[i,j] * (X[i,k] - X[j,k])^2 * theta[k] * log10
+              dC_dparams[k,j,i] <- dC_dparams[k,i,j]
+            }
           }
-        }
-        for (i in seq(1, n, 1)) { # Get diagonal set to zero
-          dC_dparams[k,i,i] <- 0
+          for (i in seq(1, n, 1)) { # Get diagonal set to zero
+            dC_dparams[k,i,i] <- 0
+          }
         }
       }
 
@@ -110,30 +142,49 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
     },
     C_dC_dparams = function(params=NULL, X, nug) {#browser(text = "Make sure all in one list")
       n <- nrow(X)
-      if (is.null(params)) {params <- c(self$beta, self$logs2)}
       lenparams <- length(params)
-      beta <- params[1:(lenparams - 1)]
+      if (lenparams > 0) {
+        if (self$beta_est) {
+          beta <- params[1:self$beta_length]
+        } else {
+          beta <- self$beta
+        }
+        if (self$s2_est) {
+          logs2 <- params[lenparams]
+        } else {
+          logs2 <- self$logs2
+        }
+      } else {
+        beta <- self$beta
+        logs2 <- self$logs2
+      }
+
+      # if (is.null(params)) {params <- c(self$beta, self$logs2)}
+      # beta <- params[1:(lenparams - 1)]
       theta <- 10^beta
       log10 <- log(10)
-      logs2 <- params[lenparams]
+      # logs2 <- params[lenparams]
       s2 <- 10 ^ logs2
-
       # Calculate C
       C_nonug <- self$k(x=X, beta=beta, s2=s2)
       C <- C_nonug + diag(nug*s2, nrow(C_nonug))
-      dC_dparams <- array(dim=c(lenparams, n, n))
-      dC_dparams[lenparams,,] <- C * log10 #/ s2 * s2 *
+      dC_dparams <- array(dim=c(lenparams, n, n), data=0)
+      if (self$s2_est) {
+        dC_dparams[lenparams,,] <- C * log10 #/ s2 * s2 *
+      }
       # dC_dbetas <- rep(list(C_nonug), length(beta))
       # n <- nrow(X)
-      for (k in 1:length(beta)) {
-        for (i in seq(1, n-1, 1)) {
-          for (j in seq(i+1, n, 1)) {
-            dC_dparams[k,i,j] <- - C[i,j] * (X[i,k] - X[j,k])^2 * theta[k] * log10
-            dC_dparams[k,j,i] <- dC_dparams[k,i,j]
+      if (self$beta_est) {
+        for (k in 1:length(beta)) {
+          for (i in seq(1, n-1, 1)) {
+            for (j in seq(i+1, n, 1)) {
+              dC_dparams[k,i,j] <- - C[i,j] * (X[i,k] - X[j,k])^2 * theta[k] * log10
+              dC_dparams[k,j,i] <- dC_dparams[k,i,j]
+            }
           }
-        }
-        for (i in seq(1, n, 1)) { # Get diagonal set to zero
-          dC_dparams[k,i,i] <- 0
+          for (i in seq(1, n, 1)) { # Get diagonal set to zero
+            dC_dparams[k,i,i] <- 0
+          }
         }
       }
 

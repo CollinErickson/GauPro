@@ -12,7 +12,7 @@ Periodic
 Object of \code{\link{R6Class}} with methods for fitting GP model.
 }
 \description{
-Periodic Kernel R6 class
+p is the period for each dimension, a is a single number for scaling
 }
 \examples{
 k1 <- Periodic$new(p=1, alpha=1)

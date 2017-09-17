@@ -100,10 +100,30 @@ Periodic <- R6::R6Class(
     },
     k = function(x, y=NULL, logp=self$logp, logalpha=self$logalpha, s2=self$s2, params=NULL) {#browser()
       if (!is.null(params)) {
-        lenpar <- length(params)
-        logp <- params[1:(lenpar-2)]
-        logalpha <- params[lenpar-1]
-        logs2 <- params[lenpar]
+        lenparams <- length(params)
+        # logp <- params[1:(lenpar-2)]
+        # logalpha <- params[lenpar-1]
+        # logs2 <- params[lenpar]
+
+        if (self$p_est) {
+          logp <- params[1:self$p_length]
+        } else {
+          logp <- self$logp
+        }
+        if (self$alpha_est) {
+          logalpha <- params[1 + as.integer(self$p_est) * self$p_length]
+        } else {
+          logalpha <- self$logalpha
+        }
+        if (self$s2_est) {
+          logs2 <- params[lenparams]
+        } else {
+          logs2 <- self$logs2
+        }
+
+
+
+
         s2 <- 10^logs2
       } else {#browser()
         if (is.null(logp)) {logp <- self$logp}
@@ -142,43 +162,76 @@ Periodic <- R6::R6Class(
     },
     dC_dparams = function(params=NULL, X, C_nonug, C, nug) {#browser(text = "Make sure all in one list")
       n <- nrow(X)
-      if (is.null(params)) {params <- c(self$logp, self$logalpha, self$logs2)}
-      if (missing(C_nonug)) { # Assume C missing too, must have nug
-        C_nonug <- self$k(x=X, params=params)
-        C <- C_nonug + diag(nug*10^params[length(params)], nrow(C_nonug))
-      }
+
       lenparams <- length(params)
-      logp <- params[1:(lenparams - 2)]
+
+      if (lenparams > 0) {
+        if (self$p_est) {
+          logp <- params[1:self$p_length]
+        } else {
+          logp <- self$logp
+        }
+        if (self$alpha_est) {
+          logalpha <- params[1 + as.integer(self$p_est) * self$p_length]
+        } else {
+          logalpha <- self$logalpha
+        }
+        if (self$s2_est) {
+          logs2 <- params[lenparams]
+        } else {
+          logs2 <- self$logs2
+        }
+      } else {
+        logp <- self$logp
+        logalpha <- self$logalpha
+        logs2 <- self$logs2
+      }
+
+      # lenparams <- length(params)
+      # logp <- params[1:(lenparams - 2)]
       p <- 10^logp
-      logalpha <- params[lenparams-1]
+      # logalpha <- params[lenparams-1]
       alpha <- 10^logalpha
       log10 <- log(10)
-      logs2 <- params[lenparams]
+      # logs2 <- params[lenparams]
       s2 <- 10 ^ logs2
-      dC_dparams <- array(dim=c(lenparams, n, n))
-      dC_dparams[lenparams,,] <- C * log10
-      for (k in 1:length(logp)) {
-        for (i in seq(1, n-1, 1)) {
-          for (j in seq(i+1, n, 1)) {
-            r2 <- sum(p * (X[i,]-X[j,])^2)
-            dC_dparams[k,i,j] <- -C[i,j] * alpha * sin(2*p[k]*(X[i,k] - X[j,k])) * (X[i,k] - X[j,k]) * p[k] * log10
-            dC_dparams[k,j,i] <- dC_dparams[k,i,j]
+
+      # if (is.null(params)) {params <- c(self$logp, self$logalpha, self$logs2)}
+      if (missing(C_nonug)) { # Assume C missing too, must have nug
+        C_nonug <- self$k(x=X, params=params)
+        C <- C_nonug + diag(nug*s2, nrow(C_nonug))
+      }
+      dC_dparams <- array(dim=c(lenparams, n, n), data=0)
+      if (self$s2_est) {
+        dC_dparams[lenparams,,] <- C * log10
+      }
+      if (self$p_est) {
+        for (k in 1:length(logp)) {
+          for (i in seq(1, n-1, 1)) {
+            for (j in seq(i+1, n, 1)) {
+              r2 <- sum(p * (X[i,]-X[j,])^2)
+              dC_dparams[k,i,j] <- -C[i,j] * alpha * sin(2*p[k]*(X[i,k] - X[j,k])) * (X[i,k] - X[j,k]) * p[k] * log10
+              dC_dparams[k,j,i] <- dC_dparams[k,i,j]
+            }
           }
-        }
-        for (i in seq(1, n, 1)) { # Get diagonal set to zero
-          dC_dparams[k,i,i] <- 0
+          for (i in seq(1, n, 1)) { # Get diagonal set to zero
+            dC_dparams[k,i,i] <- 0
+          }
         }
       }
       # Grad for logalpha
-      for (i in seq(1, n-1, 1)) {
-        for (j in seq(i+1, n, 1)) {
-          r2 <- -sum(sin(p * (X[i,]-X[j,]))^2)
-          dC_dparams[lenparams-1, i,j] <- C[i,j] * r2 * alpha * log10
-          dC_dparams[lenparams-1, j,i] <- dC_dparams[lenparams-1, i,j]
+      if (self$alpha_est) {
+        alph_ind <- lenparams - as.integer(self$s2_est)
+        for (i in seq(1, n-1, 1)) {
+          for (j in seq(i+1, n, 1)) {
+            r2 <- -sum(sin(p * (X[i,]-X[j,]))^2)
+            dC_dparams[alph_ind, i,j] <- C[i,j] * r2 * alpha * log10
+            dC_dparams[alph_ind, j,i] <- dC_dparams[alph_ind, i,j]
+          }
         }
-      }
-      for (i in seq(1, n, 1)) {
-        dC_dparams[lenparams-1, i,i] <- 0
+        for (i in seq(1, n, 1)) {
+          dC_dparams[alph_ind, i,i] <- 0
+        }
       }
       return(dC_dparams)
     },

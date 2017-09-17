@@ -71,18 +71,25 @@ White <- R6::R6Class(
     },
     dC_dparams = function(params=NULL, X, C_nonug, C, nug) {#browser(text = "Make sure all in one list")
       n <- nrow(X)
-      if (is.null(params)) {params <- c(self$logs2)}
+      lenparams <- length(params)
+      if (is.null(params)) {
+        logs2 <- self$logs2
+      } else {
+        logs2 <- params
+      }
+      log10 <- log(10)
+      # logs2 <- params[lenparams]
+      s2 <- 10 ^ logs2
+
       if (missing(C_nonug)) { # Assume C missing too, must have nug
         C_nonug <- self$k(x=X, params=params)
-        C <- C_nonug + diag(nug*10^params[length(params)], nrow(C_nonug))
+        C <- C_nonug + diag(nug*s2, nrow(C_nonug))
       }
-      lenparams <- length(params)
-      if (lenparams != 1) {stop("Error in kernel_White dC_dparams")}
-      log10 <- log(10)
-      logs2 <- params[lenparams]
-      s2 <- 10 ^ logs2
-      dC_dparams <- array(dim=c(lenparams, n, n))
-      dC_dparams[lenparams,,] <- C * log10
+
+      dC_dparams <- array(dim=c(lenparams, n, n), data=0)
+      if (self$s2_est) {
+        dC_dparams[lenparams,,] <- C * log10
+      }
       return(dC_dparams)
     },
     C_dC_dparams = function(params=NULL, X, nug) {
