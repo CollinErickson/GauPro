@@ -67,6 +67,9 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
         parallel = NULL,
         parallel_cores = NULL,
         restarts = NULL,
+        normalize = NULL, # Should the Z values be normalized for internal computations?
+        normalize_mean = NULL,
+        normalize_sd = NULL,
         #deviance_out = NULL, #(theta, nug)
         #deviance_grad_out = NULL, #(theta, nug, overwhat)
         #deviance_fngr_out = NULL,
@@ -76,11 +79,18 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
                               parallel=FALSE,
                               nug=1e-6, nug.min=1e-8, nug.max=Inf, nug.est=TRUE,
                               param.est = TRUE, restarts = 5,
+                              normalize = FALSE,
                               ...) {
           #self$initialize_GauPr(X=X,Z=Z,verbose=verbose,useC=useC,useGrad=useGrad,
           #                      parallel=parallel, nug.est=nug.est)
           self$X <- X
           self$Z <- matrix(Z, ncol=1)
+          self$normalize <- normalize
+          if (self$normalize) {
+            self$normalize_mean <- mean(self$Z)
+            self$normalize_sd <- sd(self$Z)
+            self$Z <- (self$Z - self$normalize_mean) / self$normalize_sd
+          }
           self$verbose <- verbose
           if (!is.matrix(self$X)) {
             if (length(self$X) == length(self$Z)) {
@@ -192,6 +202,16 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
               }
             }
             #se[s2>=0] <- sqrt(s2[s2>=0])
+
+            # # Unnormalize if needed
+            # if (self$normalize) {
+            #   mn <- mn * self$normalize_sd + self$normalize_mean
+            #   if (se.fit) {
+            #     se <- se * self$normalize_sd
+            #     s2 <- s2 * self$normalize_sd^2
+            #   }
+            # }
+
             if (!se.fit) {# covmat is always FALSE for split_speed } & !covmat) {
               return(mn)
             } else {
@@ -199,7 +219,8 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
             }
 
           } else {
-            return(self$pred_one_matrix(XX=XX, se.fit=se.fit, covmat=covmat))
+            pred1 <- self$pred_one_matrix(XX=XX, se.fit=se.fit, covmat=covmat)
+            return(pred1)
           }
         },
         pred_one_matrix = function(XX, se.fit=F, covmat=F) {
@@ -213,12 +234,18 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
 
           mn <- pred_meanC_mumat(XX, kx.xx, self$mu_hatX, mu_hat_matXX, self$Kinv, self$Z)
 
+          if (self$normalize) {mn <- mn * self$normalize_sd + self$normalize_mean}
+
           if (!se.fit & !covmat) {
             return(mn)
           }
           if (covmat) {
             # new for kernel
             covmatdat <- kxx - t(kx.xx) %*% self$Kinv %*% kx.xx
+
+            if (self$normalize) {
+              covmatdat <- covmatdat * self$normalize_sd ^ 2
+            }
 
             # #covmatdat <- self$pred_var(XX, kxx=kxx, kx.xx=kx.xx, covmat=T)
             # covmatdat <- pred_cov(XX, kxx, kx.xx, self$s2_hat, self$Kinv, self$Z)
@@ -232,6 +259,10 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           # new for kernel
           covmatdat <- kxx - t(kx.xx) %*% self$Kinv %*% kx.xx
           s2 <- diag(covmatdat)
+
+          if (self$normalize) {
+            s2 <- s2 * self$normalize_sd ^ 2
+          }
 
           # s2 <- pred_var(XX, kxx, kx.xx, self$s2_hat, self$Kinv, self$Z)
           se <- rep(0, length(mn)) # NEG VARS will be 0 for se, NOT SURE I WANT THIS
@@ -343,7 +374,10 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
             }
           }
           points(x,px$me, type='l', lwd=4)
-          points(self$X, self$Z, pch=19, col=1, cex=2)
+          points(self$X,
+                 if (self$normalize) {self$Z * self$normalize_sd + self$normalize_mean}
+                   else {self$Z},
+                 pch=19, col=1, cex=2)
         },
         loglikelihood = function(mu=self$mu_hatX, s2=self$s2_hat) {
           -.5 * (self$N*log(s2) + log(det(self$K)) + t(self$Z - mu)%*%self$Kinv%*%(self$Z - mu)/s2)
@@ -683,8 +717,15 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           }
           if (!is.null(Zall)) {
             self$Z <- if (is.matrix(Zall))Zall else matrix(Zall,ncol=1)
+            if (self$normalize) {
+              self$normalize_mean <- mean(self$Z)
+              self$normalize_sd <- sd(self$Z)
+              self$Z <- (self$Z - self$normalize_mean) / self$normalize_sd
+            }
           } else if (!is.null(Znew)) {
-            self$Z <- rbind(self$Z, if (is.matrix(Znew)) Znew else matrix(Znew,ncol=1))
+            Znewmat <- if (is.matrix(Znew)) Znew else matrix(Znew,ncol=1)
+            if (self$normalize) {Znewmat <- (Znewmat - self$normalize_mean) / self$normalize_sd}
+            self$Z <- rbind(self$Z, Znewmat)
           }
           #if (!is.null(Xall) | !is.null(Xnew)) {self$update_K_and_estimates()} # update Kinv, etc, DONT THINK I NEED IT
         },
