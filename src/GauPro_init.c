@@ -32,6 +32,9 @@ extern SEXP _GauPro_pred_meanC_mumat(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _GauPro_pred_var(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _GauPro_rcpp_hello_world();
 extern SEXP _GauPro_solveC(SEXP, SEXP);
+extern SEXP _GauPro_corr_exponential_matrix_symC(SEXP, SEXP);
+extern SEXP _GauPro_corr_exponential_matrixC(SEXP, SEXP, SEXP);
+extern SEXP _GauPro_corr_exponential_matrixvecC(SEXP, SEXP, SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
   {"_GauPro_cholC",                       (DL_FUNC) &_GauPro_cholC,                       1},
@@ -56,6 +59,9 @@ static const R_CallMethodDef CallEntries[] = {
   {"_GauPro_pred_var",                    (DL_FUNC) &_GauPro_pred_var,                    6},
   {"_GauPro_rcpp_hello_world",            (DL_FUNC) &_GauPro_rcpp_hello_world,            0},
   {"_GauPro_solveC",                      (DL_FUNC) &_GauPro_solveC,                      2},
+  {"_GauPro_corr_exponential_matrix_symC",      (DL_FUNC) &_GauPro_corr_exponential_matrix_symC,      2},
+  {"_GauPro_corr_exponential_matrixC",          (DL_FUNC) &_GauPro_corr_exponential_matrixC,          3},
+  {"_GauPro_corr_exponential_matrixvecC",       (DL_FUNC) &_GauPro_corr_exponential_matrixvecC,       3},
   {NULL, NULL, 0}
 };
 

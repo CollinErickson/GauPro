@@ -9,6 +9,25 @@ solveC <- function(A, b) {
     .Call(`_GauPro_solveC`, A, b)
 }
 
+corr_exponential_matrixC <- function(x, y, theta) {
+    .Call(`_GauPro_corr_exponential_matrixC`, x, y, theta)
+}
+
+#' Correlation Gaussian matrix in C (symmetric)
+#' @param x Matrix x
+#' @param theta Theta vector
+#' @return Correlation matrix
+#' @export
+#' @examples
+#' corr_gauss_matrix_symC(matrix(c(1,0,0,1),2,2),c(1,1))
+corr_exponential_matrix_symC <- function(x, theta) {
+    .Call(`_GauPro_corr_exponential_matrix_symC`, x, theta)
+}
+
+corr_exponential_matrixvecC <- function(x, y, theta) {
+    .Call(`_GauPro_corr_exponential_matrixvecC`, x, y, theta)
+}
+
 corr_gauss_matrixC <- function(x, y, theta) {
     .Call(`_GauPro_corr_gauss_matrixC`, x, y, theta)
 }

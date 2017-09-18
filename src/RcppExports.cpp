@@ -29,6 +29,44 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// corr_exponential_matrixC
+NumericMatrix corr_exponential_matrixC(NumericMatrix x, NumericMatrix y, NumericVector theta);
+RcppExport SEXP _GauPro_corr_exponential_matrixC(SEXP xSEXP, SEXP ySEXP, SEXP thetaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type x(xSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type y(ySEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type theta(thetaSEXP);
+    rcpp_result_gen = Rcpp::wrap(corr_exponential_matrixC(x, y, theta));
+    return rcpp_result_gen;
+END_RCPP
+}
+// corr_exponential_matrix_symC
+NumericMatrix corr_exponential_matrix_symC(NumericMatrix x, NumericVector theta);
+RcppExport SEXP _GauPro_corr_exponential_matrix_symC(SEXP xSEXP, SEXP thetaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type x(xSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type theta(thetaSEXP);
+    rcpp_result_gen = Rcpp::wrap(corr_exponential_matrix_symC(x, theta));
+    return rcpp_result_gen;
+END_RCPP
+}
+// corr_exponential_matrixvecC
+NumericVector corr_exponential_matrixvecC(NumericMatrix x, NumericVector y, NumericVector theta);
+RcppExport SEXP _GauPro_corr_exponential_matrixvecC(SEXP xSEXP, SEXP ySEXP, SEXP thetaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type x(xSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type theta(thetaSEXP);
+    rcpp_result_gen = Rcpp::wrap(corr_exponential_matrixvecC(x, y, theta));
+    return rcpp_result_gen;
+END_RCPP
+}
 // corr_gauss_matrixC
 NumericMatrix corr_gauss_matrixC(NumericMatrix x, NumericMatrix y, NumericVector theta);
 RcppExport SEXP _GauPro_corr_gauss_matrixC(SEXP xSEXP, SEXP ySEXP, SEXP thetaSEXP) {
