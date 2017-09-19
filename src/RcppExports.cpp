@@ -117,6 +117,82 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// corr_matern32_matrixC
+NumericMatrix corr_matern32_matrixC(NumericMatrix x, NumericMatrix y, NumericVector theta);
+RcppExport SEXP _GauPro_corr_matern32_matrixC(SEXP xSEXP, SEXP ySEXP, SEXP thetaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type x(xSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type y(ySEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type theta(thetaSEXP);
+    rcpp_result_gen = Rcpp::wrap(corr_matern32_matrixC(x, y, theta));
+    return rcpp_result_gen;
+END_RCPP
+}
+// corr_matern32_matrix_symC
+NumericMatrix corr_matern32_matrix_symC(NumericMatrix x, NumericVector theta);
+RcppExport SEXP _GauPro_corr_matern32_matrix_symC(SEXP xSEXP, SEXP thetaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type x(xSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type theta(thetaSEXP);
+    rcpp_result_gen = Rcpp::wrap(corr_matern32_matrix_symC(x, theta));
+    return rcpp_result_gen;
+END_RCPP
+}
+// corr_matern32_matrixvecC
+NumericVector corr_matern32_matrixvecC(NumericMatrix x, NumericVector y, NumericVector theta);
+RcppExport SEXP _GauPro_corr_matern32_matrixvecC(SEXP xSEXP, SEXP ySEXP, SEXP thetaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type x(xSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type theta(thetaSEXP);
+    rcpp_result_gen = Rcpp::wrap(corr_matern32_matrixvecC(x, y, theta));
+    return rcpp_result_gen;
+END_RCPP
+}
+// corr_matern52_matrixC
+NumericMatrix corr_matern52_matrixC(NumericMatrix x, NumericMatrix y, NumericVector theta);
+RcppExport SEXP _GauPro_corr_matern52_matrixC(SEXP xSEXP, SEXP ySEXP, SEXP thetaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type x(xSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type y(ySEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type theta(thetaSEXP);
+    rcpp_result_gen = Rcpp::wrap(corr_matern52_matrixC(x, y, theta));
+    return rcpp_result_gen;
+END_RCPP
+}
+// corr_matern52_matrix_symC
+NumericMatrix corr_matern52_matrix_symC(NumericMatrix x, NumericVector theta);
+RcppExport SEXP _GauPro_corr_matern52_matrix_symC(SEXP xSEXP, SEXP thetaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type x(xSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type theta(thetaSEXP);
+    rcpp_result_gen = Rcpp::wrap(corr_matern52_matrix_symC(x, theta));
+    return rcpp_result_gen;
+END_RCPP
+}
+// corr_matern52_matrixvecC
+NumericVector corr_matern52_matrixvecC(NumericMatrix x, NumericVector y, NumericVector theta);
+RcppExport SEXP _GauPro_corr_matern52_matrixvecC(SEXP xSEXP, SEXP ySEXP, SEXP thetaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type x(xSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type theta(thetaSEXP);
+    rcpp_result_gen = Rcpp::wrap(corr_matern52_matrixvecC(x, y, theta));
+    return rcpp_result_gen;
+END_RCPP
+}
 // deviance_part
 double deviance_part(arma::vec theta, double nug, arma::mat X, arma::mat Z, arma::mat Kinv);
 RcppExport SEXP _GauPro_deviance_part(SEXP thetaSEXP, SEXP nugSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP KinvSEXP) {

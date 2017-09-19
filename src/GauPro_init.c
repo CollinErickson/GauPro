@@ -35,6 +35,12 @@ extern SEXP _GauPro_solveC(SEXP, SEXP);
 extern SEXP _GauPro_corr_exponential_matrix_symC(SEXP, SEXP);
 extern SEXP _GauPro_corr_exponential_matrixC(SEXP, SEXP, SEXP);
 extern SEXP _GauPro_corr_exponential_matrixvecC(SEXP, SEXP, SEXP);
+extern SEXP _GauPro_corr_matern32_matrix_symC(SEXP, SEXP);
+extern SEXP _GauPro_corr_matern32_matrixC(SEXP, SEXP, SEXP);
+extern SEXP _GauPro_corr_matern32_matrixvecC(SEXP, SEXP, SEXP);
+extern SEXP _GauPro_corr_matern52_matrix_symC(SEXP, SEXP);
+extern SEXP _GauPro_corr_matern52_matrixC(SEXP, SEXP, SEXP);
+extern SEXP _GauPro_corr_matern52_matrixvecC(SEXP, SEXP, SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
   {"_GauPro_cholC",                       (DL_FUNC) &_GauPro_cholC,                       1},
@@ -62,6 +68,12 @@ static const R_CallMethodDef CallEntries[] = {
   {"_GauPro_corr_exponential_matrix_symC",      (DL_FUNC) &_GauPro_corr_exponential_matrix_symC,      2},
   {"_GauPro_corr_exponential_matrixC",          (DL_FUNC) &_GauPro_corr_exponential_matrixC,          3},
   {"_GauPro_corr_exponential_matrixvecC",       (DL_FUNC) &_GauPro_corr_exponential_matrixvecC,       3},
+  {"_GauPro_corr_matern32_matrix_symC",      (DL_FUNC) &_GauPro_corr_matern32_matrix_symC,      2},
+  {"_GauPro_corr_matern32_matrixC",          (DL_FUNC) &_GauPro_corr_matern32_matrixC,          3},
+  {"_GauPro_corr_matern32_matrixvecC",       (DL_FUNC) &_GauPro_corr_matern32_matrixvecC,       3},
+  {"_GauPro_corr_matern52_matrix_symC",      (DL_FUNC) &_GauPro_corr_matern52_matrix_symC,      2},
+  {"_GauPro_corr_matern52_matrixC",          (DL_FUNC) &_GauPro_corr_matern52_matrixC,          3},
+  {"_GauPro_corr_matern52_matrixvecC",       (DL_FUNC) &_GauPro_corr_matern52_matrixvecC,       3},
   {NULL, NULL, 0}
 };
 

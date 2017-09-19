@@ -41,7 +41,8 @@ Matern52 <- R6::R6Class(classname = "GauPro_kernel_Matern52",
       theta <- 10^beta
       if (is.null(y)) {
         if (is.matrix(x)) {
-          val <- outer(1:nrow(x), 1:nrow(x), Vectorize(function(i,j){self$kone(x[i,],x[j,],theta=theta, s2=s2)}))
+          # val <- outer(1:nrow(x), 1:nrow(x), Vectorize(function(i,j){self$kone(x[i,],x[j,],theta=theta, s2=s2)}))
+          val <- s2 * corr_matern52_matrix_symC(x, theta)
           return(val)
         } else {
           return(s2 * 1)
@@ -49,13 +50,16 @@ Matern52 <- R6::R6Class(classname = "GauPro_kernel_Matern52",
       }
       if (is.matrix(x) & is.matrix(y)) {
         # s2 * corr_gauss_matrixC(x, y, theta)
-        outer(1:nrow(x), 1:nrow(y), Vectorize(function(i,j){self$kone(x[i,],y[j,],theta=theta, s2=s2)}))
+        # outer(1:nrow(x), 1:nrow(y), Vectorize(function(i,j){self$kone(x[i,],y[j,],theta=theta, s2=s2)}))
+        s2 * corr_matern52_matrixC(x, y, theta)
       } else if (is.matrix(x) & !is.matrix(y)) {
         # s2 * corr_gauss_matrixvecC(x, y, theta)
-        apply(x, 1, function(xx) {self$kone(xx, y, theta=theta, s2=s2)})
+        # apply(x, 1, function(xx) {self$kone(xx, y, theta=theta, s2=s2)})
+        s2 * corr_matern52_matvecC(x, y, theta)
       } else if (is.matrix(y)) {
         # s2 * corr_gauss_matrixvecC(y, x, theta)
-        apply(y, 1, function(yy) {self$kone(yy, x, theta=theta, s2=s2)})
+        # apply(y, 1, function(yy) {self$kone(yy, x, theta=theta, s2=s2)})
+        s2 * corr_matern52_matvecC(y, x, theta)
       } else {
         self$kone(x, y, theta=theta, s2=s2)
       }

@@ -58,6 +58,44 @@ corr_gauss_matrix_sym_armaC <- function(x, theta) {
     .Call(`_GauPro_corr_gauss_matrix_sym_armaC`, x, theta)
 }
 
+corr_matern32_matrixC <- function(x, y, theta) {
+    .Call(`_GauPro_corr_matern32_matrixC`, x, y, theta)
+}
+
+#' Correlation Gaussian matrix in C (symmetric)
+#' @param x Matrix x
+#' @param theta Theta vector
+#' @return Correlation matrix
+#' @export
+#' @examples
+#' corr_gauss_matrix_symC(matrix(c(1,0,0,1),2,2),c(1,1))
+corr_matern32_matrix_symC <- function(x, theta) {
+    .Call(`_GauPro_corr_matern32_matrix_symC`, x, theta)
+}
+
+corr_matern32_matrixvecC <- function(x, y, theta) {
+    .Call(`_GauPro_corr_matern32_matrixvecC`, x, y, theta)
+}
+
+corr_matern52_matrixC <- function(x, y, theta) {
+    .Call(`_GauPro_corr_matern52_matrixC`, x, y, theta)
+}
+
+#' Correlation Gaussian matrix in C (symmetric)
+#' @param x Matrix x
+#' @param theta Theta vector
+#' @return Correlation matrix
+#' @export
+#' @examples
+#' corr_gauss_matrix_symC(matrix(c(1,0,0,1),2,2),c(1,1))
+corr_matern52_matrix_symC <- function(x, theta) {
+    .Call(`_GauPro_corr_matern52_matrix_symC`, x, theta)
+}
+
+corr_matern52_matrixvecC <- function(x, y, theta) {
+    .Call(`_GauPro_corr_matern52_matrixvecC`, x, y, theta)
+}
+
 deviance_part <- function(theta, nug, X, Z, Kinv) {
     .Call(`_GauPro_deviance_part`, theta, nug, X, Z, Kinv)
 }

@@ -1,5 +1,5 @@
 # Check numerically that gradient is correct for 1D
-# For Gaussian_beta kernel
+# For Exponential kernel
 set.seed(0)
 n <- 20
 x <- matrix(seq(0,1,length.out = n), ncol=1)
