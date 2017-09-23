@@ -43,7 +43,7 @@ GauPro_Gauss_LOO <- R6::R6Class(classname = "GauPro_Gauss_LOO",
       } else {
         Zp <- self$pred_LOO(se.fit=TRUE)
         abs_t <- abs(Zp$t)
-        self$tmod$update(Xall=self$X, Zall=abs_t)
+        self$tmod$update(Xall=self$X, Zall=abs_t, no_update=no_update)
       }
 
       invisible(self)

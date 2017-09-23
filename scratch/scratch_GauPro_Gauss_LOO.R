@@ -76,3 +76,61 @@ ContourFunctions::cf(gp$tmod$predict, batchmax=Inf, pts=x)
 gp$use_LOO <- FALSE
 ContourFunctions::cf(gp$predict, batchmax=Inf, pts=x)
 ContourFunctions::cf(function(x) gp$predict(x, se.fit=T)$se, batchmax=Inf, pts=x)
+
+
+# Check on banana function
+n <- 80
+d <- 2
+f1 <- TestFunctions::banana#function(x) {abs(sin(2*pi*x[1]))}
+X1 <- matrix(runif(n*d),n,d)
+Z1 <- apply(X1,1,f1)# + rnorm(n, 0, 1e-3)
+gp <- GauPro_Gauss_LOO$new(X=x, Z=y, parallel=FALSE)
+nn <- 1e3
+XX <- matrix(runif(nn*d),nn,d)
+ZZ <- apply(XX, 1, f1)
+gp$use_LOO <- T
+ZZhat <- gp$predict(XX, se=T)
+plot(ZZ, ZZhat$me)
+abline(a=0, b=1)
+points(ZZ, ZZhat$me + 2*ZZhat$se, col=3)
+points(ZZ, ZZhat$me - 2*ZZhat$se, col=2)
+((ZZhat$me - ZZ) / ZZhat$se) %>% abs %>% summary
+ContourFunctions::cf(gp$predict, pts=X1)
+
+
+
+# Check if LOO predictions match actual on banana function,  i.e. check shortcut
+n <- 80
+d <- 2
+f1 <- TestFunctions::banana#function(x) {abs(sin(2*pi*x[1]))}
+X1 <- matrix(runif(n*d),n,d)
+Z1 <- apply(X1,1,f1)# + rnorm(n, 0, 1e-3)
+gp <- GauPro_Gauss_LOO$new(X=X1, Z=Z1, parallel=FALSE)
+nn <- 1e3
+XX <- matrix(runif(nn*d),nn,d)
+ZZ <- apply(XX, 1, f1)
+gp$use_LOO <- T
+ZZhat <- gp$predict(XX, se=T)
+
+ZLOO <- gp$pred_LOO(se=T)
+gp2 <- gp$clone(deep=T)
+loo_means <- numeric(n)
+loo_ses <- numeric(n)
+for (i in 1:n) {
+  gpi <- gp$clone(deep=T);
+  gpi$update(Xall=X1[-i,],Zall=Z1[-i], no_update = TRUE);
+  gpp <- gpi$predict(X1[i,],se=T)
+  loo_means[i] <- gpp$me
+  loo_ses[i] <- gpp$se
+}
+cbind(ZLOO$fit, loo_means)
+summary(ZLOO$fit, loo_means)
+
+
+pout <- sapply(1:n,
+               function(i) {
+                 gpi <- gp$clone(deep=T);
+                 gpi$update(Xall=X1[-i,],Zall=Z1[-i], no_update = TRUE);
+                 gpi$predict(X1[i,],se=T)
+               }
+        )

@@ -213,12 +213,13 @@ GauPro_base <- R6::R6Class(classname = "GauPro",
             Ainv <- E + E %*% b %*% g / (1-sum(g*b)) # Kinv for K if i wasn't in K
             Zi_LOO <- Z_trend + c(b %*% Ainv %*% (self$Z[-i] - Z_trend))
             Z_LOO[i] <- Zi_LOO
-            if (se.fit) {
+            if (se.fit) { # Need to use s2_hat
               Zi_LOO_se <- sqrt(self$K[i,i] - c(b %*% Ainv %*% b))
               Z_LOO_se[i] <- Zi_LOO_se
             }
           }
           if (se.fit) { # Return df with se and t if se.fit
+            Z_LOO_se <- Z_LOO_se * sqrt(self$s2_hat)
             t_LOO <- (self$Z - Z_LOO) / Z_LOO_se
             data.frame(fit=Z_LOO, se.fit=Z_LOO_se, t=t_LOO)
           } else { # Else just mean LOO
