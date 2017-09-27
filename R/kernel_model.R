@@ -923,6 +923,19 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           if (!is.matrix(grad1)) return(abs(grad1))
           apply(grad1,1, function(xx) {sqrt(sum(xx^2))})
         },
+        grad_dist = function(XX) {browser()
+          nn <- nrow(XX)
+          d <- ncol(XX) # or self$D
+          mn <- self$grad(XX=XX)
+          c2 <- self$kernel$d2C_dudv(XX=XX, X=XX)
+          c1 <- self$kernel$dC_dx(XX=XX, X=self$X)
+          # cv <- c2 - t(c1) %*% solve(self$Kinv, c1)
+          cv <- array(data = NA, dim = c(nn, d, d))
+          for (i in 1:nn) {
+            cv[i, , ] <- c2[i,,,i] - 1/self$s2_hat * c1[i,,] %*% (self$Kinv %*% t(c1[i,,]))
+          }
+          list(mean=mn, cov=cv)
+        },
         #grad_num = function (XX) { # NUMERICAL GRAD IS OVER 10 TIMES SLOWER
         #  if (!is.matrix(XX)) {
         #    if (self$D == 1) XX <- matrix(XX, ncol=1)

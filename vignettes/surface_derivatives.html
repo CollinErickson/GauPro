@@ -12,7 +12,7 @@
 
 <meta name="author" content="Collin Erickson" />
 
-<meta name="date" content="2017-08-16" />
+<meta name="date" content="2017-09-27" />
 
 <title>Spatial derivatives of Gaussian process models</title>
 
@@ -32,7 +32,7 @@
 
 <h1 class="title toc-ignore">Spatial derivatives of Gaussian process models</h1>
 <h4 class="author"><em>Collin Erickson</em></h4>
-<h4 class="date"><em>2017-08-16</em></h4>
+<h4 class="date"><em>2017-09-27</em></h4>
 
 
 
@@ -81,6 +81,7 @@
 <p><span class="math display">\[=\frac{1}{\delta^2}\big( Var\big[ \hat{y}(x + \delta e_i)  \big] + Var\big[ \hat{y}(x) \big] + -2 Cov\big[ \hat{y}(x + \delta e_i), \hat{y}(x) \big] \big)\]</span></p>
 <p>I could have just used this formula: <span class="math display">\[ Var[(1,-1)^T (z_1, z_2)] = (1,-1)^T Cov((z_1, z_2)) (1,-1)\]</span></p>
 <p><span class="math display">\[ \frac{\partial R(z_1, z_2)}{\partial \delta} = \]</span></p>
+<p>Use <a href="https://math.stackexchange.com/questions/442472/sum-of-squares-of-dependent-gaussian-random-variables" class="uri">https://math.stackexchange.com/questions/442472/sum-of-squares-of-dependent-gaussian-random-variables</a> to get distribution of grad norm.</p>
 </div>
 </div>
 </div>

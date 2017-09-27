@@ -116,3 +116,6 @@ I could have just used this formula:
 $$ Var[(1,-1)^T (z_1, z_2)] = (1,-1)^T Cov((z_1, z_2)) (1,-1)$$
 
 $$ \frac{\partial R(z_1, z_2)}{\partial \delta} = $$
+
+Use https://math.stackexchange.com/questions/442472/sum-of-squares-of-dependent-gaussian-random-variables
+to get distribution of grad norm.

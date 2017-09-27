@@ -225,6 +225,58 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
         }
       }
       dC_dx
+    },
+    d2C_dx2 = function(XX, X, theta, beta=self$beta, s2=self$s2) {#browser()
+      if (missing(theta)) {theta <- 10^beta}
+      if (!is.matrix(XX)) {stop("XX must be matrix")}
+      d <- ncol(XX)
+      if (ncol(X) != d) {stop("X and XX must have same # of columns")}
+      n <- nrow(X)
+      nn <- nrow(XX)
+      d2C_dx2 <- array(NA, dim=c(nn, d, d, n))
+      for (i in 1:nn) {
+        for (k in 1:n) {
+          Cik <- s2 * exp(-sum(theta * (XX[i,] - X[k,]) ^ 2))
+          if (d > 1) {
+            for (j1 in 1:(d-1)) {
+              for (j2 in (j1+1):d) {
+                d2C_dx2[i, j1, j2, k] <- 4 * theta[j1] * (XX[i, j1] - X[k, j1]) * theta[j2] * (XX[i, j2] - X[k, j2]) * Cik
+                d2C_dx2[i, j2, j1, k] <- d2C_dx2[i, j1, j2, k]
+              }
+            }
+          }
+          for (j in 1:d) {
+            d2C_dx2[i, j, j, k] <- -2 * theta[j] * Cik + 4 * theta[j]^2 * (XX[i, j] - X[k, j])^2 * Cik
+          }
+        }
+      }
+      d2C_dx2
+    },
+    d2C_dudv = function(XX, X, theta, beta=self$beta, s2=self$s2) {#browser()
+      if (missing(theta)) {theta <- 10^beta}
+      if (!is.matrix(XX)) {stop("XX must be matrix")}
+      d <- ncol(XX)
+      if (ncol(X) != d) {stop("X and XX must have same # of columns")}
+      n <- nrow(X)
+      nn <- nrow(XX)
+      d2C_dx2 <- array(NA, dim=c(nn, d, d, n))
+      for (i in 1:nn) {
+        for (k in 1:n) {
+          Cik <- s2 * exp(-sum(theta * (XX[i,] - X[k,]) ^ 2))
+          if (d > 1) {
+            for (j1 in 1:(d-1)) {
+              for (j2 in (j1+1):d) {
+                d2C_dx2[i, j1, j2, k] <- - 4 * theta[j1] * (XX[i, j1] - X[k, j1]) * theta[j2] * (XX[i, j2] - X[k, j2]) * Cik
+                d2C_dx2[i, j2, j1, k] <- d2C_dx2[i, j1, j2, k]
+              }
+            }
+          }
+          for (j in 1:d) {
+            d2C_dx2[i, j, j, k] <- 2 * theta[j] * Cik - 4 * theta[j]^2 * (XX[i, j] - X[k, j])^2 * Cik
+          }
+        }
+      }
+      d2C_dx2
     }
   )
 )
