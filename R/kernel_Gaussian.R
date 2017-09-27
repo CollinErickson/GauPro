@@ -119,26 +119,33 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
       }
 
       lenparams_D <- self$beta_length*self$beta_est + self$s2_est
-      dC_dparams <- array(dim=c(lenparams_D, n, n), data=0)
-      if (self$s2_est) {
-        dC_dparams[lenparams_D,,] <- C * log10 #/ s2 * s2 *
-      }
-      # dC_dparams <- rep(list(C_nonug), length(beta))
-      if (self$beta_est) {
-        for (k in 1:length(beta)) {
-          for (i in seq(1, n-1, 1)) {
-            for (j in seq(i+1, n, 1)) {
-              if (inherits(try(C_nonug[i,j] * (X[i,k] - X[j,k])^2 * theta[k] * log10), "try-error")) {browser()}
-              dC_dparams[k,i,j] <- - C_nonug[i,j] * (X[i,k] - X[j,k])^2 * theta[k] * log10
-              dC_dparams[k,j,i] <- dC_dparams[k,i,j]
+
+      # I wrote Rcpparmadillo function to speed this up a lot hopefully
+      useR <- FALSE
+      if (useR) {
+        dC_dparams <- array(dim=c(lenparams_D, n, n), data=0)
+        if (self$s2_est) {
+          dC_dparams[lenparams_D,,] <- C * log10 #/ s2 * s2 *
+        }
+        # dC_dparams <- rep(list(C_nonug), length(beta))
+        if (self$beta_est) {
+          for (k in 1:length(beta)) {
+            for (i in seq(1, n-1, 1)) {
+              for (j in seq(i+1, n, 1)) {
+                # if (inherits(try(C_nonug[i,j] * (X[i,k] - X[j,k])^2 * theta[k] * log10), "try-error")) {browser()}
+                dC_dparams[k,i,j] <- - C_nonug[i,j] * (X[i,k] - X[j,k])^2 * theta[k] * log10
+                dC_dparams[k,j,i] <- dC_dparams[k,i,j]
+              }
+            }
+            for (i in seq(1, n, 1)) { # Get diagonal set to zero
+              dC_dparams[k,i,i] <- 0
             }
           }
-          for (i in seq(1, n, 1)) { # Get diagonal set to zero
-            dC_dparams[k,i,i] <- 0
-          }
         }
-      }
 
+      } else {
+        dC_dparams <- kernel_gauss_dC(X, theta, C_nonug, self$s2_est, self$beta_est, lenparams_D, s2*nug)
+      }
       # mats <- c(dC_dbetas, list(dC_dlogs2))
       return(dC_dparams)
     },
@@ -172,26 +179,33 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
       C <- C_nonug + diag(nug*s2, nrow(C_nonug))
 
       lenparams_D <- self$beta_length*self$beta_est + self$s2_est
-      dC_dparams <- array(dim=c(lenparams_D, n, n), data=0)
-      if (self$s2_est) {
-        dC_dparams[lenparams_D,,] <- C * log10 #/ s2 * s2 *
-      }
-      # dC_dbetas <- rep(list(C_nonug), length(beta))
-      # n <- nrow(X)
-      if (self$beta_est) {
-        for (k in 1:length(beta)) {
-          for (i in seq(1, n-1, 1)) {
-            for (j in seq(i+1, n, 1)) {
-              dC_dparams[k,i,j] <- - C[i,j] * (X[i,k] - X[j,k])^2 * theta[k] * log10
-              dC_dparams[k,j,i] <- dC_dparams[k,i,j]
+
+      # I wrote Rcpparmadillo function to speed this up a lot hopefully
+      useR <- FALSE
+      if (useR) {
+        dC_dparams <- array(dim=c(lenparams_D, n, n), data=0)
+        if (self$s2_est) {
+          dC_dparams[lenparams_D,,] <- C * log10 #/ s2 * s2 *
+        }
+        # dC_dbetas <- rep(list(C_nonug), length(beta))
+        # n <- nrow(X)
+        if (self$beta_est) {
+          for (k in 1:length(beta)) {
+            for (i in seq(1, n-1, 1)) {
+              for (j in seq(i+1, n, 1)) {
+                dC_dparams[k,i,j] <- - C[i,j] * (X[i,k] - X[j,k])^2 * theta[k] * log10
+                dC_dparams[k,j,i] <- dC_dparams[k,i,j]
+              }
+            }
+            for (i in seq(1, n, 1)) { # Get diagonal set to zero
+              dC_dparams[k,i,i] <- 0
             }
           }
-          for (i in seq(1, n, 1)) { # Get diagonal set to zero
-            dC_dparams[k,i,i] <- 0
-          }
         }
+      } else {
+        dC_dparams <- kernel_gauss_dC(X, theta, C_nonug, self$s2_est, self$beta_est, lenparams_D, s2*nug)
       }
-
+      # kernel_gauss_dC(X, theta, C_nonug, self$s2_est, self$beta_est, lenparams_D, s2*nug)
       # mats <- c(dC_dbetas, list(dC_dlogs2))
       return(list(C = C, dC_dparams))
     },

@@ -58,6 +58,22 @@ corr_gauss_matrix_sym_armaC <- function(x, theta) {
     .Call(`_GauPro_corr_gauss_matrix_sym_armaC`, x, theta)
 }
 
+#' Correlation Gaussian matrix in C (symmetric)
+#' @param x Matrix x
+#' @param theta Theta vector
+#' @param C_nonug cov mat without nugget
+#' @param s2_est whether s2 is being estimated
+#' @param beta_est Whether theta/beta is being estimated
+#' @param lenparams_D Number of parameters the derivative is being calculated for
+#' @param s2_nug s2 times the nug
+#' @return Correlation matrix
+#' @export
+#' @examples
+#' corr_gauss_matrix_symC(matrix(c(1,0,0,1),2,2),c(1,1))
+kernel_gauss_dC <- function(x, theta, C_nonug, s2_est, beta_est, lenparams_D, s2_nug) {
+    .Call(`_GauPro_kernel_gauss_dC`, x, theta, C_nonug, s2_est, beta_est, lenparams_D, s2_nug)
+}
+
 corr_matern32_matrixC <- function(x, y, theta) {
     .Call(`_GauPro_corr_matern32_matrixC`, x, y, theta)
 }

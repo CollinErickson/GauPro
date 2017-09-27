@@ -85,3 +85,41 @@ system.time(gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Matern52, parallel=FA
 system.time(gp$predict(x+.01)) # .68 sec
 system.time(gp$predict(x+.01, covmat = T)) # 1.02 sec
 gp$predict(matrix(c(.1,.2,.3,.4,.5,.6), ncol=6)) # 5.526564
+
+
+
+# Gaussian kernel
+
+set.seed(0)
+n <- 20
+x <- matrix(seq(0,1,length.out = n), ncol=1)
+f <- Vectorize(function(x) {sin(2*pi*x) + .5*sin(4*pi*x) +rnorm(1,0,.3)})
+y <- f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
+system.time(gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian, parallel=FALSE, verbose=10, nug.est=T))
+# .45 sec
+system.time(gp$cool1Dplot()) # 05 sec
+
+
+gp$predict(.656) # -0.6367818
+gp$predict(c(.11, .24, .455, .676, .888)) # 1.3779479 0.9186582 0.4100991 -0.7215350 -1.1539650
+gp$predict(matrix(c(.11, .24, .455, .676, .888), ncol=1))
+
+set.seed(0)
+n <- 200
+x <- matrix(runif(6*n), ncol=6)
+y <- TestFunctions::OTL_Circuit(x)
+system.time(gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian, parallel=FALSE, verbose=10, nug.est=T))
+#  5.55/5.77 s
+system.time(gp$predict(x+.01)) # 0 sec
+system.time(gp$predict(x+.01, covmat = T)) # .02 sec
+gp$predict(matrix(c(.1,.2,.3,.4,.5,.6), ncol=6)) # 5.548369
+
+# Test Rcpp kernel_gauss_dC
+set.seed(0)
+n <- 20
+x <- matrix(seq(0,1,length.out = n), ncol=1)
+f <- Vectorize(function(x) {sin(2*pi*x) + .5*sin(4*pi*x) +rnorm(1,0,.3)})
+y <- f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
+system.time(gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian, parallel=FALSE, verbose=10, nug.est=T))
+debugonce(gp$kernel$C_dC_dparams)
+gp$update()
