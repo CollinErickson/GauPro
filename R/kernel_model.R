@@ -923,7 +923,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           if (!is.matrix(grad1)) return(abs(grad1))
           apply(grad1,1, function(xx) {sqrt(sum(xx^2))})
         },
-        grad_dist = function(XX) {browser()
+        grad_dist = function(XX) {#browser()
           nn <- nrow(XX)
           d <- ncol(XX) # or self$D
           mn <- self$grad(XX=XX)
@@ -932,9 +932,34 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           # cv <- c2 - t(c1) %*% solve(self$Kinv, c1)
           cv <- array(data = NA, dim = c(nn, d, d))
           for (i in 1:nn) {
-            cv[i, , ] <- c2[i,,,i] - 1/self$s2_hat * c1[i,,] %*% (self$Kinv %*% t(c1[i,,]))
+            cv[i, , ] <- c2[i,,,i] - c1[i,,] %*% (self$Kinv %*% t(c1[i,,]))
           }
           list(mean=mn, cov=cv)
+        },
+        grad_norm2_dist = function(XX) {
+          # Calculate mean and var for squared norm of gradient
+          # grad_dist <- gp$grad_dist(XX=XX) # Too slow because it does all
+          d <- ncol(XX)
+          nn <- nrow(XX)
+          means <- numeric(nn)
+          vars <- numeric(nn)
+          for (i in 1:nn) {
+            grad_dist_i <- gp$grad_dist(XX=XX[i, , drop=FALSE])
+            mean_i <- grad_dist_i$mean[1,]
+            Sigma_i <- grad_dist_i$cov[1,,]
+            SigmaInv_i <- solve(Sigma_i)
+            SigmaInvRoot_i <- expm::sqrtm(SigmaInv_i)
+            eigen_i <- eigen(Sigma_i)
+            P_i <- t(eigen_i$vectors)
+            lambda_i <- eigen_i$values
+            # testthat::expect_equal(t(P) %*% diag(eth$values) %*% (P), Sigma) # Should be equal
+            b_i <- P_i %*% SigmaInvRoot_i %*% mean_i
+            g2mean_i <- sum(b_i^2 * lambda_i)+d
+            g2var_i <- 4*sum(b_i^2 * lambda_i^2)+2*d
+            means[i] <- g2mean_i
+            vars[i] <- g2var_i
+          }
+          data.frame(mean=means, var=vars)
         },
         #grad_num = function (XX) { # NUMERICAL GRAD IS OVER 10 TIMES SLOWER
         #  if (!is.matrix(XX)) {
