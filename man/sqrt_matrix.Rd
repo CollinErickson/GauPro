@@ -19,6 +19,6 @@ Same thing as 'expm::sqrtm', but faster.
 }
 \examples{
 mat <- matrix(c(1,.1,.1,1), 2, 2)
-smat <- sqrt_matrix(mat, T)
+smat <- sqrt_matrix(mat=mat, symmetric=TRUE)
 smat \%*\% smat
 }
