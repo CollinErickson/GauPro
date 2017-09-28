@@ -136,4 +136,25 @@ ContourFunctions::cf(gp$predict, batchmax=Inf, pts=gp$X)
 ContourFunctions::cf(function(a)gp$grad_norm2_dist(a)$mean, batchmax=Inf, pts=gp$X, n=100)
 
 
-
+# See why sqrtm gives message, see if other way
+Kx <- gp$kernel$k(x)
+expm::sqrtm(Kx)
+e <- eigen(Kx)
+V <- e$vectors
+summary(c(V %*% diag(e$values) %*% t(V) - Kx))
+B <- V %*% diag(sqrt(e$values)) %*% t(V)
+mysqrt = function(mat, symmetric) {
+  e <- eigen(mat, symmetric=symmetric)
+  V <- e$vectors
+  B <- V %*% diag(sqrt(e$values)) %*% t(V)
+  B
+}
+summary(c(mysqrt(Kx) - expm::sqrtm(Kx)))
+summary(c(mysqrt(Kx, T) - expm::sqrtm(Kx)))
+m1 <- mysqrt(Kx)
+m2 <- mysqrt(Kx,T)
+m3 <- expm::sqrtm(Kx)
+mean((c(m1 - Kx)^2))
+mean((c(m2 - Kx)^2))
+mean((c(m3 - Kx)^2))
+microbenchmark::microbenchmark(mysqrt(Kx), mysqrt(Kx, T), expm::sqrtm(Kx))

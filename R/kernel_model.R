@@ -944,11 +944,13 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           means <- numeric(nn)
           vars <- numeric(nn)
           for (i in 1:nn) {
-            grad_dist_i <- gp$grad_dist(XX=XX[i, , drop=FALSE])
+            grad_dist_i <- self$grad_dist(XX=XX[i, , drop=FALSE])
             mean_i <- grad_dist_i$mean[1,]
             Sigma_i <- grad_dist_i$cov[1,,]
             SigmaInv_i <- solve(Sigma_i)
-            SigmaInvRoot_i <- expm::sqrtm(SigmaInv_i)
+            # Using my own sqrt function since it is faster.
+            # SigmaInvRoot_i <- expm::sqrtm(SigmaInv_i)
+            SigmaInvRoot_i <- sqrt_matrix(mat=SigmaInv_i, symmetric = TRUE)
             eigen_i <- eigen(Sigma_i)
             P_i <- t(eigen_i$vectors)
             lambda_i <- eigen_i$values
