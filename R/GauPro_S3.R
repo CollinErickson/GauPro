@@ -40,8 +40,10 @@ predict.GauPro <- function(object, XX, se.fit=F, covmat=F, split_speed=T, ...) {
 plot.GauPro <- function(x,  ...) {
   if (x$D == 1) {
     x$cool1Dplot(...)
+  } else if (x$D == 2) {
+    x$plot2D(...)
   } else {
-    stop("No plot method for higher than 1 dimension")
+    stop("No plot method for higher than 2 dimension")
   }
 }
 

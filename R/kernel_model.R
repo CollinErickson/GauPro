@@ -379,6 +379,67 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
                    else {self$Z},
                  pch=19, col=1, cex=2)
         },
+        plot1D = function(n2=20, nn=201, col2=2, #"gray",
+                          xlab='x', ylab='y',
+                          xmin=NULL, xmax=NULL,
+                          ymin=NULL, ymax=NULL) {
+          if (self$D != 1) stop('Must be 1D')
+          # Letting user pass in minx and maxx
+          if (is.null(xmin)) {
+            minx <- min(self$X)
+          } else {
+            minx <- xmin
+          }
+          if (is.null(xmax)) {
+            maxx <- max(self$X)
+          } else {
+            maxx <- xmax
+          }
+          # minx <- min(self$X)
+          # maxx <- max(self$X)
+          x1 <- minx - .1 * (maxx - minx)
+          x2 <- maxx + .1 * (maxx - minx)
+          # nn <- 201
+          x <- seq(x1, x2, length.out = nn)
+          px <- self$pred(x, se=T)
+          # n2 <- 20
+
+          # Setting ylim, giving user option
+          if (is.null(ymin)) {
+            miny <- min(px$mean - 2*px$se)
+          } else {
+            miny <- ymin
+          }
+          if (is.null(ymax)) {
+            maxy <- max(px$mean + 2*px$se)
+          } else {
+            maxy <- ymax
+          }
+
+          plot(x, px$mean+2*px$se, type='l', col=col2, lwd=2,
+               # ylim=c(min(newy),max(newy)),
+               ylim=c(miny,maxy),
+               xlab=xlab, ylab=ylab)
+          points(x, px$mean-2*px$se, type='l', col=col2, lwd=2)
+          points(x,px$me, type='l', lwd=4)
+          points(self$X,
+                 if (self$normalize) {self$Z * self$normalize_sd + self$normalize_mean}
+                 else {self$Z},
+                 pch=19, col=1, cex=2)
+        },
+        plot2D = function() {
+          if (self$D != 2) {stop("plot2D only works in 2D")}
+          mins <- apply(self$X, 2, min)
+          maxs <- apply(self$X, 2, max)
+          xmin <- mins[1] - .03 * (maxs[1] - mins[1])
+          xmax <- maxs[1] + .03 * (maxs[1] - mins[1])
+          ymin <- mins[2] - .03 * (maxs[2] - mins[2])
+          ymax <- maxs[2] + .03 * (maxs[2] - mins[2])
+          ContourFunctions::cf_func(self$predict, batchmax=Inf,
+                                    xlim=c(xmin, xmax),
+                                    ylim=c(ymin, ymax),
+                                    pts=self$X)
+        },
         loglikelihood = function(mu=self$mu_hatX, s2=self$s2_hat) {
           -.5 * (self$N*log(s2) + log(det(self$K)) + t(self$Z - mu)%*%self$Kinv%*%(self$Z - mu)/s2)
         },
