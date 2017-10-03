@@ -236,6 +236,43 @@ N(\frac{\partial \Sigma_{x,X}}{\partial x}^T \Sigma_X^{-1} (Y_X - \mu_X),
 \frac{\partial \Sigma(x_1, X)}{\partial x_1} \Sigma_x^{-1} \frac{\partial \Sigma(X, x_2)}{\partial x_2})
 $$
 
+#### Alternate, cleaner, correcter derivation?
+
+We need to find the covariance of the gradient vector of $y$ at a point $x$.
+$$ Cov(\nabla_x y(x))$$
+The $(i,j)$ entry of this matrix is
+$$ Cov(\frac{\partial y(x)}{\partial x_i},\frac{\partial y(x)}{\partial x_j})$$
+We can write this as a limit.
+
+$$ \lim_{\delta \rightarrow 0} Cov\left(\frac{y(x+\delta e_i) - y(x)}{\delta}, \frac{y(x+\delta e_j) - y(x)}{\delta}\right)$$
+The covariance function is bilinear, so we can split it into four terms.
+
+$$ \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} \left(   Cov\left[y(x+\delta e_i), y(x+\delta e_j)\right] - Cov\left[y(x+\delta e_i), y(x)\right] - Cov\left[y(x), y(x+\delta e_j)\right] + Cov\left[y(x), y(x)\right] \right)$$
+This can be recognized as the second order derivative of $Cov(y(u), y(v))$ with respect to $u_i$ and $v_j$ evaluated at $u=v=x$. See finite difference differentiation for more details. We have to use $u$ and $v$ instead of a single $x$ to be clear which component of the covariance function is being differentiated.
+
+Thus we have the following. It looks obvious, I'm not sure I even needed the previous step.
+$$ Cov(\frac{\partial y(x)}{\partial x_i},\frac{\partial y(x)}{\partial x_j}) = \frac{\partial Cov(y(u), y(v))}{\partial u \partial v} |_{u=x, v=x}$$
+Let $U$ be the matrix with rows $u$ and $v$.
+Recall that
+$$ Cov(U) = \Sigma_{U} - \Sigma_{UX} \Sigma_{X}^{-1} \Sigma_{XU}$$
+The $(1,2)$ element of this is the covariance we are looking for.
+$$ Cov(y(u), y(v)) = \Sigma_{u,v} - \Sigma_{u,X} \Sigma_X^{-1} \Sigma_{X,v}$$
+Now we need to differentiate this with respect to $u_i$ and $v_j$.
+
+$$ Cov(\frac{\partial y(x)}{\partial x_i},\frac{\partial y(x)}{\partial x_j}) =   \frac{\partial^2 \Sigma_{u,v}}{\partial u_i \partial v_j} - \frac{\partial \Sigma_{u,X}}{\partial u_i} \Sigma_X^{-1} \frac{\partial \Sigma_{X,v}}{\partial v_j} |_{u=x,v=x}$$
+Therefore we have found the distribution of the gradient.
+
+$$
+\frac{\partial y(x)}{\partial x} | Y_X 
+\sim 
+N(\frac{\partial \Sigma_{x,X}}{\partial x}^T \Sigma_X^{-1} (Y_X - \mu_X),
+\frac{\partial^2 \Sigma(x_1, x_2)}{\partial x_1 \partial x_2}  + 
+\frac{\partial \Sigma(x_1, X)}{\partial x_1} \Sigma_x^{-1} \frac{\partial \Sigma(X, x_2)}{\partial x_2})
+$$
+
+
+
+
 ### Distribution of the gradient norm
 
 Let 
@@ -297,12 +334,12 @@ $$
 
 For $||g||^2$ we had $A=I$, $\mu=\frac{\partial \Sigma_{x,X}}{\partial x}^T \Sigma_X^{-1} (Y_X - \mu_X)$, and $\Sigma=\frac{\partial^2 \Sigma(x_1, x_2)}{\partial x_1 \partial x_2}  + \frac{\partial \Sigma(x_1, X)}{\partial x_1} \Sigma_x^{-1} \frac{\partial \Sigma(X, x_2)}{\partial x_2}$
 
-Thus we need $P$ and $\Lambda$ from the eigendecomposition $\Sigma = P^T \Lambda P$. $Lambda$ will give the $\lambda_j$. 
+Thus we need $P$ and $\Lambda$ from the eigendecomposition $\Sigma = P^T \Lambda P$. $\Lambda$ will give the $\lambda_j$. 
 
 Then we need $b = P \Sigma^{-1/2} \mu$. We can calculate $\Sigma^{-1/2}$ as the square root of the matrix $\Sigma^{-1}$ using the eigendecomposition again. We can decompose $\Sigma^{-1} = W^TDW$ (using different symbols from before to avoid confusion), where $D$ is diagonal and W is orthogonal. Then $\Sigma^{-1/2} = W^T S W$, where $S$ is the diagonal matrix whose elements are the square roots of the elements of $D$. This can easily be proven as follows.
 $$ \Sigma^{-1/2} \Sigma^{-1/2} = W^T S W W^T S W = W^T S S W = W^T D W = Sigma^{-1}$$
 
-Now that we know how to calculated $\lambda$ and $U$, we can calculate the distribution of $||g||^2$.
+Now that we know how to calculate $\lambda$ and $U$, we can calculate the distribution of $||g||^2$.
 
 
 # References

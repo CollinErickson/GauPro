@@ -12,7 +12,7 @@
 
 <meta name="author" content="Collin Erickson" />
 
-<meta name="date" content="2017-10-02" />
+<meta name="date" content="2017-10-03" />
 
 <title>Spatial derivatives of Gaussian process models</title>
 
@@ -32,7 +32,7 @@
 
 <h1 class="title toc-ignore">Spatial derivatives of Gaussian process models</h1>
 <h4 class="author"><em>Collin Erickson</em></h4>
-<h4 class="date"><em>2017-10-02</em></h4>
+<h4 class="date"><em>2017-10-03</em></h4>
 
 
 
@@ -154,6 +154,21 @@ N(\frac{\partial \Sigma_{x,X}}{\partial x}^T \Sigma_X^{-1} (Y_X - \mu_X),
 \frac{\partial \Sigma(x_1, X)}{\partial x_1} \Sigma_x^{-1} \frac{\partial \Sigma(X, x_2)}{\partial x_2})
 \]</span></p>
 </div>
+<div id="alternate-cleaner-correcter-derivation" class="section level4">
+<h4>Alternate, cleaner, correcter derivation?</h4>
+<p>We need to find the covariance of the gradient vector of <span class="math inline">\(y\)</span> at a point <span class="math inline">\(x\)</span>. <span class="math display">\[ Cov(\nabla_x y(x))\]</span> The <span class="math inline">\((i,j)\)</span> entry of this matrix is <span class="math display">\[ Cov(\frac{\partial y(x)}{\partial x_i},\frac{\partial y(x)}{\partial x_j})\]</span> We can write this as a limit.</p>
+<p><span class="math display">\[ \lim_{\delta \rightarrow 0} Cov\left(\frac{y(x+\delta e_i) - y(x)}{\delta}, \frac{y(x+\delta e_j) - y(x)}{\delta}\right)\]</span> The covariance function is bilinear, so we can split it into four terms.</p>
+<p><span class="math display">\[ \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} \left(   Cov\left[y(x+\delta e_i), y(x+\delta e_j)\right] - Cov\left[y(x+\delta e_i), y(x)\right] - Cov\left[y(x), y(x+\delta e_j)\right] + Cov\left[y(x), y(x)\right] \right)\]</span> This can be recognized as the second order derivative of <span class="math inline">\(Cov(y(u), y(v))\)</span> with respect to <span class="math inline">\(u_i\)</span> and <span class="math inline">\(v_j\)</span> evaluated at <span class="math inline">\(u=v=x\)</span>. See finite difference differentiation for more details. We have to use <span class="math inline">\(u\)</span> and <span class="math inline">\(v\)</span> instead of a single <span class="math inline">\(x\)</span> to be clear which component of the covariance function is being differentiated.</p>
+<p>Thus we have the following. It looks obvious, I’m not sure I even needed the previous step. <span class="math display">\[ Cov(\frac{\partial y(x)}{\partial x_i},\frac{\partial y(x)}{\partial x_j}) = \frac{\partial Cov(y(u), y(v))}{\partial u \partial v} |_{u=x, v=x}\]</span> Let <span class="math inline">\(U\)</span> be the matrix with rows <span class="math inline">\(u\)</span> and <span class="math inline">\(v\)</span>. Recall that <span class="math display">\[ Cov(U) = \Sigma_{U} - \Sigma_{UX} \Sigma_{X}^{-1} \Sigma_{XU}\]</span> The <span class="math inline">\((1,2)\)</span> element of this is the covariance we are looking for. <span class="math display">\[ Cov(y(u), y(v)) = \Sigma_{u,v} - \Sigma_{u,X} \Sigma_X^{-1} \Sigma_{X,v}\]</span> Now we need to differentiate this with respect to <span class="math inline">\(u_i\)</span> and <span class="math inline">\(v_j\)</span>.</p>
+<p><span class="math display">\[ Cov(\frac{\partial y(x)}{\partial x_i},\frac{\partial y(x)}{\partial x_j}) =   \frac{\partial^2 \Sigma_{u,v}}{\partial u_i \partial v_j} - \frac{\partial \Sigma_{u,X}}{\partial u_i} \Sigma_X^{-1} \frac{\partial \Sigma_{X,v}}{\partial v_j} |_{u=x,v=x}\]</span> Therefore we have found the distribution of the gradient.</p>
+<p><span class="math display">\[
+\frac{\partial y(x)}{\partial x} | Y_X 
+\sim 
+N(\frac{\partial \Sigma_{x,X}}{\partial x}^T \Sigma_X^{-1} (Y_X - \mu_X),
+\frac{\partial^2 \Sigma(x_1, x_2)}{\partial x_1 \partial x_2}  + 
+\frac{\partial \Sigma(x_1, X)}{\partial x_1} \Sigma_x^{-1} \frac{\partial \Sigma(X, x_2)}{\partial x_2})
+\]</span></p>
+</div>
 </div>
 <div id="distribution-of-the-gradient-norm" class="section level3">
 <h3>Distribution of the gradient norm</h3>
@@ -186,9 +201,9 @@ N(\frac{\partial \Sigma_{x,X}}{\partial x}^T \Sigma_X^{-1} (Y_X - \mu_X),
 <div id="relating-this-back-to-g2" class="section level3">
 <h3>Relating this back to <span class="math inline">\(||g||^2\)</span></h3>
 <p>For <span class="math inline">\(||g||^2\)</span> we had <span class="math inline">\(A=I\)</span>, <span class="math inline">\(\mu=\frac{\partial \Sigma_{x,X}}{\partial x}^T \Sigma_X^{-1} (Y_X - \mu_X)\)</span>, and <span class="math inline">\(\Sigma=\frac{\partial^2 \Sigma(x_1, x_2)}{\partial x_1 \partial x_2} + \frac{\partial \Sigma(x_1, X)}{\partial x_1} \Sigma_x^{-1} \frac{\partial \Sigma(X, x_2)}{\partial x_2}\)</span></p>
-<p>Thus we need <span class="math inline">\(P\)</span> and <span class="math inline">\(\Lambda\)</span> from the eigendecomposition <span class="math inline">\(\Sigma = P^T \Lambda P\)</span>. <span class="math inline">\(Lambda\)</span> will give the <span class="math inline">\(\lambda_j\)</span>.</p>
+<p>Thus we need <span class="math inline">\(P\)</span> and <span class="math inline">\(\Lambda\)</span> from the eigendecomposition <span class="math inline">\(\Sigma = P^T \Lambda P\)</span>. <span class="math inline">\(\Lambda\)</span> will give the <span class="math inline">\(\lambda_j\)</span>.</p>
 <p>Then we need <span class="math inline">\(b = P \Sigma^{-1/2} \mu\)</span>. We can calculate <span class="math inline">\(\Sigma^{-1/2}\)</span> as the square root of the matrix <span class="math inline">\(\Sigma^{-1}\)</span> using the eigendecomposition again. We can decompose <span class="math inline">\(\Sigma^{-1} = W^TDW\)</span> (using different symbols from before to avoid confusion), where <span class="math inline">\(D\)</span> is diagonal and W is orthogonal. Then <span class="math inline">\(\Sigma^{-1/2} = W^T S W\)</span>, where <span class="math inline">\(S\)</span> is the diagonal matrix whose elements are the square roots of the elements of <span class="math inline">\(D\)</span>. This can easily be proven as follows. <span class="math display">\[ \Sigma^{-1/2} \Sigma^{-1/2} = W^T S W W^T S W = W^T S S W = W^T D W = Sigma^{-1}\]</span></p>
-<p>Now that we know how to calculated <span class="math inline">\(\lambda\)</span> and <span class="math inline">\(U\)</span>, we can calculate the distribution of <span class="math inline">\(||g||^2\)</span>.</p>
+<p>Now that we know how to calculate <span class="math inline">\(\lambda\)</span> and <span class="math inline">\(U\)</span>, we can calculate the distribution of <span class="math inline">\(||g||^2\)</span>.</p>
 </div>
 </div>
 </div>
