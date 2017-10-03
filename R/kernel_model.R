@@ -993,7 +993,9 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           # cv <- c2 - t(c1) %*% solve(self$Kinv, c1)
           cv <- array(data = NA, dim = c(nn, d, d))
           for (i in 1:nn) {
-            cv[i, , ] <- c2[i,,,i] - c1[i,,] %*% (self$Kinv %*% t(c1[i,,]))
+            tc1i <- c1[i,,] # 1D gives problem, only need transpose if D>1
+            if (!is.null(dim(tc1i))) {tc1i <- t(tc1i)}
+            cv[i, , ] <- c2[i,,,i] - c1[i,,] %*% (self$Kinv %*% tc1i)
           }
           list(mean=mn, cov=cv)
         },

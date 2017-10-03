@@ -15,6 +15,10 @@
 sqrt_matrix = function(mat, symmetric) {
   e <- eigen(mat, symmetric=symmetric)
   V <- e$vectors
-  B <- V %*% diag(sqrt(e$values)) %*% t(V)
+  if (length(V) == 1) { # diag in 1D is scalar and doesn't work correctly
+    B <- sqrt(e$values) * V %*% t(V)
+  } else {
+    B <- V %*% diag(sqrt(e$values)) %*% t(V)
+  }
   B
 }
