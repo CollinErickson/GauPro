@@ -31,20 +31,34 @@ references:
 
 
 This vignette covers the derivatives of the surface created by a Gaussian process model with respect to the spatial dimensions. 
-The other vignette, *Introduction to GPs*, has derivatives of the deviance (likelihood) with respect to the parameters.
+The other vignette, **Derivatives for estimating Gaussian process parameters**, 
+has derivatives of the deviance (likelihood) with respect to the parameters.
+For an explanation of notation and basic equations, see the vignette **Introduction to Gaussian Processes**.
+
+Here we assume that we have $n$ data points $Y_X$ that are the function values corresponding
+to the rows of the $n$ by $d$ design matrix $X$.
+We have a mean function $\mu$ and covariance function $\Sigma$.
+
+$y(x)$ is the random variable representing the output $Y_x$ corresponding to input point $x$ conditional
+on the data $Y_X$.
+Thus $y(x) = Y_x | Y_X$, and $y(x)$ is a random variable with distribution
+
+$$ y(x) \sim N \left( \mu_x + \Sigma_{xX} \Sigma_x^{-1}(Y_X - \mu_X) , ~\Sigma_x + \Sigma_{xX} \Sigma_X^{-1} \Sigma_{Xx}\right)$$
+
 
 # Gradient of mean function
 
 The mean function is 
-$$ \hat{y}(x) = \hat{\mu} + r^T R^{-1}(Y - 1\hat{\mu}). $$
-$r$ is the only part that depends on $x$, and is defined below, where $K$ is the correlation function.
+$$ \hat{y}(x) = \mu(x) + \Sigma_{xX} \Sigma_X^{-1}(Y_X - \mu_X). $$
+$\mu(x)$ and $\Sigma_{xX}$ are the only parts that depends on $x$.
 
-$$ r = (r_1(x), \ldots, r_d(x))^T$$
-$$ r_i(x) = K(z(x), z(u_i))$$
-$$\frac{\partial \hat{y}(x)}{\partial x_i} = \frac{\partial r}{\partial x_i}^T R^{-1}(Y - 1\hat{\mu})$$
+We can find the gradient of $\hat{y}(x)$ by taking the partial derivatives
 
-$$\frac{\partial r_j}{\partial x_i} = \frac{\partial K(z(x), z(u_j))}{\partial x_i} $$
-This value depends on the correlation function $K$. This will give the vector $\frac{\partial r}{\partial x_i}$ which is calculates a single partial derivative, then the vector of these gives the gradient $\nabla_x \hat{y}(x)$ 
+$$\frac{\partial \hat{y}(x)}{\partial x_i}= \frac{\partial \mu(x)}{\partial x_i} +  \frac{\partial \Sigma_{x,X}}{\partial x_i} \Sigma_X^{-1}(Y_X - \mu_X)$$
+Remember that $\Sigma$ is overloaded and the second derivative on the right hand side is:
+$$\frac{\partial \Sigma_{x,X}}{\partial x_i} = \frac{\partial \Sigma (x,X)}{\partial x_i} $$
+The calculation above is for a single partial derivative. The vector of these gives the gradient $\frac{\partial \hat{y}(x)}{\partial x} = \nabla_x \hat{y}(x)$.
+Note that the partial derivative of a scalar with respect to a vector is another way of writing the gradient.
 
 
 
@@ -52,7 +66,7 @@ This value depends on the correlation function $K$. This will give the vector $\
 ## Hessian of mean function
 
 The second derivatives can be calculated similarly
-$$\frac{\partial^2 \hat{y}(x)}{\partial x_i \partial x_k} = \frac{\partial^2 r}{\partial x_i \partial x_k}^T R^{-1}(Y - 1\hat{\mu})$$
+$$\frac{\partial^2 \hat{y}(x)}{\partial x_i \partial x_k} = \frac{\partial^2 \mu(x)}{\partial x_i \partial x_k} +\frac{\partial^2 \Sigma_{xX}}{\partial x_i \partial x_k} \Sigma_X^{-1}(Y_X - \mu_X) = \frac{\partial^2 r}{\partial x_i \partial x_k}^T R^{-1}(Y - 1\hat{\mu})$$
 
 Each element of this matrix is
 $$\frac{\partial^2 r_j}{\partial x_i \partial x_k} = \frac{\partial^2 K(z(x), z(u_j))}{\partial x_i \partial x_k} $$
@@ -73,72 +87,31 @@ $$\frac{\partial^2 K(z(x), z(u_j))}{\partial x_i \partial x_k}  = 4\theta_i \the
 
 ## Gradient distribution
 
-A big problem with using the gradient of the mean function of a GP is that it doesn't give an idea of its distribution/randomness. The gradient could be zero in a region where the surface is not flat just because we don't any information in that region yet.
+A big problem with using the gradient of the mean function of a GP is that it doesn't give an idea of its distribution/randomness. The mean of the gradient could be predicted to be zero in a region where the surface is not flat simply because it has no information in that region yet.
 
-Can we find the distribution of the gradient by taking a limit?
+First we want to know what type of distribution the gradient follows. 
 
-In $d$ dimensions we 
+$$ \frac{\partial y(x)}{\partial x} = \lim_{\delta \rightarrow 0} \frac{1}{\delta} \left( \begin{bmatrix} y(x+\delta e_1) \\ \vdots \\ y(x+\delta e_d) \end{bmatrix} - y(x) \right)$$
 
-First start with the directional derivative in the direction of the ith component.
-$$ \frac{\partial \hat{y}(x)}{\partial x_i} = \lim_{\delta -> 0} \frac{ \hat{y}(x + \delta e_i) - \hat{y}(x)}{\delta}  $$
+For any finite $\delta$, this vector's components are a linear combination of normal random variables, and thus the vector has a multivariate distribution.
+We still need to show that in the limit as $\delta \rightarrow 0$, it retains a multivariate distribution, but I won't do that here.
 
-Now we find the joint distribution of $\hat{y}(x + \delta e_i) $ and $ \hat{y}(x)$
+Thus the gradient follows a multivariate distribution, and now we will find its mean and covariance.
 
-### Joint distribution
+### Gradient expected value
 
-If $(y,z) \sim N((\mu_1, \mu_2), \Sigma)$
-then $$ z|y \sim N(\mu_{z|y}, \Sigma_{z|y} )$$
-$$ \mu_{z|y}= \mu_2 + \Sigma_{zy}\Sigma_{yy}^{-1} (y - \mu_1)$$
-$$ \Sigma_{z|y} = \Sigma_{zz} - \Sigma_{zy}\Sigma_{yy}^{-1}\Sigma_{yz} $$
+The expected value of the gradient is easily found since it equals the gradient of the expected value.
+This is true because both gradients and expected value and linear operators and thus can be exchanged.
 
-### Linear combination of normal variables is normal
+$$ E \left[\frac{\partial y(x)}{\partial x} \right] =  \frac{\partial E[y(x)]}{\partial x}  \\
+   = \frac{\partial \Sigma(x,X)}{\partial x_i}^T \Sigma_X^{-1}(Y_X - \mu_X)
+$$
 
-$$ E[\hat{y}(x + \delta e_i) - \hat{y}(x)] = (\Sigma_{z_1y} - \Sigma_{z_2y})\Sigma_{yy}^{-1} (y - \mu_1) = (r_1-r_2)R^{-1}(y-\mu_1)$$
+### Variance of the gradient
 
-$$ E[\frac{\hat{y}(x + \delta e_i) - \hat{y}(x)}{\delta}] = (\frac{\Sigma_{z_1y} - \Sigma_{z_2y}}{\delta})\Sigma_{yy}^{-1} (y - \mu_1) =  (\frac{r_1 - r_2}{\delta})R^{-1} (y - \mu_1)$$
-
-
-$$ \frac{\Sigma_{z_1y} - \Sigma_{z_2y}}{\delta} = \frac{\hat{\sigma}^2 (r_1 - r_2)}{\delta}$$
-The jth element of this is
-$$ \lim_{\delta -> 0} \frac{R(x+\delta e_i, X_j) - R(x, X_j)}{\delta}  = \frac{\partial R(x, X_j)}{\partial x_i} =  \frac{\partial r_{(j)}}{\partial x_i}$$
-The mean of the gradient distribution is 
-$$ \frac{\partial r}{\partial x_i}^TR^{-1} (y - \mu_1)$$
-This is the same as the derivative of the mean function.
-
-The variance is the more difficult part.
-
-### Variance of lincom
-
-$$ \text{Var}\big[ \frac{\hat{y}(x + \delta e_i) - \hat{y}(x)}{\delta} \big] = \frac{1}{\delta^2}\text{Var}\big[ \hat{y}(x + \delta e_i) - \hat{y}(x) \big]$$
-$$=\frac{1}{\delta^2}\big( \text{Var}\big[ \hat{y}(x + \delta e_i)  \big] + \text{Var}\big[ \hat{y}(x) \big] + -2 \text{Cov}\big[ \hat{y}(x + \delta e_i), \hat{y}(x) \big] \big)$$
-$$ \text{Var}\big[ \hat{y}(x + \delta e_i) |Y \big] = \Sigma_{11} - \Sigma_{1Y} \Sigma_{YY}^{-1} \Sigma_{Y1}  $$
-$$ \text{Var}\big[ \hat{y}(x) |Y \big] = \Sigma_{22} - \Sigma_{2Y} \Sigma_{YY}^{-1} \Sigma_{Y2}  $$
-$$ \text{Cov}\big[ \hat{y}(x + \delta e_i), \hat{y}(x)|Y \big] =  \text{Cov}\big[ \hat{y}(x + \delta e_i), \hat{y}(x) \big] - \text{Cov}\big[ \hat{y}(x + \delta e_i), Y \big] \Sigma_{YY}^{-1} \text{Cov}\big[ Y, \hat{y}(x) \big] $$
-$$ = \Sigma_{12} - \Sigma_{1Y} \Sigma_{YY}^{-1} \Sigma_{Y2}$$
-$$  = \hat{\sigma}^2 \big(R\big[ \hat{y}(x + \delta e_i), \hat{y}(x) \big] + r_1 R^{-1} r_2 \big) $$
-
-$$=\frac{1}{\delta^2}\big( \Sigma_{11} - \Sigma_{1Y} \Sigma_{YY}^{-1} \Sigma_{Y1} + \Sigma_{22} - \Sigma_{2Y} \Sigma_{YY}^{-1} \Sigma_{Y2} + -2 (\Sigma_{12} - \Sigma_{1Y} \Sigma_{YY}^{-1} \Sigma_{Y2}) $$
-$$=\frac{1}{\delta^2}\big( \Sigma_{11}  + \Sigma_{22}  -2 \Sigma_{12} +2 (\Sigma_{1Y}- \Sigma_{2Y}) \Sigma_{YY}^{-1} ( \Sigma_{1Y}-\Sigma_{Y2}) $$
-
-
-CONTINUE HERE
-USE THIS AS GUIDE http://mlg.eng.cam.ac.uk/mchutchon/DifferentiatingGPs.pdf [@mchutchon]
-
-
-
-
-
-
-
-$$=\frac{1}{\delta^2}\big( \text{Var}\big[ \hat{y}(x + \delta e_i)  \big] + \text{Var}\big[ \hat{y}(x) \big] + -2 \text{Cov}\big[ \hat{y}(x + \delta e_i), \hat{y}(x) \big] \big)$$
-
-I could have just used this formula:
-$$ \text{Var}[(1,-1)^T (z_1, z_2)] = (1,-1)^T \text{Cov}((z_1, z_2)) (1,-1)$$
-
-$$ \frac{\partial R(z_1, z_2)}{\partial \delta} = $$
-
-Use https://math.stackexchange.com/questions/442472/sum-of-squares-of-dependent-gaussian-random-variables
-to get distribution of grad norm.
+The variance is harder to calculate.
+I used [this reference](http://mlg.eng.cam.ac.uk/mchutchon/DifferentiatingGPs.pdf) [@mchutchon] to get started,
+but the derivation presented here is much simpler.
 
 
 #### Starting over here
@@ -167,76 +140,13 @@ Let $U$ have 2 rows, with vectors denoted as $a$ and $b$.
 Then 
 
 $$
-\text{Cov}(U) = \Sigma_U \\
+\text{Cov}(Y_U) = \Sigma_U \\
 = \begin{bmatrix}
     \Sigma_{a}       & \Sigma_{ba} \\
     \Sigma_{ba}       & \Sigma_{b} \\
 \end{bmatrix} 
 $$
 
-$$
-\lim_{\delta \rightarrow 0}\text{Var}( \frac{Y_a - Y_b}{\delta} | Y_X) = 
-\lim_{\delta \rightarrow 0}\text{Var}( \frac{1}{\delta} [1, -1]^T Y_u | Y_X)  \\
-= \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} [1, -1]^T \text{Cov}(Y_u | Y_X) [1, -1] \\
-=  \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} (\Sigma_{a} + \Sigma_{b} - 2\Sigma_{ab} + \Sigma_{aX}\Sigma_{X}^{-1}\Sigma_{Xa} + \Sigma_{bX}\Sigma_{X}^{-1}\Sigma_{Xb} - 2\Sigma_{aX}\Sigma_{X}^{-1}\Sigma_{Xb}) \\
-=  \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} (\Sigma_{a} + \Sigma_{b} - 2\Sigma_{ab} + (\Sigma_{aX}-\Sigma_{bX})\Sigma_{X}^{-1}(\Sigma_{Xa}-\Sigma_{Xb})) \\
-=  \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} (\Sigma_{a} + \Sigma_{b} - 2\Sigma_{ab} + (\Sigma_{aX}-\Sigma_{bX})\Sigma_{X}^{-1}(\Sigma_{Xa}-\Sigma_{Xb})) \\
-=  \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} (\Sigma_{a} + \Sigma_{b} - 2\Sigma_{ab}) + 
-\lim_{\delta \rightarrow 0} \frac{1}{\delta^2} (\Sigma_{aX}-\Sigma_{bX})\Sigma_{X}^{-1}(\Sigma_{Xa}-\Sigma_{Xb})
-$$
-
-
-Now we need to find out what these terms are in terms of the derivatives $\Sigma$. $|_{x_1=c}$ means that $x_1$ should be evaluated at $c$
-
-$$
-\frac{\partial \Sigma(x_1, x_2)}{\partial x_1}|_{x_1=v_1} = \lim_{\delta_1 \rightarrow 0} \frac{\Sigma(x_1+\delta_1, x_2) - \Sigma(x_1, x_2)}{\delta_1} |_{v_1} \\
-= \lim_{\delta_1 \rightarrow 0} \frac{\Sigma(v_1+\delta_1, x_2) - \Sigma(v_1, x_2)}{\delta_1}
-$$
-
-Letting $x_2=X$ in a vectorized form, we have
-
-$$
-\frac{\partial \Sigma(x_1, X)}{\partial x_1}|_{x_1=v_1}  = \lim_{\delta_1 \rightarrow 0} \frac{\Sigma_{v_1+\delta_1, X} - \Sigma_{v_1, X}}{\delta_1}
-$$
-
-$$
-\frac{\partial \Sigma(x_1, X)}{\partial x_1}|_{x_1=v_1} \Sigma_x^{-1} \frac{\partial \Sigma(X, x_2)}{\partial x_2}|_{x_2=v_2}  = \lim_{\delta_1 \rightarrow 0} \frac{\Sigma_{v_1+\delta_1, X} - \Sigma_{v_1, X}}{\delta_1} \Sigma_X^{-1} \lim_{\delta_2 \rightarrow 0} \frac{\Sigma_{X,v_2+\delta_2} - \Sigma_{X,v_2}}{\delta_2}
-$$
-
-Taking the partial derivative of the first partial with respect to $x_2$ gives
-$$
-\frac{\partial^2 \Sigma(x_1, x_2)}{\partial x_1 \partial x_2}|_{x_1=v_1,x_2=v_2} =  \frac{\partial}{\partial x_2} [\frac{\partial \Sigma(x_1, x_2)}{\partial x_1}|_{x_1=v_1}] |_{x_2=v_2} \\
-= \lim_{\delta_2 \rightarrow 0} \frac{1}{\delta_2} [\lim_{\delta_1 \rightarrow 0} \frac{\Sigma(x_1+\delta_1, x_2+\delta_2) - \Sigma(x_1, x_2+\delta_2)}{\delta_1} |_{v_1} - \lim_{\delta_1 \rightarrow 0} \frac{\Sigma(x_1+\delta_1, x_2) - \Sigma(x_1, x_2)}{\delta_1} |_{v_1}] |_{x_2=v_2} \\ 
-= \lim_{\delta_2 \rightarrow 0}\lim_{\delta_1 \rightarrow 0} \frac{1}{\delta_1 \delta_2} [\Sigma(x_1+\delta_1, x_2+\delta_2) - \Sigma(x_1, x_2+\delta_2)  -  \Sigma(x_1+\delta_1, x_2) - \Sigma(x_1, x_2) ] |_{x_1=v_1, x_2=v_2}
-$$
-Equating the two $\delta$s and letting $v_1=v_2$ we get
-
-$$
-= \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} [\Sigma(v+\delta, v+\delta) - \Sigma(v, v+\delta)  -  \Sigma(v+\delta, v) - \Sigma(v, v) ] \\\
-= \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} [\Sigma_{v+\delta} +\Sigma_v - 2\Sigma_{v, v+\delta}  ]
-$$
-
-Continuing from above and putting in these values we get
-$$
-\text{Var}(\frac{\partial y(x)}{\partial x} | Y_X) \\
-\lim_{\delta \rightarrow 0} \text{Var}( \frac{Y_a - Y_b}{\delta} | Y_X)  \\
-= \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} (\Sigma_{a} + \Sigma_{b} - 2\Sigma_{ab}) + 
-\lim_{\delta \rightarrow 0} \frac{1}{\delta^2} (\Sigma_{aX}-\Sigma_{bX})\Sigma_{X}^{-1}(\Sigma_{Xa}-\Sigma_{Xb}) \\
-= \frac{\partial^2 \Sigma(x_1, x_2)}{\partial x_1 \partial x_2}|_{x_1=a,x_2=a}  + 
-\frac{\partial \Sigma(x_1, X)}{\partial x_1}|_{x_1=a} \Sigma_x^{-1} \frac{\partial \Sigma(X, x_2)}{\partial x_2}|_{x_2=a} 
-$$
-
-Therefore we have found the distribution of the gradient.
-
-$$
-\frac{\partial y(x)}{\partial x} | Y_X 
-\sim 
-N(\frac{\partial \Sigma_{x,X}}{\partial x}^T \Sigma_X^{-1} (Y_X - \mu_X),
-\frac{\partial^2 \Sigma(x_1, x_2)}{\partial x_1 \partial x_2}  + 
-\frac{\partial \Sigma(x_1, X)}{\partial x_1} \Sigma_x^{-1} \frac{\partial \Sigma(X, x_2)}{\partial x_2})
-$$
-
-#### Alternate, cleaner, correcter derivation?
 
 We need to find the covariance of the gradient vector of $y$ at a point $x$.
 $$ \text{Cov}(\nabla_x y(x))$$
@@ -336,14 +246,19 @@ The $U_j$ have standard normal distribution and are independent of each other. $
 Thus $Q(X)$ is distributed as a linear combination of $n$ noncentral chi-squared variables. Since $\lambda_j$ is different for each, $Q(X)$ does not have a noncentral chi-squared distribution. However, we can easily find its mean, variance, sample from it, etc.
 
 The mean and variance of $Q(X)$ are 
-$$ E[Q(X)] = \sum_{j=1}^n \lambda_j E[(U_j + b_j)^2] \\
- = \sum_{j=1}^n \lambda_j (b_j^2 + 1) \\
+$$ 
+\begin{align}
+  E[Q(X)] &= \sum_{j=1}^n \lambda_j E[(U_j + b_j)^2] \\
+          &= \sum_{j=1}^n \lambda_j (b_j^2 + 1) \\
+\end{align}
 $$
 
-$$ \text{Var}[Q(X)] = \sum_{j=1}^n \lambda_j \text{Var} \left[ (U_j + b_j)^2 \right] \\
- = \sum_{j=1}^n \lambda_j (4b_j^2 + 2) \\
 $$
-
+\begin{align}
+  \text{Var}[Q(X)] &= \sum_{j=1}^n \lambda_j \text{Var} \left[ (U_j + b_j)^2 \right] \\
+                   &= \sum_{j=1}^n \lambda_j (4b_j^2 + 2) \\
+\end{align}
+$$
 
 ### Relating this back to $||g||^2$
 

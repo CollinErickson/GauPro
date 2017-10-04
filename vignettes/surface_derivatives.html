@@ -36,15 +36,18 @@
 
 
 
-<p>This vignette covers the derivatives of the surface created by a Gaussian process model with respect to the spatial dimensions. The other vignette, <em>Introduction to GPs</em>, has derivatives of the deviance (likelihood) with respect to the parameters.</p>
+<p>This vignette covers the derivatives of the surface created by a Gaussian process model with respect to the spatial dimensions. The other vignette, <strong>Derivatives for estimating Gaussian process parameters</strong>, has derivatives of the deviance (likelihood) with respect to the parameters. For an explanation of notation and basic equations, see the vignette <strong>Introduction to Gaussian Processes</strong>.</p>
+<p>Here we assume that we have <span class="math inline">\(n\)</span> data points <span class="math inline">\(Y_X\)</span> that are the function values corresponding to the rows of the <span class="math inline">\(n\)</span> by <span class="math inline">\(d\)</span> design matrix <span class="math inline">\(X\)</span>. We have a mean function <span class="math inline">\(\mu\)</span> and covariance function <span class="math inline">\(\Sigma\)</span>.</p>
+<p><span class="math inline">\(y(x)\)</span> is the random variable representing the output <span class="math inline">\(Y_x\)</span> corresponding to input point <span class="math inline">\(x\)</span> conditional on the data <span class="math inline">\(Y_X\)</span>. Thus <span class="math inline">\(y(x) = Y_x | Y_X\)</span>, and <span class="math inline">\(y(x)\)</span> is a random variable with distribution</p>
+<p><span class="math display">\[ y(x) \sim N \left( \mu_x + \Sigma_{xX} \Sigma_x^{-1}(Y_X - \mu_X) , ~\Sigma_x + \Sigma_{xX} \Sigma_X^{-1} \Sigma_{Xx}\right)\]</span></p>
 <div id="gradient-of-mean-function" class="section level1">
 <h1>Gradient of mean function</h1>
-<p>The mean function is <span class="math display">\[ \hat{y}(x) = \hat{\mu} + r^T R^{-1}(Y - 1\hat{\mu}). \]</span> <span class="math inline">\(r\)</span> is the only part that depends on <span class="math inline">\(x\)</span>, and is defined below, where <span class="math inline">\(K\)</span> is the correlation function.</p>
-<p><span class="math display">\[ r = (r_1(x), \ldots, r_d(x))^T\]</span> <span class="math display">\[ r_i(x) = K(z(x), z(u_i))\]</span> <span class="math display">\[\frac{\partial \hat{y}(x)}{\partial x_i} = \frac{\partial r}{\partial x_i}^T R^{-1}(Y - 1\hat{\mu})\]</span></p>
-<p><span class="math display">\[\frac{\partial r_j}{\partial x_i} = \frac{\partial K(z(x), z(u_j))}{\partial x_i} \]</span> This value depends on the correlation function <span class="math inline">\(K\)</span>. This will give the vector <span class="math inline">\(\frac{\partial r}{\partial x_i}\)</span> which is calculates a single partial derivative, then the vector of these gives the gradient <span class="math inline">\(\nabla_x \hat{y}(x)\)</span></p>
+<p>The mean function is <span class="math display">\[ \hat{y}(x) = \mu(x) + \Sigma_{xX} \Sigma_X^{-1}(Y_X - \mu_X). \]</span> <span class="math inline">\(\mu(x)\)</span> and <span class="math inline">\(\Sigma_{xX}\)</span> are the only parts that depends on <span class="math inline">\(x\)</span>.</p>
+<p>We can find the gradient of <span class="math inline">\(\hat{y}(x)\)</span> by taking the partial derivatives</p>
+<p><span class="math display">\[\frac{\partial \hat{y}(x)}{\partial x_i}= \frac{\partial \mu(x)}{\partial x_i} +  \frac{\partial \Sigma_{x,X}}{\partial x_i} \Sigma_X^{-1}(Y_X - \mu_X)\]</span> Remember that <span class="math inline">\(\Sigma\)</span> is overloaded and the second derivative on the right hand side is: <span class="math display">\[\frac{\partial \Sigma_{x,X}}{\partial x_i} = \frac{\partial \Sigma (x,X)}{\partial x_i} \]</span> The calculation above is for a single partial derivative. The vector of these gives the gradient <span class="math inline">\(\frac{\partial \hat{y}(x)}{\partial x} = \nabla_x \hat{y}(x)\)</span>. Note that the partial derivative of a scalar with respect to a vector is another way of writing the gradient.</p>
 <div id="hessian-of-mean-function" class="section level2">
 <h2>Hessian of mean function</h2>
-<p>The second derivatives can be calculated similarly <span class="math display">\[\frac{\partial^2 \hat{y}(x)}{\partial x_i \partial x_k} = \frac{\partial^2 r}{\partial x_i \partial x_k}^T R^{-1}(Y - 1\hat{\mu})\]</span></p>
+<p>The second derivatives can be calculated similarly <span class="math display">\[\frac{\partial^2 \hat{y}(x)}{\partial x_i \partial x_k} = \frac{\partial^2 \mu(x)}{\partial x_i \partial x_k} +\frac{\partial^2 \Sigma_{xX}}{\partial x_i \partial x_k} \Sigma_X^{-1}(Y_X - \mu_X) = \frac{\partial^2 r}{\partial x_i \partial x_k}^T R^{-1}(Y - 1\hat{\mu})\]</span></p>
 <p>Each element of this matrix is <span class="math display">\[\frac{\partial^2 r_j}{\partial x_i \partial x_k} = \frac{\partial^2 K(z(x), z(u_j))}{\partial x_i \partial x_k} \]</span></p>
 </div>
 <div id="gaussian-correlation-derivative" class="section level2">
@@ -57,31 +60,21 @@
 </div>
 <div id="gradient-distribution" class="section level2">
 <h2>Gradient distribution</h2>
-<p>A big problem with using the gradient of the mean function of a GP is that it doesn’t give an idea of its distribution/randomness. The gradient could be zero in a region where the surface is not flat just because we don’t any information in that region yet.</p>
-<p>Can we find the distribution of the gradient by taking a limit?</p>
-<p>In <span class="math inline">\(d\)</span> dimensions we</p>
-<p>First start with the directional derivative in the direction of the ith component. <span class="math display">\[ \frac{\partial \hat{y}(x)}{\partial x_i} = \lim_{\delta -&gt; 0} \frac{ \hat{y}(x + \delta e_i) - \hat{y}(x)}{\delta}  \]</span></p>
-<p>Now we find the joint distribution of $(x + e_i) $ and $ (x)$</p>
-<div id="joint-distribution" class="section level3">
-<h3>Joint distribution</h3>
-<p>If <span class="math inline">\((y,z) \sim N((\mu_1, \mu_2), \Sigma)\)</span> then <span class="math display">\[ z|y \sim N(\mu_{z|y}, \Sigma_{z|y} )\]</span> <span class="math display">\[ \mu_{z|y}= \mu_2 + \Sigma_{zy}\Sigma_{yy}^{-1} (y - \mu_1)\]</span> <span class="math display">\[ \Sigma_{z|y} = \Sigma_{zz} - \Sigma_{zy}\Sigma_{yy}^{-1}\Sigma_{yz} \]</span></p>
+<p>A big problem with using the gradient of the mean function of a GP is that it doesn’t give an idea of its distribution/randomness. The mean of the gradient could be predicted to be zero in a region where the surface is not flat simply because it has no information in that region yet.</p>
+<p>First we want to know what type of distribution the gradient follows.</p>
+<p><span class="math display">\[ \frac{\partial y(x)}{\partial x} = \lim_{\delta \rightarrow 0} \frac{1}{\delta} \left( \begin{bmatrix} y(x+\delta e_1) \\ \vdots \\ y(x+\delta e_d) \end{bmatrix} - y(x) \right)\]</span></p>
+<p>For any finite <span class="math inline">\(\delta\)</span>, this vector’s components are a linear combination of normal random variables, and thus the vector has a multivariate distribution. We still need to show that in the limit as <span class="math inline">\(\delta \rightarrow 0\)</span>, it retains a multivariate distribution, but I won’t do that here.</p>
+<p>Thus the gradient follows a multivariate distribution, and now we will find its mean and covariance.</p>
+<div id="gradient-expected-value" class="section level3">
+<h3>Gradient expected value</h3>
+<p>The expected value of the gradient is easily found since it equals the gradient of the expected value. This is true because both gradients and expected value and linear operators and thus can be exchanged.</p>
+<p><span class="math display">\[ E \left[\frac{\partial y(x)}{\partial x} \right] =  \frac{\partial E[y(x)]}{\partial x}  \\
+   = \frac{\partial \Sigma(x,X)}{\partial x_i}^T \Sigma_X^{-1}(Y_X - \mu_X)
+\]</span></p>
 </div>
-<div id="linear-combination-of-normal-variables-is-normal" class="section level3">
-<h3>Linear combination of normal variables is normal</h3>
-<p><span class="math display">\[ E[\hat{y}(x + \delta e_i) - \hat{y}(x)] = (\Sigma_{z_1y} - \Sigma_{z_2y})\Sigma_{yy}^{-1} (y - \mu_1) = (r_1-r_2)R^{-1}(y-\mu_1)\]</span></p>
-<p><span class="math display">\[ E[\frac{\hat{y}(x + \delta e_i) - \hat{y}(x)}{\delta}] = (\frac{\Sigma_{z_1y} - \Sigma_{z_2y}}{\delta})\Sigma_{yy}^{-1} (y - \mu_1) =  (\frac{r_1 - r_2}{\delta})R^{-1} (y - \mu_1)\]</span></p>
-<p><span class="math display">\[ \frac{\Sigma_{z_1y} - \Sigma_{z_2y}}{\delta} = \frac{\hat{\sigma}^2 (r_1 - r_2)}{\delta}\]</span> The jth element of this is <span class="math display">\[ \lim_{\delta -&gt; 0} \frac{R(x+\delta e_i, X_j) - R(x, X_j)}{\delta}  = \frac{\partial R(x, X_j)}{\partial x_i} =  \frac{\partial r_{(j)}}{\partial x_i}\]</span> The mean of the gradient distribution is <span class="math display">\[ \frac{\partial r}{\partial x_i}^TR^{-1} (y - \mu_1)\]</span> This is the same as the derivative of the mean function.</p>
-<p>The variance is the more difficult part.</p>
-</div>
-<div id="variance-of-lincom" class="section level3">
-<h3>Variance of lincom</h3>
-<p><span class="math display">\[ \text{Var}\big[ \frac{\hat{y}(x + \delta e_i) - \hat{y}(x)}{\delta} \big] = \frac{1}{\delta^2}\text{Var}\big[ \hat{y}(x + \delta e_i) - \hat{y}(x) \big]\]</span> <span class="math display">\[=\frac{1}{\delta^2}\big( \text{Var}\big[ \hat{y}(x + \delta e_i)  \big] + \text{Var}\big[ \hat{y}(x) \big] + -2 \text{Cov}\big[ \hat{y}(x + \delta e_i), \hat{y}(x) \big] \big)\]</span> <span class="math display">\[ \text{Var}\big[ \hat{y}(x + \delta e_i) |Y \big] = \Sigma_{11} - \Sigma_{1Y} \Sigma_{YY}^{-1} \Sigma_{Y1}  \]</span> <span class="math display">\[ \text{Var}\big[ \hat{y}(x) |Y \big] = \Sigma_{22} - \Sigma_{2Y} \Sigma_{YY}^{-1} \Sigma_{Y2}  \]</span> <span class="math display">\[ \text{Cov}\big[ \hat{y}(x + \delta e_i), \hat{y}(x)|Y \big] =  \text{Cov}\big[ \hat{y}(x + \delta e_i), \hat{y}(x) \big] - \text{Cov}\big[ \hat{y}(x + \delta e_i), Y \big] \Sigma_{YY}^{-1} \text{Cov}\big[ Y, \hat{y}(x) \big] \]</span> <span class="math display">\[ = \Sigma_{12} - \Sigma_{1Y} \Sigma_{YY}^{-1} \Sigma_{Y2}\]</span> <span class="math display">\[  = \hat{\sigma}^2 \big(R\big[ \hat{y}(x + \delta e_i), \hat{y}(x) \big] + r_1 R^{-1} r_2 \big) \]</span></p>
-<p><span class="math display">\[=\frac{1}{\delta^2}\big( \Sigma_{11} - \Sigma_{1Y} \Sigma_{YY}^{-1} \Sigma_{Y1} + \Sigma_{22} - \Sigma_{2Y} \Sigma_{YY}^{-1} \Sigma_{Y2} + -2 (\Sigma_{12} - \Sigma_{1Y} \Sigma_{YY}^{-1} \Sigma_{Y2}) \]</span> <span class="math display">\[=\frac{1}{\delta^2}\big( \Sigma_{11}  + \Sigma_{22}  -2 \Sigma_{12} +2 (\Sigma_{1Y}- \Sigma_{2Y}) \Sigma_{YY}^{-1} ( \Sigma_{1Y}-\Sigma_{Y2}) \]</span></p>
-<p>CONTINUE HERE USE THIS AS GUIDE <a href="http://mlg.eng.cam.ac.uk/mchutchon/DifferentiatingGPs.pdf" class="uri">http://mlg.eng.cam.ac.uk/mchutchon/DifferentiatingGPs.pdf</a> <span class="citation">(McHutchon, n.d.)</span></p>
-<p><span class="math display">\[=\frac{1}{\delta^2}\big( \text{Var}\big[ \hat{y}(x + \delta e_i)  \big] + \text{Var}\big[ \hat{y}(x) \big] + -2 \text{Cov}\big[ \hat{y}(x + \delta e_i), \hat{y}(x) \big] \big)\]</span></p>
-<p>I could have just used this formula: <span class="math display">\[ \text{Var}[(1,-1)^T (z_1, z_2)] = (1,-1)^T \text{Cov}((z_1, z_2)) (1,-1)\]</span></p>
-<p><span class="math display">\[ \frac{\partial R(z_1, z_2)}{\partial \delta} = \]</span></p>
-<p>Use <a href="https://math.stackexchange.com/questions/442472/sum-of-squares-of-dependent-gaussian-random-variables" class="uri">https://math.stackexchange.com/questions/442472/sum-of-squares-of-dependent-gaussian-random-variables</a> to get distribution of grad norm.</p>
+<div id="variance-of-the-gradient" class="section level3">
+<h3>Variance of the gradient</h3>
+<p>The variance is harder to calculate. I used <a href="http://mlg.eng.cam.ac.uk/mchutchon/DifferentiatingGPs.pdf">this reference</a> <span class="citation">(McHutchon, n.d.)</span> to get started, but the derivation presented here is much simpler.</p>
 <div id="starting-over-here" class="section level4">
 <h4>Starting over here</h4>
 <p>Let <span class="math inline">\(U\)</span> and <span class="math inline">\(X\)</span> be design matrices, so their rows are input points. Let the vector of outputs at <span class="math inline">\(U\)</span> be <span class="math inline">\(Y_U\)</span> and at <span class="math inline">\(X\)</span> be <span class="math inline">\(Y_X\)</span>. Their joint distribution is <span class="math display">\[ \begin{bmatrix} Y_U \\ Y_X \end{bmatrix}
@@ -100,62 +93,12 @@ N(\mu_U + \Sigma_{UX} \Sigma_{X}^{-1}(Y_X-\mu_X),\Sigma_{U} - \Sigma_{UX} \Sigma
 <p>Let <span class="math inline">\(U\)</span> have 2 rows, with vectors denoted as <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span>.</p>
 <p>Then</p>
 <p><span class="math display">\[
-\text{Cov}(U) = \Sigma_U \\
+\text{Cov}(Y_U) = \Sigma_U \\
 = \begin{bmatrix}
     \Sigma_{a}       &amp; \Sigma_{ba} \\
     \Sigma_{ba}       &amp; \Sigma_{b} \\
 \end{bmatrix} 
 \]</span></p>
-<p><span class="math display">\[
-\lim_{\delta \rightarrow 0}\text{Var}( \frac{Y_a - Y_b}{\delta} | Y_X) = 
-\lim_{\delta \rightarrow 0}\text{Var}( \frac{1}{\delta} [1, -1]^T Y_u | Y_X)  \\
-= \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} [1, -1]^T \text{Cov}(Y_u | Y_X) [1, -1] \\
-=  \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} (\Sigma_{a} + \Sigma_{b} - 2\Sigma_{ab} + \Sigma_{aX}\Sigma_{X}^{-1}\Sigma_{Xa} + \Sigma_{bX}\Sigma_{X}^{-1}\Sigma_{Xb} - 2\Sigma_{aX}\Sigma_{X}^{-1}\Sigma_{Xb}) \\
-=  \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} (\Sigma_{a} + \Sigma_{b} - 2\Sigma_{ab} + (\Sigma_{aX}-\Sigma_{bX})\Sigma_{X}^{-1}(\Sigma_{Xa}-\Sigma_{Xb})) \\
-=  \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} (\Sigma_{a} + \Sigma_{b} - 2\Sigma_{ab} + (\Sigma_{aX}-\Sigma_{bX})\Sigma_{X}^{-1}(\Sigma_{Xa}-\Sigma_{Xb})) \\
-=  \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} (\Sigma_{a} + \Sigma_{b} - 2\Sigma_{ab}) + 
-\lim_{\delta \rightarrow 0} \frac{1}{\delta^2} (\Sigma_{aX}-\Sigma_{bX})\Sigma_{X}^{-1}(\Sigma_{Xa}-\Sigma_{Xb})
-\]</span></p>
-<p>Now we need to find out what these terms are in terms of the derivatives <span class="math inline">\(\Sigma\)</span>. <span class="math inline">\(|_{x_1=c}\)</span> means that <span class="math inline">\(x_1\)</span> should be evaluated at <span class="math inline">\(c\)</span></p>
-<p><span class="math display">\[
-\frac{\partial \Sigma(x_1, x_2)}{\partial x_1}|_{x_1=v_1} = \lim_{\delta_1 \rightarrow 0} \frac{\Sigma(x_1+\delta_1, x_2) - \Sigma(x_1, x_2)}{\delta_1} |_{v_1} \\
-= \lim_{\delta_1 \rightarrow 0} \frac{\Sigma(v_1+\delta_1, x_2) - \Sigma(v_1, x_2)}{\delta_1}
-\]</span></p>
-<p>Letting <span class="math inline">\(x_2=X\)</span> in a vectorized form, we have</p>
-<p><span class="math display">\[
-\frac{\partial \Sigma(x_1, X)}{\partial x_1}|_{x_1=v_1}  = \lim_{\delta_1 \rightarrow 0} \frac{\Sigma_{v_1+\delta_1, X} - \Sigma_{v_1, X}}{\delta_1}
-\]</span></p>
-<p><span class="math display">\[
-\frac{\partial \Sigma(x_1, X)}{\partial x_1}|_{x_1=v_1} \Sigma_x^{-1} \frac{\partial \Sigma(X, x_2)}{\partial x_2}|_{x_2=v_2}  = \lim_{\delta_1 \rightarrow 0} \frac{\Sigma_{v_1+\delta_1, X} - \Sigma_{v_1, X}}{\delta_1} \Sigma_X^{-1} \lim_{\delta_2 \rightarrow 0} \frac{\Sigma_{X,v_2+\delta_2} - \Sigma_{X,v_2}}{\delta_2}
-\]</span></p>
-<p>Taking the partial derivative of the first partial with respect to <span class="math inline">\(x_2\)</span> gives <span class="math display">\[
-\frac{\partial^2 \Sigma(x_1, x_2)}{\partial x_1 \partial x_2}|_{x_1=v_1,x_2=v_2} =  \frac{\partial}{\partial x_2} [\frac{\partial \Sigma(x_1, x_2)}{\partial x_1}|_{x_1=v_1}] |_{x_2=v_2} \\
-= \lim_{\delta_2 \rightarrow 0} \frac{1}{\delta_2} [\lim_{\delta_1 \rightarrow 0} \frac{\Sigma(x_1+\delta_1, x_2+\delta_2) - \Sigma(x_1, x_2+\delta_2)}{\delta_1} |_{v_1} - \lim_{\delta_1 \rightarrow 0} \frac{\Sigma(x_1+\delta_1, x_2) - \Sigma(x_1, x_2)}{\delta_1} |_{v_1}] |_{x_2=v_2} \\ 
-= \lim_{\delta_2 \rightarrow 0}\lim_{\delta_1 \rightarrow 0} \frac{1}{\delta_1 \delta_2} [\Sigma(x_1+\delta_1, x_2+\delta_2) - \Sigma(x_1, x_2+\delta_2)  -  \Sigma(x_1+\delta_1, x_2) - \Sigma(x_1, x_2) ] |_{x_1=v_1, x_2=v_2}
-\]</span> Equating the two <span class="math inline">\(\delta\)</span>s and letting <span class="math inline">\(v_1=v_2\)</span> we get</p>
-<p><span class="math display">\[
-= \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} [\Sigma(v+\delta, v+\delta) - \Sigma(v, v+\delta)  -  \Sigma(v+\delta, v) - \Sigma(v, v) ] \\\
-= \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} [\Sigma_{v+\delta} +\Sigma_v - 2\Sigma_{v, v+\delta}  ]
-\]</span></p>
-<p>Continuing from above and putting in these values we get <span class="math display">\[
-\text{Var}(\frac{\partial y(x)}{\partial x} | Y_X) \\
-\lim_{\delta \rightarrow 0} \text{Var}( \frac{Y_a - Y_b}{\delta} | Y_X)  \\
-= \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} (\Sigma_{a} + \Sigma_{b} - 2\Sigma_{ab}) + 
-\lim_{\delta \rightarrow 0} \frac{1}{\delta^2} (\Sigma_{aX}-\Sigma_{bX})\Sigma_{X}^{-1}(\Sigma_{Xa}-\Sigma_{Xb}) \\
-= \frac{\partial^2 \Sigma(x_1, x_2)}{\partial x_1 \partial x_2}|_{x_1=a,x_2=a}  + 
-\frac{\partial \Sigma(x_1, X)}{\partial x_1}|_{x_1=a} \Sigma_x^{-1} \frac{\partial \Sigma(X, x_2)}{\partial x_2}|_{x_2=a} 
-\]</span></p>
-<p>Therefore we have found the distribution of the gradient.</p>
-<p><span class="math display">\[
-\frac{\partial y(x)}{\partial x} | Y_X 
-\sim 
-N(\frac{\partial \Sigma_{x,X}}{\partial x}^T \Sigma_X^{-1} (Y_X - \mu_X),
-\frac{\partial^2 \Sigma(x_1, x_2)}{\partial x_1 \partial x_2}  + 
-\frac{\partial \Sigma(x_1, X)}{\partial x_1} \Sigma_x^{-1} \frac{\partial \Sigma(X, x_2)}{\partial x_2})
-\]</span></p>
-</div>
-<div id="alternate-cleaner-correcter-derivation" class="section level4">
-<h4>Alternate, cleaner, correcter derivation?</h4>
 <p>We need to find the covariance of the gradient vector of <span class="math inline">\(y\)</span> at a point <span class="math inline">\(x\)</span>. <span class="math display">\[ \text{Cov}(\nabla_x y(x))\]</span> The <span class="math inline">\((i,j)\)</span> entry of this matrix is <span class="math display">\[ \text{Cov}(\frac{\partial y(x)}{\partial x_i},\frac{\partial y(x)}{\partial x_j})\]</span> We can write this as a limit.</p>
 <p><span class="math display">\[ \lim_{\delta \rightarrow 0} \text{Cov}\left(\frac{y(x+\delta e_i) - y(x)}{\delta}, \frac{y(x+\delta e_j) - y(x)}{\delta}\right)\]</span> The covariance function is bilinear, so we can split it into four terms.</p>
 <p><span class="math display">\[ \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} \left(   \text{Cov}\left[y(x+\delta e_i), y(x+\delta e_j)\right] - \text{Cov}\left[y(x+\delta e_i), y(x)\right] - \text{Cov}\left[y(x), y(x+\delta e_j)\right] + \text{Cov}\left[y(x), y(x)\right] \right)\]</span> This can be recognized as the second order derivative of <span class="math inline">\(\text{Cov}(y(u), y(v))\)</span> with respect to <span class="math inline">\(u_i\)</span> and <span class="math inline">\(v_j\)</span> evaluated at <span class="math inline">\(u=v=x\)</span>. See finite difference differentiation for more details. We have to use <span class="math inline">\(u\)</span> and <span class="math inline">\(v\)</span> instead of a single <span class="math inline">\(x\)</span> to be clear which component of the covariance function is being differentiated.</p>
@@ -200,11 +143,17 @@ N(\frac{\partial \Sigma_{x,X}}{\partial x}^T \Sigma_X^{-1} (Y_X - \mu_X),
 \]</span> Here we defined <span class="math inline">\(b= P \Sigma^{-1/2} \mu\)</span>.</p>
 <p>Since <span class="math inline">\(\Lambda\)</span> is diagonal, we have <span class="math display">\[Q(X) = X^TAX = \sum_{j=1}^n \lambda_j (U_j + b_j)^2\]</span></p>
 <p>The <span class="math inline">\(U_j\)</span> have standard normal distribution and are independent of each other. <span class="math inline">\((U_j + b_j)^2\)</span> is thus the square of normal variable with mean <span class="math inline">\(b_j\)</span> and variance 1, meaning it has a noncentral chi-squared distribution with mean <span class="math inline">\(b_j^2 +1\)</span> and variance <span class="math inline">\(4b_j^2 + 2\)</span>. Thus <span class="math inline">\(Q(X)\)</span> is distributed as a linear combination of <span class="math inline">\(n\)</span> noncentral chi-squared variables. Since <span class="math inline">\(\lambda_j\)</span> is different for each, <span class="math inline">\(Q(X)\)</span> does not have a noncentral chi-squared distribution. However, we can easily find its mean, variance, sample from it, etc.</p>
-<p>The mean and variance of <span class="math inline">\(Q(X)\)</span> are <span class="math display">\[ E[Q(X)] = \sum_{j=1}^n \lambda_j E[(U_j + b_j)^2] \\
- = \sum_{j=1}^n \lambda_j (b_j^2 + 1) \\
+<p>The mean and variance of <span class="math inline">\(Q(X)\)</span> are <span class="math display">\[ 
+\begin{align}
+  E[Q(X)] &amp;= \sum_{j=1}^n \lambda_j E[(U_j + b_j)^2] \\
+          &amp;= \sum_{j=1}^n \lambda_j (b_j^2 + 1) \\
+\end{align}
 \]</span></p>
-<p><span class="math display">\[ \text{Var}[Q(X)] = \sum_{j=1}^n \lambda_j \text{Var} \left[ (U_j + b_j)^2 \right] \\
- = \sum_{j=1}^n \lambda_j (4b_j^2 + 2) \\
+<p><span class="math display">\[
+\begin{align}
+  \text{Var}[Q(X)] &amp;= \sum_{j=1}^n \lambda_j \text{Var} \left[ (U_j + b_j)^2 \right] \\
+                   &amp;= \sum_{j=1}^n \lambda_j (4b_j^2 + 2) \\
+\end{align}
 \]</span></p>
 </div>
 </div>

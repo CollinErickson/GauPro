@@ -17,13 +17,13 @@ To determine the normal distribution, we must select a mean function that gives
 a mean for each point and a covariance function that gives the covariance
 between any set of points.
 
-Thus if we have mean function $\mu$, covariance function $C$, and the $n \times d$ matrix X with the input vectors $\mathbf{x_1}, ..., \mathbf{x_n}$ in its rows, then distribution of the output at these points, $\mathbf{y} = [y_1, \ldots, y_n]^T$ is given by:
+Thus if we have mean function $\mu$, covariance function $\Sigma$, and the $n \times d$ matrix X with the input vectors $\mathbf{x_1}, ..., \mathbf{x_n}$ in its rows, then distribution of the output at these points, $\mathbf{y} = [y_1, \ldots, y_n]^T$ is given by:
 
-$$ \mathbf{y} \sim  N(\mu(X),~C(X)) $$
+$$ \mathbf{y} \sim  N(\mu(X),~ \Sigma(X)) $$
 
 Or in full element notation:
 
-$$ \begin{bmatrix} y_1 \\ \vdots \\ y_n \end{bmatrix} \sim N(\begin{bmatrix} \mu(\mathbf{x_1}) \\ \vdots \\ \mu(\mathbf{x_n}) \end{bmatrix}, \begin{bmatrix} C(\mathbf{x_1},\mathbf{x_1}) &\cdots &C(\mathbf{x_1},\mathbf{x_n}) \\ \vdots &\ddots &\vdots \\ C(\mathbf{x_n},\mathbf{x_1}) &\cdots &C(\mathbf{x_n},\mathbf{x_n}) \end{bmatrix})$$
+$$ \begin{bmatrix} y_1 \\ \vdots \\ y_n \end{bmatrix} \sim N(\begin{bmatrix} \mu(\mathbf{x_1}) \\ \vdots \\ \mu(\mathbf{x_n}) \end{bmatrix}, \begin{bmatrix} \Sigma(\mathbf{x_1},\mathbf{x_1}) &\cdots &\Sigma(\mathbf{x_1},\mathbf{x_n}) \\ \vdots &\ddots &\vdots \\ \Sigma(\mathbf{x_n},\mathbf{x_1}) &\cdots &\Sigma(\mathbf{x_n},\mathbf{x_n}) \end{bmatrix})$$
 
 
 ## Mean function $\mu$
@@ -36,6 +36,8 @@ When fitting a GP model to data, $\mu$ is usually estimated using the data.
 Another commonly used mean function is zero.
 This works surprisingly well since the GP will interpolated between your data,
 meaning that the mean function work have much of an effect when there is enough data.
+A note on notation: for a vector $u$, $\mu(u)$ is sometimes written as $\mu_u$ for simplicity.
+For a matrix $X$, $\mu(X)=\mu_X$ is the vector obtained from applying $\mu$ to each row of $X$.
 
 A more advanced choice of mean function is to use a linear model, so 
 $$\mu(\mathbf{x}) = \beta_0 + \sum_{i=1}^d \beta_i x_i$$.
@@ -49,27 +51,34 @@ should provide enough information to fit the true function.
 Some researchers say that using a linear model can have negative effects
 on fitting a good model.
 
-## Covariance function $C$
+## Covariance function $\Sigma$
 
-The covariance function determines the "rough" the surface is,
-or how strong the correlation is between points.
-Notation: 
-A covariance/correlation function should take two vectors as input.
-For a $n \times d$ matrix $X$, $C(X)$ denotes the $n \times n$ matrix whose $(i, j)$ element
-is $C(\mathbf{x_i}, \mathbf{x_j})$.
+The covariance function determines how strong the correlation is between points.
+A note on notation: the covariance/correlation functions are heavily overloaded,
+meaning that their meaning depends on the context.
+For vectors $u$ and $v$, $\Sigma(u,v)$ is the covariance between the points,
+which is also sometimes written as $\Sigma_{u,v}$ or $\Sigma_{uv}$.
+$\Sigma(u)$ or $\Sigma_u$ is the same thing as the covariance of $u$ with
+itself, or $\Sigma(u,u)$.
+For a matrix $X$, $\Sigma(X,u)$ or $\Sigma_{Xu}$ is a column vector whose elements are the covariance
+of the rows of $X$ with $u$.
+For another matrix $W$, $\Sigma(X, W)$ is a matrix whose $(i,j)$ element is the
+covariance of the $i$ row of $X$ and the $j$ row of $W$.
+$\Sigma(X)$ or $\Sigma_X$ means the same thing as $\Sigma(X,X)$.
 
 Often a correlation function, $R$, is used instead of a covariance function.
 The correlation function should map any pair of points to $[0,1]$.
 The correlation for any point with itself should be 1, i.e. $R(\mathbf{x}, \mathbf{x}) = 1$.
 When a correlation function is used, a variance parameter $\sigma^2$ must be estimated to scale
 the correlation matrix into a covariance matrix. 
-Thus the covariance matrix is $C(X) = \hat{\sigma}^2 R(X)$
+Thus the covariance matrix is $C(X) = \hat{\sigma}^2 R(X)$.
+$R$ is overloaded similarly to $Sigma$.
 
 ### Gaussian correlation
 
 The most commonly used correlation function is the Gausian.
 
-$$ R(\mathbf{u}, \mathbf{v}) = \exp{\sum_{i=1}^d} \theta_i (u_i - v_i)^2$$
+$$ R(\mathbf{u}, \mathbf{v}) = \exp \left( -\sum_{i=1}^d \theta_i (u_i - v_i)^2 \right)$$
 
 The parameters $\mathbf{\theta} = (\theta_1, \ldots, \theta_d)$ are the 
 correlation parameters for each dimensions.
@@ -80,7 +89,7 @@ Generally they must be estimated from the data when fitting a Gaussian process m
 
 The parameters are often estimated by finding the parameters that maximize the likelihood given a data set.
 
-The likelihood function is the usual multivariate normal pdf shown below, where $\mathbf{\mu} = \mu(X)$, $\Sigma = C(X)$
+The likelihood function is the usual multivariate normal pdf shown below, where $\mathbf{\mu} = \mu(X)$, $\Sigma = \Sigma(X)$
 
 $$ f(\mathbf{\theta};~X,~\mathbf{y}) = f(X,~\mathbf{y};~\mathbf{\theta}) = \frac{1}{(2 \pi)^{n/2} |\Sigma|^{1/2} } \exp{(-\frac{1}{2} (\mathbf{y} - \mathbf{\mu})^T \Sigma^{-1} (\mathbf{y} - \mathbf{\mu}))}$$
 
