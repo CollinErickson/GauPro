@@ -31,7 +31,7 @@ references:
 
 
 This vignette covers the derivatives of the surface created by a Gaussian process model with respect to the spatial dimensions. 
-The other vignette has derivatives of the deviance (likelihood) with respect to the parameters.
+The other vignette, *Introduction to GPs*, has derivatives of the deviance (likelihood) with respect to the parameters.
 
 # Gradient of mean function
 
@@ -109,11 +109,11 @@ The variance is the more difficult part.
 
 ### Variance of lincom
 
-$$ Var\big[ \frac{\hat{y}(x + \delta e_i) - \hat{y}(x)}{\delta} \big] = \frac{1}{\delta^2}Var\big[ \hat{y}(x + \delta e_i) - \hat{y}(x) \big]$$
-$$=\frac{1}{\delta^2}\big( Var\big[ \hat{y}(x + \delta e_i)  \big] + Var\big[ \hat{y}(x) \big] + -2 Cov\big[ \hat{y}(x + \delta e_i), \hat{y}(x) \big] \big)$$
-$$ Var\big[ \hat{y}(x + \delta e_i) |Y \big] = \Sigma_{11} - \Sigma_{1Y} \Sigma_{YY}^{-1} \Sigma_{Y1}  $$
-$$ Var\big[ \hat{y}(x) |Y \big] = \Sigma_{22} - \Sigma_{2Y} \Sigma_{YY}^{-1} \Sigma_{Y2}  $$
-$$ Cov\big[ \hat{y}(x + \delta e_i), \hat{y}(x)|Y \big] =  Cov\big[ \hat{y}(x + \delta e_i), \hat{y}(x) \big] - Cov\big[ \hat{y}(x + \delta e_i), Y \big] \Sigma_{YY}^{-1} Cov\big[ Y, \hat{y}(x) \big] $$
+$$ \text{Var}\big[ \frac{\hat{y}(x + \delta e_i) - \hat{y}(x)}{\delta} \big] = \frac{1}{\delta^2}\text{Var}\big[ \hat{y}(x + \delta e_i) - \hat{y}(x) \big]$$
+$$=\frac{1}{\delta^2}\big( \text{Var}\big[ \hat{y}(x + \delta e_i)  \big] + \text{Var}\big[ \hat{y}(x) \big] + -2 \text{Cov}\big[ \hat{y}(x + \delta e_i), \hat{y}(x) \big] \big)$$
+$$ \text{Var}\big[ \hat{y}(x + \delta e_i) |Y \big] = \Sigma_{11} - \Sigma_{1Y} \Sigma_{YY}^{-1} \Sigma_{Y1}  $$
+$$ \text{Var}\big[ \hat{y}(x) |Y \big] = \Sigma_{22} - \Sigma_{2Y} \Sigma_{YY}^{-1} \Sigma_{Y2}  $$
+$$ \text{Cov}\big[ \hat{y}(x + \delta e_i), \hat{y}(x)|Y \big] =  \text{Cov}\big[ \hat{y}(x + \delta e_i), \hat{y}(x) \big] - \text{Cov}\big[ \hat{y}(x + \delta e_i), Y \big] \Sigma_{YY}^{-1} \text{Cov}\big[ Y, \hat{y}(x) \big] $$
 $$ = \Sigma_{12} - \Sigma_{1Y} \Sigma_{YY}^{-1} \Sigma_{Y2}$$
 $$  = \hat{\sigma}^2 \big(R\big[ \hat{y}(x + \delta e_i), \hat{y}(x) \big] + r_1 R^{-1} r_2 \big) $$
 
@@ -130,10 +130,10 @@ USE THIS AS GUIDE http://mlg.eng.cam.ac.uk/mchutchon/DifferentiatingGPs.pdf [@mc
 
 
 
-$$=\frac{1}{\delta^2}\big( Var\big[ \hat{y}(x + \delta e_i)  \big] + Var\big[ \hat{y}(x) \big] + -2 Cov\big[ \hat{y}(x + \delta e_i), \hat{y}(x) \big] \big)$$
+$$=\frac{1}{\delta^2}\big( \text{Var}\big[ \hat{y}(x + \delta e_i)  \big] + \text{Var}\big[ \hat{y}(x) \big] + -2 \text{Cov}\big[ \hat{y}(x + \delta e_i), \hat{y}(x) \big] \big)$$
 
 I could have just used this formula:
-$$ Var[(1,-1)^T (z_1, z_2)] = (1,-1)^T Cov((z_1, z_2)) (1,-1)$$
+$$ \text{Var}[(1,-1)^T (z_1, z_2)] = (1,-1)^T \text{Cov}((z_1, z_2)) (1,-1)$$
 
 $$ \frac{\partial R(z_1, z_2)}{\partial \delta} = $$
 
@@ -167,7 +167,7 @@ Let $U$ have 2 rows, with vectors denoted as $a$ and $b$.
 Then 
 
 $$
-Cov(U) = \Sigma_U \\
+\text{Cov}(U) = \Sigma_U \\
 = \begin{bmatrix}
     \Sigma_{a}       & \Sigma_{ba} \\
     \Sigma_{ba}       & \Sigma_{b} \\
@@ -175,9 +175,9 @@ Cov(U) = \Sigma_U \\
 $$
 
 $$
-\lim_{\delta \rightarrow 0}Var( \frac{Y_a - Y_b}{\delta} | Y_X) = 
-\lim_{\delta \rightarrow 0}Var( \frac{1}{\delta} [1, -1]^T Y_u | Y_X)  \\
-= \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} [1, -1]^T Cov(Y_u | Y_X) [1, -1] \\
+\lim_{\delta \rightarrow 0}\text{Var}( \frac{Y_a - Y_b}{\delta} | Y_X) = 
+\lim_{\delta \rightarrow 0}\text{Var}( \frac{1}{\delta} [1, -1]^T Y_u | Y_X)  \\
+= \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} [1, -1]^T \text{Cov}(Y_u | Y_X) [1, -1] \\
 =  \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} (\Sigma_{a} + \Sigma_{b} - 2\Sigma_{ab} + \Sigma_{aX}\Sigma_{X}^{-1}\Sigma_{Xa} + \Sigma_{bX}\Sigma_{X}^{-1}\Sigma_{Xb} - 2\Sigma_{aX}\Sigma_{X}^{-1}\Sigma_{Xb}) \\
 =  \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} (\Sigma_{a} + \Sigma_{b} - 2\Sigma_{ab} + (\Sigma_{aX}-\Sigma_{bX})\Sigma_{X}^{-1}(\Sigma_{Xa}-\Sigma_{Xb})) \\
 =  \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} (\Sigma_{a} + \Sigma_{b} - 2\Sigma_{ab} + (\Sigma_{aX}-\Sigma_{bX})\Sigma_{X}^{-1}(\Sigma_{Xa}-\Sigma_{Xb})) \\
@@ -239,27 +239,27 @@ $$
 #### Alternate, cleaner, correcter derivation?
 
 We need to find the covariance of the gradient vector of $y$ at a point $x$.
-$$ Cov(\nabla_x y(x))$$
+$$ \text{Cov}(\nabla_x y(x))$$
 The $(i,j)$ entry of this matrix is
-$$ Cov(\frac{\partial y(x)}{\partial x_i},\frac{\partial y(x)}{\partial x_j})$$
+$$ \text{Cov}(\frac{\partial y(x)}{\partial x_i},\frac{\partial y(x)}{\partial x_j})$$
 We can write this as a limit.
 
-$$ \lim_{\delta \rightarrow 0} Cov\left(\frac{y(x+\delta e_i) - y(x)}{\delta}, \frac{y(x+\delta e_j) - y(x)}{\delta}\right)$$
+$$ \lim_{\delta \rightarrow 0} \text{Cov}\left(\frac{y(x+\delta e_i) - y(x)}{\delta}, \frac{y(x+\delta e_j) - y(x)}{\delta}\right)$$
 The covariance function is bilinear, so we can split it into four terms.
 
-$$ \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} \left(   Cov\left[y(x+\delta e_i), y(x+\delta e_j)\right] - Cov\left[y(x+\delta e_i), y(x)\right] - Cov\left[y(x), y(x+\delta e_j)\right] + Cov\left[y(x), y(x)\right] \right)$$
-This can be recognized as the second order derivative of $Cov(y(u), y(v))$ with respect to $u_i$ and $v_j$ evaluated at $u=v=x$. See finite difference differentiation for more details. We have to use $u$ and $v$ instead of a single $x$ to be clear which component of the covariance function is being differentiated.
+$$ \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} \left(   \text{Cov}\left[y(x+\delta e_i), y(x+\delta e_j)\right] - \text{Cov}\left[y(x+\delta e_i), y(x)\right] - \text{Cov}\left[y(x), y(x+\delta e_j)\right] + \text{Cov}\left[y(x), y(x)\right] \right)$$
+This can be recognized as the second order derivative of $\text{Cov}(y(u), y(v))$ with respect to $u_i$ and $v_j$ evaluated at $u=v=x$. See finite difference differentiation for more details. We have to use $u$ and $v$ instead of a single $x$ to be clear which component of the covariance function is being differentiated.
 
 Thus we have the following. It looks obvious, I'm not sure I even needed the previous step.
-$$ Cov(\frac{\partial y(x)}{\partial x_i},\frac{\partial y(x)}{\partial x_j}) = \frac{\partial Cov(y(u), y(v))}{\partial u \partial v} |_{u=x, v=x}$$
+$$ \text{Cov}(\frac{\partial y(x)}{\partial x_i},\frac{\partial y(x)}{\partial x_j}) = \frac{\partial \text{Cov}(y(u), y(v))}{\partial u \partial v} |_{u=x, v=x}$$
 Let $U$ be the matrix with rows $u$ and $v$.
 Recall that
-$$ Cov(U) = \Sigma_{U} - \Sigma_{UX} \Sigma_{X}^{-1} \Sigma_{XU}$$
+$$ \text{Cov}(U) = \Sigma_{U} - \Sigma_{UX} \Sigma_{X}^{-1} \Sigma_{XU}$$
 The $(1,2)$ element of this is the covariance we are looking for.
-$$ Cov(y(u), y(v)) = \Sigma_{u,v} - \Sigma_{u,X} \Sigma_X^{-1} \Sigma_{X,v}$$
+$$ \text{Cov}(y(u), y(v)) = \Sigma_{u,v} - \Sigma_{u,X} \Sigma_X^{-1} \Sigma_{X,v}$$
 Now we need to differentiate this with respect to $u_i$ and $v_j$.
 
-$$ Cov(\frac{\partial y(x)}{\partial x_i},\frac{\partial y(x)}{\partial x_j}) =   \frac{\partial^2 \Sigma_{u,v}}{\partial u_i \partial v_j} - \frac{\partial \Sigma_{u,X}}{\partial u_i} \Sigma_X^{-1} \frac{\partial \Sigma_{X,v}}{\partial v_j} |_{u=x,v=x}$$
+$$ \text{Cov} \left( \frac{\partial y(x)}{\partial x_i},\frac{\partial y(x)}{\partial x_j} \right) =   \frac{\partial^2 \Sigma_{u,v}}{\partial u_i \partial v_j} - \frac{\partial \Sigma_{u,X}}{\partial u_i} \Sigma_X^{-1} \frac{\partial \Sigma_{X,v}}{\partial v_j} |_{u=x,v=x}$$
 Therefore we have found the distribution of the gradient.
 
 $$
@@ -273,7 +273,7 @@ $$
 
 
 
-### Distribution of the gradient norm
+### Distribution of the gradient norm squared
 
 Let 
 $$g(x) = \frac{\partial y(x)}{\partial x} | Y_X $$
@@ -282,7 +282,22 @@ This is a vector. We are often interested in the gradient norm, or its square, $
 This is the sum of correlated squared normal variables, i.e. the sum of correlated chi-squared variables.
 Since $g(x)$ has a multivariate normal distribution,
 the square of its norm is probably distributed according to some kind of chi-squared distribution.
-In this section we will derive this distribution following the fantastic answer from [this Math Stack Exchange answer](https://math.stackexchange.com/questions/442472/sum-of-squares-of-dependent-gaussian-random-variables)[@halvorsen], all credit for this section goes there.
+We can first try to find its expectation using.
+
+
+### Mean of gradient norm squared
+
+$||g(x)||^2$
+
+$$ E \left[ ||g(x)||^2 \right] = E \left[ \sum_{i=1}^d g_i(x)^2 \right] = \sum_{i=1}^d E \left[g_i(x)^2 \right]$$
+
+$$ E \left[ g_i(x)^2 \right] = \text{Var} \left[g_i(x) \right] + E \left[g_i(x) \right]^2$$
+We just found these variances and expectations, so this is a closed form equation.
+
+### Full distribution of gradient norm squared
+
+
+In this section we will derive the full distribution of $||g(x)||^2$ following the fantastic answer from [this Math Stack Exchange answer](https://math.stackexchange.com/questions/442472/sum-of-squares-of-dependent-gaussian-random-variables)[@halvorsen], all credit for this section goes there.
 
 The general idea is that if we could decorrelate the chi-squared variables, then it would be a sum of chi-squared variables, which is a known distribution that is easy to work with.
 
@@ -300,7 +315,7 @@ Now we have
 
 $$Q(X) = X^TAX = (Z + \Sigma^{-1/2} \mu)^T \Sigma^{1/2} A \Sigma^{1/2} (Z + \Sigma^{-1/2} \mu)$$
 
-The spectral theorem allows the middle term to be decomposed as below, where P is the orthogonal matrix of eigenvectors and \Lambda is the diagonal matrix with positive diagonal elements $\lambda_1, \ldots, \lambda_n$.
+The spectral theorem allows the middle term to be decomposed as below, where P is the orthogonal matrix of eigenvectors and $\Lambda$ is the diagonal matrix with positive diagonal elements $\lambda_1, \ldots, \lambda_n$.
 
 $$\Sigma^{1/2} A \Sigma^{1/2} = P^T \Lambda P $$
 Let $U=PZ$. Since $P$ is orthogonal and using the distribution of $Z$, we also have that $U \sim N(0, I)$.
@@ -318,14 +333,14 @@ Since $\Lambda$ is diagonal, we have
 $$Q(X) = X^TAX = \sum_{j=1}^n \lambda_j (U_j + b_j)^2$$
 
 The $U_j$ have standard normal distribution and are independent of each other. $(U_j + b_j)^2$ is thus the square of normal variable with mean $b_j$ and variance 1, meaning it has a noncentral chi-squared distribution with mean $b_j^2 +1$ and variance $4b_j^2 + 2$.
-Thus $Q(X)$ is distributed as a linear combination of $n$ noncentral chi-squared variables. Since $lambda_j$ is different for each, $Q(X)$ does not have a noncentral chi-squared distribution. However, we can easily find its mean, variance, sample from it, etc.
+Thus $Q(X)$ is distributed as a linear combination of $n$ noncentral chi-squared variables. Since $\lambda_j$ is different for each, $Q(X)$ does not have a noncentral chi-squared distribution. However, we can easily find its mean, variance, sample from it, etc.
 
 The mean and variance of $Q(X)$ are 
 $$ E[Q(X)] = \sum_{j=1}^n \lambda_j E[(U_j + b_j)^2] \\
  = \sum_{j=1}^n \lambda_j (b_j^2 + 1) \\
 $$
 
-$$ Var[Q(X)] = \sum_{j=1}^n \lambda_j Var[(U_j + b_j)^2] \\
+$$ \text{Var}[Q(X)] = \sum_{j=1}^n \lambda_j \text{Var} \left[ (U_j + b_j)^2 \right] \\
  = \sum_{j=1}^n \lambda_j (4b_j^2 + 2) \\
 $$
 
@@ -337,7 +352,7 @@ For $||g||^2$ we had $A=I$, $\mu=\frac{\partial \Sigma_{x,X}}{\partial x}^T \Sig
 Thus we need $P$ and $\Lambda$ from the eigendecomposition $\Sigma = P^T \Lambda P$. $\Lambda$ will give the $\lambda_j$. 
 
 Then we need $b = P \Sigma^{-1/2} \mu$. We can calculate $\Sigma^{-1/2}$ as the square root of the matrix $\Sigma^{-1}$ using the eigendecomposition again. We can decompose $\Sigma^{-1} = W^TDW$ (using different symbols from before to avoid confusion), where $D$ is diagonal and W is orthogonal. Then $\Sigma^{-1/2} = W^T S W$, where $S$ is the diagonal matrix whose elements are the square roots of the elements of $D$. This can easily be proven as follows.
-$$ \Sigma^{-1/2} \Sigma^{-1/2} = W^T S W W^T S W = W^T S S W = W^T D W = Sigma^{-1}$$
+$$ \Sigma^{-1/2} \Sigma^{-1/2} = W^T S W W^T S W = W^T S S W = W^T D W = \Sigma^{-1}$$
 
 Now that we know how to calculate $\lambda$ and $U$, we can calculate the distribution of $||g||^2$.
 

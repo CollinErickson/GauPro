@@ -12,7 +12,7 @@
 
 <meta name="author" content="Collin Erickson" />
 
-<meta name="date" content="2017-10-03" />
+<meta name="date" content="2017-10-04" />
 
 <title>Spatial derivatives of Gaussian process models</title>
 
@@ -32,11 +32,11 @@
 
 <h1 class="title toc-ignore">Spatial derivatives of Gaussian process models</h1>
 <h4 class="author"><em>Collin Erickson</em></h4>
-<h4 class="date"><em>2017-10-03</em></h4>
+<h4 class="date"><em>2017-10-04</em></h4>
 
 
 
-<p>This vignette covers the derivatives of the surface created by a Gaussian process model with respect to the spatial dimensions. The other vignette has derivatives of the deviance (likelihood) with respect to the parameters.</p>
+<p>This vignette covers the derivatives of the surface created by a Gaussian process model with respect to the spatial dimensions. The other vignette, <em>Introduction to GPs</em>, has derivatives of the deviance (likelihood) with respect to the parameters.</p>
 <div id="gradient-of-mean-function" class="section level1">
 <h1>Gradient of mean function</h1>
 <p>The mean function is <span class="math display">\[ \hat{y}(x) = \hat{\mu} + r^T R^{-1}(Y - 1\hat{\mu}). \]</span> <span class="math inline">\(r\)</span> is the only part that depends on <span class="math inline">\(x\)</span>, and is defined below, where <span class="math inline">\(K\)</span> is the correlation function.</p>
@@ -75,11 +75,11 @@
 </div>
 <div id="variance-of-lincom" class="section level3">
 <h3>Variance of lincom</h3>
-<p><span class="math display">\[ Var\big[ \frac{\hat{y}(x + \delta e_i) - \hat{y}(x)}{\delta} \big] = \frac{1}{\delta^2}Var\big[ \hat{y}(x + \delta e_i) - \hat{y}(x) \big]\]</span> <span class="math display">\[=\frac{1}{\delta^2}\big( Var\big[ \hat{y}(x + \delta e_i)  \big] + Var\big[ \hat{y}(x) \big] + -2 Cov\big[ \hat{y}(x + \delta e_i), \hat{y}(x) \big] \big)\]</span> <span class="math display">\[ Var\big[ \hat{y}(x + \delta e_i) |Y \big] = \Sigma_{11} - \Sigma_{1Y} \Sigma_{YY}^{-1} \Sigma_{Y1}  \]</span> <span class="math display">\[ Var\big[ \hat{y}(x) |Y \big] = \Sigma_{22} - \Sigma_{2Y} \Sigma_{YY}^{-1} \Sigma_{Y2}  \]</span> <span class="math display">\[ Cov\big[ \hat{y}(x + \delta e_i), \hat{y}(x)|Y \big] =  Cov\big[ \hat{y}(x + \delta e_i), \hat{y}(x) \big] - Cov\big[ \hat{y}(x + \delta e_i), Y \big] \Sigma_{YY}^{-1} Cov\big[ Y, \hat{y}(x) \big] \]</span> <span class="math display">\[ = \Sigma_{12} - \Sigma_{1Y} \Sigma_{YY}^{-1} \Sigma_{Y2}\]</span> <span class="math display">\[  = \hat{\sigma}^2 \big(R\big[ \hat{y}(x + \delta e_i), \hat{y}(x) \big] + r_1 R^{-1} r_2 \big) \]</span></p>
+<p><span class="math display">\[ \text{Var}\big[ \frac{\hat{y}(x + \delta e_i) - \hat{y}(x)}{\delta} \big] = \frac{1}{\delta^2}\text{Var}\big[ \hat{y}(x + \delta e_i) - \hat{y}(x) \big]\]</span> <span class="math display">\[=\frac{1}{\delta^2}\big( \text{Var}\big[ \hat{y}(x + \delta e_i)  \big] + \text{Var}\big[ \hat{y}(x) \big] + -2 \text{Cov}\big[ \hat{y}(x + \delta e_i), \hat{y}(x) \big] \big)\]</span> <span class="math display">\[ \text{Var}\big[ \hat{y}(x + \delta e_i) |Y \big] = \Sigma_{11} - \Sigma_{1Y} \Sigma_{YY}^{-1} \Sigma_{Y1}  \]</span> <span class="math display">\[ \text{Var}\big[ \hat{y}(x) |Y \big] = \Sigma_{22} - \Sigma_{2Y} \Sigma_{YY}^{-1} \Sigma_{Y2}  \]</span> <span class="math display">\[ \text{Cov}\big[ \hat{y}(x + \delta e_i), \hat{y}(x)|Y \big] =  \text{Cov}\big[ \hat{y}(x + \delta e_i), \hat{y}(x) \big] - \text{Cov}\big[ \hat{y}(x + \delta e_i), Y \big] \Sigma_{YY}^{-1} \text{Cov}\big[ Y, \hat{y}(x) \big] \]</span> <span class="math display">\[ = \Sigma_{12} - \Sigma_{1Y} \Sigma_{YY}^{-1} \Sigma_{Y2}\]</span> <span class="math display">\[  = \hat{\sigma}^2 \big(R\big[ \hat{y}(x + \delta e_i), \hat{y}(x) \big] + r_1 R^{-1} r_2 \big) \]</span></p>
 <p><span class="math display">\[=\frac{1}{\delta^2}\big( \Sigma_{11} - \Sigma_{1Y} \Sigma_{YY}^{-1} \Sigma_{Y1} + \Sigma_{22} - \Sigma_{2Y} \Sigma_{YY}^{-1} \Sigma_{Y2} + -2 (\Sigma_{12} - \Sigma_{1Y} \Sigma_{YY}^{-1} \Sigma_{Y2}) \]</span> <span class="math display">\[=\frac{1}{\delta^2}\big( \Sigma_{11}  + \Sigma_{22}  -2 \Sigma_{12} +2 (\Sigma_{1Y}- \Sigma_{2Y}) \Sigma_{YY}^{-1} ( \Sigma_{1Y}-\Sigma_{Y2}) \]</span></p>
 <p>CONTINUE HERE USE THIS AS GUIDE <a href="http://mlg.eng.cam.ac.uk/mchutchon/DifferentiatingGPs.pdf" class="uri">http://mlg.eng.cam.ac.uk/mchutchon/DifferentiatingGPs.pdf</a> <span class="citation">(McHutchon, n.d.)</span></p>
-<p><span class="math display">\[=\frac{1}{\delta^2}\big( Var\big[ \hat{y}(x + \delta e_i)  \big] + Var\big[ \hat{y}(x) \big] + -2 Cov\big[ \hat{y}(x + \delta e_i), \hat{y}(x) \big] \big)\]</span></p>
-<p>I could have just used this formula: <span class="math display">\[ Var[(1,-1)^T (z_1, z_2)] = (1,-1)^T Cov((z_1, z_2)) (1,-1)\]</span></p>
+<p><span class="math display">\[=\frac{1}{\delta^2}\big( \text{Var}\big[ \hat{y}(x + \delta e_i)  \big] + \text{Var}\big[ \hat{y}(x) \big] + -2 \text{Cov}\big[ \hat{y}(x + \delta e_i), \hat{y}(x) \big] \big)\]</span></p>
+<p>I could have just used this formula: <span class="math display">\[ \text{Var}[(1,-1)^T (z_1, z_2)] = (1,-1)^T \text{Cov}((z_1, z_2)) (1,-1)\]</span></p>
 <p><span class="math display">\[ \frac{\partial R(z_1, z_2)}{\partial \delta} = \]</span></p>
 <p>Use <a href="https://math.stackexchange.com/questions/442472/sum-of-squares-of-dependent-gaussian-random-variables" class="uri">https://math.stackexchange.com/questions/442472/sum-of-squares-of-dependent-gaussian-random-variables</a> to get distribution of grad norm.</p>
 <div id="starting-over-here" class="section level4">
@@ -100,16 +100,16 @@ N(\mu_U + \Sigma_{UX} \Sigma_{X}^{-1}(Y_X-\mu_X),\Sigma_{U} - \Sigma_{UX} \Sigma
 <p>Let <span class="math inline">\(U\)</span> have 2 rows, with vectors denoted as <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span>.</p>
 <p>Then</p>
 <p><span class="math display">\[
-Cov(U) = \Sigma_U \\
+\text{Cov}(U) = \Sigma_U \\
 = \begin{bmatrix}
     \Sigma_{a}       &amp; \Sigma_{ba} \\
     \Sigma_{ba}       &amp; \Sigma_{b} \\
 \end{bmatrix} 
 \]</span></p>
 <p><span class="math display">\[
-\lim_{\delta \rightarrow 0}Var( \frac{Y_a - Y_b}{\delta} | Y_X) = 
-\lim_{\delta \rightarrow 0}Var( \frac{1}{\delta} [1, -1]^T Y_u | Y_X)  \\
-= \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} [1, -1]^T Cov(Y_u | Y_X) [1, -1] \\
+\lim_{\delta \rightarrow 0}\text{Var}( \frac{Y_a - Y_b}{\delta} | Y_X) = 
+\lim_{\delta \rightarrow 0}\text{Var}( \frac{1}{\delta} [1, -1]^T Y_u | Y_X)  \\
+= \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} [1, -1]^T \text{Cov}(Y_u | Y_X) [1, -1] \\
 =  \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} (\Sigma_{a} + \Sigma_{b} - 2\Sigma_{ab} + \Sigma_{aX}\Sigma_{X}^{-1}\Sigma_{Xa} + \Sigma_{bX}\Sigma_{X}^{-1}\Sigma_{Xb} - 2\Sigma_{aX}\Sigma_{X}^{-1}\Sigma_{Xb}) \\
 =  \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} (\Sigma_{a} + \Sigma_{b} - 2\Sigma_{ab} + (\Sigma_{aX}-\Sigma_{bX})\Sigma_{X}^{-1}(\Sigma_{Xa}-\Sigma_{Xb})) \\
 =  \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} (\Sigma_{a} + \Sigma_{b} - 2\Sigma_{ab} + (\Sigma_{aX}-\Sigma_{bX})\Sigma_{X}^{-1}(\Sigma_{Xa}-\Sigma_{Xb})) \\
@@ -156,11 +156,11 @@ N(\frac{\partial \Sigma_{x,X}}{\partial x}^T \Sigma_X^{-1} (Y_X - \mu_X),
 </div>
 <div id="alternate-cleaner-correcter-derivation" class="section level4">
 <h4>Alternate, cleaner, correcter derivation?</h4>
-<p>We need to find the covariance of the gradient vector of <span class="math inline">\(y\)</span> at a point <span class="math inline">\(x\)</span>. <span class="math display">\[ Cov(\nabla_x y(x))\]</span> The <span class="math inline">\((i,j)\)</span> entry of this matrix is <span class="math display">\[ Cov(\frac{\partial y(x)}{\partial x_i},\frac{\partial y(x)}{\partial x_j})\]</span> We can write this as a limit.</p>
-<p><span class="math display">\[ \lim_{\delta \rightarrow 0} Cov\left(\frac{y(x+\delta e_i) - y(x)}{\delta}, \frac{y(x+\delta e_j) - y(x)}{\delta}\right)\]</span> The covariance function is bilinear, so we can split it into four terms.</p>
-<p><span class="math display">\[ \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} \left(   Cov\left[y(x+\delta e_i), y(x+\delta e_j)\right] - Cov\left[y(x+\delta e_i), y(x)\right] - Cov\left[y(x), y(x+\delta e_j)\right] + Cov\left[y(x), y(x)\right] \right)\]</span> This can be recognized as the second order derivative of <span class="math inline">\(Cov(y(u), y(v))\)</span> with respect to <span class="math inline">\(u_i\)</span> and <span class="math inline">\(v_j\)</span> evaluated at <span class="math inline">\(u=v=x\)</span>. See finite difference differentiation for more details. We have to use <span class="math inline">\(u\)</span> and <span class="math inline">\(v\)</span> instead of a single <span class="math inline">\(x\)</span> to be clear which component of the covariance function is being differentiated.</p>
-<p>Thus we have the following. It looks obvious, I’m not sure I even needed the previous step. <span class="math display">\[ Cov(\frac{\partial y(x)}{\partial x_i},\frac{\partial y(x)}{\partial x_j}) = \frac{\partial Cov(y(u), y(v))}{\partial u \partial v} |_{u=x, v=x}\]</span> Let <span class="math inline">\(U\)</span> be the matrix with rows <span class="math inline">\(u\)</span> and <span class="math inline">\(v\)</span>. Recall that <span class="math display">\[ Cov(U) = \Sigma_{U} - \Sigma_{UX} \Sigma_{X}^{-1} \Sigma_{XU}\]</span> The <span class="math inline">\((1,2)\)</span> element of this is the covariance we are looking for. <span class="math display">\[ Cov(y(u), y(v)) = \Sigma_{u,v} - \Sigma_{u,X} \Sigma_X^{-1} \Sigma_{X,v}\]</span> Now we need to differentiate this with respect to <span class="math inline">\(u_i\)</span> and <span class="math inline">\(v_j\)</span>.</p>
-<p><span class="math display">\[ Cov(\frac{\partial y(x)}{\partial x_i},\frac{\partial y(x)}{\partial x_j}) =   \frac{\partial^2 \Sigma_{u,v}}{\partial u_i \partial v_j} - \frac{\partial \Sigma_{u,X}}{\partial u_i} \Sigma_X^{-1} \frac{\partial \Sigma_{X,v}}{\partial v_j} |_{u=x,v=x}\]</span> Therefore we have found the distribution of the gradient.</p>
+<p>We need to find the covariance of the gradient vector of <span class="math inline">\(y\)</span> at a point <span class="math inline">\(x\)</span>. <span class="math display">\[ \text{Cov}(\nabla_x y(x))\]</span> The <span class="math inline">\((i,j)\)</span> entry of this matrix is <span class="math display">\[ \text{Cov}(\frac{\partial y(x)}{\partial x_i},\frac{\partial y(x)}{\partial x_j})\]</span> We can write this as a limit.</p>
+<p><span class="math display">\[ \lim_{\delta \rightarrow 0} \text{Cov}\left(\frac{y(x+\delta e_i) - y(x)}{\delta}, \frac{y(x+\delta e_j) - y(x)}{\delta}\right)\]</span> The covariance function is bilinear, so we can split it into four terms.</p>
+<p><span class="math display">\[ \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} \left(   \text{Cov}\left[y(x+\delta e_i), y(x+\delta e_j)\right] - \text{Cov}\left[y(x+\delta e_i), y(x)\right] - \text{Cov}\left[y(x), y(x+\delta e_j)\right] + \text{Cov}\left[y(x), y(x)\right] \right)\]</span> This can be recognized as the second order derivative of <span class="math inline">\(\text{Cov}(y(u), y(v))\)</span> with respect to <span class="math inline">\(u_i\)</span> and <span class="math inline">\(v_j\)</span> evaluated at <span class="math inline">\(u=v=x\)</span>. See finite difference differentiation for more details. We have to use <span class="math inline">\(u\)</span> and <span class="math inline">\(v\)</span> instead of a single <span class="math inline">\(x\)</span> to be clear which component of the covariance function is being differentiated.</p>
+<p>Thus we have the following. It looks obvious, I’m not sure I even needed the previous step. <span class="math display">\[ \text{Cov}(\frac{\partial y(x)}{\partial x_i},\frac{\partial y(x)}{\partial x_j}) = \frac{\partial \text{Cov}(y(u), y(v))}{\partial u \partial v} |_{u=x, v=x}\]</span> Let <span class="math inline">\(U\)</span> be the matrix with rows <span class="math inline">\(u\)</span> and <span class="math inline">\(v\)</span>. Recall that <span class="math display">\[ \text{Cov}(U) = \Sigma_{U} - \Sigma_{UX} \Sigma_{X}^{-1} \Sigma_{XU}\]</span> The <span class="math inline">\((1,2)\)</span> element of this is the covariance we are looking for. <span class="math display">\[ \text{Cov}(y(u), y(v)) = \Sigma_{u,v} - \Sigma_{u,X} \Sigma_X^{-1} \Sigma_{X,v}\]</span> Now we need to differentiate this with respect to <span class="math inline">\(u_i\)</span> and <span class="math inline">\(v_j\)</span>.</p>
+<p><span class="math display">\[ \text{Cov} \left( \frac{\partial y(x)}{\partial x_i},\frac{\partial y(x)}{\partial x_j} \right) =   \frac{\partial^2 \Sigma_{u,v}}{\partial u_i \partial v_j} - \frac{\partial \Sigma_{u,X}}{\partial u_i} \Sigma_X^{-1} \frac{\partial \Sigma_{X,v}}{\partial v_j} |_{u=x,v=x}\]</span> Therefore we have found the distribution of the gradient.</p>
 <p><span class="math display">\[
 \frac{\partial y(x)}{\partial x} | Y_X 
 \sim 
@@ -170,9 +170,19 @@ N(\frac{\partial \Sigma_{x,X}}{\partial x}^T \Sigma_X^{-1} (Y_X - \mu_X),
 \]</span></p>
 </div>
 </div>
-<div id="distribution-of-the-gradient-norm" class="section level3">
-<h3>Distribution of the gradient norm</h3>
-<p>Let <span class="math display">\[g(x) = \frac{\partial y(x)}{\partial x} | Y_X \]</span> <span class="math display">\[g(x) = \nabla_x y(x) | Y_X \]</span> This is a vector. We are often interested in the gradient norm, or its square, <span class="math inline">\(g(x)^T g(x) = ||g(x)||^2\)</span>. This is the sum of correlated squared normal variables, i.e. the sum of correlated chi-squared variables. Since <span class="math inline">\(g(x)\)</span> has a multivariate normal distribution, the square of its norm is probably distributed according to some kind of chi-squared distribution. In this section we will derive this distribution following the fantastic answer from <a href="https://math.stackexchange.com/questions/442472/sum-of-squares-of-dependent-gaussian-random-variables">this Math Stack Exchange answer</a><span class="citation">(halvorsen 2015)</span>, all credit for this section goes there.</p>
+<div id="distribution-of-the-gradient-norm-squared" class="section level3">
+<h3>Distribution of the gradient norm squared</h3>
+<p>Let <span class="math display">\[g(x) = \frac{\partial y(x)}{\partial x} | Y_X \]</span> <span class="math display">\[g(x) = \nabla_x y(x) | Y_X \]</span> This is a vector. We are often interested in the gradient norm, or its square, <span class="math inline">\(g(x)^T g(x) = ||g(x)||^2\)</span>. This is the sum of correlated squared normal variables, i.e. the sum of correlated chi-squared variables. Since <span class="math inline">\(g(x)\)</span> has a multivariate normal distribution, the square of its norm is probably distributed according to some kind of chi-squared distribution. We can first try to find its expectation using.</p>
+</div>
+<div id="mean-of-gradient-norm-squared" class="section level3">
+<h3>Mean of gradient norm squared</h3>
+<p><span class="math inline">\(||g(x)||^2\)</span></p>
+<p><span class="math display">\[ E \left[ ||g(x)||^2 \right] = E \left[ \sum_{i=1}^d g_i(x)^2 \right] = \sum_{i=1}^d E \left[g_i(x)^2 \right]\]</span></p>
+<p><span class="math display">\[ E \left[ g_i(x)^2 \right] = \text{Var} \left[g_i(x) \right] + E \left[g_i(x) \right]^2\]</span> We just found these variances and expectations, so this is a closed form equation.</p>
+</div>
+<div id="full-distribution-of-gradient-norm-squared" class="section level3">
+<h3>Full distribution of gradient norm squared</h3>
+<p>In this section we will derive the full distribution of <span class="math inline">\(||g(x)||^2\)</span> following the fantastic answer from <a href="https://math.stackexchange.com/questions/442472/sum-of-squares-of-dependent-gaussian-random-variables">this Math Stack Exchange answer</a><span class="citation">(halvorsen 2015)</span>, all credit for this section goes there.</p>
 <p>The general idea is that if we could decorrelate the chi-squared variables, then it would be a sum of chi-squared variables, which is a known distribution that is easy to work with.</p>
 <div id="general-derivation" class="section level4">
 <h4>General derivation</h4>
@@ -180,7 +190,7 @@ N(\frac{\partial \Sigma_{x,X}}{\partial x}^T \Sigma_X^{-1} (Y_X - \mu_X),
 <p>Let <span class="math inline">\(Z = Y - \Sigma^{-1/2}\mu\)</span>. <span class="math inline">\(Z\)</span> is a version of <span class="math inline">\(Y\)</span> with mean zero, so <span class="math inline">\(Z \sim N(0, I).\)</span></p>
 <p>Now we have</p>
 <p><span class="math display">\[Q(X) = X^TAX = (Z + \Sigma^{-1/2} \mu)^T \Sigma^{1/2} A \Sigma^{1/2} (Z + \Sigma^{-1/2} \mu)\]</span></p>
-<p>The spectral theorem allows the middle term to be decomposed as below, where P is the orthogonal matrix of eigenvectors and is the diagonal matrix with positive diagonal elements <span class="math inline">\(\lambda_1, \ldots, \lambda_n\)</span>.</p>
+<p>The spectral theorem allows the middle term to be decomposed as below, where P is the orthogonal matrix of eigenvectors and <span class="math inline">\(\Lambda\)</span> is the diagonal matrix with positive diagonal elements <span class="math inline">\(\lambda_1, \ldots, \lambda_n\)</span>.</p>
 <p><span class="math display">\[\Sigma^{1/2} A \Sigma^{1/2} = P^T \Lambda P \]</span> Let <span class="math inline">\(U=PZ\)</span>. Since <span class="math inline">\(P\)</span> is orthogonal and using the distribution of <span class="math inline">\(Z\)</span>, we also have that <span class="math inline">\(U \sim N(0, I)\)</span>.</p>
 <p>Putting these together, we can change <span class="math inline">\(Q(X)\)</span> as follows.</p>
 <p><span class="math display">\[ Q(X) = X^TAX = (Z + \Sigma^{-1/2} \mu)^T \Sigma^{1/2} A \Sigma^{1/2} (Z + \Sigma^{-1/2} \mu) \\
@@ -189,11 +199,11 @@ N(\frac{\partial \Sigma_{x,X}}{\partial x}^T \Sigma_X^{-1} (Y_X - \mu_X),
  = (U + b)^T \Lambda (U + b) \\
 \]</span> Here we defined <span class="math inline">\(b= P \Sigma^{-1/2} \mu\)</span>.</p>
 <p>Since <span class="math inline">\(\Lambda\)</span> is diagonal, we have <span class="math display">\[Q(X) = X^TAX = \sum_{j=1}^n \lambda_j (U_j + b_j)^2\]</span></p>
-<p>The <span class="math inline">\(U_j\)</span> have standard normal distribution and are independent of each other. <span class="math inline">\((U_j + b_j)^2\)</span> is thus the square of normal variable with mean <span class="math inline">\(b_j\)</span> and variance 1, meaning it has a noncentral chi-squared distribution with mean <span class="math inline">\(b_j^2 +1\)</span> and variance <span class="math inline">\(4b_j^2 + 2\)</span>. Thus <span class="math inline">\(Q(X)\)</span> is distributed as a linear combination of <span class="math inline">\(n\)</span> noncentral chi-squared variables. Since <span class="math inline">\(lambda_j\)</span> is different for each, <span class="math inline">\(Q(X)\)</span> does not have a noncentral chi-squared distribution. However, we can easily find its mean, variance, sample from it, etc.</p>
+<p>The <span class="math inline">\(U_j\)</span> have standard normal distribution and are independent of each other. <span class="math inline">\((U_j + b_j)^2\)</span> is thus the square of normal variable with mean <span class="math inline">\(b_j\)</span> and variance 1, meaning it has a noncentral chi-squared distribution with mean <span class="math inline">\(b_j^2 +1\)</span> and variance <span class="math inline">\(4b_j^2 + 2\)</span>. Thus <span class="math inline">\(Q(X)\)</span> is distributed as a linear combination of <span class="math inline">\(n\)</span> noncentral chi-squared variables. Since <span class="math inline">\(\lambda_j\)</span> is different for each, <span class="math inline">\(Q(X)\)</span> does not have a noncentral chi-squared distribution. However, we can easily find its mean, variance, sample from it, etc.</p>
 <p>The mean and variance of <span class="math inline">\(Q(X)\)</span> are <span class="math display">\[ E[Q(X)] = \sum_{j=1}^n \lambda_j E[(U_j + b_j)^2] \\
  = \sum_{j=1}^n \lambda_j (b_j^2 + 1) \\
 \]</span></p>
-<p><span class="math display">\[ Var[Q(X)] = \sum_{j=1}^n \lambda_j Var[(U_j + b_j)^2] \\
+<p><span class="math display">\[ \text{Var}[Q(X)] = \sum_{j=1}^n \lambda_j \text{Var} \left[ (U_j + b_j)^2 \right] \\
  = \sum_{j=1}^n \lambda_j (4b_j^2 + 2) \\
 \]</span></p>
 </div>
@@ -202,7 +212,7 @@ N(\frac{\partial \Sigma_{x,X}}{\partial x}^T \Sigma_X^{-1} (Y_X - \mu_X),
 <h3>Relating this back to <span class="math inline">\(||g||^2\)</span></h3>
 <p>For <span class="math inline">\(||g||^2\)</span> we had <span class="math inline">\(A=I\)</span>, <span class="math inline">\(\mu=\frac{\partial \Sigma_{x,X}}{\partial x}^T \Sigma_X^{-1} (Y_X - \mu_X)\)</span>, and <span class="math inline">\(\Sigma=\frac{\partial^2 \Sigma(x_1, x_2)}{\partial x_1 \partial x_2} + \frac{\partial \Sigma(x_1, X)}{\partial x_1} \Sigma_x^{-1} \frac{\partial \Sigma(X, x_2)}{\partial x_2}\)</span></p>
 <p>Thus we need <span class="math inline">\(P\)</span> and <span class="math inline">\(\Lambda\)</span> from the eigendecomposition <span class="math inline">\(\Sigma = P^T \Lambda P\)</span>. <span class="math inline">\(\Lambda\)</span> will give the <span class="math inline">\(\lambda_j\)</span>.</p>
-<p>Then we need <span class="math inline">\(b = P \Sigma^{-1/2} \mu\)</span>. We can calculate <span class="math inline">\(\Sigma^{-1/2}\)</span> as the square root of the matrix <span class="math inline">\(\Sigma^{-1}\)</span> using the eigendecomposition again. We can decompose <span class="math inline">\(\Sigma^{-1} = W^TDW\)</span> (using different symbols from before to avoid confusion), where <span class="math inline">\(D\)</span> is diagonal and W is orthogonal. Then <span class="math inline">\(\Sigma^{-1/2} = W^T S W\)</span>, where <span class="math inline">\(S\)</span> is the diagonal matrix whose elements are the square roots of the elements of <span class="math inline">\(D\)</span>. This can easily be proven as follows. <span class="math display">\[ \Sigma^{-1/2} \Sigma^{-1/2} = W^T S W W^T S W = W^T S S W = W^T D W = Sigma^{-1}\]</span></p>
+<p>Then we need <span class="math inline">\(b = P \Sigma^{-1/2} \mu\)</span>. We can calculate <span class="math inline">\(\Sigma^{-1/2}\)</span> as the square root of the matrix <span class="math inline">\(\Sigma^{-1}\)</span> using the eigendecomposition again. We can decompose <span class="math inline">\(\Sigma^{-1} = W^TDW\)</span> (using different symbols from before to avoid confusion), where <span class="math inline">\(D\)</span> is diagonal and W is orthogonal. Then <span class="math inline">\(\Sigma^{-1/2} = W^T S W\)</span>, where <span class="math inline">\(S\)</span> is the diagonal matrix whose elements are the square roots of the elements of <span class="math inline">\(D\)</span>. This can easily be proven as follows. <span class="math display">\[ \Sigma^{-1/2} \Sigma^{-1/2} = W^T S W W^T S W = W^T S S W = W^T D W = \Sigma^{-1}\]</span></p>
 <p>Now that we know how to calculate <span class="math inline">\(\lambda\)</span> and <span class="math inline">\(U\)</span>, we can calculate the distribution of <span class="math inline">\(||g||^2\)</span>.</p>
 </div>
 </div>
