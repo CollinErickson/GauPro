@@ -60,36 +60,44 @@ $$\frac{\partial \Sigma_{x,X}}{\partial x_i} = \frac{\partial \Sigma (x,X)}{\par
 The calculation above is for a single partial derivative. The vector of these gives the gradient $\frac{\partial \hat{y}(x)}{\partial x} = \nabla_x \hat{y}(x)$.
 Note that the partial derivative of a scalar with respect to a vector is another way of writing the gradient.
 
-
+We usually use $\mu(x)$ equal to zero, a constant, or a linear model,
+meaning that its derivative is usually zero or a constant.
 
 
 ## Hessian of mean function
 
 The second derivatives can be calculated similarly
-$$\frac{\partial^2 \hat{y}(x)}{\partial x_i \partial x_k} = \frac{\partial^2 \mu(x)}{\partial x_i \partial x_k} +\frac{\partial^2 \Sigma_{xX}}{\partial x_i \partial x_k} \Sigma_X^{-1}(Y_X - \mu_X) = \frac{\partial^2 r}{\partial x_i \partial x_k}^T R^{-1}(Y - 1\hat{\mu})$$
-
-Each element of this matrix is
-$$\frac{\partial^2 r_j}{\partial x_i \partial x_k} = \frac{\partial^2 K(z(x), z(u_j))}{\partial x_i \partial x_k} $$
+$$\frac{\partial^2 y(x)}{\partial x_i \partial x_k} = \frac{\partial^2 \mu(x)}{\partial x_i \partial x_k} +\frac{\partial^2 \Sigma_{xX}}{\partial x_i \partial x_k} \Sigma_X^{-1}(Y_X - \mu_X)$$
+For the typical choices of $\mu$ its second order derivatives are zero,
+meaning that we usually only have the second term to worry about.
 
 ## Gaussian correlation derivative
 
-The equations above work for any correlation function, but then we need to have the derivatives of the correlation function with respect to the spatial variables.
+The equations above work for any covariance function, but then we need to have
+the derivatives of the covariance function with respect to the spatial variables.
+Here we calculate these derivatives for the Gaussian, or squared exponential,
+correlation function $R$.
 
-$$K(z(x), z(u_j)) = \exp(-\sum_{\ell =1}^d \theta_\ell (x_\ell - u_{j\ell})^2) $$
+$$R(x, u_j) = \exp \left(-\sum_{\ell =1}^d \theta_\ell (x_\ell - u_{j\ell})^2 \right) $$
 
-$$\frac{\partial K(z(x), z(u_j))}{\partial x_i}  = -2\theta_i (x_i - u_{ji}) \exp(-\sum_{\ell =1}^d \theta_\ell (x_\ell - u_{j\ell})^2)  $$
+$$\frac{\partial R(x, u_j)}{\partial x_i}  = -2\theta_i (x_i - u_{ji}) \exp \left(-\sum_{\ell =1}^d \theta_\ell (x_\ell - u_{j\ell})^2 \right)  $$
 The second derivative with respect to the same dimension is
 
-$$\frac{\partial^2 K(z(x), z(u_j))}{\partial x_i^2}  = (-2\theta_i  + 4\theta_i^2 (x_i - u_{ji})^2) \exp(-\sum_{\ell =1}^d \theta_\ell (x_\ell - u_{j\ell})^2)  $$
+$$\frac{\partial^2 R(x, u_j)}{\partial x_i^2}  = \left(-2\theta_i  + 4\theta_i^2 (x_i - u_{ji})^2 \right) \exp \left(-\sum_{\ell =1}^d \theta_\ell (x_\ell - u_{j\ell})^2 \right)  $$
 
 The cross derivative is 
-$$\frac{\partial^2 K(z(x), z(u_j))}{\partial x_i \partial x_k}  = 4\theta_i \theta_k (x_i - u_{ji}) (x_k - u_{jk}) \exp(-\sum_{\ell =1}^d \theta_\ell (x_\ell - u_{j\ell})^2)  $$
+$$\frac{\partial^2 R(x, u_j)}{\partial x_i \partial x_k}  = 4\theta_i \theta_k (x_i - u_{ji}) (x_k - u_{jk}) \exp \left(-\sum_{\ell =1}^d \theta_\ell (x_\ell - u_{j\ell})^2 \right)  $$
 
 ## Gradient distribution
 
 A big problem with using the gradient of the mean function of a GP is that it doesn't give an idea of its distribution/randomness. The mean of the gradient could be predicted to be zero in a region where the surface is not flat simply because it has no information in that region yet.
 
-First we want to know what type of distribution the gradient follows. 
+First we want to know what type of distribution the gradient follows.
+Since the derivative is a linear operator, and a linear operator applied
+to a normal r.v. is also normal, the gradient must be a multivariate
+random variable.
+For a more intuitive explanation, consider a $\delta$ approximation to the
+gradient.
 
 $$ \frac{\partial y(x)}{\partial x} = \lim_{\delta \rightarrow 0} \frac{1}{\delta} \left( \begin{bmatrix} y(x+\delta e_1) \\ \vdots \\ y(x+\delta e_d) \end{bmatrix} - y(x) \right)$$
 
