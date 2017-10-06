@@ -999,6 +999,19 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           }
           list(mean=mn, cov=cv)
         },
+        grad_sample = function(XX, n) {
+          if (!is.matrix(XX)) {
+            if (length(XX) == self$D) {XX <- matrix(XX, nrow=1)}
+            else {stop("Wrong dimensions #12574")}
+          }
+          # if (nrow(XX) > 1) {return(apply(XX, 1, self$grad_sample))}
+          if (nrow(XX) > 1) {stop("Only can do 1 grad sample at a time")}
+          grad_dist <- self$grad_dist(XX=XX)
+          grad_samp <- MASS::mvrnorm(n=n, mu = grad_dist$mean[1,], Sigma = grad_dist$cov[1,,])
+          grad_samp
+          # gs2 <- apply(gs, 1, . %>% sum((.)^2))
+          # c(mean(1/gs2), var(1/gs2))
+        },
         grad_norm2_dist = function(XX) {
           # Calculate mean and var for squared norm of gradient
           # grad_dist <- gp$grad_dist(XX=XX) # Too slow because it does all

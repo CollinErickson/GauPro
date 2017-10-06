@@ -158,3 +158,11 @@ mean((c(m1 - Kx)^2))
 mean((c(m2 - Kx)^2))
 mean((c(m3 - Kx)^2))
 microbenchmark::microbenchmark(mysqrt(Kx), mysqrt(Kx, T), expm::sqrtm(Kx))
+
+
+# Grad sample
+gpd <- gp$grad_dist(matrix(runif(2),ncol=2))
+gs <- MASS::mvrnorm(n=100, mu = gpd$mean[1,], Sigma = gpd$cov[1,,])
+gs2 <- apply(gs, 1, . %>% sum((.)^2))
+c(mean(1/gs2), var(1/gs2))
+gp$grad_sample(XX=matrix(runif(2), nrow=1))
