@@ -1039,6 +1039,28 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           }
           data.frame(mean=means, var=vars)
         },
+        grad_norm2_sample = function(XX, n) {
+          # Get samples of squared norm of gradient, check with grad_norm2_dist
+          d <- ncol(XX)
+          nn <- nrow(XX)
+          out_sample <- matrix(NA, nn, n)
+          for (i in 1:nn) {
+            grad_dist_i <- self$grad_dist(XX=XX[i, , drop=FALSE])
+            mean_i <- grad_dist_i$mean[1,]
+            Sigma_i <- grad_dist_i$cov[1,,]
+            SigmaInv_i <- solve(Sigma_i)
+            # Using my own sqrt function since it is faster.
+            # SigmaInvRoot_i <- expm::sqrtm(SigmaInv_i)
+            SigmaInvRoot_i <- sqrt_matrix(mat=SigmaInv_i, symmetric = TRUE)
+            eigen_i <- eigen(Sigma_i)
+            P_i <- t(eigen_i$vectors)
+            lambda_i <- eigen_i$values
+            # testthat::expect_equal(t(P) %*% diag(eth$values) %*% (P), Sigma) # Should be equal
+            b_i <- c(P_i %*% SigmaInvRoot_i %*% mean_i)
+            out_sample[i, ] <- replicate(n, sum(lambda_i * (rnorm(d) + b_i) ^ 2))
+          }
+          out_sample
+        },
         #grad_num = function (XX) { # NUMERICAL GRAD IS OVER 10 TIMES SLOWER
         #  if (!is.matrix(XX)) {
         #    if (self$D == 1) XX <- matrix(XX, ncol=1)
