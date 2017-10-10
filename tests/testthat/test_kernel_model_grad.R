@@ -53,6 +53,11 @@ test_that("grad_norm2 for Gaussian", { # only implemented for Gaussian now
   ts <- gp$grad_norm2_sample(matrix(.1,ncol=1), n=1e4)
   expect_equal(dim(ts), c(1, 1e4))
   expect_equal(c(mean(ts), sd(ts)^2), c(325.7848, 3877.7587), tol=1)
+  gd <- gp$grad_dist(XX=matrix(.1))
+  expect_is(gd, "list")
+  expect_length(gd, 2)
+  expect_equal(gd[[1]], array(data = 17.9775, dim = c(1,1)), tol=.1)
+  expect_equal(gd[[2]], array(data = 2.923747, dim = c(1,1,1)), tol=.1)
 
   # Check 2D
   set.seed(0)
@@ -66,5 +71,10 @@ test_that("grad_norm2 for Gaussian", { # only implemented for Gaussian now
   ts <- gp$grad_norm2_sample(matrix(c(.1,.2),ncol=2), n=1e4)
   expect_equal(dim(ts), c(1, 1e4))
   expect_equal(c(mean(ts), sd(ts)^2), c(47.46267, 19.65818), tol=1)
+  gd <- gp$grad_dist(XX=matrix(c(.1,.2), ncol=2))
+  expect_is(gd, "list")
+  expect_length(gd, 2)
+  expect_equal(dim(gd[[1]]), c(1,2))
+  expect_equal(dim(gd[[2]]), c(1,2,2))
 
 })
