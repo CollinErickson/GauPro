@@ -1080,6 +1080,27 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
         #  if (!is.matrix(grad1)) return(abs(grad1))
         #  apply(grad1,1, function(xx) {sqrt(sum(xx^2))})
         #},
+        hessian = function(XX, as_array=FALSE) {#browser()
+          if (!is.matrix(XX)) {
+            if (self$D == 1) XX <- matrix(XX, ncol=1)
+            else if (length(XX) == self$D) XX <- matrix(XX, nrow=1)
+            else stop('Predict input should be matrix')
+          } else {
+            if (ncol(XX) != self$D) {stop("Wrong dimension input")}
+          }
+          hess1 <- array(NaN, dim = c(nrow(XX), self$D, self$D))
+          for (i in 1:nrow(XX)) { # 0 bc assume trend has zero hessian
+            d2 <- self$kernel$d2C_dx2(XX=XX[i,,drop=F], X=self$X)
+            for (j in 1:self$D) {
+              hess1[i, j, ] <- 0 + d2[1,j,,] %*% self$Kinv %*% (self$Z - self$mu_hatX)
+            }
+          }
+          if (nrow(XX) == 1 && !as_array) { # Return matrix if only one value
+            hess1[1,,]
+          } else {
+            hess1
+          }
+        },
         sample = function(XX, n=1) {
           # Generates n samples at rows of XX
           px <- self$pred(XX, covmat = T)
