@@ -40,3 +40,31 @@ test_that("kernel grad works", {
     }
   }
 })
+
+test_that("grad_norm2 for Gaussian", { # only implemented for Gaussian now
+  set.seed(0)
+  n <- 20
+  x <- matrix(seq(0,1,length.out = n), ncol=1)
+  f <- Vectorize(function(x) {sin(2*pi*x) + .5*sin(4*pi*x) +rnorm(1,0,.3)}+10*x)
+  y <- 123 + f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
+  gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian$new(beta=0.152, s2=10^1.7194, beta_est=F, s2_est=F), restarts=0, no_update=T, parallel=FALSE, verbose=10, nug.est=F, param.est=F, nug=0.00357)
+  expect_equal(unlist(gp$grad_norm2_dist(matrix(.1,ncol=1))), c(mean=324.1904, var=3781.708), tol=1)
+  set.seed(1)
+  ts <- gp$grad_norm2_sample(matrix(.1,ncol=1), n=1e4)
+  expect_equal(dim(ts), c(1, 1e4))
+  expect_equal(c(mean(ts), sd(ts)^2), c(325.7848, 3877.7587), tol=1)
+
+  # Check 2D
+  set.seed(0)
+  n <- 30
+  x <- lhs::maximinLHS(n=n, k=2)
+  f <- function(x) {sin(2*pi*x[1]) + .5*sin(4*pi*x[1]) +rnorm(1,0,.03) + x[2]^2}
+  y <- apply(x, 1, f) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
+  gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian$new(beta=c(.966, -.64),s2=10^.4848), parallel=FALSE, verbose=10, nug.est=F, nug=0.0001721, param.est=F)
+  expect_equal(unlist(gp$grad_norm2_dist(matrix(c(.1,.2),ncol=2))), c(mean=49.40285, var=23.26213), tol=1)
+  set.seed(1)
+  ts <- gp$grad_norm2_sample(matrix(c(.1,.2),ncol=2), n=1e4)
+  expect_equal(dim(ts), c(1, 1e4))
+  expect_equal(c(mean(ts), sd(ts)^2), c(47.46267, 19.65818), tol=1)
+
+})
