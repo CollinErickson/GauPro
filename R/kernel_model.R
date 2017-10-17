@@ -727,7 +727,17 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
                   optim_share(fngr=optim.fngr, par=start.par.i, method='L-BFGS-B', upper=upper, lower=lower)
                 } else if (self$optimizer == "lbfgs") { # lbfgs does not, so no longer using it
                   lbfgs_share(optim.fngr, start.par.i, invisible=1) # 1.7x speedup uses grad_share
-                } else {
+                } else if (self$optimizer == "genoud") {
+                  capture.output(suppressWarnings({
+                    tmp <- rgenoud::genoud(fn=optim.func, nvars=length(start.par.i),
+                         starting.values=start.par.i,
+                         Domains=cbind(lower, upper),
+                         gr=optim.grad,
+                         boundary.enforcement = 2,
+                         pop.size=1e2, max.generations=10)
+                    }))
+                  tmp
+                } else{
                   stop("Optimizer not recognized")
                 }
               }
@@ -737,7 +747,14 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           )
           if (!inherits(current, "try-error")) {
             if (self$useGrad) {current$counts <- c(NA,NA);if(is.null(current$message))current$message=NA}
-            details.new <- data.frame(start=paste(signif(start.par.i,3),collapse=","),end=paste(signif(current$par,3),collapse=","),value=current$value,func_evals=current$counts[1],grad_evals=current$counts[2],convergence=current$convergence, message=current$message, row.names = NULL, stringsAsFactors=F)
+            details.new <- data.frame(
+              start=paste(signif(start.par.i,3),collapse=","),
+              end=paste(signif(current$par,3),collapse=","),
+              value=current$value,func_evals=current$counts[1],
+              grad_evals=current$counts[2],
+              convergence=if (is.null(current$convergence)) {NA} else {current$convergence},
+              message=current$message, row.names = NULL, stringsAsFactors=F
+              )
           } else{
             details.new <- data.frame(start=paste(signif(start.par.i,3),collapse=","),end="try-error",value=NA,func_evals=NA,grad_evals=NA,convergence=NA, message=current[1], stringsAsFactors=F)
           }
