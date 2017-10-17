@@ -70,6 +70,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
         normalize = NULL, # Should the Z values be normalized for internal computations?
         normalize_mean = NULL,
         normalize_sd = NULL,
+        optimizer = NULL, # L-BFGS-B, BFGS
         #deviance_out = NULL, #(theta, nug)
         #deviance_grad_out = NULL, #(theta, nug, overwhat)
         #deviance_fngr_out = NULL,
@@ -79,7 +80,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
                               parallel=FALSE,
                               nug=1e-6, nug.min=1e-8, nug.max=Inf, nug.est=TRUE,
                               param.est = TRUE, restarts = 5,
-                              normalize = FALSE,
+                              normalize = FALSE, optimizer="L-BFGS-B",
                               ...) {
           #self$initialize_GauPr(X=X,Z=Z,verbose=verbose,useC=useC,useGrad=useGrad,
           #                      parallel=parallel, nug.est=nug.est)
@@ -132,6 +133,11 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           if (self$parallel) {self$parallel_cores <- parallel::detectCores()}
           else {self$parallel_cores <- 1}
           self$restarts <- restarts
+          if (optimizer %in% c("L-BFGS-B", "BFGS", "lbfgs", "genoud")) {
+            self$optimizer <- optimizer
+          } else {
+            stop('optimizer must be one of c("L-BFGS-B", "BFGS", "lbfgs, "genoud")')
+          }
 
           self$update_K_and_estimates() # Need to get mu_hat before starting
           # self$mu_hat <- mean(Z)
@@ -717,10 +723,12 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
                 lbfgs::lbfgs(optim.func, optim.grad, start.par.i, invisible=1)
               } else {
                 # Two options for shared grad
-                if (TRUE) { # optim uses L-BFGS-B which uses upper and lower
+                if (self$optimizer == "L-BFGS-B") { # optim uses L-BFGS-B which uses upper and lower
                   optim_share(fngr=optim.fngr, par=start.par.i, method='L-BFGS-B', upper=upper, lower=lower)
-                } else { # lbfgs does not, so no longer using it
+                } else if (self$optimizer == "lbfgs") { # lbfgs does not, so no longer using it
                   lbfgs_share(optim.fngr, start.par.i, invisible=1) # 1.7x speedup uses grad_share
+                } else {
+                  stop("Optimizer not recognized")
                 }
               }
             } else {
