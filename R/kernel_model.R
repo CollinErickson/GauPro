@@ -121,7 +121,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
             self$trend <- trend$new(D=self$D)
           }
 
-          self$nug <- nug
+          self$nug <- min(max(nug, nug.min), nug.max)
           self$nug.min <- nug.min
           self$nug.max <- nug.max
           self$nug.est <- nug.est
@@ -543,7 +543,10 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           # param_start <- self$kernel$param_optim_start(jitter=jitter)
           if (nug.update) {
             nug_start <- log(self$nug,10)
-            if (jitter) {nug_start <- nug_start + rexp(1, 1)}
+            if (jitter) {
+              nug_start <- nug_start + rexp(1, 1)
+              nug_start <- min(max(log(self$nug.min,10), nug_start), log(self$nug.max,10))
+            }
             # c(param_start, nug_start)
           } else {
             # param_start
@@ -560,6 +563,7 @@ GauPro_kernel_model <- R6::R6Class(classname = "GauPro",
           if (nug.update) {
             nug_start <- -4
             if (jitter) {nug_start <- nug_start + rexp(1, 1)}
+            nug_start <- min(max(log(self$nug.min,10), nug_start), log(self$nug.max,10)) # Make sure nug_start is in nug range
             # c(param_start, nug_start)
           } else {
             # param_start
