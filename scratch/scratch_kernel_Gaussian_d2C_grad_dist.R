@@ -5,7 +5,7 @@ n <- 20
 x <- matrix(seq(0,1,length.out = n), ncol=1)
 f <- Vectorize(function(x) {sin(2*pi*x) + .5*sin(4*pi*x) +rnorm(1,0,.3)}+10*x)
 y <- 123 + f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
-gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian$new(1), parallel=FALSE, verbose=10, nug.est=T, s2_est=F)
+gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian$new(1), parallel=FALSE, verbose=10, nug.est=T)
 gp$cool1Dplot()
 
 # Following two should be equal
@@ -38,7 +38,7 @@ n <- 20
 x <- matrix(seq(0,1,length.out = n), ncol=1)
 f <- Vectorize(function(x) {sin(2*pi*x) + .5*sin(4*pi*x) +rnorm(1,0,.3)}+10*x)
 y <- 123 + f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
-gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian$new(1), parallel=FALSE, verbose=10, nug.est=T, s2_est=F)
+gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian$new(1), parallel=FALSE, verbose=10, nug.est=T)
 gp$cool1Dplot()
 
 # Following two should be equal
