@@ -18,7 +18,11 @@ Corr Gauss GP using inherited optim
 n <- 12
 x <- matrix(seq(0,1,length.out = n), ncol=1)
 y <- sin(2*pi*x) + rnorm(n,0,1e-1)
-gp <- GauPro_kernel_model_LOO$new(X=x, Z=y, parallel=FALSE)
+gp <- GauPro_kernel_model_LOO$new(X=x, Z=y, kernel=Gaussian)
+y <- x^2 * sin(2*pi*x) + rnorm(n,0,1e-3)
+gp <- GauPro_kernel_model_LOO$new(X=x, Z=y, kernel=Matern52)
+y <- exp(-1.4*x)*cos(7*pi*x/2)
+gp <- GauPro_kernel_model_LOO$new(X=x, Z=y, kernel=Matern52)
 }
 \keyword{Gaussian}
 \keyword{data,}
