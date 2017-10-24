@@ -48,7 +48,6 @@ Allows for different kernel and trend functions to be used.
 \section{Methods}{
 
 \describe{
-  \item{Documentation}{For full documentation of each method go to https://github.com/lightning-viz/lightining-r/}
   \item{\code{new(X, Z, corr="Gauss", verbose=0, separable=T, useC=F,useGrad=T,
          parallel=T, nug.est=T, ...)}}{This method is used to create object of this class with \code{X} and \code{Z} as the data.}
 
