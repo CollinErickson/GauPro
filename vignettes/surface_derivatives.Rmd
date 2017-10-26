@@ -300,8 +300,8 @@ $$
 
 $$
 \begin{align}
-  \text{Var}[Q(X)] &= \sum_{j=1}^n \lambda_j \text{Var} \left[ (U_j + b_j)^2 \right] \\
-                   &= \sum_{j=1}^n \lambda_j (4b_j^2 + 2) \\
+  \text{Var}[Q(X)] &= \sum_{j=1}^n \lambda_j^2 \text{Var} \left[ (U_j + b_j)^2 \right] \\
+                   &= \sum_{j=1}^n \lambda_j^2 (4b_j^2 + 2) \\
 \end{align}
 $$
 

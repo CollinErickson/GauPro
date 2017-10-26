@@ -12,7 +12,7 @@
 
 <meta name="author" content="Collin Erickson" />
 
-<meta name="date" content="2017-10-06" />
+<meta name="date" content="2017-10-26" />
 
 <title>Spatial derivatives of Gaussian process models</title>
 
@@ -32,7 +32,7 @@
 
 <h1 class="title toc-ignore">Spatial derivatives of Gaussian process models</h1>
 <h4 class="author"><em>Collin Erickson</em></h4>
-<h4 class="date"><em>2017-10-06</em></h4>
+<h4 class="date"><em>2017-10-26</em></h4>
 
 
 
@@ -182,8 +182,8 @@ N(\frac{\partial \Sigma(x,X)}{\partial x}^T \Sigma_X^{-1} (Y_X - \mu_X),
 \]</span></p>
 <p><span class="math display">\[
 \begin{align}
-  \text{Var}[Q(X)] &amp;= \sum_{j=1}^n \lambda_j \text{Var} \left[ (U_j + b_j)^2 \right] \\
-                   &amp;= \sum_{j=1}^n \lambda_j (4b_j^2 + 2) \\
+  \text{Var}[Q(X)] &amp;= \sum_{j=1}^n \lambda_j^2 \text{Var} \left[ (U_j + b_j)^2 \right] \\
+                   &amp;= \sum_{j=1}^n \lambda_j^2 (4b_j^2 + 2) \\
 \end{align}
 \]</span></p>
 </div>

@@ -1014,17 +1014,25 @@ GauPro_kernel_model <- R6::R6Class(
           apply(grad1,1, function(xx) {sqrt(sum(xx^2))})
         },
         grad_dist = function(XX) {#browser()
+          if (!is.matrix(XX)) {
+            if (self$D == 1) XX <- matrix(XX, ncol=1)
+            else if (length(XX) == self$D) XX <- matrix(XX, nrow=1)
+            else stop('grad_dist input should be matrix')
+          } else {
+            if (ncol(XX) != self$D) {stop("Wrong dimension input")}
+          }
           nn <- nrow(XX)
-          d <- ncol(XX) # or self$D
           mn <- self$grad(XX=XX)
-          c2 <- self$kernel$d2C_dudv(XX=XX, X=XX)
-          c1 <- self$kernel$dC_dx(XX=XX, X=self$X)
-          # cv <- c2 - t(c1) %*% solve(self$Kinv, c1)
-          cv <- array(data = NA, dim = c(nn, d, d))
+          # c2 <- self$kernel$d2C_dudv(XX=XX, X=XX) # Moving these into for loop to speed up
+          # c1 <- self$kernel$dC_dx(XX=XX, X=self$X)
+          # # cv <- c2 - t(c1) %*% solve(self$Kinv, c1)
+          cv <- array(data = NA, dim = c(nn, self$D, self$D))
           for (i in 1:nn) {
-            tc1i <- c1[i,,] # 1D gives problem, only need transpose if D>1
+            c2 <- self$kernel$d2C_dudv(XX=XX[i,,drop=F], X=XX[i,,drop=F])
+            c1 <- self$kernel$dC_dx(XX=XX[i,,drop=F], X=self$X)
+            tc1i <- c1[1,,] # 1D gives problem, only need transpose if D>1
             if (!is.null(dim(tc1i))) {tc1i <- t(tc1i)}
-            cv[i, , ] <- c2[i,,,i] - c1[i,,] %*% (self$Kinv %*% tc1i)
+            cv[i, , ] <- c2[1,,,1] - c1[1,,] %*% (self$Kinv %*% tc1i)
           }
           list(mean=mn, cov=cv)
         },
@@ -1052,17 +1060,20 @@ GauPro_kernel_model <- R6::R6Class(
             grad_dist_i <- self$grad_dist(XX=XX[i, , drop=FALSE])
             mean_i <- grad_dist_i$mean[1,]
             Sigma_i <- grad_dist_i$cov[1,,]
-            SigmaInv_i <- solve(Sigma_i)
+            # Don't need to invert it, just solve with SigmaRoot
+            # SigmaInv_i <- solve(Sigma_i)
             # Using my own sqrt function since it is faster.
-            # SigmaInvRoot_i <- expm::sqrtm(SigmaInv_i)
-            SigmaInvRoot_i <- sqrt_matrix(mat=SigmaInv_i, symmetric = TRUE)
+            # # SigmaInvRoot_i <- expm::sqrtm(SigmaInv_i)
+            # SigmaInvRoot_i <- sqrt_matrix(mat=SigmaInv_i, symmetric = TRUE)
+            SigmaRoot_i <- sqrt_matrix(mat=Sigma_i, symmetric=TRUE)
             eigen_i <- eigen(Sigma_i)
             P_i <- t(eigen_i$vectors)
             lambda_i <- eigen_i$values
             # testthat::expect_equal(t(P) %*% diag(eth$values) %*% (P), Sigma) # Should be equal
-            b_i <- P_i %*% SigmaInvRoot_i %*% mean_i
-            g2mean_i <- sum(b_i^2 * lambda_i)+d
-            g2var_i <- 4*sum(b_i^2 * lambda_i^2)+2*d
+            # b_i <- P_i %*% SigmaInvRoot_i %*% mean_i
+            b_i <- P_i %*% solve(SigmaRoot_i, mean_i)
+            g2mean_i <- sum(lambda_i * (b_i^2 + 1))
+            g2var_i <- sum(lambda_i^2 * (4*b_i^2+2))
             means[i] <- g2mean_i
             vars[i] <- g2var_i
           }
