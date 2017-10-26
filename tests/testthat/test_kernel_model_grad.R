@@ -66,11 +66,21 @@ test_that("grad_norm2 for Gaussian", { # only implemented for Gaussian now
   f <- function(x) {sin(2*pi*x[1]) + .5*sin(4*pi*x[1]) +rnorm(1,0,.03) + x[2]^2}
   y <- apply(x, 1, f) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
   gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian$new(beta=c(.966, -.64),s2=10^.4848), parallel=FALSE, verbose=10, nug.est=F, nug=0.0001721, param.est=F)
-  expect_equal(unlist(gp$grad_norm2_dist(matrix(c(.1,.2),ncol=2))), c(mean=49.40285, var=23.26213), tol=1)
+  # Check grad_norm2_dist is correct
+  tx <- matrix(c(.1,.2),ncol=2)
+  expect_equal(unlist(gp$grad_norm2_dist(tx)), c(mean=45.46676, var=31.37130), tol=.0001)
+
+  # Check that it matches samples
   set.seed(1)
-  ts <- gp$grad_norm2_sample(matrix(c(.1,.2),ncol=2), n=1e4)
+  ts <- gp$grad_norm2_sample(tx, n=1e4)
   expect_equal(dim(ts), c(1, 1e4))
-  expect_equal(c(mean(ts), sd(ts)^2), c(47.46267, 19.65818), tol=1)
+  # expect_equal(c(mean(ts), sd(ts)^2), c(47.46267, 19.65818), tol=.001)
+  expect_equal(unlist(gp$grad_norm2_dist(tx)), c(mean=mean(s1), var=var(s1)), tol=.01)
+
+  # Alternate way to calculate just the mean
+  tmp2 <- sum(gp$grad(tx)^2) +sum(eigen(gp$grad_dist(tx)$cov[1,,])$val)
+  expect_equal(gp$grad_norm2_dist(tx)$mean, tmp2, tol=.00001)
+
   gd <- gp$grad_dist(XX=matrix(c(.1,.2), ncol=2))
   expect_is(gd, "list")
   expect_length(gd, 2)
