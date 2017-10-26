@@ -75,7 +75,7 @@ test_that("grad_norm2 for Gaussian", { # only implemented for Gaussian now
   ts <- gp$grad_norm2_sample(tx, n=1e4)
   expect_equal(dim(ts), c(1, 1e4))
   # expect_equal(c(mean(ts), sd(ts)^2), c(47.46267, 19.65818), tol=.001)
-  expect_equal(unlist(gp$grad_norm2_dist(tx)), c(mean=mean(s1), var=var(s1)), tol=.01)
+  expect_equal(unlist(gp$grad_norm2_dist(tx)), c(mean=mean(ts), var=var(c(ts))), tol=.01)
 
   # Alternate way to calculate just the mean
   tmp2 <- sum(gp$grad(tx)^2) +sum(eigen(gp$grad_dist(tx)$cov[1,,])$val)
