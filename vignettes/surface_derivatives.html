@@ -12,7 +12,7 @@
 
 <meta name="author" content="Collin Erickson" />
 
-<meta name="date" content="2017-10-26" />
+<meta name="date" content="2017-10-31" />
 
 <title>Spatial derivatives of Gaussian process models</title>
 
@@ -32,7 +32,7 @@
 
 <h1 class="title toc-ignore">Spatial derivatives of Gaussian process models</h1>
 <h4 class="author"><em>Collin Erickson</em></h4>
-<h4 class="date"><em>2017-10-26</em></h4>
+<h4 class="date"><em>2017-10-31</em></h4>
 
 
 
@@ -141,7 +141,7 @@
 \sim 
 N(\frac{\partial \Sigma(x,X)}{\partial x}^T \Sigma_X^{-1} (Y_X - \mu_X),
 \frac{\partial^2 \Sigma(x_1, x_2)}{\partial x_1 \partial x_2}  + 
-\frac{\partial \Sigma(x_1, X)}{\partial x_1} \Sigma_x^{-1} \frac{\partial \Sigma(X, x_2)}{\partial x_2})
+\frac{\partial \Sigma(x_1, X)}{\partial x_1} \Sigma_x^{-1} \frac{\partial \Sigma(X, x_2)}{\partial x_2} |_{x_1=x,x_2=x})
 \]</span></p>
 </div>
 <div id="distribution-of-the-gradient-norm-squared" class="section level3">

@@ -222,7 +222,7 @@ $$
 \sim 
 N(\frac{\partial \Sigma(x,X)}{\partial x}^T \Sigma_X^{-1} (Y_X - \mu_X),
 \frac{\partial^2 \Sigma(x_1, x_2)}{\partial x_1 \partial x_2}  + 
-\frac{\partial \Sigma(x_1, X)}{\partial x_1} \Sigma_x^{-1} \frac{\partial \Sigma(X, x_2)}{\partial x_2})
+\frac{\partial \Sigma(x_1, X)}{\partial x_1} \Sigma_x^{-1} \frac{\partial \Sigma(X, x_2)}{\partial x_2} |_{x_1=x,x_2=x})
 $$
 
 

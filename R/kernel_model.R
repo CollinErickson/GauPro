@@ -1049,6 +1049,14 @@ GauPro_kernel_model <- R6::R6Class(
           # gs2 <- apply(gs, 1, . %>% sum((.)^2))
           # c(mean(1/gs2), var(1/gs2))
         },
+        grad_norm2_mean = function(XX) {
+          # Calculate mean of squared norm of gradient
+          # Twice as fast as use self$grad_norm2_dist(XX)$mean
+          sapply(1:nrow(XX), function(i) {
+            grad_dist_i <- self$grad_dist(XX=XX[i, , drop=FALSE])
+            sum(grad_dist_i$mean^2) + sum(diag(grad_dist_i$cov[1,,]))
+          })
+        },
         grad_norm2_dist = function(XX) {
           # Calculate mean and var for squared norm of gradient
           # grad_dist <- gp$grad_dist(XX=XX) # Too slow because it does all
