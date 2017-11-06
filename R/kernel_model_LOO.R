@@ -67,7 +67,7 @@ GauPro_kernel_model_LOO <- R6::R6Class(
       if (!se.fit & !covmat) {
         return(mn)
       }
-      if (covmat) {
+      if (covmat && self$use_LOO) {
         stop("covmat not implemented for GauPro_kernel_model_LOO #68239")
         # new for kernel
         covmatdat <- kxx - t(kx.xx) %*% self$Kinv %*% kx.xx

@@ -312,8 +312,9 @@ GauPro_kernel_model <- R6::R6Class(
             }
           }
           if (se.fit) { # Return df with se and t if se.fit
-            t_LOO <- (self$Z - Z_LOO) / Z_LOO_s2
-            data.frame(fit=Z_LOO, se.fit=Z_LOO_s2, t=t_LOO)
+            Z_LOO_se <- sqrt(Z_LOO_s2)
+            t_LOO <- (self$Z - Z_LOO) / Z_LOO_se
+            data.frame(fit=Z_LOO, se.fit=Z_LOO_se, t=t_LOO)
           } else { # Else just mean LOO
             Z_LOO
           }

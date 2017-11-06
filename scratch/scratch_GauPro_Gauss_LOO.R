@@ -22,6 +22,7 @@ f <- function(x) {1 / sqrt(1 + exp(-25*(x-.5)))}
 y <- f(x) + rnorm(n,0,1e-3)
 
 gp <- GauPro_Gauss_LOO$new(X=x, Z=y, parallel=FALSE)
+gp <- GauPro_kernel_model_LOO$new(X=x, Z=y, kernel=Gaussian)
 
 curve(f, ylim=c(-.05,1.1))
 curve(gp$predict(x), add=T, col=2)
