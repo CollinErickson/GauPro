@@ -66,8 +66,18 @@ n <- 30
 x <- lhs::maximinLHS(n=n, k=2)
 f <- function(x) {sin(2*pi*x[1]) + .5*sin(4*pi*x[1]) +rnorm(1,0,.03) + x[2]^2}
 y <- apply(x, 1, f) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
-gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=PowerExp$new(c(1, 1)), parallel=FALSE, verbose=10, nug.est=T)
+gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=PowerExp$new(D=2, alpha=c(1.8,1.9)), parallel=FALSE, verbose=10, nug.est=T)
 ContourFunctions::cf(gp$predict, pts=x, batchmax=Inf)
 ContourFunctions::cf(f, pts=x)
-numDeriv::grad(func = function(x)gp$deviance(params = x[1:3], nuglog=x[4]), x=c(1,1, 1, -4))
-gp$deviance_grad(params = c(1,1,1), nug.update=T, nuglog=-4)
+# If alpha is length 1
+numDeriv::grad(func = function(x)gp$deviance(params = x[1:4], nuglog=x[5]), x=c(1,1,1.95,.2, -4))
+gp$deviance_grad(params = c(1,1,1.95,.2), nug.update=T, nuglog=-4)
+# If alpha is length 2
+numDeriv::grad(func = function(x)gp$deviance(params = x[1:5], nuglog=x[6]), x=c(1,1,1.8,1.95,.2, -4))
+gp$deviance_grad(params = c(1,1,1.8,1.95,.2), nug.update=T, nuglog=-4)
+
+
+
+# Check grad
+tx <- .5; rbind(numDeriv::grad(gp$predict, c(tx)), gp$grad(tx))
+tx <- runif(2); rbind(numDeriv::grad(gp$predict, c(tx)), gp$grad(tx))

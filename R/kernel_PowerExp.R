@@ -39,7 +39,9 @@ PowerExp <- R6::R6Class(
       self$alpha <- alpha
       # self$logalpha <- log(alpha, 10)
       self$alpha_lower <- alpha_lower # log(alpha_lower, 10)
+      if (length(self$alpha)>1 && length(self$alpha_lower) == 1) {self$alpha_lower <- rep(alpha_lower, length(alpha))}
       self$alpha_upper <- alpha_upper # log(alpha_upper, 10)
+      if (length(self$alpha)>1 && length(self$alpha_upper) == 1) {self$alpha_upper <- rep(alpha_upper, length(alpha))}
       self$alpha_est <- alpha_est
 
     },
@@ -56,7 +58,7 @@ PowerExp <- R6::R6Class(
           beta <- self$beta
         }
         if (self$alpha_est) {
-          alpha <- params[1 + as.integer(self$beta_est) * self$beta_length]
+          alpha <- params[1:length(self$alpha) + as.integer(self$beta_est) * self$beta_length]
         } else {
           alpha <- self$alpha
         }
@@ -118,7 +120,7 @@ PowerExp <- R6::R6Class(
           beta <- self$beta
         }
         if (self$alpha_est) {
-          alpha <- params[1 + as.integer(self$beta_est) * self$beta_length]
+          alpha <- params[1:length(self$alpha) + as.integer(self$beta_est) * self$beta_length]
         } else {
           alpha <- self$alpha
         }
@@ -146,18 +148,19 @@ PowerExp <- R6::R6Class(
         C <- C_nonug + diag(nug*s2, nrow(C_nonug))
       }
 
-      lenparams_D <- self$beta_length*self$beta_est + 1*self$alpha_est +self$s2_est
+      lenparams_D <- self$beta_length*self$beta_est + length(alpha)*self$alpha_est +self$s2_est
       dC_dparams <- array(dim=c(lenparams_D, n, n), data=0)
       if (self$s2_est) {
         dC_dparams[lenparams_D,,] <- C * log10
       }
       if (self$beta_est) {
         for (k in 1:length(beta)) {
+          alphak <- if (length(alpha)==1) alpha else alpha[k]
           for (i in seq(1, n-1, 1)) {
             for (j in seq(i+1, n, 1)) {
-              r2 <- sum(theta * abs(X[i,]-X[j,])^alpha)
+              # r2 <- sum(theta * abs(X[i,]-X[j,])^alpha)
               # t1 <- 1 + r2 / alpha
-              dC_dparams[k,i,j] <- - C_nonug[i,j] * abs(X[i,k] - X[j,k])^alpha * theta[k] * log10   #s2 * (1+t1) * exp(-t1) *-dt1dbk + s2 * dt1dbk * exp(-t1)
+              dC_dparams[k,i,j] <- - C_nonug[i,j] * abs(X[i,k] - X[j,k])^alphak * theta[k] * log10   #s2 * (1+t1) * exp(-t1) *-dt1dbk + s2 * dt1dbk * exp(-t1)
               dC_dparams[k,j,i] <- dC_dparams[k,i,j]
             }
           }
@@ -168,23 +171,24 @@ PowerExp <- R6::R6Class(
       }
       if (self$alpha_est) {
         # Grad for alpha
-        alpha_inds <- 1:length(alpha) + self$beta_est * length(beta)
+        alpha_dim_inds <- 1:length(alpha)
+        alpha_dC_inds <- 1:length(alpha) + self$beta_est * length(beta)
         for (i in seq(1, n-1, 1)) {
           for (j in seq(i+1, n, 1)) {
-            r2 <- sum(theta * (X[i,]-X[j,])^alpha)
+            r2 <- sum(theta * abs(X[i,]-X[j,])^alpha)
             if (length(alpha) == 1) {
-              dC_dparams[alpha_inds, i,j] <- C_nonug[i,j] * (-theta*(abs(X[i,]-X[j,]))^alpha)*log(abs(X[i,]-X[j,]))
-              dC_dparams[alpha_inds, j,i] <- dC_dparams[alpha_inds, i,j]
+              dC_dparams[alpha_dC_inds, i,j] <- C_nonug[i,j] * sum((-theta*(abs(X[i,]-X[j,]))^alpha)*log(abs(X[i,]-X[j,])))
+              dC_dparams[alpha_dC_inds, j,i] <- dC_dparams[alpha_dC_inds, i,j]
             } else { # alpha for each dimension
-              for (k in seq(1, length(alpha))) {
-                dC_dparams[k, i,j] <- C_nonug[i,j] * (- theta[k]*(abs(X[i,]-X[j,]))^alpha[k]) * log(abs(X[i,]-X[j,]))
-                dC_dparams[k, j,i] <- dC_dparams[k, i,j]
+              for (k in alpha_dim_inds) { #seq(1, length(alpha))) {
+                dC_dparams[k + self$beta_est * length(beta), i,j] <- C_nonug[i,j] * (- theta[k]*(abs(X[i,k]-X[j,k]))^alpha[k]) * log(abs(X[i,k]-X[j,k]))
+                dC_dparams[k + self$beta_est * length(beta), j,i] <- dC_dparams[k + self$beta_est * length(beta), i,j]
               }
             }
           }
         }
         for (i in seq(1, n, 1)) {
-          dC_dparams[alpha_inds, i,i] <- 0
+          dC_dparams[alpha_dC_inds, i,i] <- 0
         }
       }
       return(dC_dparams)
@@ -201,11 +205,12 @@ PowerExp <- R6::R6Class(
       dC_dx <- array(NA, dim=c(nn, d, n))
       for (i in 1:nn) {
         for (j in 1:d) {
+          alphaj <- if (length(alpha)==1) alpha else alpha[j]
           for (k in 1:n) {
             # r <- sqrt(sum(theta * (XX[i,] - X[k,]) ^ 2))
-            r2 <- sum(theta * (XX[i,] - X[k,])^2)
-            CC <- s2 * (1 + r2 / alpha) ^ -alpha
-            dC_dx[i, j, k] <- CC * (-1) / (1 + r2 / alpha) * 2 * theta[j] * (XX[i, j]-X[k, j]) #) * p[j] #* (XX[i, j] - X[k, j])
+            r2 <- sum(theta * abs(XX[i,] - X[k,])^alpha)
+            CC <- s2 * exp(-r2)
+            dC_dx[i, j, k] <- CC * (-1) * theta[j] * alphaj * abs(XX[i, j]-X[k, j]) ^ (alphaj-1) * sign(XX[i, j]-X[k, j]) #) * p[j] #* (XX[i, j] - X[k, j])
           }
         }
       }
@@ -261,7 +266,7 @@ PowerExp <- R6::R6Class(
         self$beta <- optim_out[1:(self$beta_length)]
       }
       if (alpha_est) {
-        self$alpha <- optim_out[(1 + beta_est * self$beta_length)]
+        self$alpha <- optim_out[(1:length(self$alpha) + beta_est * self$beta_length)]
         # self$alpha <- 10 ^ self$logalpha
       }
       if (s2_est) {
