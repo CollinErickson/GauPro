@@ -157,7 +157,7 @@ RatQuad <- R6::R6Class(
             for (j in seq(i+1, n, 1)) {
               r2 <- sum(theta * (X[i,]-X[j,])^2)
               t1 <- 1 + r2 / alpha
-              dC_dparams[k,i,j] <- -C[i,j] * (X[i,k] - X[j,k])^2  / t1 * theta[k] * log10   #s2 * (1+t1) * exp(-t1) *-dt1dbk + s2 * dt1dbk * exp(-t1)
+              dC_dparams[k,i,j] <- -C_nonug[i,j] * (X[i,k] - X[j,k])^2  / t1 * theta[k] * log10   #s2 * (1+t1) * exp(-t1) *-dt1dbk + s2 * dt1dbk * exp(-t1)
               dC_dparams[k,j,i] <- dC_dparams[k,i,j]
             }
           }
@@ -173,7 +173,7 @@ RatQuad <- R6::R6Class(
           for (j in seq(i+1, n, 1)) {
             r2 <- sum(theta * (X[i,]-X[j,])^2)
             t1 <- 1 + r2 / alpha
-            dC_dparams[alpha_ind, i,j] <- C[i,j] * (- log(t1) + r2 / alpha / t1) * alpha * log10
+            dC_dparams[alpha_ind, i,j] <- C_nonug[i,j] * (- log(t1) + r2 / alpha / t1) * alpha * log10
             dC_dparams[alpha_ind, j,i] <- dC_dparams[alpha_ind, i,j]
           }
         }
