@@ -1,4 +1,4 @@
-#' Rational Quadratic Kernel R6 class
+#' Power Exponential Kernel R6 class
 #'
 #' @docType class
 #' @importFrom R6 R6Class
@@ -10,9 +10,9 @@
 #' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
 #' @format \code{\link{R6Class}} object.
 #' @examples
-#' k1 <- RatQuad$new(beta=0, alpha=0)
-RatQuad <- R6::R6Class(
-  classname = "GauPro_kernel_RatQuad",
+#' k1 <- PowerExp$new(beta=0, alpha=0)
+PowerExp <- R6::R6Class(
+  classname = "GauPro_kernel_PowerExp",
   inherit = GauPro_kernel_beta,
   public = list(
     # beta = NULL,
@@ -24,26 +24,26 @@ RatQuad <- R6::R6Class(
     # logs2_lower = NULL,
     # logs2_upper = NULL,
     alpha = NULL,
-    logalpha = NULL,
-    logalpha_lower = NULL,
-    logalpha_upper = NULL,
+    # logalpha = NULL,
+    alpha_lower = NULL,
+    alpha_upper = NULL,
     alpha_est = NULL,
-    initialize = function(beta, alpha=1, s2=1, D,
+    initialize = function(alpha=1.95, beta, s2=1, D,
                           beta_lower=-8, beta_upper=6, beta_est=TRUE,
-                          alpha_lower=0, alpha_upper=Inf, alpha_est=TRUE,
+                          alpha_lower=0, alpha_upper=2, alpha_est=TRUE,
                           s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE
     ) {
       super$initialize(beta=beta, s2=s2, D=D, beta_lower=beta_lower,
                        beta_upper=beta_upper, beta_est=beta_est,
                        s2_lower=s2_lower,s2_upper=s2_upper, s2_est=s2_est)
       self$alpha <- alpha
-      self$logalpha <- log(alpha, 10)
-      self$logalpha_lower <- log(alpha_lower, 10)
-      self$logalpha_upper <- log(alpha_upper, 10)
+      # self$logalpha <- log(alpha, 10)
+      self$alpha_lower <- alpha_lower # log(alpha_lower, 10)
+      self$alpha_upper <- alpha_upper # log(alpha_upper, 10)
       self$alpha_est <- alpha_est
 
     },
-    k = function(x, y=NULL, beta=self$beta, logalpha=self$logalpha, s2=self$s2, params=NULL) {#browser()
+    k = function(x, y=NULL, beta=self$beta, alpha=self$alpha, s2=self$s2, params=NULL) {#browser()
       if (!is.null(params)) {
         lenparams <- length(params)
         # beta <- params[1:(lenpar-2)]
@@ -56,9 +56,9 @@ RatQuad <- R6::R6Class(
           beta <- self$beta
         }
         if (self$alpha_est) {
-          logalpha <- params[1 + as.integer(self$beta_est) * self$beta_length]
+          alpha <- params[1 + as.integer(self$beta_est) * self$beta_length]
         } else {
-          logalpha <- self$logalpha
+          alpha <- self$alpha
         }
         if (self$s2_est) {
           logs2 <- params[lenparams]
@@ -69,11 +69,11 @@ RatQuad <- R6::R6Class(
         s2 <- 10^logs2
       } else {#browser()
         if (is.null(beta)) {beta <- self$beta}
-        if (is.null(logalpha)) {logalpha <- self$logalpha}
+        if (is.null(alpha)) {alpha <- self$alpha}
         if (is.null(s2)) {s2 <- self$s2}
       }
       theta <- 10^beta
-      alpha <- 10^logalpha
+      # alpha <- 10^logalpha
       if (is.null(y)) {
         if (is.matrix(x)) {#browser()
           # cgmtry <- try(val <- s2 * corr_gauss_matrix_symC(x, theta))
@@ -103,8 +103,8 @@ RatQuad <- R6::R6Class(
     kone = function(x, y, beta, theta, alpha, s2) {
       if (missing(theta)) {theta <- 10^beta}
       # t1 <- self$sqrt
-      r2 <- sum(theta * (x-y)^2)
-      s2 * (1 + r2 / alpha) ^ -alpha
+      r2 <- sum(theta * abs(x-y)^alpha)
+      s2 * exp(-r2)
     },
     dC_dparams = function(params=NULL, X, C_nonug, C, nug) {#browser(text = "Make sure all in one list")
       n <- nrow(X)
@@ -118,9 +118,9 @@ RatQuad <- R6::R6Class(
           beta <- self$beta
         }
         if (self$alpha_est) {
-          logalpha <- params[1 + as.integer(self$beta_est) * self$beta_length]
+          alpha <- params[1 + as.integer(self$beta_est) * self$beta_length]
         } else {
-          logalpha <- self$logalpha
+          alpha <- self$alpha
         }
         if (self$s2_est) {
           logs2 <- params[lenparams]
@@ -129,14 +129,14 @@ RatQuad <- R6::R6Class(
         }
       } else {
         beta <- self$beta
-        logalpha <- self$logalpha
+        alpha <- self$alpha
         logs2 <- self$logs2
       }
 
       # beta <- params[1:(lenparams - 2)]
       theta <- 10^beta
       # logalpha <- params[lenparams-1]
-      alpha <- 10^logalpha
+      # alpha <- 10^logalpha
       log10 <- log(10)
       # logs2 <- params[lenparams]
       s2 <- 10 ^ logs2
@@ -155,9 +155,9 @@ RatQuad <- R6::R6Class(
         for (k in 1:length(beta)) {
           for (i in seq(1, n-1, 1)) {
             for (j in seq(i+1, n, 1)) {
-              r2 <- sum(theta * (X[i,]-X[j,])^2)
-              t1 <- 1 + r2 / alpha
-              dC_dparams[k,i,j] <- -C[i,j] * (X[i,k] - X[j,k])^2  / t1 * theta[k] * log10   #s2 * (1+t1) * exp(-t1) *-dt1dbk + s2 * dt1dbk * exp(-t1)
+              r2 <- sum(theta * abs(X[i,]-X[j,])^alpha)
+              # t1 <- 1 + r2 / alpha
+              dC_dparams[k,i,j] <- - C_nonug[i,j] * abs(X[i,k] - X[j,k])^alpha * theta[k] * log10   #s2 * (1+t1) * exp(-t1) *-dt1dbk + s2 * dt1dbk * exp(-t1)
               dC_dparams[k,j,i] <- dC_dparams[k,i,j]
             }
           }
@@ -168,18 +168,23 @@ RatQuad <- R6::R6Class(
       }
       if (self$alpha_est) {
         # Grad for alpha
-        alpha_ind <- lenparams_D - self$s2_est
+        alpha_inds <- 1:length(alpha) + self$beta_est * length(beta)
         for (i in seq(1, n-1, 1)) {
           for (j in seq(i+1, n, 1)) {
-            r2 <- sum(theta * (X[i,]-X[j,])^2)
-            t1 <- 1 + r2 / alpha
-            dC_dparams[alpha_ind, i,j] <- C[i,j] * (- log(t1) + r2 / alpha / t1) * alpha * log10
-            dC_dparams[alpha_ind, j,i] <- dC_dparams[alpha_ind, i,j]
+            r2 <- sum(theta * (X[i,]-X[j,])^alpha)
+            if (length(alpha) == 1) {
+              dC_dparams[alpha_inds, i,j] <- C_nonug[i,j] * (-theta*(abs(X[i,]-X[j,]))^alpha)*log(abs(X[i,]-X[j,]))
+              dC_dparams[alpha_inds, j,i] <- dC_dparams[alpha_inds, i,j]
+            } else { # alpha for each dimension
+              for (k in seq(1, length(alpha))) {
+                dC_dparams[k, i,j] <- C_nonug[i,j] * (- theta[k]*(abs(X[i,]-X[j,]))^alpha[k]) * log(abs(X[i,]-X[j,]))
+                dC_dparams[k, j,i] <- dC_dparams[k, i,j]
+              }
+            }
           }
         }
         for (i in seq(1, n, 1)) {
-          # dC_dparams[lenparams-1, i,i] <- 0
-          dC_dparams[alpha_ind, i,i] <- 0
+          dC_dparams[alpha_inds, i,i] <- 0
         }
       }
       return(dC_dparams)
@@ -211,7 +216,7 @@ RatQuad <- R6::R6Class(
       # Use current values for theta, partial MLE for s2
       # vec <- c(log(self$theta, 10), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
       if (beta_est) {vec <- c(self$beta)} else {vec <- c()}
-      if (alpha_est) {vec <- c(vec, self$logalpha)} else {}
+      if (alpha_est) {vec <- c(vec, self$alpha)} else {}
       if (s2_est) {vec <- c(vec, self$logs2)} else {}
       if (jitter && beta_est) {
         # vec <- vec + c(self$beta_optim_jitter,  0)
@@ -236,7 +241,7 @@ RatQuad <- R6::R6Class(
                                  s2_est=self$s2_est) {
       # c(self$beta_lower, self$logs2_lower)
       if (beta_est) {vec <- c(self$beta_lower)} else {vec <- c()}
-      if (alpha_est) {vec <- c(vec, self$logalpha_lower)} else {}
+      if (alpha_est) {vec <- c(vec, self$alpha_lower)} else {}
       if (s2_est) {vec <- c(vec, self$logs2_lower)} else {}
       vec
     },
@@ -245,7 +250,7 @@ RatQuad <- R6::R6Class(
                                  s2_est=self$s2_est) {
       # c(self$beta_upper, self$logs2_upper)
       if (beta_est) {vec <- c(self$beta_upper)} else {vec <- c()}
-      if (alpha_est) {vec <- c(vec, self$logalpha_upper)} else {}
+      if (alpha_est) {vec <- c(vec, self$alpha_upper)} else {}
       if (s2_est) {vec <- c(vec, self$logs2_upper)} else {}
       vec
     },
@@ -256,8 +261,8 @@ RatQuad <- R6::R6Class(
         self$beta <- optim_out[1:(self$beta_length)]
       }
       if (alpha_est) {
-        self$logalpha <- optim_out[(1 + beta_est * self$beta_length)]
-        self$alpha <- 10 ^ self$logalpha
+        self$alpha <- optim_out[(1 + beta_est * self$beta_length)]
+        # self$alpha <- 10 ^ self$logalpha
       }
       if (s2_est) {
         self$logs2 <- optim_out[loo]
