@@ -231,7 +231,7 @@ GauPro_kernel_model <- R6::R6Class(
         },
         pred_one_matrix = function(XX, se.fit=F, covmat=F) {
           # input should already be check for matrix
-          kxx <- self$kernel$k(XX) + self$nug
+          kxx <- self$kernel$k(XX) + diag(self$nug * self$s2_hat, nrow(XX))
           kx.xx <- self$kernel$k(self$X, XX)
           # mn <- pred_meanC(XX, kx.xx, self$mu_hat, self$Kinv, self$Z)
           # Changing to use trend, mu_hat is matrix
