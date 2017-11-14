@@ -25,7 +25,7 @@ GauPro_kernel_model_LOO <- R6::R6Class(
     tmod = NULL, # A second GP model for the t-values of leave-one-out predictions
     use_LOO = TRUE, # Should predicted errors use leave-one-out correction?
     # Initialize: kernel, nug for LOO model, rest passed on to super$initialize
-    initialize = function (..., LOO_kernel, LOO_options=list()) {browser()
+    initialize = function (..., LOO_kernel, LOO_options=list()) {
       # Set tmod to be a function that will use input if given
       if (!missing(LOO_kernel) || !(length(LOO_options)==0)) {
         if (!missing(LOO_kernel)) {LOO_options$kernel <- LOO_kernel}
