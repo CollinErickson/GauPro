@@ -24,6 +24,22 @@ GauPro_kernel_model_LOO <- R6::R6Class(
   public = list(
     tmod = NULL, # A second GP model for the t-values of leave-one-out predictions
     use_LOO = TRUE, # Should predicted errors use leave-one-out correction?
+    # Initialize: kernel, nug for LOO model, rest passed on to super$initialize
+    initialize = function (..., LOO_kernel, LOO_options=list()) {browser()
+      # Set tmod to be a function that will use input if given
+      if (!missing(LOO_kernel) || !(length(LOO_options)==0)) {
+        if (!missing(LOO_kernel)) {LOO_options$kernel <- LOO_kernel}
+        else {LOO_options$kernel <- GauPro::Matern52}
+        self$tmod <- function(X,Z) {
+          LOO_options$X <- X
+          LOO_options$Z <- Z
+          do.call(GauPro_kernel_model$new, LOO_options)
+        }
+      }
+
+      # Initialize rest with super
+      super$initialize(...)
+    },
     update = function (Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL,
                        restarts = 5,
                        param_update = self$param.est, nug.update = self$nug.est, no_update=FALSE) {
@@ -37,14 +53,17 @@ GauPro_kernel_model_LOO <- R6::R6Class(
 
 
       # Do LOO stuff
-      # browser()
       # Should I put this in an if use_LOO?
-      # I don't want this not fit, then have user set use_LOO=T and have an error
+      #   I don't want this not fit, then have user set use_LOO=T and have an error
       #   when it tries to predict with LOO.
       if (is.null(self$tmod)) {
         Zp <- self$pred_LOO(se.fit=TRUE)
         abs_t <- abs(Zp$t)
         self$tmod <- GauPro_kernel_model$new(X=self$X, Z=abs_t, kernel=GauPro::Matern52)
+      } else if (is.function(self$tmod)) { # Premade function, only call with X and Z
+        Zp <- self$pred_LOO(se.fit=TRUE)
+        abs_t <- abs(Zp$t)
+        self$tmod <- self$tmod(X=self$X, Z=abs_t)
       } else {
         Zp <- self$pred_LOO(se.fit=TRUE)
         abs_t <- abs(Zp$t)

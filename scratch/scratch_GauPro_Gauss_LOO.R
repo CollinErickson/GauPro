@@ -1,10 +1,11 @@
 
 n <- 12
 x <- matrix(seq(0,1,length.out = n), ncol=1)
-f <- function(x) {sin(2*pi*x)}
+f <- function(x) {abs(sin(2*pi*x))}
 y <- f(x) + rnorm(n,0,1e-2)
 
 gp <- GauPro_Gauss_LOO$new(X=x, Z=y, parallel=FALSE)
+gp <- GauPro_kernel_model_LOO$new(X=x, Z=y, kernel=Gaussian, LOO_kernel=Exponential, LOO_options=list(nug=1e-4, nug.est=F))
 
 curve(f, ylim=c(-2,2))
 curve(gp$predict(x), add=T, col=2)
