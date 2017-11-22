@@ -263,8 +263,10 @@ GauPro_kernel_model <- R6::R6Class(
 
 
           # new for kernel
-          covmatdat <- kxx - t(kx.xx) %*% self$Kinv %*% kx.xx
-          s2 <- diag(covmatdat)
+          # covmatdat <- kxx - t(kx.xx) %*% self$Kinv %*% kx.xx
+          # s2 <- diag(covmatdat)
+          # Better way doesn't do full matmul twice, 2x speed for 50 rows, 20x speedup for 1000 rows
+          s2 <- diag(kxx) - colSums( (kx.xx) * (self$Kinv %*% kx.xx))
 
           if (self$normalize) {
             s2 <- s2 * self$normalize_sd ^ 2
