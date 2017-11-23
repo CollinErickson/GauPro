@@ -231,7 +231,7 @@ GauPro_kernel_model <- R6::R6Class(
         },
         pred_one_matrix = function(XX, se.fit=F, covmat=F, return_df=FALSE) {
           # input should already be checked for matrix
-          kxx <- self$kernel$k(XX) + diag(self$nug * self$s2_hat, nrow(XX))
+          # kxx <- self$kernel$k(XX) + diag(self$nug * self$s2_hat, nrow(XX))
           kx.xx <- self$kernel$k(self$X, XX)
           # mn <- pred_meanC(XX, kx.xx, self$mu_hat, self$Kinv, self$Z)
           # Changing to use trend, mu_hat is matrix
@@ -247,6 +247,7 @@ GauPro_kernel_model <- R6::R6Class(
           }
           if (covmat) {
             # new for kernel
+            kxx <- self$kernel$k(XX) + diag(self$nug * self$s2_hat, nrow(XX))
             covmatdat <- kxx - t(kx.xx) %*% self$Kinv %*% kx.xx
 
             if (self$normalize) {
@@ -266,7 +267,16 @@ GauPro_kernel_model <- R6::R6Class(
           # covmatdat <- kxx - t(kx.xx) %*% self$Kinv %*% kx.xx
           # s2 <- diag(covmatdat)
           # Better way doesn't do full matmul twice, 2x speed for 50 rows, 20x speedup for 1000 rows
-          s2 <- diag(kxx) - colSums( (kx.xx) * (self$Kinv %*% kx.xx))
+          # This method is bad since only diag of k(XX) is needed
+          # kxx <- self$kernel$k(XX) + diag(self$nug * self$s2_hat, nrow(XX))
+          # s2 <- diag(kxx) - colSums( (kx.xx) * (self$Kinv %*% kx.xx))
+          # This is bad since apply is actually really slow for a simple function like this
+          # diag.kxx <- self$nug * self$s2_hat + apply(XX, 1, function(xrow) {self$kernel$k(xrow)})
+          # s2 <- diag.kxx - colSums( (kx.xx) * (self$Kinv %*% kx.xx))
+          # This method is fastest, assumes that correlation of point with itself is 1,
+          #   which is true for basic kernels.
+          diag.kxx <- self$nug * self$s2_hat + rep(self$s2_hat, nrow(XX))
+          s2 <- diag.kxx - colSums( (kx.xx) * (self$Kinv %*% kx.xx))
 
           if (self$normalize) {
             s2 <- s2 * self$normalize_sd ^ 2

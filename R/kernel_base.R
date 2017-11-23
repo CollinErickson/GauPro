@@ -32,6 +32,11 @@
 GauPro_kernel <- R6::R6Class(classname = "GauPro_kernel",
   public = list(
     D = NULL
+    # k_diag = function(x) {
+    #   if (is.matrix(x)) {rep(self$s2, nrow(x))}
+    #   else if (length(x) == self$D) {self$s2}
+    #   else {stop("Error in k_diag #4928")}
+    # }
   ),
   private = list(
 
