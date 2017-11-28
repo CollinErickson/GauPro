@@ -73,7 +73,7 @@ GauPro_kernel_model_LOO <- R6::R6Class(
       invisible(self)
     },
 
-    pred_one_matrix = function(XX, se.fit=F, covmat=F) {
+    pred_one_matrix = function(XX, se.fit=F, covmat=F, return_df=FALSE) {
       # input should already be check for matrix
       kxx <- self$kernel$k(XX) + self$nug
       kx.xx <- self$kernel$k(self$X, XX)
@@ -105,8 +105,11 @@ GauPro_kernel_model_LOO <- R6::R6Class(
 
 
       # new for kernel
-      covmatdat <- kxx - t(kx.xx) %*% self$Kinv %*% kx.xx
-      s2 <- diag(covmatdat)
+      # covmatdat <- kxx - t(kx.xx) %*% self$Kinv %*% kx.xx
+      # s2 <- diag(covmatdat)
+      # Speed up, see kernel_model.R for more details
+      diag.kxx <- self$nug * self$s2_hat + rep(self$s2_hat, nrow(XX))
+      s2 <- diag.kxx - colSums( (kx.xx) * (self$Kinv %*% kx.xx))
 
       if (self$normalize) {
         s2 <- s2 * self$normalize_sd ^ 2
@@ -126,7 +129,11 @@ GauPro_kernel_model_LOO <- R6::R6Class(
       }
 
       # se.fit but not covmat
-      data.frame(mean=mn, s2=s2, se=se)
+      if (return_df) {
+        data.frame(mean=mn, s2=s2, se=se) # data.frame is really slow compared to cbind or list
+      } else {
+        list(mean=mn, s2=s2, se=se)
+      }
     }
   )
 )
