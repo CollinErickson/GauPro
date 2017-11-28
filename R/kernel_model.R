@@ -308,7 +308,7 @@ GauPro_kernel_model <- R6::R6Class(
         pred_var = function(XX, kxx, kx.xx, covmat=F) { # 2-4x faster to use C functions pred_var and pred_cov
           self$s2_hat * diag(kxx - t(kx.xx) %*% self$Kinv %*% kx.xx)
         },
-        pred_LOO = function(se.fit=FALSE) {#browser()
+        pred_LOO = function(se.fit=FALSE) {
           # Predict LOO (leave-one-out) on data used to fit model
           # See vignette for explanation of equations
           # If se.fit==T, then calculate the LOO se and the corresponding t score
@@ -324,6 +324,8 @@ GauPro_kernel_model <- R6::R6Class(
             Z_LOO[i] <- Zi_LOO
             if (se.fit) {
               Zi_LOO_s2 <- self$K[i,i] - c(b %*% Ainv %*% b)
+              # Have trouble when s2 < 0, set to small number
+              Zi_LOO_s2 <- max(Zi_LOO_s2, 1e-16)
               Z_LOO_s2[i] <- Zi_LOO_s2
             }
           }

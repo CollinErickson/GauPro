@@ -75,7 +75,7 @@ GauPro_kernel_model_LOO <- R6::R6Class(
 
     pred_one_matrix = function(XX, se.fit=F, covmat=F, return_df=FALSE) {
       # input should already be check for matrix
-      kxx <- self$kernel$k(XX) + self$nug
+      # kxx <- self$kernel$k(XX) + diag(self$nug * self$s2_hat, nrow(XX))
       kx.xx <- self$kernel$k(self$X, XX)
       mu_hat_matXX <- self$trend$Z(XX)
 
@@ -89,6 +89,7 @@ GauPro_kernel_model_LOO <- R6::R6Class(
       if (covmat && self$use_LOO) {
         stop("covmat not implemented for GauPro_kernel_model_LOO #68239")
         # new for kernel
+        kxx <- self$kernel$k(XX) + diag(self$nug * self$s2_hat, nrow(XX))
         covmatdat <- kxx - t(kx.xx) %*% self$Kinv %*% kx.xx
 
         if (self$normalize) {
