@@ -796,6 +796,52 @@ GauPro_kernel_model <- R6::R6Class(
 
           invisible(self)
         },
+        update_fast = function (Xnew=NULL, Znew=NULL) {
+          # Updates data, K, and Kinv, quickly without adjusting parameters
+          # Should be O(n^2) instead of O(n^3), but in practice not much faster
+          N1 <- nrow(self$X)
+          N2 <- nrow(Xnew)
+          inds2 <- (N1+1):(N1+N2) # indices for new col/row, shorter than inds1
+          K2 <- self$kernel$k(Xnew) + diag(self$kernel$s2 * self$nug, N2)
+          K12 <- self$kernel$k(self$X, Xnew) # Need this before update_data
+
+          self$update_data(Xnew=Xnew, Znew=Znew) # Doesn't update Kinv, etc
+
+          # Update K
+          K3 <- matrix(0, nrow=self$N, ncol=self$N)
+          K3[-inds2, -inds2] <- self$K
+          K3[-inds2, inds2] <- K12
+          K3[inds2, -inds2] <- t(K12)
+          K3[inds2, inds2] <- K2
+
+          # Check for accuracy
+          # summary(c(K3 - (self$kernel$k(self$X) + diag(self$kernel$s2*self$nug, self$N))))
+
+          self$K <- K3
+
+          # Update the inverse using the block inverse formula
+          K1inv_K12 <- self$Kinv %*% K12
+          G <- solve(K2 - t(K12) %*% K1inv_K12)
+          F1 <- -K1inv_K12 %*% G
+          E <- self$Kinv - K1inv_K12 %*% t(F1)
+
+          K3inv <- matrix(0, nrow=self$N, ncol=self$N)
+          K3inv[-inds2, -inds2] <- E
+          K3inv[-inds2, inds2] <- F1
+          K3inv[inds2, -inds2] <- t(F1)
+          K3inv[inds2, inds2] <- G
+
+          # Check for accuracy
+          # summary(c(K3inv - solve(self$K)))
+
+          # self$K <- K3
+          self$Kinv <- K3inv
+
+          # self$mu_hatX <- self$trend$Z(X=self$X)
+          self$mu_hatX <- rbind(self$mu_hatX,self$trend$Z(X=Xnew)) # Just rbind new values
+
+          invisible(self)
+        },
         update_params = function(..., nug.update) {
           # start_params = self$kernel$get_optim_start_params()
           optim_out <- self$optim(..., nug.update=nug.update)
