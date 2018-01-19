@@ -337,6 +337,34 @@ GauPro_kernel_model <- R6::R6Class(
             Z_LOO
           }
         },
+        pred_var_after_adding_points = function(add_points, pred_points) {browser()
+          # S is add points
+          # G <- solve(self$pred(add_points, covmat = TRUE)$cov)
+          # FF <- -self$Kinv %*% 1
+          if (!is.matrix(add_points)) {
+            if (length(add_points) != self$D) {stop("add_points must be matrix or of length D")}
+            else {add_points <- matrix(add_points, nrow=1)}
+          } else if (ncol(add_points) != self$D) {stop("add_points must have dimension D")}
+          C_S <- self$kernel$k(add_points)
+          C_S <- C_S + diag(self$nug, nrow(C_S)) # Add nugget
+          C_XS <- self$kernel$k(self$X, add_points)
+          C_X_inv_C_XS <- self$Kinv %*% C_XS
+          G <- solve(C_S - t(C_XS) %*% C_X_inv_C_XS)
+          FF <- - C_X_inv_C_XS %*% G
+          E <- self$Kinv - C_X_inv_C_XS %*% t(FF)
+
+          # Assume single point cov is s2(1+nug)
+          C_a <- self$s2_hat * (1 + self$nug)
+          pred_var_a_func <- function(a) {browser()
+            C_Xa <- self$kernel$k(self$X, a) # length n vector, not matrix
+            C_Sa <- self$kernel$k(add_points, a)
+            # C_a - (C_aX %*% E %*% t(C_aX) + 2 * C_aX %*% FF %*% C_Sa + t(C_Sa) %*% G %*% C_Sa)
+            C_a - (sum(C_Xa * (E %*% C_Xa)) + 2 * sum(C_Xa * (FF %*% C_Sa)) + t(C_Sa) %*% G %*% C_Sa)
+          }
+          if (is.matrix(pred_points)) {prds <- sapply(pred_points, pred_var_a_func)}
+          else {prds <- pred_var_a_func(pred_points)}
+          prds
+        },
         cool1Dplot = function (n2=20, nn=201, col2="gray",
                                xlab='x', ylab='y',
                                xmin=NULL, xmax=NULL,
