@@ -361,7 +361,8 @@ GauPro_kernel_model <- R6::R6Class(
             C_Xa <- self$kernel$k(self$X, a) # length n vector, not matrix
             C_Sa <- self$kernel$k(add_points, a)
             # C_a - (C_aX %*% E %*% t(C_aX) + 2 * C_aX %*% FF %*% C_Sa + t(C_Sa) %*% G %*% C_Sa)
-            C_a - (sum(C_Xa * (E %*% C_Xa)) + 2 * sum(C_Xa * (FF %*% C_Sa)) + t(C_Sa) %*% G %*% C_Sa)
+            # C_a - (sum(C_Xa * (E %*% C_Xa)) + 2 * sum(C_Xa * (FF %*% C_Sa)) + t(C_Sa) %*% G %*% C_Sa)
+            C_a - (sum(C_Xa * (E %*% C_Xa)) + 2 * sum(C_Xa * (FF %*% C_Sa)) + sum(C_Sa * (G %*% C_Sa)))
           }
           if (is.matrix(pred_points)) {prds <- apply(pred_points, 1, pred_var_a_func)}
           else {prds <- pred_var_a_func(pred_points)}
