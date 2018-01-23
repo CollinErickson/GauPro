@@ -368,6 +368,29 @@ GauPro_kernel_model <- R6::R6Class(
           else {prds <- pred_var_a_func(pred_points)}
           prds
         },
+        pred_var_reduction = function(add_point, pred_points) {
+          # Calculate pred_var at pred_points after add_point
+          #  have been added to the design self$X
+          # S is add point
+          if (!is.vector(add_point) || length(add_point)!=self$D) {
+            stop("add_point must be vector of length D")
+          }
+          C_S <- self$s2_hat * (1 + self$nug) # Assumes correlation structure
+          C_XS <- self$kernel$k(self$X, add_point)
+          C_X_inv_C_XS <- as.vector(self$Kinv %*% C_XS)
+          G <- 1 / c(C_S - t(C_XS) %*% C_X_inv_C_XS)
+
+          # Assume single point cov is s2(1+nug)
+          # C_a <- self$s2_hat * (1 + self$nug)
+          pred_var_a_func <- function(a) {
+            C_Xa <- self$kernel$k(self$X, a) # length n vector, not matrix
+            C_Sa <- self$kernel$k(add_point, a)
+            (sum(C_Xa * C_X_inv_C_XS) - C_Sa) ^ 2 * G
+          }
+          if (is.matrix(pred_points)) {prds <- apply(pred_points, 1, pred_var_a_func)}
+          else {prds <- pred_var_a_func(pred_points)}
+          prds
+        },
         cool1Dplot = function (n2=20, nn=201, col2="gray",
                                xlab='x', ylab='y',
                                xmin=NULL, xmax=NULL,

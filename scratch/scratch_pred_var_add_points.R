@@ -1,5 +1,5 @@
 set.seed(0)
-n <- 200
+n <- 20
 x <- lhs::maximinLHS(n=n, k=2)
 y <- TestFunctions::banana(x)
 gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian, nug=1e-8, nug.est = F)
@@ -13,6 +13,7 @@ set.seed(1)
 print(gp$pred(x1,se=T)$s2) # 0.1749093
 print(gp$pred(x2,se=T)$s2) # 0.1708879
 print(gp$pred_var_after_adding_points(add_points = x1, pred_points = x2)) # 0.02812571
+print(gp$pred_var_reduction(add_point = x1, pred_points = x2))
 
 gp$update(Xnew = x1, Znew = TestFunctions::banana(x1), no_update = TRUE)
 print(gp$pred(x1,se=T)$s2) # 0.1749093
@@ -40,6 +41,9 @@ print(microbenchmark::microbenchmark({gp$pred_var_after_adding_points(add_points
 # pv1 <- profvis::profvis(gp$pred_var_after_adding_points(add_points = x5, pred_points = x6))
 # pv1 <- profvis::profvis(replicate(100,gp$pred_var_after_adding_points(add_points = x5, pred_points = x6)))
 
+# Time
+print(microbenchmark::microbenchmark({gp$pred_var_reduction(add_point = x5[1,], pred_points = x6)}, times=100))
+# pv1 <- profvis::profvis(replicate(100,gp$pred_var_reduction(add_point = x5[1,], pred_points = x6)))
 
 print(microbenchmark::microbenchmark({
   gp$update(Xnew = x5, Znew = TestFunctions::banana(x5), no_update = TRUE)
