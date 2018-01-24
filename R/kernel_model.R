@@ -382,12 +382,22 @@ GauPro_kernel_model <- R6::R6Class(
 
           # Assume single point cov is s2(1+nug)
           # C_a <- self$s2_hat * (1 + self$nug)
-          pred_var_a_func <- function(a) {
-            C_Xa <- self$kernel$k(self$X, a) # length n vector, not matrix
-            C_Sa <- self$kernel$k(add_point, a)
-            (sum(C_Xa * C_X_inv_C_XS) - C_Sa) ^ 2 * G
+          # pred_var_a_func <- function(a) {
+          #   C_Xa <- self$kernel$k(self$X, a) # length n vector, not matrix
+          #   C_Sa <- self$kernel$k(add_point, a)
+          #   (sum(C_Xa * C_X_inv_C_XS) - C_Sa) ^ 2 * G
+          # }
+          if (is.matrix(pred_points)) {
+          #   if (method1) { # Slow way
+          #     prds <- apply(pred_points, 1, pred_var_a_func)
+          #   } else {
+            # Speeding it up by getting all at once instead of by row
+              C_aX <- self$kernel$k(pred_points, self$X) # length n vector, not matrix
+              C_aS <- self$kernel$k(pred_points, add_point)
+              # (sum(C_Xa * C_X_inv_C_XS) - C_Sa) ^ 2 * G
+              prds <- (c(C_aX %*% C_X_inv_C_XS) - C_aS) ^ 2 * G
+            # }
           }
-          if (is.matrix(pred_points)) {prds <- apply(pred_points, 1, pred_var_a_func)}
           else {prds <- pred_var_a_func(pred_points)}
           prds
         },
