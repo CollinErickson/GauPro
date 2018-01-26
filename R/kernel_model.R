@@ -1082,6 +1082,8 @@ GauPro_kernel_model <- R6::R6Class(
           # out <- c(sapply(dC_dparams[[1]],gradfunc), gradfunc(dC_dparams[[2]]))
           # gr <- sapply(dC_dparams,gradfunc)
           if (kernel_update) {
+            # Using apply() is 5x faster than Cpp code I wrote to do same thing
+            #  Speed up by saving Cinv above to reduce number of solves
             kernel_gr <- apply(dC_dparams, 1, gradfunc)
             gr <- c(gr, kernel_gr)
           }
