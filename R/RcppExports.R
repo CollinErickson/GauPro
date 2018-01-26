@@ -28,6 +28,19 @@ corr_exponential_matrixvecC <- function(x, y, theta) {
     .Call(`_GauPro_corr_exponential_matrixvecC`, x, y, theta)
 }
 
+#' Correlation Gaussian matrix gradient in C using Armadillo
+#' @param XX Matrix XX to get gradient for
+#' @param X Matrix X GP was fit to
+#' @param theta Theta vector
+#' @param s2 Variance parameter
+#' @return 3-dim array of correlation derivative
+#' @examples
+#' # corr_gauss_dCdX(matrix(c(1,0,0,1),2,2),c(1,1))
+#' @export
+corr_gauss_dCdX <- function(XX, X, theta, s2) {
+    .Call(`_GauPro_corr_gauss_dCdX`, XX, X, theta, s2)
+}
+
 corr_gauss_matrixC <- function(x, y, theta) {
     .Call(`_GauPro_corr_gauss_matrixC`, x, y, theta)
 }

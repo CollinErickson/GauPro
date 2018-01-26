@@ -42,6 +42,7 @@ extern SEXP _GauPro_corr_matern52_matrix_symC(SEXP, SEXP);
 extern SEXP _GauPro_corr_matern52_matrixC(SEXP, SEXP, SEXP);
 extern SEXP _GauPro_corr_matern52_matrixvecC(SEXP, SEXP, SEXP);
 extern SEXP _GauPro_kernel_gauss_dC(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP _GauPro_corr_gauss_dCdX(SEXP, SEXP, SEXP, SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
   {"_GauPro_cholC",                       (DL_FUNC) &_GauPro_cholC,                       1},
@@ -76,6 +77,7 @@ static const R_CallMethodDef CallEntries[] = {
   {"_GauPro_corr_matern52_matrixC",          (DL_FUNC) &_GauPro_corr_matern52_matrixC,          3},
   {"_GauPro_corr_matern52_matrixvecC",       (DL_FUNC) &_GauPro_corr_matern52_matrixvecC,       3},
   {"_GauPro_kernel_gauss_dC",       (DL_FUNC) &_GauPro_kernel_gauss_dC,       7},
+  {"_GauPro_corr_gauss_dCdX",             (DL_FUNC) &_GauPro_corr_gauss_dCdX,       4},
   {NULL, NULL, 0}
 };
 

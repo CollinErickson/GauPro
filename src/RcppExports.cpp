@@ -67,6 +67,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// corr_gauss_dCdX
+arma::cube corr_gauss_dCdX(arma::mat XX, arma::mat X, arma::vec theta, double s2);
+RcppExport SEXP _GauPro_corr_gauss_dCdX(SEXP XXSEXP, SEXP XSEXP, SEXP thetaSEXP, SEXP s2SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type XX(XXSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< double >::type s2(s2SEXP);
+    rcpp_result_gen = Rcpp::wrap(corr_gauss_dCdX(XX, X, theta, s2));
+    return rcpp_result_gen;
+END_RCPP
+}
 // corr_gauss_matrixC
 NumericMatrix corr_gauss_matrixC(NumericMatrix x, NumericMatrix y, NumericVector theta);
 RcppExport SEXP _GauPro_corr_gauss_matrixC(SEXP xSEXP, SEXP ySEXP, SEXP thetaSEXP) {
