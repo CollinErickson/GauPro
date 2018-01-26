@@ -209,22 +209,29 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
       # mats <- c(dC_dbetas, list(dC_dlogs2))
       return(list(C = C, dC_dparams))
     },
-    dC_dx = function(XX, X, theta, beta=self$beta, s2=self$s2) {#browser()
+    # dC_dx = function(XX, X, theta, beta=self$beta, s2=self$s2) {#browser()
+    #   if (missing(theta)) {theta <- 10^beta}
+    #   if (!is.matrix(XX)) {stop("XX must be matrix")}
+    #   d <- ncol(XX)
+    #   if (ncol(X) != d) {stop("XX and X must have same number")}
+    #   n <- nrow(X)
+    #   nn <- nrow(XX)
+    #   dC_dx <- array(NA, dim=c(nn, d, n))
+    #   for (i in 1:nn) {
+    #     for (j in 1:d) {
+    #       for (k in 1:n) {
+    #         dC_dx[i, j, k] <- -2 * theta[j] * (XX[i, j] - X[k, j]) * s2 * exp(-sum(theta * (XX[i,] - X[k,]) ^ 2))
+    #       }
+    #     }
+    #   }
+    #   dC_dx
+    # },
+    # Below is updated version using arma, was called dC_dx_arma before
+    dC_dx = function(XX, X, theta, beta=self$beta, s2=self$s2) {
       if (missing(theta)) {theta <- 10^beta}
-      if (!is.matrix(XX)) {stop()}
-      d <- ncol(XX)
-      if (ncol(X) != d) {stop()}
-      n <- nrow(X)
-      nn <- nrow(XX)
-      dC_dx <- array(NA, dim=c(nn, d, n))
-      for (i in 1:nn) {
-        for (j in 1:d) {
-          for (k in 1:n) {
-            dC_dx[i, j, k] <- -2 * theta[j] * (XX[i, j] - X[k, j]) * s2 * exp(-sum(theta * (XX[i,] - X[k,]) ^ 2))
-          }
-        }
-      }
-      dC_dx
+      if (!is.matrix(XX)) {stop("XX must be matrix")}
+      if (ncol(X) != ncol(XX)) {stop("XX and X must have same number")}
+      corr_gauss_dCdX(XX, X, theta, s2)
     },
     d2C_dx2 = function(XX, X, theta, beta=self$beta, s2=self$s2) {#browser()
       if (missing(theta)) {theta <- 10^beta}
