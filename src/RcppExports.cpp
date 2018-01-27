@@ -380,6 +380,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// gradfuncarray
+arma::vec gradfuncarray(arma::cube dC_dparams, arma::mat Cinv, arma::vec Cinv_yminusmu);
+RcppExport SEXP _GauPro_gradfuncarray(SEXP dC_dparamsSEXP, SEXP CinvSEXP, SEXP Cinv_yminusmuSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::cube >::type dC_dparams(dC_dparamsSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Cinv(CinvSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type Cinv_yminusmu(Cinv_yminusmuSEXP);
+    rcpp_result_gen = Rcpp::wrap(gradfuncarray(dC_dparams, Cinv, Cinv_yminusmu));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rcpp_hello_world
 List rcpp_hello_world();
 RcppExport SEXP _GauPro_rcpp_hello_world() {

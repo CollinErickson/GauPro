@@ -189,6 +189,20 @@ Gaussian_hessianCC <- function(XX, X, Z, Kinv, mu_hat, theta) {
     .Call(`_GauPro_Gaussian_hessianCC`, XX, X, Z, Kinv, mu_hat, theta)
 }
 
+#' Calculate gradfunc in optimization to speed up.
+#' NEEDS TO APERM dC_dparams
+#' Doesn't need to be exported, should only be useful in functions.
+#' @param dC_dparams Derivative matrix for covariance function wrt kernel parameters
+#' @param C Covariance matrix
+#' @param Cinv_yminusmu Vector that is the inverse of C times y minus the mean.
+#' @return Vector, one value for each parameter
+#' @examples
+#' # corr_gauss_dCdX(matrix(c(1,0,0,1),2,2),c(1,1))
+#' @export
+gradfuncarray <- function(dC_dparams, Cinv, Cinv_yminusmu) {
+    .Call(`_GauPro_gradfuncarray`, dC_dparams, Cinv, Cinv_yminusmu)
+}
+
 rcpp_hello_world <- function() {
     .Call(`_GauPro_rcpp_hello_world`)
 }
