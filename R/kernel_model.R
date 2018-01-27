@@ -1060,13 +1060,16 @@ GauPro_kernel_model <- R6::R6Class(
           # yminusmu <- self$Z - self$mu_hat
           yminusmu <- self$Z - Z_hat
           s2_from_kernel <- self$kernel$s2_from_params(params=params)
-          solve.try <- try(Cinv_yminusmu <- solve(C, yminusmu))
+          Cinv <- chol2inv(chol(C))
+          # solve.try <- try(Cinv_yminusmu <- solve(C, yminusmu))
+          solve.try <- try(Cinv_yminusmu <- Cinv %*% yminusmu)
           if (inherits(solve.try, "try-error")) { if (self$verbose>=2) {print("Deviance grad error #63466, returning Inf")};  return(Inf)}
 
           gr <- c()
           if (length(dZ_dparams) > 0 && trend_update) {
             trend_gradfunc <- function(di) {
-              -2 * t(yminusmu) %*% solve(C, di) # Siginv %*% du/db
+              # -2 * t(yminusmu) %*% solve(C, di) # Siginv %*% du/db
+              -2 * t(yminusmu) %*% (Cinv %*% di) # Siginv %*% du/db
             }
             trend_gr <- apply(dZ_dparams, 2, trend_gradfunc)
             gr <- trend_gr
@@ -1075,7 +1078,9 @@ GauPro_kernel_model <- R6::R6Class(
           }
 
           gradfunc <- function(di) {
-            t1 <- sum(diag(solve(C, di)))
+            # t1 <- sum(diag(solve(C, di))) # Waste to keep resolving
+            # t1 <- sum(diag((Cinv %*% di))) # Don't need whole mat mul
+            t1 <- sum(Cinv * t(di))
             t2 <- sum(Cinv_yminusmu * (di %*% Cinv_yminusmu))
             t1 - t2
           }
@@ -1084,7 +1089,8 @@ GauPro_kernel_model <- R6::R6Class(
           if (kernel_update) {
             # Using apply() is 5x faster than Cpp code I wrote to do same thing
             #  Speed up by saving Cinv above to reduce number of solves
-            kernel_gr <- apply(dC_dparams, 1, gradfunc)
+            # kernel_gr <- apply(dC_dparams, 1, gradfunc) # 6x faster below
+            kernel_gr <- gradfuncarray(dC_dparams, Cinv, Cinv_yminusmu)
             gr <- c(gr, kernel_gr)
           }
           if (nug.update) {
@@ -1097,7 +1103,8 @@ GauPro_kernel_model <- R6::R6Class(
           if (is.nan(logdetC)) {
             dev <- Inf #return(Inf)
           } else {
-            dev.try <- try(dev <- logdetC + sum((yminusmu) * solve(C, yminusmu)))
+            # dev.try <- try(dev <- logdetC + sum((yminusmu) * solve(C, yminusmu)))
+            dev.try <- try(dev <- logdetC + sum((yminusmu) * Cinv_yminusmu))
             if (inherits(dev.try, "try-error")) {
               if (self$verbose>=2) {
                 print("Deviance error #87126, returning Inf")
