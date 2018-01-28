@@ -11,9 +11,9 @@ gradfuncarray(dC_dparams, Cinv, Cinv_yminusmu)
 \arguments{
 \item{dC_dparams}{Derivative matrix for covariance function wrt kernel parameters}
 
-\item{Cinv_yminusmu}{Vector that is the inverse of C times y minus the mean.}
+\item{Cinv}{Inverse of covariance matrix}
 
-\item{C}{Covariance matrix}
+\item{Cinv_yminusmu}{Vector that is the inverse of C times y minus the mean.}
 }
 \value{
 Vector, one value for each parameter

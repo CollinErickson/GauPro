@@ -193,7 +193,7 @@ Gaussian_hessianCC <- function(XX, X, Z, Kinv, mu_hat, theta) {
 #' NEEDS TO APERM dC_dparams
 #' Doesn't need to be exported, should only be useful in functions.
 #' @param dC_dparams Derivative matrix for covariance function wrt kernel parameters
-#' @param C Covariance matrix
+#' @param Cinv Inverse of covariance matrix
 #' @param Cinv_yminusmu Vector that is the inverse of C times y minus the mean.
 #' @return Vector, one value for each parameter
 #' @examples
