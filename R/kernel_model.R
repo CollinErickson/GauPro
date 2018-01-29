@@ -666,7 +666,9 @@ GauPro_kernel_model <- R6::R6Class(
           # mat <- matrix(0, nrow=restarts, ncol=l)
           # mat[1,] <- self$param_optim_start0(nug.update=nug.update)
         },
-        optim = function (restarts = 5, param_update = T, nug.update = self$nug.est, parallel=self$parallel, parallel_cores=self$parallel_cores) {
+        optim = function (restarts = 5, param_update = T,
+                          nug.update = self$nug.est, parallel=self$parallel,
+                          parallel_cores=self$parallel_cores) {
           # Does parallel
           # Joint MLE search with L-BFGS-B, with restarts
           #if (param_update & nug.update) {
@@ -684,7 +686,9 @@ GauPro_kernel_model <- R6::R6Class(
           #} else {
           #  stop("Can't optimize over no variables")
           #}
-          optim_functions <- self$get_optim_functions(param_update=param_update, nug.update=nug.update)
+          optim_functions <- self$get_optim_functions(
+                                    param_update=param_update,
+                                    nug.update=nug.update)
           #optim.func <- self$get_optim_func(param_update=param_update, nug.update=nug.update)
           #optim.grad <- self$get_optim_grad(param_update=param_update, nug.update=nug.update)
           #optim.fngr <- self$get_optim_fngr(param_update=param_update, nug.update=nug.update)
@@ -740,17 +744,48 @@ GauPro_kernel_model <- R6::R6Class(
           # best <- list(par=start.par, value = devlog)
           best <- list(par=param_optim_start_mat[,1], value = devlog)
           if (self$verbose >= 2) {cat("Optimizing\n");cat("\tInitial values:\n");print(best)}
-          #details <- data.frame(start=paste(c(self$theta_short,self$nug),collapse=","),end=NA,value=best$value,func_evals=1,grad_evals=NA,convergence=NA, message=NA, stringsAsFactors=F)
-          details <- data.frame(start=paste(param_optim_start_mat[,1],collapse=","),end=NA,value=best$value,func_evals=1,grad_evals=NA,convergence=NA, message=NA, stringsAsFactors=F)
+          #details <- data.frame(start=paste(c(self$theta_short,self$nug),
+          #   collapse=","),end=NA,value=best$value,func_evals=1,
+          #   grad_evals=NA,convergence=NA, message=NA, stringsAsFactors=F)
+          details <- data.frame(
+            start=paste(param_optim_start_mat[,1],collapse=","),end=NA,
+            value=best$value,func_evals=1,grad_evals=NA,convergence=NA,
+            message=NA, stringsAsFactors=F
+          )
 
 
           # runs them in parallel, first starts from current, rest are jittered or random
           sys_name <- Sys.info()["sysname"]
           if (sys_name == "Windows" | !self$parallel) {
             # Trying this so it works on Windows
-            restarts.out <- lapply( 1:(1+restarts), function(i){self$optimRestart(start.par=start.par, start.par0=start.par0, param_update=param_update, nug.update=nug.update, optim.func=optim.func, optim.grad=optim.grad, optim.fngr=optim.fngr, lower=lower, upper=upper, jit=(i!=1), start.par.i=param_optim_start_mat[,i])})#, mc.cores = parallel_cores)
+            restarts.out <- lapply( 1:(1+restarts),
+                              function(i){
+                                self$optimRestart(start.par=start.par,
+                                      start.par0=start.par0,
+                                      param_update=param_update,
+                                      nug.update=nug.update,
+                                      optim.func=optim.func,
+                                      optim.grad=optim.grad,
+                                      optim.fngr=optim.fngr,
+                                      lower=lower, upper=upper,
+                                      jit=(i!=1),
+                                      start.par.i=param_optim_start_mat[,i])})
+                                      #, mc.cores = parallel_cores)
           } else { # Mac/Unix
-            restarts.out <- parallel::mclapply(1:(1+restarts), function(i){self$optimRestart(start.par=start.par, start.par0=start.par0, param_update=param_update, nug.update=nug.update, optim.func=optim.func, optim.grad=optim.grad, optim.fngr=optim.fngr,lower=lower, upper=upper, jit=(i!=1))}, start.par.i=param_optim_start_mat[,i], mc.cores = parallel_cores)
+            restarts.out <- parallel::mclapply(1:(1+restarts),
+                               function(i){
+                                 self$optimRestart(start.par=start.par,
+                                                   start.par0=start.par0,
+                                                   param_update=param_update,
+                                                   nug.update=nug.update,
+                                                   optim.func=optim.func,
+                                                   optim.grad=optim.grad,
+                                                   optim.fngr=optim.fngr,
+                                                   lower=lower,
+                                                   upper=upper,
+                                                   jit=(i!=1))},
+                               start.par.i=param_optim_start_mat[,i],
+                               mc.cores = parallel_cores)
           }
           new.details <- t(sapply(restarts.out,function(dd){dd$deta}))
           vals <- sapply(restarts.out,
@@ -760,7 +795,10 @@ GauPro_kernel_model <- R6::R6Class(
                          }
           )
           bestparallel <- which.min(vals) #which.min(new.details$value)
-          if(inherits(try(restarts.out[[bestparallel]]$current$val, silent = T), "try-error")) { # need this in case all are restart vals are Inf
+          if(inherits(
+                try(restarts.out[[bestparallel]]$current$val, silent = T),
+                "try-error")
+             ) { # need this in case all are restart vals are Inf
             print("All restarts had error, keeping initial")
           } else if (restarts.out[[bestparallel]]$current$val < best$val) {
             best <- restarts.out[[bestparallel]]$current
@@ -775,7 +813,10 @@ GauPro_kernel_model <- R6::R6Class(
           if (nug.update) best$par[length(best$par)] <- 10 ^ (best$par[length(best$par)])
           best
         },
-        optimRestart = function (start.par, start.par0, param_update, nug.update, optim.func, optim.grad, optim.fngr, lower, upper, jit=T, start.par.i) {
+        optimRestart = function (start.par, start.par0, param_update,
+                                 nug.update, optim.func, optim.grad,
+                                 optim.fngr, lower, upper, jit=T,
+                                 start.par.i) {
           #
           # FOR lognug RIGHT NOW, seems to be at least as fast, up to 5x on big data, many fewer func_evals
           #    still want to check if it is better or not
@@ -787,10 +828,17 @@ GauPro_kernel_model <- R6::R6Class(
           #   start.par.i <- start.par
           # }
           # if (FALSE) {#jit) {
-          #   #if (param_update) {start.par.i[1:self$theta_length] <- start.par.i[1:self$theta_length] + rnorm(self$theta_length,0,2)} # jitter betas
+          #   #if (param_update) {start.par.i[1:self$theta_length] <-
+          #        start.par.i[1:self$theta_length] +
+          #        rnorm(self$theta_length,0,2)} # jitter betas
           #   theta_indices <- 1:length(self$param_optim_start()) #if () -length(start.par.i)
-          #   if (param_update) {start.par.i[theta_indices] <- start.par.i[theta_indices] + self$param_optim_jitter(start.par.i[theta_indices])} # jitter betas
-          #   if (nug.update) {start.par.i[length(start.par.i)] <- start.par.i[length(start.par.i)] + min(4, rexp(1,1))} # jitter nugget
+          #   if (param_update) {start.par.i[theta_indices] <-
+          #        start.par.i[theta_indices] +
+          #        self$param_optim_jitter(start.par.i[theta_indices])}
+          #        # jitter betas
+          #   if (nug.update) {start.par.i[length(start.par.i)] <-
+          #        start.par.i[length(start.par.i)] + min(4, rexp(1,1))}
+          #        # jitter nugget
           # }
 
           # if (runif(1) < .33) { # Start at 0 params
@@ -839,7 +887,10 @@ GauPro_kernel_model <- R6::R6Class(
               message=current$message, row.names = NULL, stringsAsFactors=F
               )
           } else{
-            details.new <- data.frame(start=paste(signif(start.par.i,3),collapse=","),end="try-error",value=NA,func_evals=NA,grad_evals=NA,convergence=NA, message=current[1], stringsAsFactors=F)
+            details.new <- data.frame(
+              start=paste(signif(start.par.i,3),collapse=","),
+              end="try-error",value=NA,func_evals=NA,grad_evals=NA,
+              convergence=NA, message=current[1], stringsAsFactors=F)
           }
           list(current=current, details=details.new)
         },
@@ -981,11 +1032,17 @@ GauPro_kernel_model <- R6::R6Class(
           if (!missing(nuglog) && !is.null(nuglog)) {
             nug <- 10^nuglog
           }
-          if (any(is.nan(params), is.nan(nug))) {if (self$verbose>=2) {print("In deviance_grad, returning NaN #92387")};return(rep(NaN, length(params)+as.integer(isTRUE(nug.update))))}
+          if (any(is.nan(params), is.nan(nug))) {
+            if (self$verbose>=2) {
+              print("In deviance_grad, returning NaN #92387")
+            };
+            return(rep(NaN, length(params)+as.integer(isTRUE(nug.update))))
+          }
           C_nonug <- self$kernel$k(x=X, params=params)
           s2_from_kernel <- self$kernel$s2_from_params(params=params)
           C <- C_nonug + s2_from_kernel * diag(nug, self$N)
-          dC_dparams_out <- self$kernel$dC_dparams(params=params, X=X, C=C, C_nonug=C_nonug, nug=nug)
+          dC_dparams_out <- self$kernel$dC_dparams(params=params, X=X, C=C,
+                                                   C_nonug=C_nonug, nug=nug)
           dC_dparams <- dC_dparams_out#[[1]] # First of list should be list of dC_dparams
           # s2_from_kernel <- dC_dparams_out[[2]] # Second should be s2 for nugget deriv
           Z_hat <- self$trend$Z(X=X, params=trend_params)
@@ -993,7 +1050,12 @@ GauPro_kernel_model <- R6::R6Class(
           # yminusmu <- self$Z - self$mu_hat
           yminusmu <- self$Z - Z_hat
           solve.try <- try(Cinv_yminusmu <- solve(C, yminusmu))
-          if (inherits(solve.try, "try-error")) { if (self$verbose>=2) {print("Deviance grad error #63466, returning Inf")};  return(Inf)}
+          if (inherits(solve.try, "try-error")) {
+            if (self$verbose>=2) {
+              print("Deviance grad error #63466, returning Inf")
+            }
+            return(Inf)
+          }
 
 
           out <- c()
@@ -1034,7 +1096,12 @@ GauPro_kernel_model <- R6::R6Class(
           if (!missing(nuglog) && !is.null(nuglog)) {
             nug <- 10^nuglog
           }
-          if (any(is.nan(params), is.nan(nug))) {if (self$verbose>=2) {print("In deviance_grad, returning NaN #92387")};return(rep(NaN, length(params)+as.integer(isTRUE(nug.update))))}
+          if (any(is.nan(params), is.nan(nug))) {
+            if (self$verbose>=2) {
+              print("In deviance_grad, returning NaN #92387")
+            };
+            return(rep(NaN, length(params)+as.integer(isTRUE(nug.update))))
+          }
           # C_nonug <- self$kernel$k(x=X, params=params)
           # C <- C_nonug + s2_from_kernel * diag(nug, self$N)
 
@@ -1059,7 +1126,12 @@ GauPro_kernel_model <- R6::R6Class(
           Cinv <- chol2inv(chol(C))
           # solve.try <- try(Cinv_yminusmu <- solve(C, yminusmu))
           solve.try <- try(Cinv_yminusmu <- Cinv %*% yminusmu)
-          if (inherits(solve.try, "try-error")) { if (self$verbose>=2) {print("Deviance grad error #63466, returning Inf")};  return(Inf)}
+          if (inherits(solve.try, "try-error")) {
+            if (self$verbose>=2) {
+              print("Deviance grad error #63466, returning Inf")
+            }
+            return(Inf)
+          }
 
           gr <- c()
           if (length(dZ_dparams) > 0 && trend_update) {
