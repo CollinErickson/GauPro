@@ -64,6 +64,7 @@ y <- TestFunctions::banana(x)
 gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian, nug=1e-8, nug.est = F)
 xx <- matrix(runif(2e5),ncol=2)
 x1 <- matrix(c(.3,.4), ncol=2)
+gp$pred_var_after_adding_points(add_points = x1, pred_points = xx)
 pv5 <- profvis::profvis(gp$pred_var_after_adding_points(add_points = x1, pred_points = xx))
 
 # Had made 3 different methods, deleted 2 slowest, kept fastest
@@ -73,3 +74,14 @@ system.time(t1 <- gp$pred_var_after_adding_points(add_points = x1, pred_points =
 #system.time(t2 <- gp$pred_var_after_adding_points(add_points = x1, pred_points = xx))
 #method1 <- 3
 #system.time(t3 <- gp$pred_var_after_adding_points(add_points = x1, pred_points = xx))
+
+# Check matrix vec
+x2 <- c(.33,.43)
+gp$pred_var_after_adding_points(add_points = x2, pred_points = xx)
+gp$pred_var_after_adding_points(add_points = x2, pred_points = c(.5,.6))
+
+gp$pred_var_reduction(add_point = x2, pred_points = x1)
+gp$pred_var_reduction(add_point = x2, pred_points = c(.5,.6))
+gp$pred_var_reduction(add_point = x2, pred_points = matrix(c(.5,.6), ncol=2))
+gp$pred_var_reduction(add_point = x2, pred_points = xx)
+apply(xx, 1, function(xi)gp$pred_var_reduction(add_point = x2, pred_points = xi))

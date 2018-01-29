@@ -383,7 +383,7 @@ GauPro_kernel_model <- R6::R6Class(
           #   C_Sa <- self$kernel$k(add_point, a)
           #   (sum(C_Xa * C_X_inv_C_XS) - C_Sa) ^ 2 * G
           # }
-          if (is.matrix(pred_points)) {
+          # if (is.matrix(pred_points)) {
           #   if (method1) { # Slow way
           #     prds <- apply(pred_points, 1, pred_var_a_func)
           #   } else {
@@ -393,8 +393,8 @@ GauPro_kernel_model <- R6::R6Class(
               # (sum(C_Xa * C_X_inv_C_XS) - C_Sa) ^ 2 * G
               prds <- (c(C_aX %*% C_X_inv_C_XS) - C_aS) ^ 2 * G
             # }
-          }
-          else {prds <- pred_var_a_func(pred_points)}
+          # }
+          # else {prds <- pred_var_a_func(pred_points)}
           prds
         },
         cool1Dplot = function (n2=20, nn=201, col2="gray",
