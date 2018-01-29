@@ -355,18 +355,14 @@ GauPro_kernel_model <- R6::R6Class(
           FF <- - C_X_inv_C_XS %*% G
           E <- self$Kinv - C_X_inv_C_XS %*% t(FF)
 
+          # Speed this up a lot by avoiding apply and doing all at once
           # Assume single point cov is s2(1+nug)
           C_a <- self$s2_hat * (1 + self$nug)
-          pred_var_a_func <- function(a) {
-            C_Xa <- self$kernel$k(self$X, a) # length n vector, not matrix
-            C_Sa <- self$kernel$k(add_points, a)
-            # C_a - (C_aX %*% E %*% t(C_aX) + 2 * C_aX %*% FF %*% C_Sa + t(C_Sa) %*% G %*% C_Sa)
-            # C_a - (sum(C_Xa * (E %*% C_Xa)) + 2 * sum(C_Xa * (FF %*% C_Sa)) + t(C_Sa) %*% G %*% C_Sa)
-            C_a - (sum(C_Xa * (E %*% C_Xa)) + 2 * sum(C_Xa * (FF %*% C_Sa)) + sum(C_Sa * (G %*% C_Sa)))
-          }
-          if (is.matrix(pred_points)) {prds <- apply(pred_points, 1, pred_var_a_func)}
-          else {prds <- pred_var_a_func(pred_points)}
-          prds
+          C_Xa <- self$kernel$k(self$X, pred_points) # length n vector, not matrix
+          C_Sa <- self$kernel$k(add_points, pred_points)
+          C_a - (colSums(C_Xa * (E %*% C_Xa)) +
+                   2 * colSums(C_Xa * (FF %*% C_Sa)) +
+                   colSums(C_Sa * (G %*% C_Sa)))
         },
         pred_var_reduction = function(add_point, pred_points) {
           # Calculate pred_var at pred_points after add_point

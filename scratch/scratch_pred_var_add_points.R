@@ -50,3 +50,26 @@ print(microbenchmark::microbenchmark({
   (gp$pred(x6,se=T)$s2)
 }, times=1))
 print((gp$pred(x6,se=T)$s2))
+
+
+
+
+
+
+
+set.seed(0)
+n <- 30
+x <- lhs::maximinLHS(n=n, k=2)
+y <- TestFunctions::banana(x)
+gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian, nug=1e-8, nug.est = F)
+xx <- matrix(runif(2e5),ncol=2)
+x1 <- matrix(c(.3,.4), ncol=2)
+pv5 <- profvis::profvis(gp$pred_var_after_adding_points(add_points = x1, pred_points = xx))
+
+# Had made 3 different methods, deleted 2 slowest, kept fastest
+#method1 <- 1
+system.time(t1 <- gp$pred_var_after_adding_points(add_points = x1, pred_points = xx))
+#method1 <- 2
+#system.time(t2 <- gp$pred_var_after_adding_points(add_points = x1, pred_points = xx))
+#method1 <- 3
+#system.time(t3 <- gp$pred_var_after_adding_points(add_points = x1, pred_points = xx))
