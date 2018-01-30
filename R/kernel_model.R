@@ -167,10 +167,10 @@ GauPro_kernel_model <- R6::R6Class(
           # self$s2_hat <- c(t(self$Z - self$mu_hat) %*% self$Kinv %*% (self$Z - self$mu_hat) / self$N)
           self$s2_hat <- self$kernel$s2
         },
-        predict = function(XX, se.fit=F, covmat=F, split_speed=T) {
+        predict = function(XX, se.fit=F, covmat=F, split_speed=F) {
           self$pred(XX=XX, se.fit=se.fit, covmat=covmat, split_speed=split_speed)
         },
-        pred = function(XX, se.fit=F, covmat=F, split_speed=T) {
+        pred = function(XX, se.fit=F, covmat=F, split_speed=F) {
           if (!is.matrix(XX)) {
             if (self$D == 1) XX <- matrix(XX, ncol=1)
             else if (length(XX) == self$D) XX <- matrix(XX, nrow=1)
