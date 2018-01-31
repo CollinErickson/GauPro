@@ -41,6 +41,13 @@ corr_gauss_dCdX <- function(XX, X, theta, s2) {
     .Call(`_GauPro_corr_gauss_dCdX`, XX, X, theta, s2)
 }
 
+#' Correlation Gaussian matrix in C using Rcpp
+#' @param x Matrix x
+#' @param theta Theta vector
+#' @return Correlation matrix
+#' @examples
+#' corr_gauss_matrixC(matrix(c(1,0,0,1),2,2), matrix(c(1,0,1,1),2,2), c(1,1))
+#' @export
 corr_gauss_matrixC <- function(x, y, theta) {
     .Call(`_GauPro_corr_gauss_matrixC`, x, y, theta)
 }
@@ -61,14 +68,44 @@ corr_gauss_matrixvecC <- function(x, y, theta) {
 }
 
 #' Correlation Gaussian matrix in C using Armadillo (symmetric)
+#'
+#' About 30% faster than Rcpp version.
 #' @param x Matrix x
 #' @param theta Theta vector
 #' @return Correlation matrix
 #' @examples
 #' corr_gauss_matrix_sym_armaC(matrix(c(1,0,0,1),2,2),c(1,1))
+#'
+#' x3 <- matrix(runif(1e3*6), ncol=6)
+#' t3 <- corr_gauss_matrix_symC(x3, th)
+#' t4 <- corr_gauss_matrix_sym_armaC(x3, th)
+#' identical(t3, t4)
+#' # microbenchmark::microbenchmark(corr_gauss_matrix_symC(x3, th), corr_gauss_matrix_sym_armaC(x3, th), times=50)
 #' @export
 corr_gauss_matrix_sym_armaC <- function(x, theta) {
     .Call(`_GauPro_corr_gauss_matrix_sym_armaC`, x, theta)
+}
+
+#' Correlation Gaussian matrix in C using Armadillo
+#'
+#' 20-25% faster than Rcpp version.
+#' @param x Matrix x
+#' @param y Matrix y, must have same number of columns as x
+#' @param theta Theta vector
+#' @return Correlation matrix
+#' @examples
+#' corr_gauss_matrix_armaC(matrix(c(1,0,0,1),2,2),c(1,1))
+#'
+#' x1 <- matrix(runif(100*6), nrow=100, ncol=6)
+#' x2 <- matrix(runif(1e4*6), ncol=6)
+#' th <- c(.3,3.3)
+#' t1 <- corr_gauss_matrixC(x1, x2, th)
+#' t2 <- corr_gauss_matrix_armaC(x1, x2, th)
+#' identical(t1, t2)
+#' # microbenchmark::microbenchmark(corr_gauss_matrixC(x1, x2, th), corr_gauss_matrix_armaC(x1, x2, th))
+#' @export
+corr_gauss_matrix_armaC <- function(x, y, theta, s2 = 1.0) {
+    .Call(`_GauPro_corr_gauss_matrix_armaC`, x, y, theta, s2)
 }
 
 #' Correlation Gaussian matrix in C (symmetric)

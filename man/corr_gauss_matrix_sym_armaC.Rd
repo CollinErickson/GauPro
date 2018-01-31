@@ -15,8 +15,14 @@ corr_gauss_matrix_sym_armaC(x, theta)
 Correlation matrix
 }
 \description{
-Correlation Gaussian matrix in C using Armadillo (symmetric)
+About 30% faster than Rcpp version.
 }
 \examples{
 corr_gauss_matrix_sym_armaC(matrix(c(1,0,0,1),2,2),c(1,1))
+
+x3 <- matrix(runif(1e3*6), ncol=6)
+t3 <- corr_gauss_matrix_symC(x3, th)
+t4 <- corr_gauss_matrix_sym_armaC(x3, th)
+identical(t3, t4)
+# microbenchmark::microbenchmark(corr_gauss_matrix_symC(x3, th), corr_gauss_matrix_sym_armaC(x3, th), times=50)
 }

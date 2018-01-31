@@ -13,6 +13,13 @@ using namespace Rcpp;
 //   http://gallery.rcpp.org/
 //
 
+//' Correlation Gaussian matrix in C using Rcpp
+//' @param x Matrix x
+//' @param theta Theta vector
+//' @return Correlation matrix
+//' @examples
+//' corr_gauss_matrixC(matrix(c(1,0,0,1),2,2), matrix(c(1,0,1,1),2,2), c(1,1))
+//' @export
 // [[Rcpp::export]]
 NumericMatrix corr_gauss_matrixC(NumericMatrix x, NumericMatrix y, NumericVector theta) {
   int nrow = x.nrow(), ncol = y.nrow();
@@ -24,7 +31,7 @@ NumericMatrix corr_gauss_matrixC(NumericMatrix x, NumericMatrix y, NumericVector
 
       double total = 0;
       for(int k = 0; k < nsum; ++k) {
-        total += theta[k] * pow((x(i,k) - y(j,k)), 2.0);
+        total += theta[k] * pow((x(i,k) - y(j,k)), 2);
       }
       total = exp(-total);
 
@@ -33,6 +40,7 @@ NumericMatrix corr_gauss_matrixC(NumericMatrix x, NumericMatrix y, NumericVector
   }
   return out;
 }
+
 
 //' Correlation Gaussian matrix in C (symmetric)
 //' @param x Matrix x
@@ -52,7 +60,7 @@ NumericMatrix corr_gauss_matrix_symC(NumericMatrix x, NumericVector theta) {
 
       double total = 0;
       for(int k = 0; k < nsum; ++k) {
-        total += theta[k] * pow((x(i,k) - x(j,k)), 2.0);
+        total += theta[k] * pow((x(i,k) - x(j,k)), 2);
       }
       total = exp(-total);
 
@@ -78,7 +86,7 @@ NumericVector corr_gauss_matrixvecC(NumericMatrix x, NumericVector y, NumericVec
   for (int i = 0; i < nrow; i++) {
     double total = 0;
     for(int k = 0; k < nsum; ++k) {
-      total += theta[k] * pow((x(i,k) - y(k)), 2.0);
+      total += theta[k] * pow((x(i,k) - y(k)), 2);
     }
     total = exp(-total);
 
@@ -90,11 +98,20 @@ NumericVector corr_gauss_matrixvecC(NumericMatrix x, NumericVector y, NumericVec
 
 
 //' Correlation Gaussian matrix in C using Armadillo (symmetric)
+//'
+//' About 30% faster than Rcpp version.
 //' @param x Matrix x
 //' @param theta Theta vector
 //' @return Correlation matrix
 //' @examples
 //' corr_gauss_matrix_sym_armaC(matrix(c(1,0,0,1),2,2),c(1,1))
+//'
+//' x3 <- matrix(runif(1e3*6), ncol=6)
+//' t3 <- corr_gauss_matrix_symC(x3, th)
+//' t4 <- corr_gauss_matrix_sym_armaC(x3, th)
+//' identical(t3, t4)
+//' # microbenchmark::microbenchmark(corr_gauss_matrix_symC(x3, th),
+//' #                     corr_gauss_matrix_sym_armaC(x3, th), times=50)
 //' @export
 // [[Rcpp::export]]
 arma::mat corr_gauss_matrix_sym_armaC(arma::mat x, arma::vec theta) {
@@ -107,7 +124,7 @@ arma::mat corr_gauss_matrix_sym_armaC(arma::mat x, arma::vec theta) {
 
       double total = 0;
       for(int k = 0; k < nsum; ++k) {
-        total += theta[k] * pow((x(i,k) - x(j,k)), 2.0);
+        total += theta[k] * pow((x(i,k) - x(j,k)), 2);
       }
       total = exp(-total);
 
@@ -117,6 +134,46 @@ arma::mat corr_gauss_matrix_sym_armaC(arma::mat x, arma::vec theta) {
   }
   for (int i = 0; i < nrow; i++) {
     out(i, i) = 1;
+  }
+  return out;
+}
+
+
+//' Correlation Gaussian matrix in C using Armadillo
+//'
+//' 20-25% faster than Rcpp version.
+//' @param x Matrix x
+//' @param y Matrix y, must have same number of columns as x
+//' @param theta Theta vector
+//' @return Correlation matrix
+//' @examples
+//' corr_gauss_matrix_armaC(matrix(c(1,0,0,1),2,2),c(1,1))
+//'
+//' x1 <- matrix(runif(100*6), nrow=100, ncol=6)
+//' x2 <- matrix(runif(1e4*6), ncol=6)
+//' th <- c(.3,3.3)
+//' t1 <- corr_gauss_matrixC(x1, x2, th)
+//' t2 <- corr_gauss_matrix_armaC(x1, x2, th)
+//' identical(t1, t2)
+//' # microbenchmark::microbenchmark(corr_gauss_matrixC(x1, x2, th),
+//' #                                corr_gauss_matrix_armaC(x1, x2, th))
+//' @export
+// [[Rcpp::export]]
+arma::mat corr_gauss_matrix_armaC(arma::mat x, arma::mat y, arma::vec theta, double s2 = 1.0) {
+  int nrowx = x.n_rows;
+  int nrowy = y.n_rows;
+  int nsum = x.n_cols;
+  arma::mat out(nrowx, nrowy, arma::fill::zeros);
+  for(int k = 0; k < nsum; ++k) {
+    for (int i = 0; i < nrowx; i++) {
+      for (int j = 0; j < nrowy; j++) {
+        out(i,j) += theta[k] * pow((x(i,k) - y(j,k)), 2);
+      }
+    }
+  }
+  out = exp(-out);
+  if (s2 != 1.0) {
+    out *= s2;
   }
   return out;
 }
@@ -149,7 +206,7 @@ arma::cube kernel_gauss_dC(arma::mat x, arma::vec theta, arma::mat C_nonug, bool
 
       double total = 0;
       for(int k = 0; k < nsum; ++k) {
-        total += theta[k] * pow((x(i,k) - x(j,k)), 2.0);
+        total += theta[k] * pow((x(i,k) - x(j,k)), 2);
       }
       total = exp(-total);
 
