@@ -15,6 +15,7 @@ using namespace Rcpp;
 
 //' Correlation Gaussian matrix in C using Rcpp
 //' @param x Matrix x
+//' @param y Matrix y, must have same number of columns as x
 //' @param theta Theta vector
 //' @return Correlation matrix
 //' @examples
@@ -145,6 +146,7 @@ arma::mat corr_gauss_matrix_sym_armaC(arma::mat x, arma::vec theta) {
 //' @param x Matrix x
 //' @param y Matrix y, must have same number of columns as x
 //' @param theta Theta vector
+//' @param s2 Variance to multiply matrix by
 //' @return Correlation matrix
 //' @examples
 //' corr_gauss_matrix_armaC(matrix(c(1,0,0,1),2,2),c(1,1))

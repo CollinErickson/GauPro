@@ -43,6 +43,7 @@ corr_gauss_dCdX <- function(XX, X, theta, s2) {
 
 #' Correlation Gaussian matrix in C using Rcpp
 #' @param x Matrix x
+#' @param y Matrix y, must have same number of columns as x
 #' @param theta Theta vector
 #' @return Correlation matrix
 #' @examples
@@ -80,7 +81,8 @@ corr_gauss_matrixvecC <- function(x, y, theta) {
 #' t3 <- corr_gauss_matrix_symC(x3, th)
 #' t4 <- corr_gauss_matrix_sym_armaC(x3, th)
 #' identical(t3, t4)
-#' # microbenchmark::microbenchmark(corr_gauss_matrix_symC(x3, th), corr_gauss_matrix_sym_armaC(x3, th), times=50)
+#' # microbenchmark::microbenchmark(corr_gauss_matrix_symC(x3, th),
+#' #                     corr_gauss_matrix_sym_armaC(x3, th), times=50)
 #' @export
 corr_gauss_matrix_sym_armaC <- function(x, theta) {
     .Call(`_GauPro_corr_gauss_matrix_sym_armaC`, x, theta)
@@ -92,6 +94,7 @@ corr_gauss_matrix_sym_armaC <- function(x, theta) {
 #' @param x Matrix x
 #' @param y Matrix y, must have same number of columns as x
 #' @param theta Theta vector
+#' @param s2 Variance to multiply matrix by
 #' @return Correlation matrix
 #' @examples
 #' corr_gauss_matrix_armaC(matrix(c(1,0,0,1),2,2),c(1,1))
@@ -102,7 +105,8 @@ corr_gauss_matrix_sym_armaC <- function(x, theta) {
 #' t1 <- corr_gauss_matrixC(x1, x2, th)
 #' t2 <- corr_gauss_matrix_armaC(x1, x2, th)
 #' identical(t1, t2)
-#' # microbenchmark::microbenchmark(corr_gauss_matrixC(x1, x2, th), corr_gauss_matrix_armaC(x1, x2, th))
+#' # microbenchmark::microbenchmark(corr_gauss_matrixC(x1, x2, th),
+#' #                                corr_gauss_matrix_armaC(x1, x2, th))
 #' @export
 corr_gauss_matrix_armaC <- function(x, y, theta, s2 = 1.0) {
     .Call(`_GauPro_corr_gauss_matrix_armaC`, x, y, theta, s2)

@@ -24,5 +24,6 @@ x3 <- matrix(runif(1e3*6), ncol=6)
 t3 <- corr_gauss_matrix_symC(x3, th)
 t4 <- corr_gauss_matrix_sym_armaC(x3, th)
 identical(t3, t4)
-# microbenchmark::microbenchmark(corr_gauss_matrix_symC(x3, th), corr_gauss_matrix_sym_armaC(x3, th), times=50)
+# microbenchmark::microbenchmark(corr_gauss_matrix_symC(x3, th),
+#                     corr_gauss_matrix_sym_armaC(x3, th), times=50)
 }

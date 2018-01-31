@@ -28,5 +28,6 @@ th <- c(.3,3.3)
 t1 <- corr_gauss_matrixC(x1, x2, th)
 t2 <- corr_gauss_matrix_armaC(x1, x2, th)
 identical(t1, t2)
-# microbenchmark::microbenchmark(corr_gauss_matrixC(x1, x2, th), corr_gauss_matrix_armaC(x1, x2, th))
+# microbenchmark::microbenchmark(corr_gauss_matrixC(x1, x2, th),
+#                                corr_gauss_matrix_armaC(x1, x2, th))
 }

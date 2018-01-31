@@ -72,7 +72,7 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
           # cgmtry <- try(val <- s2 * corr_gauss_matrix_symC(x, theta))
           # if (inherits(cgmtry,"try-error")) {browser()}
           # return(val) # arma version isn't actually faster?
-          return(s2 * corr_gauss_matrix_sym_C(x, theta))
+          return(s2 * corr_gauss_matrix_symC(x, theta))
           # return(s2 * corr_gauss_matrix_sym_armaC(x, theta))
         } else {
           return(s2 * 1)
