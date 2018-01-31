@@ -5,7 +5,8 @@
 # param_optim_lower - lower bound of params
 # param_optim_upper - upper
 # param_optim_start - current param values
-# param_optim_start0 - some central param values that can be used for optimization restarts
+# param_optim_start0 - some central param values that can be used for
+#                      optimization restarts
 # param_optim_jitter - how to jitter params in optimization
 
 # Suggested
@@ -67,16 +68,20 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
       }
       theta <- 10^beta
       if (is.null(y)) {
-        if (is.matrix(x)) {#browser()
-          cgmtry <- try(val <- s2 * corr_gauss_matrix_symC(x, theta))
-          if (inherits(cgmtry,"try-error")) {browser()}
-          return(val)
+        if (is.matrix(x)) {
+          # cgmtry <- try(val <- s2 * corr_gauss_matrix_symC(x, theta))
+          # if (inherits(cgmtry,"try-error")) {browser()}
+          # return(val) # arma version isn't actually faster?
+          return(s2 * corr_gauss_matrix_sym_C(x, theta))
+          # return(s2 * corr_gauss_matrix_sym_armaC(x, theta))
         } else {
           return(s2 * 1)
         }
       }
       if (is.matrix(x) & is.matrix(y)) {
         s2 * corr_gauss_matrixC(x, y, theta)
+        # s2 * corr_gauss_matrix_armaC(x, y, theta) # arma not actually faster?
+        # corr_gauss_matrix_armaC(x, y, theta, s2)
       } else if (is.matrix(x) & !is.matrix(y)) {
         s2 * corr_gauss_matrixvecC(x, y, theta)
       } else if (is.matrix(y)) {
@@ -85,7 +90,7 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
         s2 * exp(-sum(theta * (x-y)^2))
       }
     },
-    dC_dparams = function(params=NULL, X, C_nonug, C, nug) {#browser(text = "Make sure all in one list")
+    dC_dparams = function(params=NULL, X, C_nonug, C, nug) {
       n <- nrow(X)
       lenparams <- length(params)
       if (lenparams > 0) {
@@ -111,7 +116,7 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
       # logs2 <- params[lenparams]
       s2 <- 10 ^ logs2
 
-      # if (inherits(try(diag(nug*s2, nrow(C_nonug))), "try-error")) {browser()}
+      # if (inherits(try(diag(nug*s2, nrow(C_nonug))), "try-error")){browser()}
       # if (is.null(params)) {params <- c(self$beta, self$logs2)}
       if (missing(C_nonug)) { # Assume C missing too, must have nug
         C_nonug <- self$k(x=X, params=params)
@@ -132,8 +137,10 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
           for (k in 1:length(beta)) {
             for (i in seq(1, n-1, 1)) {
               for (j in seq(i+1, n, 1)) {
-                # if (inherits(try(C_nonug[i,j] * (X[i,k] - X[j,k])^2 * theta[k] * log10), "try-error")) {browser()}
-                dC_dparams[k,i,j] <- - C_nonug[i,j] * (X[i,k] - X[j,k])^2 * theta[k] * log10
+                # if (inherits(try(C_nonug[i,j] * (X[i,k] - X[j,k])^2 *
+                #           theta[k] * log10), "try-error")) {browser()}
+                dC_dparams[k,i,j] <- - C_nonug[i,j] * (X[i,k] - X[j,k])^2 *
+                                      theta[k] * log10
                 dC_dparams[k,j,i] <- dC_dparams[k,i,j]
               }
             }
@@ -144,12 +151,13 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
         }
 
       } else {
-        dC_dparams <- kernel_gauss_dC(X, theta, C_nonug, self$s2_est, self$beta_est, lenparams_D, s2*nug)
+        dC_dparams <- kernel_gauss_dC(X, theta, C_nonug, self$s2_est,
+                                      self$beta_est, lenparams_D, s2*nug)
       }
       # mats <- c(dC_dbetas, list(dC_dlogs2))
       return(dC_dparams)
     },
-    C_dC_dparams = function(params=NULL, X, nug) {#browser(text = "Make sure all in one list")
+    C_dC_dparams = function(params=NULL, X, nug) {
       n <- nrow(X)
       lenparams <- length(params)
       if (lenparams > 0) {
@@ -193,7 +201,8 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
           for (k in 1:length(beta)) {
             for (i in seq(1, n-1, 1)) {
               for (j in seq(i+1, n, 1)) {
-                dC_dparams[k,i,j] <- - C[i,j] * (X[i,k] - X[j,k])^2 * theta[k] * log10
+                dC_dparams[k,i,j] <- - C[i,j] * (X[i,k] - X[j,k])^2 *
+                                            theta[k] * log10
                 dC_dparams[k,j,i] <- dC_dparams[k,i,j]
               }
             }
@@ -203,9 +212,11 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
           }
         }
       } else {
-        dC_dparams <- kernel_gauss_dC(X, theta, C_nonug, self$s2_est, self$beta_est, lenparams_D, s2*nug)
+        dC_dparams <- kernel_gauss_dC(X, theta, C_nonug, self$s2_est,
+                                      self$beta_est, lenparams_D, s2*nug)
       }
-      # kernel_gauss_dC(X, theta, C_nonug, self$s2_est, self$beta_est, lenparams_D, s2*nug)
+      # kernel_gauss_dC(X, theta, C_nonug, self$s2_est,
+      #                  self$beta_est, lenparams_D, s2*nug)
       # mats <- c(dC_dbetas, list(dC_dlogs2))
       return(list(C = C, dC_dparams))
     },
@@ -220,7 +231,8 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
     #   for (i in 1:nn) {
     #     for (j in 1:d) {
     #       for (k in 1:n) {
-    #         dC_dx[i, j, k] <- -2 * theta[j] * (XX[i, j] - X[k, j]) * s2 * exp(-sum(theta * (XX[i,] - X[k,]) ^ 2))
+    #         dC_dx[i, j, k] <- -2 * theta[j] * (XX[i, j] - X[k, j]) *
+    #                             s2 * exp(-sum(theta * (XX[i,] - X[k,]) ^ 2))
     #       }
     #     }
     #   }
@@ -233,7 +245,7 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
       if (ncol(X) != ncol(XX)) {stop("XX and X must have same number")}
       corr_gauss_dCdX(XX, X, theta, s2)
     },
-    d2C_dx2 = function(XX, X, theta, beta=self$beta, s2=self$s2) {#browser()
+    d2C_dx2 = function(XX, X, theta, beta=self$beta, s2=self$s2) {
       if (missing(theta)) {theta <- 10^beta}
       if (!is.matrix(XX)) {stop("XX must be matrix")}
       d <- ncol(XX)
@@ -247,19 +259,22 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
           if (d > 1) {
             for (j1 in 1:(d-1)) {
               for (j2 in (j1+1):d) {
-                d2C_dx2[i, j1, j2, k] <- 4 * theta[j1] * (XX[i, j1] - X[k, j1]) * theta[j2] * (XX[i, j2] - X[k, j2]) * Cik
+                d2C_dx2[i, j1, j2, k] <- 4 * theta[j1] *
+                                        (XX[i, j1] - X[k, j1]) * theta[j2] *
+                                        (XX[i, j2] - X[k, j2]) * Cik
                 d2C_dx2[i, j2, j1, k] <- d2C_dx2[i, j1, j2, k]
               }
             }
           }
           for (j in 1:d) {
-            d2C_dx2[i, j, j, k] <- -2 * theta[j] * Cik + 4 * theta[j]^2 * (XX[i, j] - X[k, j])^2 * Cik
+            d2C_dx2[i, j, j, k] <- -2 * theta[j] * Cik +
+                                4 * theta[j]^2 * (XX[i, j] - X[k, j])^2 * Cik
           }
         }
       }
       d2C_dx2
     },
-    d2C_dudv = function(XX, X, theta, beta=self$beta, s2=self$s2) {#browser()
+    d2C_dudv = function(XX, X, theta, beta=self$beta, s2=self$s2) {
       if (missing(theta)) {theta <- 10^beta}
       if (!is.matrix(XX)) {stop("XX must be matrix")}
       d <- ncol(XX)
@@ -273,13 +288,16 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
           if (d > 1) {
             for (j1 in 1:(d-1)) {
               for (j2 in (j1+1):d) {
-                d2C_dx2[i, j1, j2, k] <- - 4 * theta[j1] * (XX[i, j1] - X[k, j1]) * theta[j2] * (XX[i, j2] - X[k, j2]) * Cik
+                d2C_dx2[i, j1, j2, k] <- - 4 * theta[j1] *
+                                        (XX[i, j1] - X[k, j1]) * theta[j2] *
+                                        (XX[i, j2] - X[k, j2]) * Cik
                 d2C_dx2[i, j2, j1, k] <- d2C_dx2[i, j1, j2, k]
               }
             }
           }
           for (j in 1:d) {
-            d2C_dx2[i, j, j, k] <- 2 * theta[j] * Cik - 4 * theta[j]^2 * (XX[i, j] - X[k, j])^2 * Cik
+            d2C_dx2[i, j, j, k] <- 2 * theta[j] * Cik -
+                                4 * theta[j]^2 * (XX[i, j] - X[k, j])^2 * Cik
           }
         }
       }
