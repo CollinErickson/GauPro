@@ -12,6 +12,8 @@ corr_gauss_matrix_armaC(x, y, theta, s2 = 1)
 \item{y}{Matrix y, must have same number of columns as x}
 
 \item{theta}{Theta vector}
+
+\item{s2}{Variance to multiply matrix by}
 }
 \value{
 Correlation matrix
@@ -20,7 +22,7 @@ Correlation matrix
 20-25% faster than Rcpp version.
 }
 \examples{
-corr_gauss_matrix_armaC(matrix(c(1,0,0,1),2,2),c(1,1))
+corr_gauss_matrix_armaC(matrix(c(1,0,0,1),2,2),matrix(c(1,0,1,1),2,2),c(1,1))
 
 x1 <- matrix(runif(100*6), nrow=100, ncol=6)
 x2 <- matrix(runif(1e4*6), ncol=6)

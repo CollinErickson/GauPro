@@ -108,6 +108,7 @@ NumericVector corr_gauss_matrixvecC(NumericMatrix x, NumericVector y, NumericVec
 //' corr_gauss_matrix_sym_armaC(matrix(c(1,0,0,1),2,2),c(1,1))
 //'
 //' x3 <- matrix(runif(1e3*6), ncol=6)
+//' th <- c(.3,3.3)
 //' t3 <- corr_gauss_matrix_symC(x3, th)
 //' t4 <- corr_gauss_matrix_sym_armaC(x3, th)
 //' identical(t3, t4)
@@ -149,7 +150,7 @@ arma::mat corr_gauss_matrix_sym_armaC(arma::mat x, arma::vec theta) {
 //' @param s2 Variance to multiply matrix by
 //' @return Correlation matrix
 //' @examples
-//' corr_gauss_matrix_armaC(matrix(c(1,0,0,1),2,2),c(1,1))
+//' corr_gauss_matrix_armaC(matrix(c(1,0,0,1),2,2),matrix(c(1,0,1,1),2,2),c(1,1))
 //'
 //' x1 <- matrix(runif(100*6), nrow=100, ncol=6)
 //' x2 <- matrix(runif(1e4*6), ncol=6)

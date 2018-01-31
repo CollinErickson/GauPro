@@ -9,6 +9,8 @@ corr_gauss_matrixC(x, y, theta)
 \arguments{
 \item{x}{Matrix x}
 
+\item{y}{Matrix y, must have same number of columns as x}
+
 \item{theta}{Theta vector}
 }
 \value{
