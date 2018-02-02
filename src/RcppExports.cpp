@@ -163,15 +163,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // corr_gauss_matrixCpar
-NumericMatrix corr_gauss_matrixCpar(NumericMatrix mat1, NumericMatrix mat2, NumericVector theta);
-RcppExport SEXP _GauPro_corr_gauss_matrixCpar(SEXP mat1SEXP, SEXP mat2SEXP, SEXP thetaSEXP) {
+NumericMatrix corr_gauss_matrixCpar(NumericMatrix x, NumericMatrix y, NumericVector theta);
+RcppExport SEXP _GauPro_corr_gauss_matrixCpar(SEXP xSEXP, SEXP ySEXP, SEXP thetaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type mat1(mat1SEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type mat2(mat2SEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type x(xSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type y(ySEXP);
     Rcpp::traits::input_parameter< NumericVector >::type theta(thetaSEXP);
-    rcpp_result_gen = Rcpp::wrap(corr_gauss_matrixCpar(mat1, mat2, theta));
+    rcpp_result_gen = Rcpp::wrap(corr_gauss_matrixCpar(x, y, theta));
     return rcpp_result_gen;
 END_RCPP
 }

@@ -4,14 +4,14 @@
 \alias{corr_gauss_matrixCpar}
 \title{Correlation Gaussian matrix in C using RcppParallel}
 \usage{
-corr_gauss_matrixCpar(mat1, mat2, theta)
+corr_gauss_matrixCpar(x, y, theta)
 }
 \arguments{
-\item{theta}{Theta vector}
-
 \item{x}{Matrix x}
 
 \item{y}{Matrix y, must have same number of columns as x}
+
+\item{theta}{Theta vector}
 }
 \value{
 Correlation matrix

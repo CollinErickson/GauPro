@@ -139,8 +139,8 @@ kernel_gauss_dC <- function(x, theta, C_nonug, s2_est, beta_est, lenparams_D, s2
 #' @examples
 #' corr_gauss_matrixC(matrix(c(1,0,0,1),2,2), matrix(c(1,0,1,1),2,2), c(1,1))
 #' @export
-corr_gauss_matrixCpar <- function(mat1, mat2, theta) {
-    .Call(`_GauPro_corr_gauss_matrixCpar`, mat1, mat2, theta)
+corr_gauss_matrixCpar <- function(x, y, theta) {
+    .Call(`_GauPro_corr_gauss_matrixCpar`, x, y, theta)
 }
 
 corr_matern32_matrixC <- function(x, y, theta) {

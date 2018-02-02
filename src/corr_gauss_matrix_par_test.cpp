@@ -70,18 +70,18 @@ struct corr_gauss_matrix_par_struct : public Worker {
 //' corr_gauss_matrixC(matrix(c(1,0,0,1),2,2), matrix(c(1,0,1,1),2,2), c(1,1))
 //' @export
 // [[Rcpp::export]]
-NumericMatrix corr_gauss_matrixCpar(NumericMatrix mat1, NumericMatrix mat2,
+NumericMatrix corr_gauss_matrixCpar(NumericMatrix x, NumericMatrix y,
                                     NumericVector theta) {
 
   // allocate the matrix we will return
-  NumericMatrix rmat(mat1.nrow(), mat2.nrow());
+  NumericMatrix rmat(x.nrow(), y.nrow());
 
   // create the worker
-  corr_gauss_matrix_par_struct corr_gauss_matrix_par_instance(mat1, mat2,
+  corr_gauss_matrix_par_struct corr_gauss_matrix_par_instance(x, y,
                                                               theta, rmat);
 
   // call it with parallelFor
-  parallelFor(0, mat1.nrow(), corr_gauss_matrix_par_instance, 20);
+  parallelFor(0, x.nrow(), corr_gauss_matrix_par_instance, 20);
 
   return rmat;
 }
