@@ -14,6 +14,7 @@ extern SEXP _GauPro_cholC(SEXP);
 extern SEXP _GauPro_corr_gauss_matrix_sym_armaC(SEXP, SEXP);
 extern SEXP _GauPro_corr_gauss_matrix_symC(SEXP, SEXP);
 extern SEXP _GauPro_corr_gauss_matrixC(SEXP, SEXP, SEXP);
+extern SEXP _GauPro_corr_gauss_matrixCpar(SEXP, SEXP, SEXP);
 extern SEXP _GauPro_corr_gauss_matrixvecC(SEXP, SEXP, SEXP);
 extern SEXP _GauPro_deviance_fngr_joint(SEXP, SEXP, SEXP);
 extern SEXP _GauPro_deviance_fngr_nug(SEXP, SEXP, SEXP);
@@ -51,6 +52,7 @@ static const R_CallMethodDef CallEntries[] = {
   {"_GauPro_corr_gauss_matrix_sym_armaC", (DL_FUNC) &_GauPro_corr_gauss_matrix_sym_armaC, 2},
   {"_GauPro_corr_gauss_matrix_symC",      (DL_FUNC) &_GauPro_corr_gauss_matrix_symC,      2},
   {"_GauPro_corr_gauss_matrixC",          (DL_FUNC) &_GauPro_corr_gauss_matrixC,          3},
+  {"_GauPro_corr_gauss_matrixCpar",       (DL_FUNC) &_GauPro_corr_gauss_matrixCpar,       3},
   {"_GauPro_corr_gauss_matrixvecC",       (DL_FUNC) &_GauPro_corr_gauss_matrixvecC,       3},
   {"_GauPro_deviance_fngr_joint",         (DL_FUNC) &_GauPro_deviance_fngr_joint,         3},
   {"_GauPro_deviance_fngr_nug",           (DL_FUNC) &_GauPro_deviance_fngr_nug,           3},

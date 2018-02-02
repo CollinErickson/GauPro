@@ -79,7 +79,12 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
         }
       }
       if (is.matrix(x) & is.matrix(y)) {
-        s2 * corr_gauss_matrixC(x, y, theta)
+        # s2 * corr_gauss_matrixC(x, y, theta)
+        if (self$D >= 12 || nrow(x) < 30) {
+          s2 * corr_gauss_matrixC(x, y, theta)
+        } else { # parallel only faster for small D and many rows
+          s2 * corr_gauss_matrixCpar(x, y, theta)
+        }
         # s2 * corr_gauss_matrix_armaC(x, y, theta) # arma not actually faster?
         # corr_gauss_matrix_armaC(x, y, theta, s2)
       } else if (is.matrix(x) & !is.matrix(y)) {

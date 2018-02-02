@@ -13,6 +13,37 @@ using namespace Rcpp;
 //   http://gallery.rcpp.org/
 //
 
+// This was slower, vectorized version below is same speed or 15% slower in 2D,
+//   3x faster in 6D, 6.6x faster in 12D
+// //' Correlation Gaussian matrix in C using Rcpp
+// //' @param x Matrix x
+// //' @param y Matrix y, must have same number of columns as x
+// //' @param theta Theta vector
+// //' @return Correlation matrix
+// //' @examples
+// //' corr_gauss_matrixC(matrix(c(1,0,0,1),2,2), matrix(c(1,0,1,1),2,2), c(1,1))
+// //' @export
+// // [[Rcpp::export]]
+// NumericMatrix corr_gauss_matrixC(NumericMatrix x, NumericMatrix y, NumericVector theta) {
+//   int nrow = x.nrow(), ncol = y.nrow();
+//   int nsum = x.ncol();
+//   NumericMatrix out(nrow, ncol);
+//
+//   for (int i = 0; i < nrow; i++) {
+//     for (int j = 0; j < ncol; j++) {
+//
+//       double total = 0;
+//       for(int k = 0; k < nsum; ++k) {
+//         total += theta[k] * pow((x(i,k) - y(j,k)), 2);
+//       }
+//       total = exp(-total);
+//
+//       out(i, j) = total;
+//     }
+//   }
+//   return out;
+// }
+
 //' Correlation Gaussian matrix in C using Rcpp
 //' @param x Matrix x
 //' @param y Matrix y, must have same number of columns as x
@@ -24,23 +55,37 @@ using namespace Rcpp;
 // [[Rcpp::export]]
 NumericMatrix corr_gauss_matrixC(NumericMatrix x, NumericMatrix y, NumericVector theta) {
   int nrow = x.nrow(), ncol = y.nrow();
-  int nsum = x.ncol();
   NumericMatrix out(nrow, ncol);
-
   for (int i = 0; i < nrow; i++) {
     for (int j = 0; j < ncol; j++) {
-
-      double total = 0;
-      for(int k = 0; k < nsum; ++k) {
-        total += theta[k] * pow((x(i,k) - y(j,k)), 2);
-      }
-      total = exp(-total);
-
-      out(i, j) = total;
+      out(i, j) = exp(-sum(theta * pow(x.row(i) - y.row(j), 2.0)));;
     }
   }
   return out;
 }
+
+// Tried to make faster for 2D, failed
+// //' Correlation Gaussian matrix in C using Rcpp
+// //' @param x Matrix x
+// //' @param y Matrix y, must have same number of columns as x
+// //' @param theta Theta vector
+// //' @return Correlation matrix
+// //' @examples
+// //' corr_gauss_matrixC(matrix(c(1,0,0,1),2,2), matrix(c(1,0,1,1),2,2), c(1,1))
+// //' @export
+// // [[Rcpp::export]]
+// NumericMatrix corr_gauss_matrixC2D(NumericMatrix x, NumericMatrix y, NumericVector theta) {
+//   int nrow = x.nrow(), ncol = y.nrow();
+//   NumericMatrix out(nrow, ncol);
+//   for (int i = 0; i < nrow; i++) {
+//     for (int j = 0; j < ncol; j++) {
+//       // out(i, j) = exp(-sum(theta * pow(x.row(i) - y.row(j), 2.0)));
+//       // out(i, j) = exp(- theta(0)*pow(x(i,0)-y(j,0), 2.0) - theta(1) * pow(x(i,1) - y(j,1), 2.0));
+//       out(i, j) = exp(- theta(0)*(x(i,0)-y(j,0))*(x(i,0)-y(j,0)) - theta(1) * (x(i,1)-y(j,1))*(x(i,1)-y(j,1)));
+//     }
+//   }
+//   return out;
+// }
 
 
 //' Correlation Gaussian matrix in C (symmetric)

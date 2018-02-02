@@ -12,7 +12,7 @@ Description: Fits a Gaussian process model to data. Gaussian processes
  similar calculations include 'laGP', 'DiceKriging', 'GPfit', and 'mlegp'.
 License: GPL-3
 LazyData: TRUE
-LinkingTo: Rcpp, RcppArmadillo
+LinkingTo: Rcpp, RcppArmadillo, RcppParallel
 Imports:
     Rcpp,
     R6,
