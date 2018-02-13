@@ -12,19 +12,24 @@ arma_mult_cube_vec(cub, v)
 \item{v}{A vector}
 }
 \value{
-Multiplication over first dimension of cub time v
+Transpose of multiplication over first dimension of cub time v
 }
 \description{
-Cube multiply over first dimension
+The result is transposed since that is what apply will give you
 }
 \examples{
-corr_gauss_matrix_sym_armaC(matrix(c(1,0,0,1),2,2),c(1,1))
+d1 <- 10
+d2 <- 1e2
+d3 <- 2e2
+aa <- array(data = rnorm(d1*d2*d3), dim = c(d1, d2, d3))
+bb <- rnorm(d3)
+t1 <- apply(aa, 1, function(U) {U\%*\%bb})
+t2 <- arma_mult_cube_vec(aa, bb)
+dd <- t1 - t2
 
-x3 <- matrix(runif(1e3*6), ncol=6)
-th <- c(.3,3.3)
-t3 <- corr_gauss_matrix_symC(x3, th)
-t4 <- corr_gauss_matrix_sym_armaC(x3, th)
-identical(t3, t4)
-# microbenchmark::microbenchmark(corr_gauss_matrix_symC(x3, th),
-#                     corr_gauss_matrix_sym_armaC(x3, th), times=50)
+summary(dd)
+image(dd)
+table(dd)
+# microbenchmark::microbenchmark(apply(aa, 1, function(U) {U\%*\%bb}),
+#                                arma_mult_cube_vec(aa, bb))
 }

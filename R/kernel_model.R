@@ -397,6 +397,28 @@ GauPro_kernel_model <- R6::R6Class(
           # else {prds <- pred_var_a_func(pred_points)}
           prds
         },
+        pred_var_reductions = function(add_points, pred_points) {
+          # Calculate pred_var at pred_points after each of add_points
+          #  has been added to the design self$X separately.
+          # This is a vectorized version of pred_var_reduction,
+          #  to consider all of add_points added together
+          #  use pred_var_after_adding_points
+          # S is add points, a is pred points
+          if (!is.matrix(add_points) || ncol(add_points) != self$D) {
+            stop("add_points must be a matrix with D columns")
+          }
+          # C_S <- self$s2_hat * diag(1 + self$nug, nrow(add_points)) # Assumes correlation structure
+          C_XS <- self$kernel$k(self$X, add_points)
+          C_X_inv_C_XS <- self$Kinv %*% C_XS
+          # G <- 1 / c(C_S - t(C_XS) %*% C_X_inv_C_XS)
+          G <- 1 / (self$s2_hat*(1+self$nug) - colSums(C_XS * C_X_inv_C_XS))
+
+          C_aX <- self$kernel$k(pred_points, self$X) # now a matrix
+          C_aS <- self$kernel$k(pred_points, add_points)
+          # (sum(C_Xa * C_X_inv_C_XS) - C_Sa) ^ 2 * G
+          prds <- sweep(((C_aX %*% C_X_inv_C_XS) - C_aS) ^ 2, 2, G, `*`)
+          prds
+        },
         cool1Dplot = function (n2=20, nn=201, col2="gray",
                                xlab='x', ylab='y',
                                xmin=NULL, xmax=NULL,

@@ -85,3 +85,46 @@ gp$pred_var_reduction(add_point = x2, pred_points = c(.5,.6))
 gp$pred_var_reduction(add_point = x2, pred_points = matrix(c(.5,.6), ncol=2))
 gp$pred_var_reduction(add_point = x2, pred_points = xx)
 apply(xx, 1, function(xi)gp$pred_var_reduction(add_point = x2, pred_points = xi))
+
+
+# Test pred_var_reductions, vectorization of pred_var_reduction
+gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian, nug=1e-8, nug.est = F)
+xx <- matrix(runif(2e3),ncol=2)
+yy <- matrix(runif(200), ncol=2)
+t1 <- gp$pred_var_reductions(add_points = yy, pred_points = xx)
+t2 <- apply(yy, 1, function(yi) gp$pred_var_reduction(add_point = yi, pred_points = xx))
+str(t1)
+str(t2)
+summary(c(t1 - t2))
+hist(c(t1-t2), breaks=40)
+# Check (7,1) of t1-t2 since it is .068 diff
+gp$pred_var_reduction(add_point = yy[1,,drop=T], pred_points = xx[7,,drop=F])
+gp$pred_var_reductions(add_points = yy[1,,drop=F], pred_points = xx[7,,drop=F])
+i <- sample(1:100,1);j <- sample(1:100,1); gp$pred_var_reduction(add_point = yy[j,,drop=T], pred_points = xx[i,,drop=F]) - gp$pred_var_reductions(add_points = yy[j,,drop=F], pred_points = xx[i,,drop=F])
+
+# Use smaller samples
+gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian, nug=1e-8, nug.est = F)
+xx <- matrix(runif(2*3),ncol=2)
+yy <- matrix(runif(2*2), ncol=2)
+t1 <- gp$pred_var_reductions(add_points = yy, pred_points = xx)
+t2 <- apply(yy, 1, function(yi) gp$pred_var_reduction(add_point = yi, pred_points = xx))
+str(t1)
+str(t2)
+summary(c(t1 - t2))
+# Try to debugo
+debugonce(gp$pred_var_reduction); apply(yy, 1, function(yi) gp$pred_var_reduction(add_point = yi, pred_points = xx))
+debugonce(gp$pred_var_reductions); gp$pred_var_reductions(add_points = yy, pred_points = xx)
+
+# Fixed it!!!
+# Now benchmark
+microbenchmark::microbenchmark(
+  t1 <- gp$pred_var_reductions(add_points = yy, pred_points = xx),
+  t2 <- apply(yy, 1, function(yi) gp$pred_var_reduction(add_point = yi, pred_points = xx)))
+# This is 10x faster
+# Unit: milliseconds
+# expr       min        lq      mean
+# t1 <- gp$pred_var_reductions(add_points = yy, pred_points = xx)  4.664792  5.092234  11.08233
+# t2 <- apply(yy, 1, function(yi) gp$pred_var_reduction(add_point = yi,      pred_points = xx)) 85.510294 87.586110 104.24953
+# median         uq      max neval cld
+# 5.981516   7.112744 170.2368   100  a
+# 89.599399 103.002694 290.8661   100   b
