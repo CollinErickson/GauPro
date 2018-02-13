@@ -6,6 +6,18 @@
 
 using namespace Rcpp;
 
+// arma_mult_cube_vec
+arma::mat arma_mult_cube_vec(arma::cube cub, arma::vec v);
+RcppExport SEXP _GauPro_arma_mult_cube_vec(SEXP cubSEXP, SEXP vSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::cube >::type cub(cubSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type v(vSEXP);
+    rcpp_result_gen = Rcpp::wrap(arma_mult_cube_vec(cub, v));
+    return rcpp_result_gen;
+END_RCPP
+}
 // cholC
 arma::mat cholC(arma::mat x);
 RcppExport SEXP _GauPro_cholC(SEXP xSEXP) {

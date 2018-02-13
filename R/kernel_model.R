@@ -1208,7 +1208,12 @@ GauPro_kernel_model <- R6::R6Class(
           # Cinv_Z_minus_Zhat <- solve(self$K, Z - trendX)
           # Speed up since already have Kinv
           Cinv_Z_minus_Zhat <- self$Kinv %*% (Z - trendX)
-          t2 <- apply(dC_dx, 1, function(U) {U %*% Cinv_Z_minus_Zhat})
+
+          # Faster multiplication with arma_mult_cube_vec by 10x for big
+          #  and .5x for small
+          # t2 <- apply(dC_dx, 1, function(U) {U %*% Cinv_Z_minus_Zhat})
+          t2 <- arma_mult_cube_vec(dC_dx, Cinv_Z_minus_Zhat)
+
           if (ncol(dtrend_dx) > 1) {
             dtrend_dx + t(t2)
           } else {
