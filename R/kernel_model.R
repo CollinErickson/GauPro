@@ -34,11 +34,13 @@
 #' @section Methods:
 #' \describe{
 #'   \item{\code{new(X, Z, corr="Gauss", verbose=0, separable=T, useC=F,useGrad=T,
-#'          parallel=T, nug.est=T, ...)}}{This method is used to create object of this class with \code{X} and \code{Z} as the data.}
+#'          parallel=T, nug.est=T, ...)}}{This method is used to create object of this
+#'          class with \code{X} and \code{Z} as the data.}
 #'
 #'   \item{\code{update(Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL,
 #' restarts = 5,
-#' param_update = T, nug.update = self$nug.est)}}{This method updates the model, adding new data if given, then running optimization again.}
+#' param_update = T, nug.update = self$nug.est)}}{This method updates the
+#' model, adding new data if given, then running optimization again.}
 #'   }
 GauPro_kernel_model <- R6::R6Class(
       classname = "GauPro",
@@ -363,6 +365,44 @@ GauPro_kernel_model <- R6::R6Class(
           C_a - (colSums(C_Xa * (E %*% C_Xa)) +
                    2 * colSums(C_Xa * (FF %*% C_Sa)) +
                    colSums(C_Sa * (G %*% C_Sa)))
+        },
+        pred_var_after_adding_points_sep = function(add_points, pred_points) {
+          # Calculate pred_var at pred_points after each add_points
+          #  has individually (separately) been added to the design self$X
+          # A vectorized version of pred_var_after_adding_points_sep
+          # S is add points, a is pred_points
+          # G <- solve(self$pred(add_points, covmat = TRUE)$cov)
+          # FF <- -self$Kinv %*% 1
+          if (!is.matrix(add_points)) {
+            if (length(add_points) != self$D) {stop("add_points must be matrix or of length D")}
+            else {add_points <- matrix(add_points, nrow=1)}
+          } else if (ncol(add_points) != self$D) {stop("add_points must have dimension D")}
+          # C_S <- self$kernel$k(add_points)
+          # C_S <- C_S + self$s2_hat * diag(self$nug, nrow(C_S)) # Add nugget
+          C_S <- self$s2_hat * (1+self$nug)
+          C_XS <- self$kernel$k(self$X, add_points)
+          C_X_inv_C_XS <- self$Kinv %*% C_XS
+          G <- 1 / (C_S - colSums(C_XS * C_X_inv_C_XS))
+          FF <- - sweep(C_X_inv_C_XS, 2, G, `*`)
+          # E <- self$Kinv - C_X_inv_C_XS %*% t(FF)
+
+          # Speed this up a lot by avoiding apply and doing all at once
+          # Assume single point cov is s2(1+nug)
+          C_a <- self$s2_hat * (1 + self$nug)
+          C_Xa <- self$kernel$k(self$X, pred_points) # length n vector, not matrix
+          C_Sa <- self$kernel$k(add_points, pred_points)
+          # C_a - (colSums(C_Xa * (E %*% C_Xa)) +
+                   # 2 * colSums(C_Xa * (FF %*% C_Sa)) +
+                   # colSums(C_Sa * (G %*% C_Sa)))
+          # Have to use sapply to loop over each separately
+          C_a - sapply(1:nrow(add_points),
+                       function(api) {
+                         E <- self$Kinv - C_X_inv_C_XS[,api,drop=F] %*% FF[,api]
+                         colSums(C_Xa * (E %*% C_Xa)) +
+                           2*colSums(C_Xa * (FF[,api,drop=F] %*% C_Sa[api,])) +
+                           (C_Sa[api,]^2 * G[api])
+                       }
+                )
         },
         pred_var_reduction = function(add_point, pred_points) {
           # Calculate pred_var at pred_points after add_point

@@ -49,11 +49,13 @@ Allows for different kernel and trend functions to be used.
 
 \describe{
   \item{\code{new(X, Z, corr="Gauss", verbose=0, separable=T, useC=F,useGrad=T,
-         parallel=T, nug.est=T, ...)}}{This method is used to create object of this class with \code{X} and \code{Z} as the data.}
+         parallel=T, nug.est=T, ...)}}{This method is used to create object of this
+         class with \code{X} and \code{Z} as the data.}
 
   \item{\code{update(Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL,
 restarts = 5,
-param_update = T, nug.update = self$nug.est)}}{This method updates the model, adding new data if given, then running optimization again.}
+param_update = T, nug.update = self$nug.est)}}{This method updates the
+model, adding new data if given, then running optimization again.}
   }
 }
 

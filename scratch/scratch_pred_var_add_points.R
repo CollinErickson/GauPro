@@ -128,3 +128,22 @@ microbenchmark::microbenchmark(
 # median         uq      max neval cld
 # 5.981516   7.112744 170.2368   100  a
 # 89.599399 103.002694 290.8661   100   b
+
+
+
+# Check pred_var_after_adding_points_sep
+set.seed(0)
+n <- 29
+x <- lhs::maximinLHS(n=n, k=2)
+y <- TestFunctions::banana(x)
+xx <- lhs::randomLHS(n=30, k = 2)
+yy <- lhs::randomLHS(n=1e4, k = 2)
+gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian, nug=1e-8, nug.est = F)
+t1 <- apply(xx, 1, function(xi) gp$pred_var_after_adding_points(add_points = xi, pred_points = yy))
+t2 <- gp$pred_var_after_adding_points_sep(add_points = xx, pred_points = yy)
+summary(c(t1-t2))
+microbenchmark::microbenchmark(
+  apply(xx, 1, function(xi) gp$pred_var_after_adding_points(add_points = xi, pred_points = yy))
+  , gp$pred_var_after_adding_points_sep(add_points = xx, pred_points = yy)
+)
+# 3.5x faster use sep version
