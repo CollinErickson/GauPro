@@ -147,3 +147,24 @@ microbenchmark::microbenchmark(
   , gp$pred_var_after_adding_points_sep(add_points = xx, pred_points = yy)
 )
 # 3.5x faster use sep version
+
+# Checking growth, its linear in add_points and pred_points
+# ms <- c(100, 300,1e3, 2e3, 3e3, 5e3, 6e3, 7e3, 8e3, 1e4, 2e4)
+ms <- c(20,40,50,60,70,80,90,1e2)
+xx2 <- matrix(runif(2000), ncol=1)
+ts <- sapply(
+  ms,
+  function(m) {
+    xm <- lhs::randomLHS(n = m, k = 2)
+    gp$update(Xall = xm, Zall = TestFunctions::banana(xm))
+    system.time({
+      # Check growth in add_points
+      # gp$pred_var_after_adding_points_sep(add_points = xm, pred_points = xx)
+      # Check growth in pred_points
+      # gp$pred_var_after_adding_points_sep(add_points = xx, pred_points = xm)
+      # Check growth in design points
+      gp$pred_var_after_adding_points_sep(add_points = xx, pred_points = xm)
+    })[3]
+  }
+)
+plot(ms, ts)
