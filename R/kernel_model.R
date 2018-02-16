@@ -1319,14 +1319,16 @@ GauPro_kernel_model <- R6::R6Class(
         },
         grad_norm2_mean = function(XX) {
           # Calculate mean of squared norm of gradient
+          # XX is matrix of points to calculate it at
           # Twice as fast as use self$grad_norm2_dist(XX)$mean
-          sapply(1:nrow(XX), function(i) {if(debugthis) {browser()}
-            grad_dist_i <- self$grad_dist(XX=XX[i, , drop=FALSE])
-            sum(grad_dist_i$mean^2) + sum(diag(grad_dist_i$cov[1,,]))
+          grad_dist <- self$grad_dist(XX=XX)
+          sum_grad_dist_mean_2 <- rowSums(grad_dist$mean^2)
+          # Use sapply to get trace of cov matrix, return sum
+          sum_grad_dist_mean_2 + sapply(1:nrow(XX), function(i) {
             if (ncol(XX)==1 ) {
-              sum(grad_dist_i$mean^2) + ((grad_dist_i$cov[1,,]))
+              grad_dist$cov[i,,]
             } else {
-              sum(grad_dist_i$mean^2) + sum(diag(grad_dist_i$cov[1,,]))
+              sum(diag(grad_dist$cov[i,,]))
             }
           })
         },

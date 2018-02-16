@@ -186,3 +186,14 @@ a2 <- gp$pred_var_after_adding_points_sep2(add_points = xx, pred_points = yy)
 all.equal(a1, a2)
 microbenchmark::microbenchmark(gp$pred_var_after_adding_points_sep(add_points = xx, pred_points = yy)
                                ,gp$pred_var_after_adding_points_sep2(add_points = xx, pred_points = yy))
+
+
+set.seed(0)
+n <- 160
+d <- 8
+x <- lhs::maximinLHS(n=n, k=d)
+y <- TestFunctions::borehole(x)
+xx <- lhs::randomLHS(n=1e4, k = d)
+yy <- lhs::randomLHS(n=1e4, k = d)
+gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian, nug=1e-8, nug.est = F)
+microbenchmark::microbenchmark(gp$grad_norm2_mean(XX = xx), gp$grad_norm2_mean2(XX = xx), gp$grad_norm2_mean3(XX = xx))
