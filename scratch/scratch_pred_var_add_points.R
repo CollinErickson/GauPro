@@ -157,16 +157,18 @@ ts <- sapply(
   ms,
   function(m) {
     xm <- lhs::randomLHS(n = m, k = 2)
-    gp$update(Xall = xm, Zall = TestFunctions::banana(xm))
+    # gp$update(Xall = xm, Zall = TestFunctions::banana(xm))
     # system.time({
-    #   # Check growth in add_points
-    #   # gp$pred_var_after_adding_points_sep(add_points = xm, pred_points = xx)
-    #   # Check growth in pred_points
-    #   # gp$pred_var_after_adding_points_sep(add_points = xx, pred_points = xm)
-    #   # Check growth in design points
-    #   gp$pred_var_after_adding_points_sep(add_points = xx, pred_points = xm)
+    microbenchmark::microbenchmark(
+      # Check growth in add_points
+      # gp$pred_var_after_adding_points_sep2(add_points = xm, pred_points = xx)
+      # Check growth in pred_points
+      gp$pred_var_after_adding_points_sep2(add_points = xx, pred_points = xm)
+      # Check growth in design points
+      # gp$pred_var_after_adding_points_sep2(add_points = xx, pred_points = xm)
     # })[3]
-    microbenchmark::microbenchmark(gp$pred_var_after_adding_points_sep(add_points = xx, pred_points = xm), times=1)$time
+    , times=1)$time
+    # microbenchmark::microbenchmark(gp$pred_var_after_adding_points_sep2(add_points = xx, pred_points = xx2), times=1)$time
   }
 )
 plot(ms, ts)#, log='y')

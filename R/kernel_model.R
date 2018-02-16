@@ -370,95 +370,32 @@ GauPro_kernel_model <- R6::R6Class(
           # Calculate pred_var at pred_points after each add_points
           #  has individually (separately) been added to the design self$X
           # A vectorized version of pred_var_after_adding_points_sep
-          # S is add points, a is pred_points
-          # G <- solve(self$pred(add_points, covmat = TRUE)$cov)
-          # FF <- -self$Kinv %*% 1
+          # S is add points, a is pred_points in variables below
+          # Output is matrix of size nrow(pred_points) by nrow(add_points)
+          #  where (i,j) element is predictive variance at pred_points[i,]
+          #  after add_points[j,] has been added to current design
+          # Equations below, esp with sweep and colSums are confusing
+          #  but work out. Make it fast and vectorized.
+          # Check against pred_var_after_adding_points.
           if (!is.matrix(add_points)) {
             if (length(add_points) != self$D) {stop("add_points must be matrix or of length D")}
             else {add_points <- matrix(add_points, nrow=1)}
           } else if (ncol(add_points) != self$D) {stop("add_points must have dimension D")}
-          # C_S <- self$kernel$k(add_points)
-          # C_S <- C_S + self$s2_hat * diag(self$nug, nrow(C_S)) # Add nugget
           C_S <- self$s2_hat * (1+self$nug)
           C_XS <- self$kernel$k(self$X, add_points)
           C_X_inv_C_XS <- self$Kinv %*% C_XS
           G <- 1 / (C_S - colSums(C_XS * C_X_inv_C_XS))
-          FF <- - sweep(C_X_inv_C_XS, 2, G, `*`)
-          # E <- self$Kinv - C_X_inv_C_XS %*% t(FF)
 
           # Speed this up a lot by avoiding apply and doing all at once
           # Assume single point cov is s2(1+nug)
           C_a <- self$s2_hat * (1 + self$nug)
-          C_Xa <- self$kernel$k(self$X, pred_points) # length n vector, not matrix
-          C_Sa <- self$kernel$k(add_points, pred_points)
-          # C_a - (colSums(C_Xa * (E %*% C_Xa)) +
-                   # 2 * colSums(C_Xa * (FF %*% C_Sa)) +
-                   # colSums(C_Sa * (G %*% C_Sa)))
-          # Have to use sapply to loop over each separately
-          C_a - sapply(1:nrow(add_points),
-                       function(api) {#browser()
-                         E <- self$Kinv - C_X_inv_C_XS[,api,drop=F] %*% FF[,api]
-                         # colSums(C_Xa * (E %*% C_Xa)) +
-                         #   2*colSums(C_Xa * (FF[,api,drop=F] %*% C_Sa[api,])) +
-                         #   (C_Sa[api,]^2 * G[api])
-                         t1 <- colSums(C_Xa * (E %*% C_Xa))#; return(t1)
-                         t2 <- 2*colSums(C_Xa * (FF[,api,drop=F] %*% C_Sa[api,]))
-                         t3 <- (C_Sa[api,]^2 * G[api])
-                         t1+t2+t3
-                         #return(list(t1,t2,t3))
-                       }
-                )
-        },
-        pred_var_after_adding_points_sep2 = function(add_points, pred_points) {
-          # Calculate pred_var at pred_points after each add_points
-          #  has individually (separately) been added to the design self$X
-          # A vectorized version of pred_var_after_adding_points_sep
-          # S is add points, a is pred_points
-          # G <- solve(self$pred(add_points, covmat = TRUE)$cov)
-          # FF <- -self$Kinv %*% 1
-          if (!is.matrix(add_points)) {
-            if (length(add_points) != self$D) {stop("add_points must be matrix or of length D")}
-            else {add_points <- matrix(add_points, nrow=1)}
-          } else if (ncol(add_points) != self$D) {stop("add_points must have dimension D")}
-          # C_S <- self$kernel$k(add_points)
-          # C_S <- C_S + self$s2_hat * diag(self$nug, nrow(C_S)) # Add nugget
-          C_S <- self$s2_hat * (1+self$nug)
-          C_XS <- self$kernel$k(self$X, add_points)
-          C_X_inv_C_XS <- self$Kinv %*% C_XS
-          G <- 1 / (C_S - colSums(C_XS * C_X_inv_C_XS))
-          # FF <- - sweep(C_X_inv_C_XS, 2, G, `*`)
-          # E <- self$Kinv - C_X_inv_C_XS %*% t(FF)
-
-          # Speed this up a lot by avoiding apply and doing all at once
-          # Assume single point cov is s2(1+nug)
-          C_a <- self$s2_hat * (1 + self$nug)
-          C_Xa <- self$kernel$k(self$X, pred_points) # length n vector, not matrix
-          C_Sa <- self$kernel$k(add_points, pred_points)
-          # C_a - (colSums(C_Xa * (E %*% C_Xa)) +
-          # 2 * colSums(C_Xa * (FF %*% C_Sa)) +
-          # colSums(C_Sa * (G %*% C_Sa)))
-          # Have to use sapply to loop over each separately
+          C_Xa <- self$kernel$k(self$X, pred_points) # matrix
+          C_Sa <- self$kernel$k(add_points, pred_points) # matrix
           t1a <- colSums(C_Xa * (self$Kinv %*% C_Xa))
           t1 <- sweep(sweep((t(C_Xa) %*% C_X_inv_C_XS)^2, 2, G, `*`), 1, t1a, `+`)
           t2 <- -2*sweep((t(C_X_inv_C_XS) %*% C_Xa) * C_Sa, 1, G, `*`)
           t3 <- sweep((C_Sa)^2, 1, G, `*`)
-          # return(list(t1, t2, t3))
           return(C_a - (t1 + t(t2 + t3)))
-          # C_a - sapply(1:nrow(add_points),
-          #              function(api) {browser()
-          #                # E <- self$Kinv - C_X_inv_C_XS[,api,drop=F] %*% FF[,api]
-          #                # colSums(C_Xa * (E %*% C_Xa)) +
-          #                #   2*colSums(C_Xa * (FF[,api,drop=F] %*% C_Sa[api,])) +
-          #                #   (C_Sa[api,]^2 * G[api])
-          #                # t1 <- colSums(C_Xa * (E %*% C_Xa))
-          #                # t1c <- self$Kinv %*% C_XS
-          #                # t1b <- G[api] * ((t1c) %*% C_Xa)^2
-          #                # t1 <- t1a + t1b
-          #                t2 <- 2*colSums(C_Xa * (FF[,api,drop=F] %*% C_Sa[api,]))
-          #                t3 <- (C_Sa[api,]^2 * G[api])
-          #                t1+t2+t3
-          #              }
-          # )
         },
         pred_var_reduction = function(add_point, pred_points) {
           # Calculate pred_var at pred_points after add_point
@@ -1332,11 +1269,11 @@ GauPro_kernel_model <- R6::R6Class(
           # t2 <- apply(dC_dx, 1, function(U) {U %*% Cinv_Z_minus_Zhat})
           t2 <- arma_mult_cube_vec(dC_dx, Cinv_Z_minus_Zhat)
 
-          if (ncol(dtrend_dx) > 1) {
+          # if (ncol(dtrend_dx) > 1) {
             dtrend_dx + t(t2)
-          } else {
-            dtrend_dx + t2
-          }
+          # } else { # 1D needed transpose, not anymore
+            # dtrend_dx + t2 # No longer needed with arma_mult_cube_vec
+          # }
           # dtrend_dx + dC_dx %*% solve(self$K, Z - trendX)
         },
         grad_norm = function (XX) {
@@ -1357,7 +1294,7 @@ GauPro_kernel_model <- R6::R6Class(
           # c2 <- self$kernel$d2C_dudv(XX=XX, X=XX) # Moving these into for loop to speed up
           # c1 <- self$kernel$dC_dx(XX=XX, X=self$X)
           # # cv <- c2 - t(c1) %*% solve(self$Kinv, c1)
-          cv <- array(data = NA, dim = c(nn, self$D, self$D))
+          cv <- array(data = NA_real_, dim = c(nn, self$D, self$D))
           for (i in 1:nn) {
             c2 <- self$kernel$d2C_dudv(XX=XX[i,,drop=F], X=XX[i,,drop=F])
             c1 <- self$kernel$dC_dx(XX=XX[i,,drop=F], X=self$X)
@@ -1383,9 +1320,14 @@ GauPro_kernel_model <- R6::R6Class(
         grad_norm2_mean = function(XX) {
           # Calculate mean of squared norm of gradient
           # Twice as fast as use self$grad_norm2_dist(XX)$mean
-          sapply(1:nrow(XX), function(i) {
+          sapply(1:nrow(XX), function(i) {if(debugthis) {browser()}
             grad_dist_i <- self$grad_dist(XX=XX[i, , drop=FALSE])
             sum(grad_dist_i$mean^2) + sum(diag(grad_dist_i$cov[1,,]))
+            if (ncol(XX)==1 ) {
+              sum(grad_dist_i$mean^2) + ((grad_dist_i$cov[1,,]))
+            } else {
+              sum(grad_dist_i$mean^2) + sum(diag(grad_dist_i$cov[1,,]))
+            }
           })
         },
         grad_norm2_dist = function(XX) {
@@ -1422,7 +1364,7 @@ GauPro_kernel_model <- R6::R6Class(
           # Get samples of squared norm of gradient, check with grad_norm2_dist
           d <- ncol(XX)
           nn <- nrow(XX)
-          out_sample <- matrix(NA, nn, n)
+          out_sample <- matrix(NA_real_, nn, n)
           for (i in 1:nn) {
             grad_dist_i <- self$grad_dist(XX=XX[i, , drop=FALSE])
             mean_i <- grad_dist_i$mean[1,]
@@ -1467,7 +1409,7 @@ GauPro_kernel_model <- R6::R6Class(
           } else {
             if (ncol(XX) != self$D) {stop("Wrong dimension input")}
           }
-          hess1 <- array(NaN, dim = c(nrow(XX), self$D, self$D))
+          hess1 <- array(NA_real_, dim = c(nrow(XX), self$D, self$D))
           for (i in 1:nrow(XX)) { # 0 bc assume trend has zero hessian
             d2 <- self$kernel$d2C_dx2(XX=XX[i,,drop=F], X=self$X)
             for (j in 1:self$D) {
