@@ -9,9 +9,3 @@ r_packages:
 
 after_success:
   - Rscript -e 'library(covr); codecov()'
-
-matrix:
-  include:
-    - os: linux
-      sudo: false
-      env: COMPONENTS=tbb
