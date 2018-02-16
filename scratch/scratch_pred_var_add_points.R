@@ -136,8 +136,8 @@ set.seed(0)
 n <- 29
 x <- lhs::maximinLHS(n=n, k=2)
 y <- TestFunctions::banana(x)
-xx <- lhs::randomLHS(n=30, k = 2)
-yy <- lhs::randomLHS(n=1e4, k = 2)
+xx <- lhs::randomLHS(n=3, k = 2)
+yy <- lhs::randomLHS(n=7, k = 2)
 gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian, nug=1e-8, nug.est = F)
 t1 <- apply(xx, 1, function(xi) gp$pred_var_after_adding_points(add_points = xi, pred_points = yy))
 t2 <- gp$pred_var_after_adding_points_sep(add_points = xx, pred_points = yy)
@@ -151,20 +151,36 @@ microbenchmark::microbenchmark(
 # Checking growth, its linear in add_points and pred_points
 # ms <- c(100, 300,1e3, 2e3, 3e3, 5e3, 6e3, 7e3, 8e3, 1e4, 2e4)
 ms <- c(20,40,50,60,70,80,90,1e2)
+ms <- c(floor(seq(from=20, to=120, l=25)), 200,300)
 xx2 <- matrix(runif(2000), ncol=1)
 ts <- sapply(
   ms,
   function(m) {
     xm <- lhs::randomLHS(n = m, k = 2)
     gp$update(Xall = xm, Zall = TestFunctions::banana(xm))
-    system.time({
-      # Check growth in add_points
-      # gp$pred_var_after_adding_points_sep(add_points = xm, pred_points = xx)
-      # Check growth in pred_points
-      # gp$pred_var_after_adding_points_sep(add_points = xx, pred_points = xm)
-      # Check growth in design points
-      gp$pred_var_after_adding_points_sep(add_points = xx, pred_points = xm)
-    })[3]
+    # system.time({
+    #   # Check growth in add_points
+    #   # gp$pred_var_after_adding_points_sep(add_points = xm, pred_points = xx)
+    #   # Check growth in pred_points
+    #   # gp$pred_var_after_adding_points_sep(add_points = xx, pred_points = xm)
+    #   # Check growth in design points
+    #   gp$pred_var_after_adding_points_sep(add_points = xx, pred_points = xm)
+    # })[3]
+    microbenchmark::microbenchmark(gp$pred_var_after_adding_points_sep(add_points = xx, pred_points = xm), times=1)$time
   }
 )
-plot(ms, ts)
+plot(ms, ts)#, log='y')
+
+
+set.seed(0)
+n <- 50
+x <- lhs::maximinLHS(n=n, k=2)
+y <- TestFunctions::banana(x)
+xx <- lhs::randomLHS(n=100, k = 2)
+yy <- lhs::randomLHS(n=1e4, k = 2)
+gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian, nug=1e-8, nug.est = F)
+a1 <- gp$pred_var_after_adding_points_sep(add_points = xx, pred_points = yy)
+a2 <- gp$pred_var_after_adding_points_sep2(add_points = xx, pred_points = yy)
+all.equal(a1, a2)
+microbenchmark::microbenchmark(gp$pred_var_after_adding_points_sep(add_points = xx, pred_points = yy)
+                               ,gp$pred_var_after_adding_points_sep2(add_points = xx, pred_points = yy))
