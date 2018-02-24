@@ -378,9 +378,13 @@ GauPro_kernel_model <- R6::R6Class(
           #  but work out. Make it fast and vectorized.
           # Check against pred_var_after_adding_points.
           if (!is.matrix(add_points)) {
-            if (length(add_points) != self$D) {stop("add_points must be matrix or of length D")}
+            if (length(add_points) != self$D) {
+              stop("add_points must be matrix or of length D")
+            }
             else {add_points <- matrix(add_points, nrow=1)}
-          } else if (ncol(add_points) != self$D) {stop("add_points must have dimension D")}
+          } else if (ncol(add_points) != self$D) {
+            stop("add_points must have dimension D")
+          }
           C_S <- self$s2_hat * (1+self$nug)
           C_XS <- self$kernel$k(self$X, add_points)
           C_X_inv_C_XS <- self$Kinv %*% C_XS
@@ -392,7 +396,8 @@ GauPro_kernel_model <- R6::R6Class(
           C_Xa <- self$kernel$k(self$X, pred_points) # matrix
           C_Sa <- self$kernel$k(add_points, pred_points) # matrix
           t1a <- colSums(C_Xa * (self$Kinv %*% C_Xa))
-          t1 <- sweep(sweep((t(C_Xa) %*% C_X_inv_C_XS)^2, 2, G, `*`), 1, t1a, `+`)
+          t1 <- sweep(sweep((t(C_Xa) %*% C_X_inv_C_XS)^2, 2, G, `*`),
+                      1, t1a, `+`)
           t2 <- -2*sweep((t(C_X_inv_C_XS) %*% C_Xa) * C_Sa, 1, G, `*`)
           t3 <- sweep((C_Sa)^2, 1, G, `*`)
           return(C_a - (t1 + t(t2 + t3)))
@@ -440,7 +445,8 @@ GauPro_kernel_model <- R6::R6Class(
           if (!is.matrix(add_points) || ncol(add_points) != self$D) {
             stop("add_points must be a matrix with D columns")
           }
-          # C_S <- self$s2_hat * diag(1 + self$nug, nrow(add_points)) # Assumes correlation structure
+          # C_S <- self$s2_hat * diag(1 + self$nug, nrow(add_points))
+                   # Assumes correlation structure
           C_XS <- self$kernel$k(self$X, add_points)
           C_X_inv_C_XS <- self$Kinv %*% C_XS
           # G <- 1 / c(C_S - t(C_XS) %*% C_X_inv_C_XS)
@@ -477,10 +483,14 @@ GauPro_kernel_model <- R6::R6Class(
           x <- seq(x1, x2, length.out = nn)
           px <- self$pred(x, covmat = T)
           # n2 <- 20
-          Sigma.try <- try(newy <- MASS::mvrnorm(n=n2, mu=px$mean, Sigma=px$cov), silent = TRUE)
+          Sigma.try <- try(newy <- MASS::mvrnorm(n=n2, mu=px$mean,
+                                                 Sigma=px$cov),
+                           silent = TRUE)
           if (inherits(Sigma.try, "try-error")) {
             message("Adding nugget to cool1Dplot")
-            Sigma.try2 <- try(newy <- MASS::mvrnorm(n=n2, mu=px$mean, Sigma=px$cov + diag(self$nug, nrow(px$cov))))
+            Sigma.try2 <- try(
+              newy <- MASS::mvrnorm(n=n2, mu=px$mean,
+                                  Sigma=px$cov + diag(self$nug, nrow(px$cov))))
             if (inherits(Sigma.try2, "try-error")) {
               stop("Can't do cool1Dplot")
             }
@@ -515,8 +525,9 @@ GauPro_kernel_model <- R6::R6Class(
           }
           points(x,px$me, type='l', lwd=4)
           points(self$X,
-                 if (self$normalize) {self$Z * self$normalize_sd + self$normalize_mean}
-                   else {self$Z},
+                 if (self$normalize) {
+                   self$Z * self$normalize_sd + self$normalize_mean
+                 } else {self$Z},
                  pch=19, col=1, cex=2)
         },
         plot1D = function(n2=20, nn=201, col2=2, #"gray",
@@ -563,8 +574,9 @@ GauPro_kernel_model <- R6::R6Class(
           points(x, px$mean-2*px$se, type='l', col=col2, lwd=2)
           points(x,px$me, type='l', lwd=4)
           points(self$X,
-                 if (self$normalize) {self$Z * self$normalize_sd + self$normalize_mean}
-                 else {self$Z},
+                 if (self$normalize) {
+                   self$Z * self$normalize_sd + self$normalize_mean
+                 } else {self$Z},
                  pch=19, col=1, cex=2)
         },
         plot2D = function() {
@@ -581,7 +593,8 @@ GauPro_kernel_model <- R6::R6Class(
                                     pts=self$X)
         },
         loglikelihood = function(mu=self$mu_hatX, s2=self$s2_hat) {
-          -.5 * (self$N*log(s2) + log(det(self$K)) + t(self$Z - mu)%*%self$Kinv%*%(self$Z - mu)/s2)
+          -.5 * (self$N*log(s2) + log(det(self$K)) +
+                   t(self$Z - mu)%*%self$Kinv%*%(self$Z - mu)/s2)
         },
         get_optim_functions = function(param_update, nug.update) {
           # self$kernel$get_optim_functions(param_update=param_update)
@@ -1064,18 +1077,29 @@ GauPro_kernel_model <- R6::R6Class(
         #   self$nug <- nug
         #   self$update_K_and_estimates()
         # },
-        deviance = function(params=NULL, nug=self$nug, nuglog, trend_params=NULL) {#browser()#print(c(params, nuglog))
+        deviance = function(params=NULL, nug=self$nug, nuglog, trend_params=NULL) {
           if (!missing(nuglog) && !is.null(nuglog)) {
             nug <- 10^nuglog
           }
-          if (any(is.nan(params), is.nan(nug))) {if (self$verbose >= 2) {print("In deviance, returning Inf #92387")};return(Inf)}
+          if (any(is.nan(params), is.nan(nug))) {
+            if (self$verbose >= 2) {
+              print("In deviance, returning Inf #92387")
+            }
+            return(Inf)
+          }
           K <- self$kernel$k(x=self$X, params=params) +
             diag(nug, self$N) * self$kernel$s2_from_params(params=params)
           if (is.nan(log(det(K)))) {browser();return(Inf)}
           Z_hat <- self$trend$Z(X=self$X, params=trend_params)
-          # dev.try <- try(dev <- log(det(K)) + sum((self$Z - self$mu_hat) * solve(K, self$Z - self$mu_hat)))
+          # dev.try <- try(dev <- log(det(K)) + sum((self$Z - self$mu_hat) *
+          #                            solve(K, self$Z - self$mu_hat)))
           dev.try <- try(dev <- log(det(K)) + sum((self$Z - Z_hat) * solve(K, self$Z - Z_hat)))
-          if (inherits(dev.try, "try-error")) {if (self$verbose>=2) {print("Deviance error #87126, returning Inf")}; return(Inf)}
+          if (inherits(dev.try, "try-error")) {
+            if (self$verbose>=2) {
+              print("Deviance error #87126, returning Inf")
+            }
+            return(Inf)
+          }
           # print(c(params, nuglog, dev))
           if (is.infinite(abs(dev))) {if (self$verbose>=2) {print("Deviance infinite #2332, returning Inf")};return(Inf)}
           dev
@@ -1238,7 +1262,9 @@ GauPro_kernel_model <- R6::R6Class(
             if (is.infinite(abs(dev))) {
               if (self$verbose>=2) {
                 # print("Deviance infinite #2333, returning Inf")
-                print("Deviance infinite #2333, returning 1e100, this is a hack and gives noticeable worse results on this restart.")
+                print("Deviance infinite #2333, returning 1e100,
+                      this is a hack and gives noticeable worse
+                      results on this restart.")
               }
               dev <- 1e100 # .Machine$double.xmax # Inf
             }
