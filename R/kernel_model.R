@@ -941,7 +941,8 @@ GauPro_kernel_model <- R6::R6Class(
                 }
               }
             } else {
-              optim(start.par.i, optim.func, method="L-BFGS-B", lower=lower, upper=upper, hessian=F)
+              optim(start.par.i, optim.func, method="L-BFGS-B",
+                    lower=lower, upper=upper, hessian=F)
             }
           )
           if (!inherits(current, "try-error")) {
@@ -964,11 +965,15 @@ GauPro_kernel_model <- R6::R6Class(
         },
         update = function (Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL,
                            restarts = self$restarts,
-                           param_update = self$param.est, nug.update = self$nug.est, no_update=FALSE) {
+                           param_update = self$param.est,
+                           nug.update = self$nug.est, no_update=FALSE) {
           self$update_data(Xnew=Xnew, Znew=Znew, Xall=Xall, Zall=Zall) # Doesn't update Kinv, etc
 
-          if (!no_update && (param_update || nug.update)) { # This option lets it skip parameter optimization entirely
-            self$update_params(restarts=restarts, param_update=param_update,nug.update=nug.update)
+          if (!no_update && (param_update || nug.update)) {
+            # This option lets it skip parameter optimization entirely
+            self$update_params(restarts=restarts,
+                               param_update=param_update,
+                               nug.update=nug.update)
           }
 
           self$update_K_and_estimates()
@@ -994,7 +999,8 @@ GauPro_kernel_model <- R6::R6Class(
           K3[inds2, inds2] <- K2
 
           # Check for accuracy
-          # summary(c(K3 - (self$kernel$k(self$X) + diag(self$kernel$s2*self$nug, self$N))))
+          # summary(c(K3 - (self$kernel$k(self$X) +
+          #                   diag(self$kernel$s2*self$nug, self$N))))
 
           self$K <- K3
 
@@ -1017,7 +1023,8 @@ GauPro_kernel_model <- R6::R6Class(
           self$Kinv <- K3inv
 
           # self$mu_hatX <- self$trend$Z(X=self$X)
-          self$mu_hatX <- rbind(self$mu_hatX,self$trend$Z(X=Xnew)) # Just rbind new values
+          # Just rbind new values
+          self$mu_hatX <- rbind(self$mu_hatX,self$trend$Z(X=Xnew))
 
           invisible(self)
         },
@@ -1046,7 +1053,8 @@ GauPro_kernel_model <- R6::R6Class(
             self$X <- if (is.matrix(Xall)) Xall else matrix(Xall,nrow=1)
             self$N <- nrow(self$X)
           } else if (!is.null(Xnew)) {
-            self$X <- rbind(self$X, if (is.matrix(Xnew)) Xnew else matrix(Xnew,nrow=1))
+            self$X <- rbind(self$X,
+                            if (is.matrix(Xnew)) Xnew else matrix(Xnew,nrow=1))
             self$N <- nrow(self$X)
           }
           if (!is.null(Zall)) {
@@ -1058,10 +1066,13 @@ GauPro_kernel_model <- R6::R6Class(
             }
           } else if (!is.null(Znew)) {
             Znewmat <- if (is.matrix(Znew)) Znew else matrix(Znew,ncol=1)
-            if (self$normalize) {Znewmat <- (Znewmat - self$normalize_mean) / self$normalize_sd}
+            if (self$normalize) {
+              Znewmat <- (Znewmat - self$normalize_mean) / self$normalize_sd
+            }
             self$Z <- rbind(self$Z, Znewmat)
           }
-          #if (!is.null(Xall) | !is.null(Xnew)) {self$update_K_and_estimates()} # update Kinv, etc, DONT THINK I NEED IT
+          #if (!is.null(Xall) | !is.null(Xnew)) {self$update_K_and_estimates()}
+                                  # update Kinv, etc, DONT THINK I NEED IT
         },
         update_corrparams = function (...) {
           self$update(nug.update = F, ...=...)
@@ -1070,7 +1081,8 @@ GauPro_kernel_model <- R6::R6Class(
           self$update(param_update = F, ...=...)
         },
         # deviance_searchnug = function() {
-        #   optim(self$nug, function(nnug) {self$deviance(nug=nnug)}, method="L-BFGS-B", lower=0, upper=Inf, hessian=F)$par
+        #   optim(self$nug, function(nnug) {self$deviance(nug=nnug)},
+        #       method="L-BFGS-B", lower=0, upper=Inf, hessian=F)$par
         # },
         # nugget_update = function () {
         #   nug <- self$deviance_searchnug()
@@ -1093,7 +1105,9 @@ GauPro_kernel_model <- R6::R6Class(
           Z_hat <- self$trend$Z(X=self$X, params=trend_params)
           # dev.try <- try(dev <- log(det(K)) + sum((self$Z - self$mu_hat) *
           #                            solve(K, self$Z - self$mu_hat)))
-          dev.try <- try(dev <- log(det(K)) + sum((self$Z - Z_hat) * solve(K, self$Z - Z_hat)))
+          dev.try <- try(
+            dev <- log(det(K)) + sum((self$Z - Z_hat) * solve(K, self$Z - Z_hat))
+          )
           if (inherits(dev.try, "try-error")) {
             if (self$verbose>=2) {
               print("Deviance error #87126, returning Inf")
@@ -1101,7 +1115,12 @@ GauPro_kernel_model <- R6::R6Class(
             return(Inf)
           }
           # print(c(params, nuglog, dev))
-          if (is.infinite(abs(dev))) {if (self$verbose>=2) {print("Deviance infinite #2332, returning Inf")};return(Inf)}
+          if (is.infinite(abs(dev))) {
+            if (self$verbose>=2) {
+              print("Deviance infinite #2332, returning Inf")
+            }
+            return(Inf)
+          }
           dev
         },
         deviance_grad = function(params=NULL, kernel_update=TRUE,
