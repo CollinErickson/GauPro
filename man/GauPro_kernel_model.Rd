@@ -42,14 +42,16 @@ Allows for different kernel and trend functions to be used.
 
 \item{\code{parallel}}{Should the code be run in parallel?}
 
-\item{\code{parallel_cores}}{How many cores are there? It will self detect, do not set yourself.}
+\item{\code{parallel_cores}}{How many cores are there? By default it detects.}
 }}
 
 \section{Methods}{
 
 \describe{
-  \item{\code{new(X, Z, corr="Gauss", verbose=0, separable=T, useC=F,useGrad=T,
-         parallel=T, nug.est=T, ...)}}{This method is used to create object of this
+  \item{\code{new(X, Z, corr="Gauss", verbose=0, separable=T, useC=F,
+                  useGrad=T,
+         parallel=T, nug.est=T, ...)}}{
+         This method is used to create object of this
          class with \code{X} and \code{Z} as the data.}
 
   \item{\code{update(Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL,
@@ -63,7 +65,8 @@ model, adding new data if given, then running optimization again.}
 n <- 12
 x <- matrix(seq(0,1,length.out = n), ncol=1)
 y <- sin(2*pi*x) + rnorm(n,0,1e-1)
-gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian$new(1), parallel=FALSE)
+gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian$new(1),
+                              parallel=FALSE)
 gp$predict(.454)
 }
 \keyword{Gaussian}
