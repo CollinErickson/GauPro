@@ -851,7 +851,11 @@ GauPro_kernel_model <- R6::R6Class(
           param_optim_start_mat <- self$param_optim_start_mat(restarts=restarts,
                                                               nug.update=nug.update,
                                                               l=length(lower))
-
+          if (!is.matrix(param_optim_start_mat)) {
+            # Is a vector, should be a matrix with one row since it applies
+            #    over columns
+            param_optim_start_mat <- matrix(param_optim_start_mat, nrow=1)
+          }
 
           # This will make sure it at least can start
           # Run before it sets initial parameters
@@ -1110,15 +1114,21 @@ GauPro_kernel_model <- R6::R6Class(
           invisible(self)
         },
         update_params = function(..., nug.update) {
-          # start_params = self$kernel$get_optim_start_params()
-          optim_out <- self$optim(..., nug.update=nug.update)
-          # lpar <- length(optim_out$par)
+          # Find lengths of params to optimize for each part
           tl <- length(self$trend$param_optim_start())
           kl <- length(self$kernel$param_optim_start())
           nl <- as.integer(nug.update)
           ti <- if (tl>0) {1:tl} else {c()}
           ki <- if (kl>0) {tl + 1:kl} else {c()}
           ni <- if (nl>0) {tl+kl+1:nl} else {c()}
+
+          # If no params to optim, just return
+          if (tl+kl+nl == 0) {return()}
+
+          # Run optimization
+          optim_out <- self$optim(..., nug.update=nug.update)
+
+          # Split output into parts
           if (nug.update) {
             # self$nug <- optim_out$par[lpar] # optim already does 10^
             # self$kernel$set_params_from_optim(optim_out$par[1:(lpar-1)])
