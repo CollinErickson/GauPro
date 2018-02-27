@@ -156,20 +156,6 @@ kernel_gauss_dC <- function(x, theta, C_nonug, s2_est, beta_est, lenparams_D, s2
     .Call(`_GauPro_kernel_gauss_dC`, x, theta, C_nonug, s2_est, beta_est, lenparams_D, s2_nug)
 }
 
-#' Correlation Gaussian matrix in C using RcppParallel
-#'
-#' Faster than nonparallel version for D < 12 and > 20 rows
-#' @param x Matrix x
-#' @param y Matrix y, must have same number of columns as x
-#' @param theta Theta vector
-#' @return Correlation matrix
-#' @examples
-#' corr_gauss_matrixC(matrix(c(1,0,0,1),2,2), matrix(c(1,0,1,1),2,2), c(1,1))
-#' @export
-corr_gauss_matrixCpar <- function(x, y, theta) {
-    .Call(`_GauPro_corr_gauss_matrixCpar`, x, y, theta)
-}
-
 corr_matern32_matrixC <- function(x, y, theta) {
     .Call(`_GauPro_corr_matern32_matrixC`, x, y, theta)
 }
