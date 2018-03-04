@@ -58,17 +58,35 @@ trend_c <- R6::R6Class(
       matrix(0, nrow=nrow(X), ncol=ncol(X))
 
     },
-    param_optim_start = function(jitter, trend_est) {
-      0
+    param_optim_start = function(jitter, trend_est=self$m_est) {
+      if (trend_est) {
+        0
+      } else {
+        numeric(0)
+      }
     },
-    param_optim_start0 = function(jitter, trend_est) {
-      0
+    param_optim_start0 = function(jitter, trend_est=self$m_est) {
+      if (trend_est) {
+        0
+      } else {
+        numeric(0)
+      }
     },
-    param_optim_lower = function(jitter, trend_est) {
-      -Inf
+    param_optim_lower = function(jitter, trend_est=self$m_est) {
+      # -Inf
+      if (trend_est) {
+        -Inf
+      } else {
+        numeric(0)
+      }
     },
-    param_optim_upper = function(jitter, trend_est) {
-      Inf
+    param_optim_upper = function(jitter, trend_est=self$m_est) {
+      # Inf
+      if (trend_est) {
+        Inf
+      } else {
+        numeric(0)
+      }
     },
     set_params_from_optim = function(optim_out) {
       self$m <- optim_out
