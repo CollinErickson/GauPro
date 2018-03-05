@@ -308,6 +308,37 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
         }
       }
       d2C_dx2
+    },
+    d2C_dudv_ueqvrows = function(XX, theta, beta=self$beta, s2=self$s2) {
+      # Vectorized version of d2C_dudv for u=v for rows of XX
+      # Name is for "u equal v for rows of XX"
+      # For m1 matrix, following two are equal, this version 2.5x faster
+      # lapply(1:nrow(m1), function(i) {gp$kernel$d2C_dudv(XX = m1[i,,drop=F],
+      #                                           X = m1[i,,drop=F])[1,,,1]})
+      # gp$kernel$d2C_dudv_ueqvrows(XX = m1)
+      if (missing(theta)) {theta <- 10^beta}
+      if (!is.matrix(XX)) {stop("XX must be matrix")}
+      d <- ncol(XX)
+      nn <- nrow(XX)
+      d2C_dx2 <- array(NA, dim=c(nn, d, d))
+      for (i in 1:nn) {
+        Ci <- s2 * exp(-sum(theta * (XX[i,] - XX[i,]) ^ 2))
+        if (d > 1) {
+          for (j1 in 1:(d-1)) {
+            for (j2 in (j1+1):d) {
+              d2C_dx2[i, j1, j2] <- - 4 * theta[j1] *
+                (XX[i, j1] - XX[i, j1]) * theta[j2] *
+                (XX[i, j2] - XX[i, j2]) * Ci
+              d2C_dx2[i, j2, j1] <- d2C_dx2[i, j1, j2]
+            }
+          }
+        }
+        for (j in 1:d) {
+          d2C_dx2[i, j, j] <- 2 * theta[j] * Ci -
+            4 * theta[j]^2 * (XX[i, j] - XX[i, j])^2 * Ci
+        }
+      }
+      d2C_dx2
     }
   )
 )
