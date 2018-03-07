@@ -1424,7 +1424,8 @@ GauPro_kernel_model <- R6::R6Class(
           if (!is.matrix(grad1)) return(abs(grad1))
           apply(grad1,1, function(xx) {sqrt(sum(xx^2))})
         },
-        grad_dist = function(XX) {#browser()
+        grad_dist = function(XX) {
+          # Calculates distribution of gradient at rows of XX
           if (!is.matrix(XX)) {
             if (self$D == 1) XX <- matrix(XX, ncol=1)
             else if (length(XX) == self$D) XX <- matrix(XX, nrow=1)
@@ -1433,18 +1434,19 @@ GauPro_kernel_model <- R6::R6Class(
             if (ncol(XX) != self$D) {stop("Wrong dimension input")}
           }
           nn <- nrow(XX)
+          # Get mean from self$grad
           mn <- self$grad(XX=XX)
-          # c2 <- self$kernel$d2C_dudv(XX=XX, X=XX)
-          # # Moving these into for loop to speed up
-          # c1 <- self$kernel$dC_dx(XX=XX, X=self$X)
-          # # cv <- c2 - t(c1) %*% solve(self$Kinv, c1)
+          # Calculate covariance here
           cv <- array(data = NA_real_, dim = c(nn, self$D, self$D))
+          # New way calculates c1 and c2 outside loop
+          c2 <- self$kernel$d2C_dudv_ueqvrows(XX=XX)
+          c1 <- self$kernel$dC_dx(XX=XX, X=self$X)
           for (i in 1:nn) {
-            c2 <- self$kernel$d2C_dudv(XX=XX[i,,drop=F], X=XX[i,,drop=F])
-            c1 <- self$kernel$dC_dx(XX=XX[i,,drop=F], X=self$X)
-            tc1i <- c1[1,,] # 1D gives problem, only need transpose if D>1
+            # c2 <- self$kernel$d2C_dudv(XX=XX[i,,drop=F], X=XX[i,,drop=F])
+            # c1 <- self$kernel$dC_dx(XX=XX[i,,drop=F], X=self$X)
+            tc1i <- c1[i,,] # 1D gives problem, only need transpose if D>1
             if (!is.null(dim(tc1i))) {tc1i <- t(tc1i)}
-            cv[i, , ] <- c2[1,,,1] - c1[1,,] %*% (self$Kinv %*% tc1i)
+            cv[i, , ] <- c2[i,,] - c1[i,,] %*% (self$Kinv %*% tc1i)
           }
           list(mean=mn, cov=cv)
         },
