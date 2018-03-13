@@ -892,36 +892,57 @@ GauPro_kernel_model <- R6::R6Class(
           # runs them in parallel, first starts from current,
           #         rest are jittered or random
           sys_name <- Sys.info()["sysname"]
-          if (sys_name == "Windows" | !self$parallel) {
-            # Trying this so it works on Windows
-            restarts.out <- lapply( 1:(1+restarts),
-                              function(i){
-                                self$optimRestart(start.par=start.par,
-                                      start.par0=start.par0,
-                                      param_update=param_update,
-                                      nug.update=nug.update,
-                                      optim.func=optim.func,
-                                      optim.grad=optim.grad,
-                                      optim.fngr=optim.fngr,
-                                      lower=lower, upper=upper,
-                                      jit=(i!=1),
-                                      start.par.i=param_optim_start_mat[,i])})
-                                      #, mc.cores = parallel_cores)
+          if (!self$parallel) {
+            # Not parallel, just use lapply
+            restarts.out <- lapply(
+              1:(1+restarts),
+              function(i){
+                self$optimRestart(start.par=start.par,
+                                  start.par0=start.par0,
+                                  param_update=param_update,
+                                  nug.update=nug.update,
+                                  optim.func=optim.func,
+                                  optim.grad=optim.grad,
+                                  optim.fngr=optim.fngr,
+                                  lower=lower, upper=upper,
+                                  jit=(i!=1),
+                                  start.par.i=param_optim_start_mat[,i])})
+          } else if (sys_name == "Windows") {
+            parallel_cluster <- parallel::makeCluster(
+              spec = self$parallel_cores, type = "SOCK")
+            # Parallel on Windows
+            restarts.out <- parallel::clusterApplyLB(
+              cl=parallel_cluster,
+              1:(1+restarts),
+              function(i){
+                self$optimRestart(start.par=start.par,
+                                  start.par0=start.par0,
+                                  param_update=param_update,
+                                  nug.update=nug.update,
+                                  optim.func=optim.func,
+                                  optim.grad=optim.grad,
+                                  optim.fngr=optim.fngr,
+                                  lower=lower, upper=upper,
+                                  jit=(i!=1),
+                                  start.par.i=param_optim_start_mat[,i])})
+            parallel::stopCluster(parallel_cluster)
+            #, mc.cores = parallel_cores)
           } else { # Mac/Unix
-            restarts.out <- parallel::mclapply(1:(1+restarts),
-                               function(i){
-                                 self$optimRestart(start.par=start.par,
-                                                   start.par0=start.par0,
-                                                   param_update=param_update,
-                                                   nug.update=nug.update,
-                                                   optim.func=optim.func,
-                                                   optim.grad=optim.grad,
-                                                   optim.fngr=optim.fngr,
-                                                   lower=lower,
-                                                   upper=upper,
-                                                   jit=(i!=1))},
-                               start.par.i=param_optim_start_mat[,i],
-                               mc.cores = parallel_cores)
+            restarts.out <- parallel::mclapply(
+              1:(1+restarts),
+              function(i){
+                self$optimRestart(start.par=start.par,
+                                  start.par0=start.par0,
+                                  param_update=param_update,
+                                  nug.update=nug.update,
+                                  optim.func=optim.func,
+                                  optim.grad=optim.grad,
+                                  optim.fngr=optim.fngr,
+                                  lower=lower,
+                                  upper=upper,
+                                  jit=(i!=1))},
+              start.par.i=param_optim_start_mat[,i],
+              mc.cores = parallel_cores)
           }
           new.details <- t(sapply(restarts.out,function(dd){dd$deta}))
           vals <- sapply(restarts.out,
