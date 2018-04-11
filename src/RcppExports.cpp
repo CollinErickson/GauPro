@@ -492,3 +492,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// pred_meanC_mumat_fast
+arma::vec pred_meanC_mumat_fast(arma::mat XX, arma::mat kx_xx, arma::vec Kinv_Z_minus_mu_hatX, arma::mat mu_hatXX);
+RcppExport SEXP _GauPro_pred_meanC_mumat_fast(SEXP XXSEXP, SEXP kx_xxSEXP, SEXP Kinv_Z_minus_mu_hatXSEXP, SEXP mu_hatXXSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type XX(XXSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type kx_xx(kx_xxSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type Kinv_Z_minus_mu_hatX(Kinv_Z_minus_mu_hatXSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type mu_hatXX(mu_hatXXSEXP);
+    rcpp_result_gen = Rcpp::wrap(pred_meanC_mumat_fast(XX, kx_xx, Kinv_Z_minus_mu_hatX, mu_hatXX));
+    return rcpp_result_gen;
+END_RCPP
+}

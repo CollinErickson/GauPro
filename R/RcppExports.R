@@ -292,3 +292,7 @@ pred_meanC_mumat <- function(XX, kx_xx, mu_hatX, mu_hatXX, Kinv, Z) {
     .Call(`_GauPro_pred_meanC_mumat`, XX, kx_xx, mu_hatX, mu_hatXX, Kinv, Z)
 }
 
+pred_meanC_mumat_fast <- function(XX, kx_xx, Kinv_Z_minus_mu_hatX, mu_hatXX) {
+    .Call(`_GauPro_pred_meanC_mumat_fast`, XX, kx_xx, Kinv_Z_minus_mu_hatX, mu_hatXX)
+}
+

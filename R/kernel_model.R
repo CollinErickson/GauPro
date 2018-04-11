@@ -66,6 +66,7 @@ GauPro_kernel_model <- R6::R6Class(
         K = NULL,
         Kchol = NULL,
         Kinv = NULL,
+        Kinv_Z_minus_mu_hatX = NULL,
         verbose = 0,
         useC = TRUE,
         useGrad = FALSE,
@@ -181,6 +182,7 @@ GauPro_kernel_model <- R6::R6Class(
           self$Kinv <- chol2inv(self$Kchol)
           # self$mu_hat <- sum(self$Kinv %*% self$Z) / sum(self$Kinv)
           self$mu_hatX <- self$trend$Z(X=self$X)
+          self$Kinv_Z_minus_mu_hatX <- c(self$Kinv %*% (self$Z - self$mu_hatX))
           # self$s2_hat <- c(t(self$Z - self$mu_hat) %*% self$Kinv %*%
           #                               (self$Z - self$mu_hat) / self$N)
           self$s2_hat <- self$kernel$s2
@@ -263,8 +265,11 @@ GauPro_kernel_model <- R6::R6Class(
           # mu_hat_matX <- self$trend$Z(self$X)
           mu_hat_matXX <- self$trend$Z(XX)
 
-          mn <- pred_meanC_mumat(XX, kx.xx, self$mu_hatX, mu_hat_matXX,
-                                 self$Kinv, self$Z)
+          # mn <- pred_meanC_mumat(XX, kx.xx, self$mu_hatX, mu_hat_matXX,
+          #                        self$Kinv, self$Z)
+          # New way using _fast is O(n^2)
+          mn <- pred_meanC_mumat_fast(XX, kx.xx, self$Kinv_Z_minus_mu_hatX,
+                                      mu_hat_matXX)
 
           if (self$normalize) {
             mn <- mn * self$normalize_sd + self$normalize_mean
@@ -338,8 +343,15 @@ GauPro_kernel_model <- R6::R6Class(
           # pred_meanC(XX, kx.xx, self$mu_hat, self$Kinv, self$Z)
           # mu_hat_matX <- self$trend$Z(self$X)
           mu_hat_matXX <- self$trend$Z(XX)
-          pred_meanC_mumat(XX, kx.xx, self$mu_hatX, mu_hat_matXX,
-                           self$Kinv, self$Z)
+          # This way is O(n^2)
+          # pred_meanC_mumat(XX, kx.xx, self$mu_hatX, mu_hat_matXX,
+                           # self$Kinv, self$Z)
+          # New way is O(n), but not faster in R
+          # mu_hat_matXX +
+          #   colSums(sweep(kx.xx, 1, self$Kinv_Z_minus_mu_hatX, `*`))
+          # Rcpp code is slightly fast for small n, 2x for bigger n,
+          pred_meanC_mumat_fast(XX, kx.xx, self$Kinv_Z_minus_mu_hatX,
+                                mu_hat_matXX)
         },
         pred_var = function(XX, kxx, kx.xx, covmat=F) {
           # 2-4x faster to use C functions pred_var and pred_cov
@@ -741,7 +753,9 @@ GauPro_kernel_model <- R6::R6Class(
             nug_start <- log(self$nug,10)
             if (jitter) {
               nug_start <- nug_start + rexp(1, 1)
-              nug_start <- min(max(log(self$nug.min,10), nug_start), log(self$nug.max,10))
+              nug_start <- min(max(log(self$nug.min,10),
+                                   nug_start),
+                               log(self$nug.max,10))
             }
             # c(param_start, nug_start)
           } else {
@@ -860,7 +874,8 @@ GauPro_kernel_model <- R6::R6Class(
           # This will make sure it at least can start
           # Run before it sets initial parameters
           # try.devlog <- try(devlog <- optim.func(start.par), silent = T)
-          try.devlog <- try(devlog <- optim.func(param_optim_start_mat[,1]), silent = T)
+          try.devlog <- try(devlog <- optim.func(param_optim_start_mat[,1]),
+                            silent = T)
           if (inherits(try.devlog, "try-error")) {
             warning("Current nugget doesn't work, increasing it #31973")
             # This will increase the nugget until cholesky works
@@ -908,9 +923,11 @@ GauPro_kernel_model <- R6::R6Class(
                                   jit=(i!=1),
                                   start.par.i=param_optim_start_mat[,i])})
           } else if (sys_name == "Windows") {
+            # Parallel on Windows
+            #  Not much speedup since it has to copy each time.
+            #  Only maybe worth it on big problems.
             parallel_cluster <- parallel::makeCluster(
               spec = self$parallel_cores, type = "SOCK")
-            # Parallel on Windows
             restarts.out <- parallel::clusterApplyLB(
               cl=parallel_cluster,
               1:(1+restarts),

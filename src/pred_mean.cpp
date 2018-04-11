@@ -31,9 +31,27 @@ arma::mat pred_cov(arma::mat XX, arma::mat kxx, arma::mat kx_xx, double s2_hat, 
 
 // Creating versions that take in mu_hat as vector
 
+// Does prediction using full Kinv, takes O(n^2)
 // [[Rcpp::export]]
 arma::vec pred_meanC_mumat(arma::mat XX, arma::mat kx_xx, arma::mat mu_hatX, arma::mat mu_hatXX, arma::mat Kinv, arma::mat Z) {
   return mu_hatXX + trans(kx_xx) * Kinv * (Z - mu_hatX);
+}
+
+// Now I precalculate Kinv_Z_minus_mu_hatX since it doesn't depend on XX.
+// Makes it O(n) instead of O(n^2)
+// [[Rcpp::export]]
+arma::vec pred_meanC_mumat_fast(arma::mat XX, arma::mat kx_xx, arma::vec Kinv_Z_minus_mu_hatX, arma::mat mu_hatXX) {
+  // return mu_hatXX + sum(kx_xx * Kinv_Z_minus_mu_hatX);
+  arma::vec tvec = zeros(mu_hatXX.n_elem);
+  int ncols = kx_xx.n_cols;
+  int nrows = kx_xx.n_rows;
+  for (int i = 0; i < ncols; i++) {
+    tvec(i) = mu_hatXX(i, 0);
+    for (int j = 0; j < nrows; j++) {
+      tvec(i) += kx_xx(j, i) * Kinv_Z_minus_mu_hatX(j);
+    }
+  }
+  return tvec;
 }
 
 
