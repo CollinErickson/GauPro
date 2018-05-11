@@ -298,6 +298,31 @@ test_that("kernel_Periodic works", {
     tol=.01
   )
 })
+test_that("kernel_PowerExp works", {
+  set.seed(0)
+  n <- 20
+  x <- matrix(seq(0,1,length.out = n), ncol=1)
+  f <- Vectorize(function(x) {sin(2*pi*x) + .001*sin(8*pi*x) +rnorm(1,0,.03)})
+  y <- f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
+  gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=PowerExp$new(1, alpha=1), parallel=FALSE, verbose=10, nug.est=T, restarts=1)
+
+  expect_equal(gp$kernel$beta, 0.783801906330017, tolerance=.01)
+  expect_equal(gp$kernel$alpha, 1.98088200644922, tolerance=.01)
+  expect_equal(gp$kernel$logs2, -0.0514541683404154, tolerance=.01)
+  expect_equal(log(gp$nug,10), -3.565321, tolerance=.1)
+  expect_equal(
+    # numDeriv::grad(func = function(x) {gp$deviance(params=x[1:3], nuglog=x[4])}, x=c(-.7,.227, .65, -3.66)),
+    c(27.86004234, -43.18817540,  31.76892239,   0.07266018),
+    gp$deviance_grad(params = c(-.7,.227, .65), nug.update=T, nuglog=-3.66, trend_update=FALSE),
+    tol=.1
+  )
+  expect_equal(
+    # numDeriv::grad(func = function(x) {gp$deviance(params=x[1:3], nuglog=x[4])}, x=c(2.5, 1.2, -.2, -5)),
+    c(0.0600704370, -0.0768150675, 10.8086791014,  0.0001081507),
+    gp$deviance_grad(params = c(2.5, 1.2, -.2), nug.update=T, nuglog = -5, trend_update=FALSE),
+    tol=.01
+  )
+})
 
 test_that("kernel_White works", {
   set.seed(0)
