@@ -127,6 +127,7 @@ GauPro_kernel_modelprofile <- R6::R6Class(
       if (missing(use_profile)) {
         if (missing(trend)) {
           use_profile <- TRUE
+          self$trend <- trend_c$new()
         } else {
           if (use_profile) {
             self$trend <- trend_c$new()
