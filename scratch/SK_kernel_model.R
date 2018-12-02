@@ -81,7 +81,7 @@ GauProSK_kernel_model <- R6::R6Class(
     #deviance_out = NULL, #(theta, nug)
     #deviance_grad_out = NULL, #(theta, nug, overwhat)
     #deviance_fngr_out = NULL,
-    initialize = function(X, Z,
+    initialize = function(X, Z, A,
                           kernel, trend,
                           verbose=0, useC=F,useGrad=T,
                           parallel=FALSE, parallel_cores="detect",
@@ -94,6 +94,7 @@ GauProSK_kernel_model <- R6::R6Class(
       #                      parallel=parallel, nug.est=nug.est)
       self$X <- X
       self$Z <- matrix(Z, ncol=1)
+      self$A <- A
       self$normalize <- normalize
       if (self$normalize) {
         self$normalize_mean <- mean(self$Z)
