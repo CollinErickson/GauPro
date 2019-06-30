@@ -17,7 +17,7 @@ Imports:
     Rcpp,
     R6,
     lbfgs
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 Suggests: testthat,
     knitr,
     rmarkdown,
@@ -27,3 +27,4 @@ Suggests: testthat,
 VignetteBuilder: knitr
 URL: https://github.com/CollinErickson/GauPro
 BugReports: https://github.com/CollinErickson/GauPro/issues
+Encoding: UTF-8
