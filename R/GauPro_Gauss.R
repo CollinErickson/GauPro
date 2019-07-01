@@ -391,7 +391,7 @@ GauPro_Gauss <- R6::R6Class(classname = "GauPro_Gauss",
 
 
        print = function() {
-         cat("GauPro object of GauPr_Gauss\n")
+         cat("GauPro object of GauPro_Gauss\n")
          cat(paste0("\tD = ", self$D, ", N = ", self$N,"\n"))
          cat(paste0(c("\tTheta = ", signif(self$theta, 3), "\n")))
          cat(paste0("\tNugget = ", signif(self$nug, 3), "\n"))
