@@ -13,6 +13,7 @@
 #' y <- (2*x) %%1
 #' gp <- GauPro(X=x, Z=y, parallel=FALSE)
 GauPro <- function(..., type="Gauss") {
+  if (type!= "Gauss") {stop("This only works with type='Gauss'. Instead try GauPro_kernel_model$new(x,y, kernel=<kernel name>)")}
   gp <- GauPro_Gauss$new(...)
   return(gp)
 }
