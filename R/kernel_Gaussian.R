@@ -325,6 +325,7 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
       nn <- nrow(XX)
       d2C_dx2 <- array(0, dim=c(nn, d, d))
       for (j in 1:d) {
+        # Not multiplied by C since C=1 when u=v
         d2C_dx2[, j, j] <- 2 * theta[j] * s2
       }
       d2C_dx2
