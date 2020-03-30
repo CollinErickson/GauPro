@@ -4,14 +4,15 @@
 \name{kernel_product}
 \alias{kernel_product}
 \title{Gaussian Kernel R6 class}
-\format{\code{\link{R6Class}} object.}
-\usage{
-kernel_product
+\format{
+\code{\link{R6Class}} object.
 }
 \value{
 Object of \code{\link{R6Class}} with methods for fitting GP model.
 }
 \description{
+Gaussian Kernel R6 class
+
 Gaussian Kernel R6 class
 }
 \examples{
@@ -25,3 +26,146 @@ k$k(matrix(c(2,1), ncol=1))
 \keyword{kriging,}
 \keyword{process,}
 \keyword{regression}
+\section{Super class}{
+\code{\link[GauPro:GauPro_kernel]{GauPro::GauPro_kernel}} -> \code{GauPro_kernel_product}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-new}{\code{kernel_product$new()}}
+\item \href{#method-k}{\code{kernel_product$k()}}
+\item \href{#method-param_optim_start}{\code{kernel_product$param_optim_start()}}
+\item \href{#method-param_optim_start0}{\code{kernel_product$param_optim_start0()}}
+\item \href{#method-param_optim_lower}{\code{kernel_product$param_optim_lower()}}
+\item \href{#method-param_optim_upper}{\code{kernel_product$param_optim_upper()}}
+\item \href{#method-set_params_from_optim}{\code{kernel_product$set_params_from_optim()}}
+\item \href{#method-dC_dparams}{\code{kernel_product$dC_dparams()}}
+\item \href{#method-C_dC_dparams}{\code{kernel_product$C_dC_dparams()}}
+\item \href{#method-dC_dx}{\code{kernel_product$dC_dx()}}
+\item \href{#method-s2_from_params}{\code{kernel_product$s2_from_params()}}
+\item \href{#method-clone}{\code{kernel_product$clone()}}
+}
+}
+\if{html}{
+\out{<details open ><summary>Inherited methods</summary>}
+\itemize{
+}
+\out{</details>}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
+\subsection{Method \code{new()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{kernel_product$new(k1, k2)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-k"></a>}}
+\if{latex}{\out{\hypertarget{method-k}{}}}
+\subsection{Method \code{k()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{kernel_product$k(x, y = NULL, params, ...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-param_optim_start"></a>}}
+\if{latex}{\out{\hypertarget{method-param_optim_start}{}}}
+\subsection{Method \code{param_optim_start()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{kernel_product$param_optim_start(jitter = F, y)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-param_optim_start0"></a>}}
+\if{latex}{\out{\hypertarget{method-param_optim_start0}{}}}
+\subsection{Method \code{param_optim_start0()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{kernel_product$param_optim_start0(jitter = F, y)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-param_optim_lower"></a>}}
+\if{latex}{\out{\hypertarget{method-param_optim_lower}{}}}
+\subsection{Method \code{param_optim_lower()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{kernel_product$param_optim_lower()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-param_optim_upper"></a>}}
+\if{latex}{\out{\hypertarget{method-param_optim_upper}{}}}
+\subsection{Method \code{param_optim_upper()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{kernel_product$param_optim_upper()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-set_params_from_optim"></a>}}
+\if{latex}{\out{\hypertarget{method-set_params_from_optim}{}}}
+\subsection{Method \code{set_params_from_optim()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{kernel_product$set_params_from_optim(optim_out)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-dC_dparams"></a>}}
+\if{latex}{\out{\hypertarget{method-dC_dparams}{}}}
+\subsection{Method \code{dC_dparams()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{kernel_product$dC_dparams(params = NULL, C, X, C_nonug, nug)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-C_dC_dparams"></a>}}
+\if{latex}{\out{\hypertarget{method-C_dC_dparams}{}}}
+\subsection{Method \code{C_dC_dparams()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{kernel_product$C_dC_dparams(params = NULL, X, nug)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-dC_dx"></a>}}
+\if{latex}{\out{\hypertarget{method-dC_dx}{}}}
+\subsection{Method \code{dC_dx()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{kernel_product$dC_dx(XX, X)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-s2_from_params"></a>}}
+\if{latex}{\out{\hypertarget{method-s2_from_params}{}}}
+\subsection{Method \code{s2_from_params()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{kernel_product$s2_from_params(params, s2_est = self$s2_est)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{kernel_product$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

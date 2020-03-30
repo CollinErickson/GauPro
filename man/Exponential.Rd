@@ -4,14 +4,15 @@
 \name{Exponential}
 \alias{Exponential}
 \title{Exponential Kernel R6 class}
-\format{\code{\link{R6Class}} object.}
-\usage{
-Exponential
+\format{
+\code{\link{R6Class}} object.
 }
 \value{
 Object of \code{\link{R6Class}} with methods for fitting GP model.
 }
 \description{
+Exponential Kernel R6 class
+
 Exponential Kernel R6 class
 }
 \examples{
@@ -22,3 +23,84 @@ k1 <- Exponential$new(beta=0)
 \keyword{kriging,}
 \keyword{process,}
 \keyword{regression}
+\section{Super classes}{
+\code{\link[GauPro:GauPro_kernel]{GauPro::GauPro_kernel}} -> \code{\link[GauPro:GauPro_kernel_beta]{GauPro::GauPro_kernel_beta}} -> \code{GauPro_kernel_Exponential}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-k}{\code{Exponential$k()}}
+\item \href{#method-kone}{\code{Exponential$kone()}}
+\item \href{#method-dC_dparams}{\code{Exponential$dC_dparams()}}
+\item \href{#method-dC_dx}{\code{Exponential$dC_dx()}}
+\item \href{#method-clone}{\code{Exponential$clone()}}
+}
+}
+\if{html}{
+\out{<details ><summary>Inherited methods</summary>}
+\itemize{
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="C_dC_dparams">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-C_dC_dparams}{\code{GauPro::GauPro_kernel_beta$C_dC_dparams()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="initialize">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-initialize}{\code{GauPro::GauPro_kernel_beta$initialize()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="param_optim_lower">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-param_optim_lower}{\code{GauPro::GauPro_kernel_beta$param_optim_lower()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="param_optim_start">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-param_optim_start}{\code{GauPro::GauPro_kernel_beta$param_optim_start()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="param_optim_start0">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-param_optim_start0}{\code{GauPro::GauPro_kernel_beta$param_optim_start0()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="param_optim_upper">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-param_optim_upper}{\code{GauPro::GauPro_kernel_beta$param_optim_upper()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="s2_from_params">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-s2_from_params}{\code{GauPro::GauPro_kernel_beta$s2_from_params()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="set_params_from_optim">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-set_params_from_optim}{\code{GauPro::GauPro_kernel_beta$set_params_from_optim()}}\out{</span>}
+}
+\out{</details>}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-k"></a>}}
+\if{latex}{\out{\hypertarget{method-k}{}}}
+\subsection{Method \code{k()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Exponential$k(x, y = NULL, beta = self$beta, s2 = self$s2, params = NULL)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-kone"></a>}}
+\if{latex}{\out{\hypertarget{method-kone}{}}}
+\subsection{Method \code{kone()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Exponential$kone(x, y, beta, theta, s2)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-dC_dparams"></a>}}
+\if{latex}{\out{\hypertarget{method-dC_dparams}{}}}
+\subsection{Method \code{dC_dparams()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Exponential$dC_dparams(params = NULL, X, C_nonug, C, nug)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-dC_dx"></a>}}
+\if{latex}{\out{\hypertarget{method-dC_dx}{}}}
+\subsection{Method \code{dC_dx()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Exponential$dC_dx(XX, X, theta, beta = self$beta, s2 = self$s2)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Exponential$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

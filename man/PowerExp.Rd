@@ -4,14 +4,15 @@
 \name{PowerExp}
 \alias{PowerExp}
 \title{Power Exponential Kernel R6 class}
-\format{\code{\link{R6Class}} object.}
-\usage{
-PowerExp
+\format{
+\code{\link{R6Class}} object.
 }
 \value{
 Object of \code{\link{R6Class}} with methods for fitting GP model.
 }
 \description{
+Power Exponential Kernel R6 class
+
 Power Exponential Kernel R6 class
 }
 \examples{
@@ -22,3 +23,191 @@ k1 <- PowerExp$new(beta=0, alpha=0)
 \keyword{kriging,}
 \keyword{process,}
 \keyword{regression}
+\section{Super classes}{
+\code{\link[GauPro:GauPro_kernel]{GauPro::GauPro_kernel}} -> \code{\link[GauPro:GauPro_kernel_beta]{GauPro::GauPro_kernel_beta}} -> \code{GauPro_kernel_PowerExp}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-new}{\code{PowerExp$new()}}
+\item \href{#method-k}{\code{PowerExp$k()}}
+\item \href{#method-kone}{\code{PowerExp$kone()}}
+\item \href{#method-dC_dparams}{\code{PowerExp$dC_dparams()}}
+\item \href{#method-dC_dx}{\code{PowerExp$dC_dx()}}
+\item \href{#method-param_optim_start}{\code{PowerExp$param_optim_start()}}
+\item \href{#method-param_optim_start0}{\code{PowerExp$param_optim_start0()}}
+\item \href{#method-param_optim_lower}{\code{PowerExp$param_optim_lower()}}
+\item \href{#method-param_optim_upper}{\code{PowerExp$param_optim_upper()}}
+\item \href{#method-set_params_from_optim}{\code{PowerExp$set_params_from_optim()}}
+\item \href{#method-clone}{\code{PowerExp$clone()}}
+}
+}
+\if{html}{
+\out{<details open ><summary>Inherited methods</summary>}
+\itemize{
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="C_dC_dparams">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-C_dC_dparams}{\code{GauPro::GauPro_kernel_beta$C_dC_dparams()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="s2_from_params">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-s2_from_params}{\code{GauPro::GauPro_kernel_beta$s2_from_params()}}\out{</span>}
+}
+\out{</details>}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
+\subsection{Method \code{new()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PowerExp$new(
+  alpha = 1.95,
+  beta,
+  s2 = 1,
+  D,
+  beta_lower = -8,
+  beta_upper = 6,
+  beta_est = TRUE,
+  alpha_lower = 0,
+  alpha_upper = 2,
+  alpha_est = TRUE,
+  s2_lower = 1e-08,
+  s2_upper = 1e+08,
+  s2_est = TRUE
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-k"></a>}}
+\if{latex}{\out{\hypertarget{method-k}{}}}
+\subsection{Method \code{k()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PowerExp$k(
+  x,
+  y = NULL,
+  beta = self$beta,
+  alpha = self$alpha,
+  s2 = self$s2,
+  params = NULL
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-kone"></a>}}
+\if{latex}{\out{\hypertarget{method-kone}{}}}
+\subsection{Method \code{kone()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PowerExp$kone(x, y, beta, theta, alpha, s2)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-dC_dparams"></a>}}
+\if{latex}{\out{\hypertarget{method-dC_dparams}{}}}
+\subsection{Method \code{dC_dparams()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PowerExp$dC_dparams(params = NULL, X, C_nonug, C, nug)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-dC_dx"></a>}}
+\if{latex}{\out{\hypertarget{method-dC_dx}{}}}
+\subsection{Method \code{dC_dx()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PowerExp$dC_dx(
+  XX,
+  X,
+  theta,
+  beta = self$beta,
+  alpha = self$alpha,
+  s2 = self$s2
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-param_optim_start"></a>}}
+\if{latex}{\out{\hypertarget{method-param_optim_start}{}}}
+\subsection{Method \code{param_optim_start()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PowerExp$param_optim_start(
+  jitter = F,
+  y,
+  beta_est = self$beta_est,
+  alpha_est = self$alpha_est,
+  s2_est = self$s2_est
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-param_optim_start0"></a>}}
+\if{latex}{\out{\hypertarget{method-param_optim_start0}{}}}
+\subsection{Method \code{param_optim_start0()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PowerExp$param_optim_start0(
+  jitter = F,
+  y,
+  beta_est = self$beta_est,
+  alpha_est = self$alpha_est,
+  s2_est = self$s2_est
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-param_optim_lower"></a>}}
+\if{latex}{\out{\hypertarget{method-param_optim_lower}{}}}
+\subsection{Method \code{param_optim_lower()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PowerExp$param_optim_lower(
+  beta_est = self$beta_est,
+  alpha_est = self$alpha_est,
+  s2_est = self$s2_est
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-param_optim_upper"></a>}}
+\if{latex}{\out{\hypertarget{method-param_optim_upper}{}}}
+\subsection{Method \code{param_optim_upper()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PowerExp$param_optim_upper(
+  beta_est = self$beta_est,
+  alpha_est = self$alpha_est,
+  s2_est = self$s2_est
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-set_params_from_optim"></a>}}
+\if{latex}{\out{\hypertarget{method-set_params_from_optim}{}}}
+\subsection{Method \code{set_params_from_optim()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PowerExp$set_params_from_optim(
+  optim_out,
+  beta_est = self$beta_est,
+  alpha_est = self$alpha_est,
+  s2_est = self$s2_est
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PowerExp$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

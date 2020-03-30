@@ -4,8 +4,7 @@
 \alias{predict.GauPro}
 \title{Predict for class GauPro}
 \usage{
-\method{predict}{GauPro}(object, XX, se.fit = F, covmat = F,
-  split_speed = T, ...)
+\method{predict}{GauPro}(object, XX, se.fit = F, covmat = F, split_speed = T, ...)
 }
 \arguments{
 \item{object}{Object of class GauPro}

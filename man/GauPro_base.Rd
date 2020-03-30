@@ -4,18 +4,42 @@
 \name{GauPro_base}
 \alias{GauPro_base}
 \title{Class providing object with methods for fitting a GP model}
-\format{\code{\link{R6Class}} object.}
-\usage{
-GauPro_base
+\format{
+\code{\link{R6Class}} object.
 }
 \value{
 Object of \code{\link{R6Class}} with methods for fitting GP model.
 }
 \description{
 Class providing object with methods for fitting a GP model
-}
-\section{Fields}{
 
+Class providing object with methods for fitting a GP model
+}
+\section{Methods}{
+
+\describe{
+  \item{\code{new(X, Z, corr="Gauss", verbose=0, separable=T, useC=F,useGrad=T,
+         parallel=T, nug.est=T, ...)}}{This method is used to create object of this class with \code{X} and \code{Z} as the data.}
+
+  \item{\code{update(Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL,
+restarts = 5,
+param_update = T, nug.update = self$nug.est)}}{This method updates the model, adding new data if given, then running optimization again.}
+  }
+}
+
+\examples{
+#n <- 12
+#x <- matrix(seq(0,1,length.out = n), ncol=1)
+#y <- sin(2*pi*x) + rnorm(n,0,1e-1)
+#gp <- GauPro(X=x, Z=y, parallel=FALSE)
+}
+\keyword{Gaussian}
+\keyword{data,}
+\keyword{kriging,}
+\keyword{process,}
+\keyword{regression}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
 \describe{
 \item{\code{X}}{Design matrix}
 
@@ -42,28 +66,367 @@ Class providing object with methods for fitting a GP model
 \item{\code{parallel}}{Should the code be run in parallel?}
 
 \item{\code{parallel_cores}}{How many cores are there? It will self detect, do not set yourself.}
-}}
-
-\section{Methods}{
-
+}
+\if{html}{\out{</div>}}
+}
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
-  \item{\code{new(X, Z, corr="Gauss", verbose=0, separable=T, useC=F,useGrad=T,
-         parallel=T, nug.est=T, ...)}}{This method is used to create object of this class with \code{X} and \code{Z} as the data.}
+\item{\code{corr}}{Type of correlation function}
 
-  \item{\code{update(Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL,
-restarts = 5,
-param_update = T, nug.update = self$nug.est)}}{This method updates the model, adding new data if given, then running optimization again.}
-  }
+\item{\code{separable}}{Are the dimensions separable?}
+}
+\if{html}{\out{</div>}}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-corr_func}{\code{GauPro_base$corr_func()}}
+\item \href{#method-new}{\code{GauPro_base$new()}}
+\item \href{#method-initialize_GauPr}{\code{GauPro_base$initialize_GauPr()}}
+\item \href{#method-fit}{\code{GauPro_base$fit()}}
+\item \href{#method-update_K_and_estimates}{\code{GauPro_base$update_K_and_estimates()}}
+\item \href{#method-predict}{\code{GauPro_base$predict()}}
+\item \href{#method-pred}{\code{GauPro_base$pred()}}
+\item \href{#method-pred_one_matrix}{\code{GauPro_base$pred_one_matrix()}}
+\item \href{#method-pred_mean}{\code{GauPro_base$pred_mean()}}
+\item \href{#method-pred_meanC}{\code{GauPro_base$pred_meanC()}}
+\item \href{#method-pred_var}{\code{GauPro_base$pred_var()}}
+\item \href{#method-pred_LOO}{\code{GauPro_base$pred_LOO()}}
+\item \href{#method-cool1Dplot}{\code{GauPro_base$cool1Dplot()}}
+\item \href{#method-plot1D}{\code{GauPro_base$plot1D()}}
+\item \href{#method-plot2D}{\code{GauPro_base$plot2D()}}
+\item \href{#method-loglikelihood}{\code{GauPro_base$loglikelihood()}}
+\item \href{#method-optim}{\code{GauPro_base$optim()}}
+\item \href{#method-optimRestart}{\code{GauPro_base$optimRestart()}}
+\item \href{#method-update}{\code{GauPro_base$update()}}
+\item \href{#method-update_data}{\code{GauPro_base$update_data()}}
+\item \href{#method-update_corrparams}{\code{GauPro_base$update_corrparams()}}
+\item \href{#method-update_nugget}{\code{GauPro_base$update_nugget()}}
+\item \href{#method-deviance_searchnug}{\code{GauPro_base$deviance_searchnug()}}
+\item \href{#method-nugget_update}{\code{GauPro_base$nugget_update()}}
+\item \href{#method-grad_norm}{\code{GauPro_base$grad_norm()}}
+\item \href{#method-sample}{\code{GauPro_base$sample()}}
+\item \href{#method-print}{\code{GauPro_base$print()}}
+\item \href{#method-clone}{\code{GauPro_base$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-corr_func"></a>}}
+\if{latex}{\out{\hypertarget{method-corr_func}{}}}
+\subsection{Method \code{corr_func()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_base$corr_func(...)}\if{html}{\out{</div>}}
 }
 
-\examples{
-#n <- 12
-#x <- matrix(seq(0,1,length.out = n), ncol=1)
-#y <- sin(2*pi*x) + rnorm(n,0,1e-1)
-#gp <- GauPro(X=x, Z=y, parallel=FALSE)
 }
-\keyword{Gaussian}
-\keyword{data,}
-\keyword{kriging,}
-\keyword{process,}
-\keyword{regression}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
+\subsection{Method \code{new()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_base$new(
+  X,
+  Z,
+  verbose = 0,
+  useC = F,
+  useGrad = T,
+  parallel = FALSE,
+  nug = 1e-06,
+  nug.min = 1e-08,
+  nug.est = T,
+  param.est = TRUE,
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-initialize_GauPr"></a>}}
+\if{latex}{\out{\hypertarget{method-initialize_GauPr}{}}}
+\subsection{Method \code{initialize_GauPr()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_base$initialize_GauPr()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-fit"></a>}}
+\if{latex}{\out{\hypertarget{method-fit}{}}}
+\subsection{Method \code{fit()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_base$fit(X, Z)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-update_K_and_estimates"></a>}}
+\if{latex}{\out{\hypertarget{method-update_K_and_estimates}{}}}
+\subsection{Method \code{update_K_and_estimates()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_base$update_K_and_estimates()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-predict"></a>}}
+\if{latex}{\out{\hypertarget{method-predict}{}}}
+\subsection{Method \code{predict()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_base$predict(XX, se.fit = F, covmat = F, split_speed = T)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-pred"></a>}}
+\if{latex}{\out{\hypertarget{method-pred}{}}}
+\subsection{Method \code{pred()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_base$pred(XX, se.fit = F, covmat = F, split_speed = T)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-pred_one_matrix"></a>}}
+\if{latex}{\out{\hypertarget{method-pred_one_matrix}{}}}
+\subsection{Method \code{pred_one_matrix()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_base$pred_one_matrix(XX, se.fit = F, covmat = F)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-pred_mean"></a>}}
+\if{latex}{\out{\hypertarget{method-pred_mean}{}}}
+\subsection{Method \code{pred_mean()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_base$pred_mean(XX, kx.xx)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-pred_meanC"></a>}}
+\if{latex}{\out{\hypertarget{method-pred_meanC}{}}}
+\subsection{Method \code{pred_meanC()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_base$pred_meanC(XX, kx.xx)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-pred_var"></a>}}
+\if{latex}{\out{\hypertarget{method-pred_var}{}}}
+\subsection{Method \code{pred_var()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_base$pred_var(XX, kxx, kx.xx, covmat = F)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-pred_LOO"></a>}}
+\if{latex}{\out{\hypertarget{method-pred_LOO}{}}}
+\subsection{Method \code{pred_LOO()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_base$pred_LOO(se.fit = FALSE)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-cool1Dplot"></a>}}
+\if{latex}{\out{\hypertarget{method-cool1Dplot}{}}}
+\subsection{Method \code{cool1Dplot()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_base$cool1Dplot(
+  n2 = 20,
+  nn = 201,
+  col2 = "gray",
+  xlab = "x",
+  ylab = "y",
+  xmin = NULL,
+  xmax = NULL,
+  ymin = NULL,
+  ymax = NULL
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-plot1D"></a>}}
+\if{latex}{\out{\hypertarget{method-plot1D}{}}}
+\subsection{Method \code{plot1D()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_base$plot1D(
+  n2 = 20,
+  nn = 201,
+  col2 = 2,
+  xlab = "x",
+  ylab = "y",
+  xmin = NULL,
+  xmax = NULL,
+  ymin = NULL,
+  ymax = NULL
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-plot2D"></a>}}
+\if{latex}{\out{\hypertarget{method-plot2D}{}}}
+\subsection{Method \code{plot2D()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_base$plot2D()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-loglikelihood"></a>}}
+\if{latex}{\out{\hypertarget{method-loglikelihood}{}}}
+\subsection{Method \code{loglikelihood()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_base$loglikelihood(mu = self$mu_hat, s2 = self$s2_hat)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-optim"></a>}}
+\if{latex}{\out{\hypertarget{method-optim}{}}}
+\subsection{Method \code{optim()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_base$optim(
+  restarts = 5,
+  param_update = T,
+  nug.update = self$nug.est,
+  parallel = self$parallel,
+  parallel_cores = self$parallel_cores
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-optimRestart"></a>}}
+\if{latex}{\out{\hypertarget{method-optimRestart}{}}}
+\subsection{Method \code{optimRestart()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_base$optimRestart(
+  start.par,
+  start.par0,
+  param_update,
+  nug.update,
+  optim.func,
+  optim.grad,
+  optim.fngr,
+  lower,
+  upper,
+  jit = T
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-update"></a>}}
+\if{latex}{\out{\hypertarget{method-update}{}}}
+\subsection{Method \code{update()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_base$update(
+  Xnew = NULL,
+  Znew = NULL,
+  Xall = NULL,
+  Zall = NULL,
+  restarts = 5,
+  param_update = self$param.est,
+  nug.update = self$nug.est,
+  no_update = FALSE
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-update_data"></a>}}
+\if{latex}{\out{\hypertarget{method-update_data}{}}}
+\subsection{Method \code{update_data()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_base$update_data(Xnew = NULL, Znew = NULL, Xall = NULL, Zall = NULL)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-update_corrparams"></a>}}
+\if{latex}{\out{\hypertarget{method-update_corrparams}{}}}
+\subsection{Method \code{update_corrparams()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_base$update_corrparams(...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-update_nugget"></a>}}
+\if{latex}{\out{\hypertarget{method-update_nugget}{}}}
+\subsection{Method \code{update_nugget()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_base$update_nugget(...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-deviance_searchnug"></a>}}
+\if{latex}{\out{\hypertarget{method-deviance_searchnug}{}}}
+\subsection{Method \code{deviance_searchnug()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_base$deviance_searchnug()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-nugget_update"></a>}}
+\if{latex}{\out{\hypertarget{method-nugget_update}{}}}
+\subsection{Method \code{nugget_update()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_base$nugget_update()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-grad_norm"></a>}}
+\if{latex}{\out{\hypertarget{method-grad_norm}{}}}
+\subsection{Method \code{grad_norm()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_base$grad_norm(XX)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-sample"></a>}}
+\if{latex}{\out{\hypertarget{method-sample}{}}}
+\subsection{Method \code{sample()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_base$sample(XX, n = 1)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
+\subsection{Method \code{print()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_base$print()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_base$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

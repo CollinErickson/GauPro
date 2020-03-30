@@ -4,14 +4,15 @@
 \name{Gaussian}
 \alias{Gaussian}
 \title{Gaussian Kernel R6 class}
-\format{\code{\link{R6Class}} object.}
-\usage{
-Gaussian
+\format{
+\code{\link{R6Class}} object.
 }
 \value{
 Object of \code{\link{R6Class}} with methods for fitting GP model.
 }
 \description{
+Gaussian Kernel R6 class
+
 Gaussian Kernel R6 class
 }
 \examples{
@@ -22,3 +23,114 @@ k1 <- Gaussian$new(beta=0)
 \keyword{kriging,}
 \keyword{process,}
 \keyword{regression}
+\section{Super classes}{
+\code{\link[GauPro:GauPro_kernel]{GauPro::GauPro_kernel}} -> \code{\link[GauPro:GauPro_kernel_beta]{GauPro::GauPro_kernel_beta}} -> \code{GauPro_kernel_Gaussian}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-k}{\code{Gaussian$k()}}
+\item \href{#method-dC_dparams}{\code{Gaussian$dC_dparams()}}
+\item \href{#method-C_dC_dparams}{\code{Gaussian$C_dC_dparams()}}
+\item \href{#method-dC_dx}{\code{Gaussian$dC_dx()}}
+\item \href{#method-d2C_dx2}{\code{Gaussian$d2C_dx2()}}
+\item \href{#method-d2C_dudv}{\code{Gaussian$d2C_dudv()}}
+\item \href{#method-d2C_dudv_ueqvrows}{\code{Gaussian$d2C_dudv_ueqvrows()}}
+\item \href{#method-clone}{\code{Gaussian$clone()}}
+}
+}
+\if{html}{
+\out{<details ><summary>Inherited methods</summary>}
+\itemize{
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="initialize">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-initialize}{\code{GauPro::GauPro_kernel_beta$initialize()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="kone">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-kone}{\code{GauPro::GauPro_kernel_beta$kone()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="param_optim_lower">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-param_optim_lower}{\code{GauPro::GauPro_kernel_beta$param_optim_lower()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="param_optim_start">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-param_optim_start}{\code{GauPro::GauPro_kernel_beta$param_optim_start()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="param_optim_start0">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-param_optim_start0}{\code{GauPro::GauPro_kernel_beta$param_optim_start0()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="param_optim_upper">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-param_optim_upper}{\code{GauPro::GauPro_kernel_beta$param_optim_upper()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="s2_from_params">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-s2_from_params}{\code{GauPro::GauPro_kernel_beta$s2_from_params()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="set_params_from_optim">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-set_params_from_optim}{\code{GauPro::GauPro_kernel_beta$set_params_from_optim()}}\out{</span>}
+}
+\out{</details>}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-k"></a>}}
+\if{latex}{\out{\hypertarget{method-k}{}}}
+\subsection{Method \code{k()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Gaussian$k(x, y = NULL, beta = self$beta, s2 = self$s2, params = NULL)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-dC_dparams"></a>}}
+\if{latex}{\out{\hypertarget{method-dC_dparams}{}}}
+\subsection{Method \code{dC_dparams()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Gaussian$dC_dparams(params = NULL, X, C_nonug, C, nug)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-C_dC_dparams"></a>}}
+\if{latex}{\out{\hypertarget{method-C_dC_dparams}{}}}
+\subsection{Method \code{C_dC_dparams()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Gaussian$C_dC_dparams(params = NULL, X, nug)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-dC_dx"></a>}}
+\if{latex}{\out{\hypertarget{method-dC_dx}{}}}
+\subsection{Method \code{dC_dx()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Gaussian$dC_dx(XX, X, theta, beta = self$beta, s2 = self$s2)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-d2C_dx2"></a>}}
+\if{latex}{\out{\hypertarget{method-d2C_dx2}{}}}
+\subsection{Method \code{d2C_dx2()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Gaussian$d2C_dx2(XX, X, theta, beta = self$beta, s2 = self$s2)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-d2C_dudv"></a>}}
+\if{latex}{\out{\hypertarget{method-d2C_dudv}{}}}
+\subsection{Method \code{d2C_dudv()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Gaussian$d2C_dudv(XX, X, theta, beta = self$beta, s2 = self$s2)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-d2C_dudv_ueqvrows"></a>}}
+\if{latex}{\out{\hypertarget{method-d2C_dudv_ueqvrows}{}}}
+\subsection{Method \code{d2C_dudv_ueqvrows()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Gaussian$d2C_dudv_ueqvrows(XX, theta, beta = self$beta, s2 = self$s2)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Gaussian$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

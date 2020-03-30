@@ -4,14 +4,15 @@
 \name{trend_c}
 \alias{trend_c}
 \title{Trend R6 class}
-\format{\code{\link{R6Class}} object.}
-\usage{
-trend_c
+\format{
+\code{\link{R6Class}} object.
 }
 \value{
 Object of \code{\link{R6Class}} with methods for fitting GP model.
 }
 \description{
+Trend R6 class
+
 Trend R6 class
 }
 \examples{
@@ -22,3 +23,126 @@ t1 <- trend_c$new()
 \keyword{kriging,}
 \keyword{process,}
 \keyword{regression}
+\section{Super class}{
+\code{\link[GauPro:GauPro_trend]{GauPro::GauPro_trend}} -> \code{GauPro_trend_c}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-new}{\code{trend_c$new()}}
+\item \href{#method-Z}{\code{trend_c$Z()}}
+\item \href{#method-dZ_dparams}{\code{trend_c$dZ_dparams()}}
+\item \href{#method-dZ_dx}{\code{trend_c$dZ_dx()}}
+\item \href{#method-param_optim_start}{\code{trend_c$param_optim_start()}}
+\item \href{#method-param_optim_start0}{\code{trend_c$param_optim_start0()}}
+\item \href{#method-param_optim_lower}{\code{trend_c$param_optim_lower()}}
+\item \href{#method-param_optim_upper}{\code{trend_c$param_optim_upper()}}
+\item \href{#method-set_params_from_optim}{\code{trend_c$set_params_from_optim()}}
+\item \href{#method-clone}{\code{trend_c$clone()}}
+}
+}
+\if{html}{
+\out{<details open ><summary>Inherited methods</summary>}
+\itemize{
+}
+\out{</details>}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
+\subsection{Method \code{new()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{trend_c$new(m = 0, m_lower = -Inf, m_upper = Inf, m_est = TRUE, D = NA)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Z"></a>}}
+\if{latex}{\out{\hypertarget{method-Z}{}}}
+\subsection{Method \code{Z()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{trend_c$Z(X, m = self$m, params = NULL)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-dZ_dparams"></a>}}
+\if{latex}{\out{\hypertarget{method-dZ_dparams}{}}}
+\subsection{Method \code{dZ_dparams()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{trend_c$dZ_dparams(X, m = self$m, params = NULL)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-dZ_dx"></a>}}
+\if{latex}{\out{\hypertarget{method-dZ_dx}{}}}
+\subsection{Method \code{dZ_dx()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{trend_c$dZ_dx(X, m = self$m, params = NULL)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-param_optim_start"></a>}}
+\if{latex}{\out{\hypertarget{method-param_optim_start}{}}}
+\subsection{Method \code{param_optim_start()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{trend_c$param_optim_start(jitter, trend_est = self$m_est)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-param_optim_start0"></a>}}
+\if{latex}{\out{\hypertarget{method-param_optim_start0}{}}}
+\subsection{Method \code{param_optim_start0()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{trend_c$param_optim_start0(jitter, trend_est = self$m_est)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-param_optim_lower"></a>}}
+\if{latex}{\out{\hypertarget{method-param_optim_lower}{}}}
+\subsection{Method \code{param_optim_lower()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{trend_c$param_optim_lower(jitter, trend_est = self$m_est)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-param_optim_upper"></a>}}
+\if{latex}{\out{\hypertarget{method-param_optim_upper}{}}}
+\subsection{Method \code{param_optim_upper()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{trend_c$param_optim_upper(jitter, trend_est = self$m_est)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-set_params_from_optim"></a>}}
+\if{latex}{\out{\hypertarget{method-set_params_from_optim}{}}}
+\subsection{Method \code{set_params_from_optim()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{trend_c$set_params_from_optim(optim_out)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{trend_c$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

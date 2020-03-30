@@ -4,14 +4,15 @@
 \name{GauPro_Gauss}
 \alias{GauPro_Gauss}
 \title{Corr Gauss GP using inherited optim}
-\format{\code{\link{R6Class}} object.}
-\usage{
-GauPro_Gauss
+\format{
+\code{\link{R6Class}} object.
 }
 \value{
 Object of \code{\link{R6Class}} with methods for fitting GP model.
 }
 \description{
+Corr Gauss GP using inherited optim
+
 Corr Gauss GP using inherited optim
 }
 \examples{
@@ -25,3 +26,330 @@ gp <- GauPro_Gauss$new(X=x, Z=y, parallel=FALSE)
 \keyword{kriging,}
 \keyword{process,}
 \keyword{regression}
+\section{Super class}{
+\code{\link[GauPro:GauPro]{GauPro::GauPro}} -> \code{GauPro_Gauss}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-new}{\code{GauPro_Gauss$new()}}
+\item \href{#method-corr_func}{\code{GauPro_Gauss$corr_func()}}
+\item \href{#method-deviance_theta}{\code{GauPro_Gauss$deviance_theta()}}
+\item \href{#method-deviance_theta_log}{\code{GauPro_Gauss$deviance_theta_log()}}
+\item \href{#method-deviance}{\code{GauPro_Gauss$deviance()}}
+\item \href{#method-deviance_grad}{\code{GauPro_Gauss$deviance_grad()}}
+\item \href{#method-deviance_fngr}{\code{GauPro_Gauss$deviance_fngr()}}
+\item \href{#method-deviance_log}{\code{GauPro_Gauss$deviance_log()}}
+\item \href{#method-deviance_log2}{\code{GauPro_Gauss$deviance_log2()}}
+\item \href{#method-deviance_log_grad}{\code{GauPro_Gauss$deviance_log_grad()}}
+\item \href{#method-deviance_log2_grad}{\code{GauPro_Gauss$deviance_log2_grad()}}
+\item \href{#method-deviance_log2_fngr}{\code{GauPro_Gauss$deviance_log2_fngr()}}
+\item \href{#method-get_optim_functions}{\code{GauPro_Gauss$get_optim_functions()}}
+\item \href{#method-param_optim_lower}{\code{GauPro_Gauss$param_optim_lower()}}
+\item \href{#method-param_optim_upper}{\code{GauPro_Gauss$param_optim_upper()}}
+\item \href{#method-param_optim_start}{\code{GauPro_Gauss$param_optim_start()}}
+\item \href{#method-param_optim_start0}{\code{GauPro_Gauss$param_optim_start0()}}
+\item \href{#method-param_optim_jitter}{\code{GauPro_Gauss$param_optim_jitter()}}
+\item \href{#method-update_params}{\code{GauPro_Gauss$update_params()}}
+\item \href{#method-grad}{\code{GauPro_Gauss$grad()}}
+\item \href{#method-grad_dist}{\code{GauPro_Gauss$grad_dist()}}
+\item \href{#method-hessian}{\code{GauPro_Gauss$hessian()}}
+\item \href{#method-print}{\code{GauPro_Gauss$print()}}
+\item \href{#method-clone}{\code{GauPro_Gauss$clone()}}
+}
+}
+\if{html}{
+\out{<details ><summary>Inherited methods</summary>}
+\itemize{
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="cool1Dplot">}\href{../../GauPro/html/GauPro.html#method-cool1Dplot}{\code{GauPro::GauPro$cool1Dplot()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="deviance_searchnug">}\href{../../GauPro/html/GauPro.html#method-deviance_searchnug}{\code{GauPro::GauPro$deviance_searchnug()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="fit">}\href{../../GauPro/html/GauPro.html#method-fit}{\code{GauPro::GauPro$fit()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="grad_norm">}\href{../../GauPro/html/GauPro.html#method-grad_norm}{\code{GauPro::GauPro$grad_norm()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="initialize_GauPr">}\href{../../GauPro/html/GauPro.html#method-initialize_GauPr}{\code{GauPro::GauPro$initialize_GauPr()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="loglikelihood">}\href{../../GauPro/html/GauPro.html#method-loglikelihood}{\code{GauPro::GauPro$loglikelihood()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="nugget_update">}\href{../../GauPro/html/GauPro.html#method-nugget_update}{\code{GauPro::GauPro$nugget_update()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="optim">}\href{../../GauPro/html/GauPro.html#method-optim}{\code{GauPro::GauPro$optim()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="optimRestart">}\href{../../GauPro/html/GauPro.html#method-optimRestart}{\code{GauPro::GauPro$optimRestart()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="plot1D">}\href{../../GauPro/html/GauPro.html#method-plot1D}{\code{GauPro::GauPro$plot1D()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="plot2D">}\href{../../GauPro/html/GauPro.html#method-plot2D}{\code{GauPro::GauPro$plot2D()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="pred">}\href{../../GauPro/html/GauPro.html#method-pred}{\code{GauPro::GauPro$pred()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="pred_LOO">}\href{../../GauPro/html/GauPro.html#method-pred_LOO}{\code{GauPro::GauPro$pred_LOO()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="pred_mean">}\href{../../GauPro/html/GauPro.html#method-pred_mean}{\code{GauPro::GauPro$pred_mean()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="pred_meanC">}\href{../../GauPro/html/GauPro.html#method-pred_meanC}{\code{GauPro::GauPro$pred_meanC()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="pred_one_matrix">}\href{../../GauPro/html/GauPro.html#method-pred_one_matrix}{\code{GauPro::GauPro$pred_one_matrix()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="pred_var">}\href{../../GauPro/html/GauPro.html#method-pred_var}{\code{GauPro::GauPro$pred_var()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="predict">}\href{../../GauPro/html/GauPro.html#method-predict}{\code{GauPro::GauPro$predict()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="sample">}\href{../../GauPro/html/GauPro.html#method-sample}{\code{GauPro::GauPro$sample()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="update">}\href{../../GauPro/html/GauPro.html#method-update}{\code{GauPro::GauPro$update()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="update_corrparams">}\href{../../GauPro/html/GauPro.html#method-update_corrparams}{\code{GauPro::GauPro$update_corrparams()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="update_data">}\href{../../GauPro/html/GauPro.html#method-update_data}{\code{GauPro::GauPro$update_data()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="update_K_and_estimates">}\href{../../GauPro/html/GauPro.html#method-update_K_and_estimates}{\code{GauPro::GauPro$update_K_and_estimates()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="update_nugget">}\href{../../GauPro/html/GauPro.html#method-update_nugget}{\code{GauPro::GauPro$update_nugget()}}\out{</span>}
+}
+\out{</details>}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
+\subsection{Method \code{new()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$new(
+  X,
+  Z,
+  verbose = 0,
+  separable = T,
+  useC = F,
+  useGrad = T,
+  parallel = FALSE,
+  nug = 1e-06,
+  nug.min = 1e-08,
+  nug.est = T,
+  param.est = T,
+  theta = NULL,
+  theta_short = NULL,
+  theta_map = NULL,
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-corr_func"></a>}}
+\if{latex}{\out{\hypertarget{method-corr_func}{}}}
+\subsection{Method \code{corr_func()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$corr_func(x, x2 = NULL, theta = self$theta)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-deviance_theta"></a>}}
+\if{latex}{\out{\hypertarget{method-deviance_theta}{}}}
+\subsection{Method \code{deviance_theta()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$deviance_theta(theta)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-deviance_theta_log"></a>}}
+\if{latex}{\out{\hypertarget{method-deviance_theta_log}{}}}
+\subsection{Method \code{deviance_theta_log()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$deviance_theta_log(beta)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-deviance"></a>}}
+\if{latex}{\out{\hypertarget{method-deviance}{}}}
+\subsection{Method \code{deviance()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$deviance(theta = self$theta, nug = self$nug)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-deviance_grad"></a>}}
+\if{latex}{\out{\hypertarget{method-deviance_grad}{}}}
+\subsection{Method \code{deviance_grad()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$deviance_grad(
+  theta = NULL,
+  nug = self$nug,
+  joint = NULL,
+  overwhat = if (self$nug.est) "joint" else "theta"
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-deviance_fngr"></a>}}
+\if{latex}{\out{\hypertarget{method-deviance_fngr}{}}}
+\subsection{Method \code{deviance_fngr()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$deviance_fngr(
+  theta = NULL,
+  nug = NULL,
+  overwhat = if (self$nug.est) "joint" else "theta"
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-deviance_log"></a>}}
+\if{latex}{\out{\hypertarget{method-deviance_log}{}}}
+\subsection{Method \code{deviance_log()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$deviance_log(beta = NULL, nug = self$nug, joint = NULL)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-deviance_log2"></a>}}
+\if{latex}{\out{\hypertarget{method-deviance_log2}{}}}
+\subsection{Method \code{deviance_log2()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$deviance_log2(beta = NULL, lognug = NULL, joint = NULL)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-deviance_log_grad"></a>}}
+\if{latex}{\out{\hypertarget{method-deviance_log_grad}{}}}
+\subsection{Method \code{deviance_log_grad()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$deviance_log_grad(
+  beta = NULL,
+  nug = self$nug,
+  joint = NULL,
+  overwhat = if (self$nug.est) "joint" else "theta"
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-deviance_log2_grad"></a>}}
+\if{latex}{\out{\hypertarget{method-deviance_log2_grad}{}}}
+\subsection{Method \code{deviance_log2_grad()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$deviance_log2_grad(
+  beta = NULL,
+  lognug = NULL,
+  joint = NULL,
+  overwhat = if (self$nug.est) "joint" else "theta"
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-deviance_log2_fngr"></a>}}
+\if{latex}{\out{\hypertarget{method-deviance_log2_fngr}{}}}
+\subsection{Method \code{deviance_log2_fngr()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$deviance_log2_fngr(
+  beta = NULL,
+  lognug = NULL,
+  joint = NULL,
+  overwhat = if (self$nug.est) "joint" else "theta"
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_optim_functions"></a>}}
+\if{latex}{\out{\hypertarget{method-get_optim_functions}{}}}
+\subsection{Method \code{get_optim_functions()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$get_optim_functions(param_update, nug.update)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-param_optim_lower"></a>}}
+\if{latex}{\out{\hypertarget{method-param_optim_lower}{}}}
+\subsection{Method \code{param_optim_lower()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$param_optim_lower()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-param_optim_upper"></a>}}
+\if{latex}{\out{\hypertarget{method-param_optim_upper}{}}}
+\subsection{Method \code{param_optim_upper()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$param_optim_upper()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-param_optim_start"></a>}}
+\if{latex}{\out{\hypertarget{method-param_optim_start}{}}}
+\subsection{Method \code{param_optim_start()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$param_optim_start()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-param_optim_start0"></a>}}
+\if{latex}{\out{\hypertarget{method-param_optim_start0}{}}}
+\subsection{Method \code{param_optim_start0()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$param_optim_start0()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-param_optim_jitter"></a>}}
+\if{latex}{\out{\hypertarget{method-param_optim_jitter}{}}}
+\subsection{Method \code{param_optim_jitter()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$param_optim_jitter(param_value)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-update_params"></a>}}
+\if{latex}{\out{\hypertarget{method-update_params}{}}}
+\subsection{Method \code{update_params()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$update_params(restarts, param_update, nug.update)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-grad"></a>}}
+\if{latex}{\out{\hypertarget{method-grad}{}}}
+\subsection{Method \code{grad()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$grad(XX)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-grad_dist"></a>}}
+\if{latex}{\out{\hypertarget{method-grad_dist}{}}}
+\subsection{Method \code{grad_dist()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$grad_dist(XX)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-hessian"></a>}}
+\if{latex}{\out{\hypertarget{method-hessian}{}}}
+\subsection{Method \code{hessian()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$hessian(XX, useC = self$useC)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
+\subsection{Method \code{print()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$print()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

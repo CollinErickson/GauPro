@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Collin Erickson" />
+
+<meta name="date" content="2020-03-29" />
+
+<title>Best Unbiased Linear Predictors</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Best Unbiased Linear Predictors</h1>
+<h4 class="author">Collin Erickson</h4>
+<h4 class="date">2020-03-29</h4>
+
+
+
+<p>Here I will derive the best unbiased linear predictors for Gaussian Process regression models.</p>
+<p>Let <span class="math inline">\(X\)</span> be the <span class="math inline">\(n\)</span> by <span class="math inline">\(d\)</span> matrix whose <span class="math inline">\(n\)</span> rows are <span class="math inline">\(d\)</span> dimensional vectors from the input space where the output has been measured. Let <span class="math inline">\(Y\)</span> be the measured values.</p>
+<p>Let <span class="math inline">\(x\)</span> be a new design point, with output <span class="math inline">\(y(x)\)</span>.</p>
+<div id="what-is-a-blup" class="section level2">
+<h2>What is a BLUP?</h2>
+<p>The best linear unbiased predictor (BLUP) is a predictor of <span class="math inline">\(y(x)\)</span> with three properties: * Linear: It is a linear combination of <span class="math inline">\(Y\)</span>. * Unbiased: Its expectation is the true value. * Best: Of all linear and unbiased predictors, it has the minimum variance.</p>
+</div>
+<div id="mean-0" class="section level2">
+<h2>Mean 0</h2>
+<p>If</p>
+<p>Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The <code>html_vignette</code> output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The <code>html_vignette</code> format:</p>
+<ul>
+<li>Never uses retina figures</li>
+<li>Has a smaller default figure size</li>
+<li>Uses a custom CSS stylesheet instead of the default Twitter Bootstrap style</li>
+</ul>
+</div>
+<div id="vignette-info" class="section level2">
+<h2>Vignette Info</h2>
+<p>Note the various macros within the <code>vignette</code> section of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the <code>title</code> field and the <code>\VignetteIndexEntry</code> to match the title of your vignette.</p>
+</div>
+<div id="styles" class="section level2">
+<h2>Styles</h2>
+<p>The <code>html_vignette</code> template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:</p>
+<pre><code>output: 
+  rmarkdown::html_vignette:
+    css: mystyles.css</code></pre>
+</div>
+<div id="figures" class="section level2">
+<h2>Figures</h2>
+<p>The figure sizes have been customised so that you can easily put two images side-by-side.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw">plot</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>)</a>
+<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw">plot</span>(<span class="dv">10</span><span class="op">:</span><span class="dv">1</span>)</a></code></pre></div>
+<p><img src="data:image/png;base64,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" /><img src="data:image/png;base64,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" /></p>
+<p>You can enable figure captions by <code>fig_caption: yes</code> in YAML:</p>
+<pre><code>output:
+  rmarkdown::html_vignette:
+    fig_caption: yes</code></pre>
+<p>Then you can use the chunk option <code>fig.cap = &quot;Your figure caption.&quot;</code> in <strong>knitr</strong>.</p>
+</div>
+<div id="more-examples" class="section level2">
+<h2>More Examples</h2>
+<p>You can write math expressions, e.g. <span class="math inline">\(Y = X\beta + \epsilon\)</span>, footnotes<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>, and tables, e.g. using <code>knitr::kable()</code>.</p>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">mpg</th>
+<th align="right">cyl</th>
+<th align="right">disp</th>
+<th align="right">hp</th>
+<th align="right">drat</th>
+<th align="right">wt</th>
+<th align="right">qsec</th>
+<th align="right">vs</th>
+<th align="right">am</th>
+<th align="right">gear</th>
+<th align="right">carb</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Mazda RX4</td>
+<td align="right">21.0</td>
+<td align="right">6</td>
+<td align="right">160.0</td>
+<td align="right">110</td>
+<td align="right">3.90</td>
+<td align="right">2.620</td>
+<td align="right">16.46</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">4</td>
+<td align="right">4</td>
+</tr>
+<tr class="even">
+<td>Mazda RX4 Wag</td>
+<td align="right">21.0</td>
+<td align="right">6</td>
+<td align="right">160.0</td>
+<td align="right">110</td>
+<td align="right">3.90</td>
+<td align="right">2.875</td>
+<td align="right">17.02</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">4</td>
+<td align="right">4</td>
+</tr>
+<tr class="odd">
+<td>Datsun 710</td>
+<td align="right">22.8</td>
+<td align="right">4</td>
+<td align="right">108.0</td>
+<td align="right">93</td>
+<td align="right">3.85</td>
+<td align="right">2.320</td>
+<td align="right">18.61</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">4</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td>Hornet 4 Drive</td>
+<td align="right">21.4</td>
+<td align="right">6</td>
+<td align="right">258.0</td>
+<td align="right">110</td>
+<td align="right">3.08</td>
+<td align="right">3.215</td>
+<td align="right">19.44</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">3</td>
+<td align="right">1</td>
+</tr>
+<tr class="odd">
+<td>Hornet Sportabout</td>
+<td align="right">18.7</td>
+<td align="right">8</td>
+<td align="right">360.0</td>
+<td align="right">175</td>
+<td align="right">3.15</td>
+<td align="right">3.440</td>
+<td align="right">17.02</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">3</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td>Valiant</td>
+<td align="right">18.1</td>
+<td align="right">6</td>
+<td align="right">225.0</td>
+<td align="right">105</td>
+<td align="right">2.76</td>
+<td align="right">3.460</td>
+<td align="right">20.22</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">3</td>
+<td align="right">1</td>
+</tr>
+<tr class="odd">
+<td>Duster 360</td>
+<td align="right">14.3</td>
+<td align="right">8</td>
+<td align="right">360.0</td>
+<td align="right">245</td>
+<td align="right">3.21</td>
+<td align="right">3.570</td>
+<td align="right">15.84</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">3</td>
+<td align="right">4</td>
+</tr>
+<tr class="even">
+<td>Merc 240D</td>
+<td align="right">24.4</td>
+<td align="right">4</td>
+<td align="right">146.7</td>
+<td align="right">62</td>
+<td align="right">3.69</td>
+<td align="right">3.190</td>
+<td align="right">20.00</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">4</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td>Merc 230</td>
+<td align="right">22.8</td>
+<td align="right">4</td>
+<td align="right">140.8</td>
+<td align="right">95</td>
+<td align="right">3.92</td>
+<td align="right">3.150</td>
+<td align="right">22.90</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">4</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td>Merc 280</td>
+<td align="right">19.2</td>
+<td align="right">6</td>
+<td align="right">167.6</td>
+<td align="right">123</td>
+<td align="right">3.92</td>
+<td align="right">3.440</td>
+<td align="right">18.30</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">4</td>
+<td align="right">4</td>
+</tr>
+</tbody>
+</table>
+<p>Also a quote using <code>&gt;</code>:</p>
+<blockquote>
+<p>“He who gives up [code] safety for [code] speed deserves neither.” (<a href="https://twitter.com/hadleywickham/status/504368538874703872">via</a>)</p>
+</blockquote>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>A footnote here.<a href="#fnref1" class="footnote-back">↩</a></p></li>
+</ol>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
