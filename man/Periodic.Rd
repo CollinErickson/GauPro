@@ -44,6 +44,16 @@ k1 <- Periodic$new(p=1, alpha=1)
 
 \item{\code{p_length}}{length of p}
 
+\item{\code{alpha}}{Parameter for correlation}
+
+\item{\code{alpha_est}}{Should alpha be estimated?}
+
+\item{\code{logalpha}}{Log of alpha}
+
+\item{\code{logalpha_lower}}{Lower bound of logalpha}
+
+\item{\code{logalpha_upper}}{Upper bound of logalpha}
+
 \item{\code{s2}}{variance}
 
 \item{\code{s2_est}}{Is s2 estimated?}

@@ -10,6 +10,7 @@
 #' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
 #' @format \code{\link{R6Class}} object.
 #' @field alpha alpha value (the exponent). Between 0 and 2.
+#' @field logalpha Log of alpha
 #' @field logalpha_lower Lower bound for log of alpha
 #' @field logalpha_upper Upper bound for log of alpha
 #' @field alpha_est Should alpha be estimated?
@@ -34,6 +35,7 @@ RatQuad <- R6::R6Class(
     alpha_est = NULL,
     #' @description Initialize kernel object
     #' @param beta Initial beta value
+    #' @param alpha Initial alpha value
     #' @param s2 Initial variance
     #' @param D Number of input dimensions of data
     #' @param beta_lower Lower bound for beta

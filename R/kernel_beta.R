@@ -37,6 +37,11 @@
 #' @field beta_lower Lower bound of beta
 #' @field beta_upper Upper bound of beta
 #' @field beta_length length of beta
+#' @field s2 variance
+#' @field logs2 Log of s2
+#' @field logs2_lower Lower bound of logs2
+#' @field logs2_upper Upper bound of logs2
+#' @field s2_est Should s2 be estimated?
 #' @examples
 #' #k1 <- Matern52$new(beta=0)
 GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
@@ -192,7 +197,7 @@ GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
     },
     #' @description Upper bounds of parameters for optimization
     #' @param p_est Is p being estimated?
-    #' @param alpha_est Is alpha being estimated?
+    #' @param beta_est Is beta being estimated?
     #' @param s2_est Is s2 being estimated?
     param_optim_lower = function(beta_est=self$beta_est, s2_est=self$s2_est) {
       # c(self$beta_lower, self$logs2_lower)
@@ -208,7 +213,7 @@ GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
     },
     #' @description Upper bounds of parameters for optimization
     #' @param p_est Is p being estimated?
-    #' @param alpha_est Is alpha being estimated?
+    #' @param beta_est Is beta being estimated?
     #' @param s2_est Is s2 being estimated?
     param_optim_upper = function(beta_est=self$beta_est, s2_est=self$s2_est) {
       # c(self$beta_upper, self$logs2_upper)

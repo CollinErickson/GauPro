@@ -31,6 +31,8 @@ k1 <- RatQuad$new(beta=0, alpha=0)
 \describe{
 \item{\code{alpha}}{alpha value (the exponent). Between 0 and 2.}
 
+\item{\code{logalpha}}{Log of alpha}
+
 \item{\code{logalpha_lower}}{Lower bound for log of alpha}
 
 \item{\code{logalpha_upper}}{Upper bound for log of alpha}
@@ -90,6 +92,8 @@ Initialize kernel object
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{beta}}{Initial beta value}
+
+\item{\code{alpha}}{Initial alpha value}
 
 \item{\code{s2}}{Initial variance}
 

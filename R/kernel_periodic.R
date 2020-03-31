@@ -35,6 +35,12 @@
 #' @field logp_lower Lower bound of logp
 #' @field logp_upper Upper bound of logp
 #' @field p_length length of p
+#' @field alpha Parameter for correlation
+#' @field alpha_est Should alpha be estimated?
+#' @field logalpha Log of alpha
+#' @field logalpha_lower Lower bound of logalpha
+#' @field logalpha_upper Upper bound of logalpha
+
 #' @field s2 variance
 #' @field s2_est Is s2 estimated?
 #' @field logs2 Log of s2

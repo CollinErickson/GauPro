@@ -72,7 +72,12 @@ GauPro_kernel_model_LOO <- R6::R6Class(
 
       invisible(self)
     },
-
+    #' @description Predict for a matrix of points
+    #' @param XX points to predict at
+    #' @param se.fit Should standard error be returned?
+    #' @param covmat Should covariance matrix be returned?
+    #' @param return_df When returning se.fit, should it be returned in
+    #' a data frame?
     pred_one_matrix = function(XX, se.fit=F, covmat=F, return_df=FALSE) {
       # input should already be check for matrix
       # kxx <- self$kernel$k(XX) + diag(self$nug * self$s2_hat, nrow(XX))

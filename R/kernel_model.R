@@ -81,6 +81,29 @@ GauPro_kernel_model <- R6::R6Class(
         #deviance_out = NULL, #(theta, nug)
         #deviance_grad_out = NULL, #(theta, nug, overwhat)
         #deviance_fngr_out = NULL,
+        #' @description Create kernel_model object
+        #' @param X Matrix whose rows are the input points
+        #' @param Z Output points corresponding to X
+        #' @param kernel The kernel to use. E.g., Gaussian$new().
+        #' @param trend Trend to use. E.g., trend_constant$new().
+        #' @param verbose Amount of stuff to print. 0 is little, 2 is a lot.
+        #' @param useC Should C code be used when possible? Should be faster.
+        #' @param useGrad Should the gradient be used?
+        #' @param parallel Should code be run in parallel? Make optimization
+        #' faster but uses more computer resources.
+        #' @param parallel_cores When using parallel, how many cores should
+        #' be used?
+        #' @param nug Value for the nugget. The starting value if estimating it.
+        #' @param nug.min Minimum allowable value for the nugget.
+        #' @param nug.max Maximum allowable value for the nugget.
+        #' @param nug.est Should the nugget be estimated?
+        #' @param param.est Should the kernel parameters be estimated?
+        #' @param restarts How many optimization restarts should be used when
+        #' estimating parameters?
+        #' @param normalize Should the data be normalized?
+        #' @param optimizer What algorithm should be used to optimize the
+        #' parameters.
+        #' @param ... Not used
         initialize = function(X, Z,
                               kernel, trend,
                               verbose=0, useC=F,useGrad=T,
@@ -1079,6 +1102,19 @@ GauPro_kernel_model <- R6::R6Class(
           }
           best
         },
+        #' @description Run a single optimization restart.
+        #' @param start.par Starting parameters
+        #' @param start.par0 Starting parameters
+        #' @param param_update Should parameters be updated?
+        #' @param nug.update Should nugget be updated?
+        #' @param optim.func Function to optimize.
+        #' @param optim.grad Gradient of function to optimize.
+        #' @param optim.grad Function that returns the function value
+        #' and its gradient.
+        #' @param lower Lower bounds for optimization
+        #' @param upper Upper bounds for optimization
+        #' @param jit Is jitter being used?
+        #' @param start.par.i Starting parameters for this restart
         optimRestart = function (start.par, start.par0, param_update,
                                  nug.update, optim.func, optim.grad,
                                  optim.fngr, lower, upper, jit=T,
@@ -1267,6 +1303,12 @@ GauPro_kernel_model <- R6::R6Class(
           self$kernel$set_params_from_optim(optim_out$par[ki])
           self$trend$set_params_from_optim(optim_out$par[ti])
         },
+        #' @description Update the data. Should only give in
+        #' (Xnew and Znew) or (Xall and Zall).
+        #' @param Xnew New X values to add.
+        #' @param Znew New Z values to add.
+        #' @param Xall All X values to be used. Will replace existing X.
+        #' @param Zall All Z values to be used. Will replace existing Z.
         update_data = function(Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL) {
           if (!is.null(Xall)) {
             self$X <- if (is.matrix(Xall)) Xall else matrix(Xall,nrow=1)
@@ -1293,9 +1335,13 @@ GauPro_kernel_model <- R6::R6Class(
           #if (!is.null(Xall) | !is.null(Xnew)) {self$update_K_and_estimates()}
                                   # update Kinv, etc, DONT THINK I NEED IT
         },
+        #' @description Update correlation parameters. Not the nugget.
+        #' @params ... Passed to self$update()
         update_corrparams = function (...) {
           self$update(nug.update = F, ...=...)
         },
+        #' @description Update nugget Not the correlation parameters.
+        #' @params ... Passed to self$update()
         update_nugget = function (...) {
           self$update(param_update = F, ...=...)
         },
@@ -1308,6 +1354,11 @@ GauPro_kernel_model <- R6::R6Class(
         #   self$nug <- nug
         #   self$update_K_and_estimates()
         # },
+        #' @description Calculate the deviance.
+        #' @param params Kernel parameters
+        #' @param nug Nugget
+        #' @param nuglog Log of nugget. Only give in nug or nuglog.
+        #' @param trend_params Parameters for the trend.
         deviance = function(params=NULL, nug=self$nug, nuglog, trend_params=NULL) {
           if (!missing(nuglog) && !is.null(nuglog)) {
             nug <- 10^nuglog
@@ -1342,6 +1393,18 @@ GauPro_kernel_model <- R6::R6Class(
           }
           dev
         },
+        #' @description Calculate the gradient of the deviance.
+        #' @param params Kernel parameters
+        #' @param kernel_update Is the kernel being updated? If yes,
+        #' it's part of the gradient.
+        #' @param X Input matrix
+        #' @param nug Nugget
+        #' @param nug.update Is the nugget being updated? If yes,
+        #' it's part of the gradient.
+        #' @param nuglog Log of the nugget.
+        #' @param trend_params Trend parameters
+        #' @param trend_update Is the trend being updated? If yes,
+        #' it's part of the gradient.
         deviance_grad = function(params=NULL, kernel_update=TRUE,
                                  X=self$X,
                                  nug=self$nug, nug.update, nuglog,
@@ -1408,6 +1471,18 @@ GauPro_kernel_model <- R6::R6Class(
           # print(c(params, nuglog, out))
           out
         },
+        #' @description Calculate the deviance along with its gradient.
+        #' @param params Kernel parameters
+        #' @param kernel_update Is the kernel being updated? If yes,
+        #' it's part of the gradient.
+        #' @param X Input matrix
+        #' @param nug Nugget
+        #' @param nug.update Is the nugget being updated? If yes,
+        #' it's part of the gradient.
+        #' @param nuglog Log of the nugget.
+        #' @param trend_params Trend parameters
+        #' @param trend_update Is the trend being updated? If yes,
+        #' it's part of the gradient.
         deviance_fngr = function(params=NULL, kernel_update=TRUE,
                                  X=self$X,
                                  nug=self$nug, nug.update, nuglog,
@@ -1725,6 +1800,8 @@ GauPro_kernel_model <- R6::R6Class(
           }
         },
         #' @description Sample at rows of XX
+        #' @param XX Input matrix
+        #' @param n Number of samples
         sample = function(XX, n=1) {
           # Generates n samples at rows of XX
           px <- self$pred(XX, covmat = T)

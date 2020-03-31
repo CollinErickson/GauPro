@@ -44,6 +44,16 @@ Kernels that inherit this only need to implement kone and dC_dparams.
 \item{\code{beta_upper}}{Upper bound of beta}
 
 \item{\code{beta_length}}{length of beta}
+
+\item{\code{s2}}{variance}
+
+\item{\code{logs2}}{Log of s2}
+
+\item{\code{logs2_lower}}{Lower bound of logs2}
+
+\item{\code{logs2_upper}}{Upper bound of logs2}
+
+\item{\code{s2_est}}{Should s2 be estimated?}
 }
 \if{html}{\out{</div>}}
 }
@@ -240,11 +250,11 @@ Upper bounds of parameters for optimization
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
+\item{\code{beta_est}}{Is beta being estimated?}
+
 \item{\code{s2_est}}{Is s2 being estimated?}
 
 \item{\code{p_est}}{Is p being estimated?}
-
-\item{\code{alpha_est}}{Is alpha being estimated?}
 }
 \if{html}{\out{</div>}}
 }
@@ -264,11 +274,11 @@ Upper bounds of parameters for optimization
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
+\item{\code{beta_est}}{Is beta being estimated?}
+
 \item{\code{s2_est}}{Is s2 being estimated?}
 
 \item{\code{p_est}}{Is p being estimated?}
-
-\item{\code{alpha_est}}{Is alpha being estimated?}
 }
 \if{html}{\out{</div>}}
 }

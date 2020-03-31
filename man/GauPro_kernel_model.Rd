@@ -143,6 +143,7 @@ gp$predict(.454)
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
+Create kernel_model object
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$new(
   X,
@@ -166,6 +167,51 @@ gp$predict(.454)
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{X}}{Matrix whose rows are the input points}
+
+\item{\code{Z}}{Output points corresponding to X}
+
+\item{\code{kernel}}{The kernel to use. E.g., Gaussian$new().}
+
+\item{\code{trend}}{Trend to use. E.g., trend_constant$new().}
+
+\item{\code{verbose}}{Amount of stuff to print. 0 is little, 2 is a lot.}
+
+\item{\code{useC}}{Should C code be used when possible? Should be faster.}
+
+\item{\code{useGrad}}{Should the gradient be used?}
+
+\item{\code{parallel}}{Should code be run in parallel? Make optimization
+faster but uses more computer resources.}
+
+\item{\code{parallel_cores}}{When using parallel, how many cores should
+be used?}
+
+\item{\code{nug}}{Value for the nugget. The starting value if estimating it.}
+
+\item{\code{nug.min}}{Minimum allowable value for the nugget.}
+
+\item{\code{nug.max}}{Maximum allowable value for the nugget.}
+
+\item{\code{nug.est}}{Should the nugget be estimated?}
+
+\item{\code{param.est}}{Should the kernel parameters be estimated?}
+
+\item{\code{restarts}}{How many optimization restarts should be used when
+estimating parameters?}
+
+\item{\code{normalize}}{Should the data be normalized?}
+
+\item{\code{optimizer}}{What algorithm should be used to optimize the
+parameters.}
+
+\item{\code{...}}{Not used}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-fit"></a>}}
@@ -673,6 +719,7 @@ Optimize parameters
 \if{html}{\out{<a id="method-optimRestart"></a>}}
 \if{latex}{\out{\hypertarget{method-optimRestart}{}}}
 \subsection{Method \code{optimRestart()}}{
+Run a single optimization restart.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$optimRestart(
   start.par,
@@ -689,6 +736,34 @@ Optimize parameters
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{start.par}}{Starting parameters}
+
+\item{\code{start.par0}}{Starting parameters}
+
+\item{\code{param_update}}{Should parameters be updated?}
+
+\item{\code{nug.update}}{Should nugget be updated?}
+
+\item{\code{optim.func}}{Function to optimize.}
+
+\item{\code{optim.grad}}{Gradient of function to optimize.}
+
+\item{\code{optim.grad}}{Function that returns the function value
+and its gradient.}
+
+\item{\code{lower}}{Lower bounds for optimization}
+
+\item{\code{upper}}{Upper bounds for optimization}
+
+\item{\code{jit}}{Is jitter being used?}
+
+\item{\code{start.par.i}}{Starting parameters for this restart}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-update"></a>}}
@@ -730,6 +805,8 @@ Optimize parameters
 \if{html}{\out{<a id="method-update_data"></a>}}
 \if{latex}{\out{\hypertarget{method-update_data}{}}}
 \subsection{Method \code{update_data()}}{
+Update the data. Should only give in
+(Xnew and Znew) or (Xall and Zall).
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$update_data(
   Xnew = NULL,
@@ -739,11 +816,25 @@ Optimize parameters
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{Xnew}}{New X values to add.}
+
+\item{\code{Znew}}{New Z values to add.}
+
+\item{\code{Xall}}{All X values to be used. Will replace existing X.}
+
+\item{\code{Zall}}{All Z values to be used. Will replace existing Z.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-update_corrparams"></a>}}
 \if{latex}{\out{\hypertarget{method-update_corrparams}{}}}
 \subsection{Method \code{update_corrparams()}}{
+Update correlation parameters. Not the nugget.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$update_corrparams(...)}\if{html}{\out{</div>}}
 }
@@ -753,6 +844,7 @@ Optimize parameters
 \if{html}{\out{<a id="method-update_nugget"></a>}}
 \if{latex}{\out{\hypertarget{method-update_nugget}{}}}
 \subsection{Method \code{update_nugget()}}{
+Update nugget Not the correlation parameters.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$update_nugget(...)}\if{html}{\out{</div>}}
 }
@@ -762,6 +854,7 @@ Optimize parameters
 \if{html}{\out{<a id="method-deviance"></a>}}
 \if{latex}{\out{\hypertarget{method-deviance}{}}}
 \subsection{Method \code{deviance()}}{
+Calculate the deviance.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$deviance(
   params = NULL,
@@ -771,11 +864,25 @@ Optimize parameters
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{params}}{Kernel parameters}
+
+\item{\code{nug}}{Nugget}
+
+\item{\code{nuglog}}{Log of nugget. Only give in nug or nuglog.}
+
+\item{\code{trend_params}}{Parameters for the trend.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-deviance_grad"></a>}}
 \if{latex}{\out{\hypertarget{method-deviance_grad}{}}}
 \subsection{Method \code{deviance_grad()}}{
+Calculate the gradient of the deviance.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$deviance_grad(
   params = NULL,
@@ -789,11 +896,36 @@ Optimize parameters
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{params}}{Kernel parameters}
+
+\item{\code{kernel_update}}{Is the kernel being updated? If yes,
+it's part of the gradient.}
+
+\item{\code{X}}{Input matrix}
+
+\item{\code{nug}}{Nugget}
+
+\item{\code{nug.update}}{Is the nugget being updated? If yes,
+it's part of the gradient.}
+
+\item{\code{nuglog}}{Log of the nugget.}
+
+\item{\code{trend_params}}{Trend parameters}
+
+\item{\code{trend_update}}{Is the trend being updated? If yes,
+it's part of the gradient.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-deviance_fngr"></a>}}
 \if{latex}{\out{\hypertarget{method-deviance_fngr}{}}}
 \subsection{Method \code{deviance_fngr()}}{
+Calculate the deviance along with its gradient.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$deviance_fngr(
   params = NULL,
@@ -807,6 +939,30 @@ Optimize parameters
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{params}}{Kernel parameters}
+
+\item{\code{kernel_update}}{Is the kernel being updated? If yes,
+it's part of the gradient.}
+
+\item{\code{X}}{Input matrix}
+
+\item{\code{nug}}{Nugget}
+
+\item{\code{nug.update}}{Is the nugget being updated? If yes,
+it's part of the gradient.}
+
+\item{\code{nuglog}}{Log of the nugget.}
+
+\item{\code{trend_params}}{Trend parameters}
+
+\item{\code{trend_update}}{Is the trend being updated? If yes,
+it's part of the gradient.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-grad"></a>}}
@@ -963,6 +1119,15 @@ Sample at rows of XX
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$sample(XX, n = 1)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{XX}}{Input matrix}
+
+\item{\code{n}}{Number of samples}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-print"></a>}}
