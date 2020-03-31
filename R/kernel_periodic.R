@@ -51,6 +51,20 @@ Periodic <- R6::R6Class(
     logalpha_lower = NULL,
     logalpha_upper = NULL,
     alpha_est = NULL,
+    #' @description Initialize kernel object
+    #' @param p Periodic parameter
+    #' @param alpha Periodic parameter
+    #' @param s2 Initial variance
+    #' @param D Number of input dimensions of data
+    #' @param p_lower Lower bound for p
+    #' @param p_upper Upper bound for p
+    #' @param p_est Should p be estimated?
+    #' @param alpha_lower Lower bound for alpha
+    #' @param alpha_upper Upper bound for alpha
+    #' @param alpha_est Should alpha be estimated?
+    #' @param s2_lower Lower bound for s2
+    #' @param s2_upper Upper bound for s2
+    #' @param s2_est Should s2 be estimated?
     initialize = function(p, alpha=1, s2=1, D,
                           p_lower=0, p_upper=1e2, p_est=TRUE,
                           alpha_lower=0, alpha_upper=1e2, alpha_est=TRUE,
@@ -295,6 +309,12 @@ Periodic <- R6::R6Class(
       }
       dC_dx
     },
+    #' @description Starting point for parameters for optimization
+    #' @param jitter Should there be a jitter?
+    #' @param y Output
+    #' @param p_est Is p being estimated?
+    #' @param alpha_est Is alpha being estimated?
+    #' @param s2_est Is s2 being estimated?
     param_optim_start = function(jitter=F, y, p_est=self$p_est,
                                  alpha_est=self$alpha_est, s2_est=self$s2_est) {
       # Use current values for theta, partial MLE for s2
@@ -308,6 +328,12 @@ Periodic <- R6::R6Class(
       }
       vec
     },
+    #' @description Starting point for parameters for optimization
+    #' @param jitter Should there be a jitter?
+    #' @param y Output
+    #' @param p_est Is p being estimated?
+    #' @param alpha_est Is alpha being estimated?
+    #' @param s2_est Is s2 being estimated?
     param_optim_start0 = function(jitter=F, y, p_est=self$p_est,
                                   alpha_est=self$alpha_est, s2_est=self$s2_est) {
       # Use 0 for theta, partial MLE for s2
@@ -320,6 +346,10 @@ Periodic <- R6::R6Class(
       }
       vec
     },
+    #' @description Lower bounds of parameters for optimization
+    #' @param p_est Is p being estimated?
+    #' @param alpha_est Is alpha being estimated?
+    #' @param s2_est Is s2 being estimated?
     param_optim_lower = function(p_est=self$p_est,
                                  alpha_est=self$alpha_est,
                                  s2_est=self$s2_est) {
@@ -329,6 +359,10 @@ Periodic <- R6::R6Class(
       if (s2_est) {vec <- c(vec, self$logs2_lower)} else {}
       vec
     },
+    #' @description Upper bounds of parameters for optimization
+    #' @param p_est Is p being estimated?
+    #' @param alpha_est Is alpha being estimated?
+    #' @param s2_est Is s2 being estimated?
     param_optim_upper = function(p_est=self$p_est,
                                  alpha_est=self$alpha_est,
                                  s2_est=self$s2_est) {
@@ -338,6 +372,11 @@ Periodic <- R6::R6Class(
       if (s2_est) {vec <- c(vec, self$logs2_upper)} else {}
       vec
     },
+    #' @description Set parameters from optimization output
+    #' @param optim_out Output from optimization
+    #' @param p_est Is p being estimated?
+    #' @param alpha_est Is alpha being estimated?
+    #' @param s2_est Is s2 being estimated?
     set_params_from_optim = function(optim_out, p_est=self$p_est,
                                      alpha_est=self$alpha_est, s2_est=self$s2_est) {
       loo <- length(optim_out)

@@ -47,6 +47,16 @@ GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
     logs2_lower = NULL,
     logs2_upper = NULL,
     s2_est = NULL, # Should s2 be estimated?
+    #' @description Initialize kernel object
+    #' @param beta Initial beta value
+    #' @param s2 Initial variance
+    #' @param D Number of input dimensions of data
+    #' @param beta_lower Lower bound for beta
+    #' @param beta_upper Upper bound for beta
+    #' @param beta_est Should beta be estimated?
+    #' @param s2_lower Lower bound for s2
+    #' @param s2_upper Upper bound for s2
+    #' @param s2_est Should s2 be estimated?
     initialize = function(beta, s2=1, D,
                           beta_lower=-8, beta_upper=6, beta_est=TRUE,
                           s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE
@@ -117,6 +127,11 @@ GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
     kone = function(x, y, beta, theta, s2) {
       # Kernels that inherit should implement this or k.
     },
+    #' @description Starting point for parameters for optimization
+    #' @param jitter Should there be a jitter?
+    #' @param y Output
+    #' @param beta_est Is beta being estimated?
+    #' @param s2_est Is s2 being estimated?
     param_optim_start = function(jitter=F, y, beta_est=self$beta_est, s2_est=self$s2_est) {
       # Use current values for theta, partial MLE for s2
       # vec <- c(log(self$theta, 10), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
@@ -135,6 +150,11 @@ GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
       }
       vec
     },
+    #' @description Starting point for parameters for optimization
+    #' @param jitter Should there be a jitter?
+    #' @param y Output
+    #' @param beta_est Is beta being estimated?
+    #' @param s2_est Is s2 being estimated?
     param_optim_start0 = function(jitter=F, y, beta_est=self$beta_est, s2_est=self$s2_est) {
       # Use 0 for theta, partial MLE for s2
       # vec <- c(rep(0, length(self$theta)), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
@@ -152,6 +172,10 @@ GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
       }
       vec
     },
+    #' @description Upper bounds of parameters for optimization
+    #' @param p_est Is p being estimated?
+    #' @param alpha_est Is alpha being estimated?
+    #' @param s2_est Is s2 being estimated?
     param_optim_lower = function(beta_est=self$beta_est, s2_est=self$s2_est) {
       # c(self$beta_lower, self$logs2_lower)
       if (beta_est && s2_est) {
@@ -164,6 +188,10 @@ GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
         c()
       }
     },
+    #' @description Upper bounds of parameters for optimization
+    #' @param p_est Is p being estimated?
+    #' @param alpha_est Is alpha being estimated?
+    #' @param s2_est Is s2 being estimated?
     param_optim_upper = function(beta_est=self$beta_est, s2_est=self$s2_est) {
       # c(self$beta_upper, self$logs2_upper)
       if (beta_est && s2_est) {
@@ -176,6 +204,10 @@ GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
         c()
       }
     },
+    #' @description Set parameters from optimization output
+    #' @param optim_out Output from optimization
+    #' @param beta_est Is beta being estimated?
+    #' @param s2_est Is s2 being estimated?
     set_params_from_optim = function(optim_out, beta_est=self$beta_est, s2_est=self$s2_est) {
       loo <- length(optim_out)
       if (beta_est) {

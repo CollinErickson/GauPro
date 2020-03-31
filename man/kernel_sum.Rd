@@ -56,42 +56,88 @@ k$k(matrix(c(2,1), ncol=1))
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize kernel
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{kernel_sum$new(k1, k2)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{k1}}{Kernel 1}
+
+\item{\code{k2}}{Kernel 2}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-k"></a>}}
 \if{latex}{\out{\hypertarget{method-k}{}}}
 \subsection{Method \code{k()}}{
+Calculate covariance between two points
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{kernel_sum$k(x, y = NULL, params, ...)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x}}{vector.}
+
+\item{\code{y}}{vector, optional. If excluded, find correlation
+of x with itself.}
+
+\item{\code{params}}{parameters to use instead of beta and s2.}
+
+\item{\code{...}}{Not used}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-param_optim_start"></a>}}
 \if{latex}{\out{\hypertarget{method-param_optim_start}{}}}
 \subsection{Method \code{param_optim_start()}}{
+Starting point for parameters for optimization
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{kernel_sum$param_optim_start(jitter = F, y)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{jitter}}{Should there be a jitter?}
+
+\item{\code{y}}{Output}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-param_optim_start0"></a>}}
 \if{latex}{\out{\hypertarget{method-param_optim_start0}{}}}
 \subsection{Method \code{param_optim_start0()}}{
+Starting point for parameters for optimization
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{kernel_sum$param_optim_start0(jitter = F, y)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{jitter}}{Should there be a jitter?}
+
+\item{\code{y}}{Output}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-param_optim_lower"></a>}}
 \if{latex}{\out{\hypertarget{method-param_optim_lower}{}}}
 \subsection{Method \code{param_optim_lower()}}{
+Lower bounds of parameters for optimization
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{kernel_sum$param_optim_lower()}\if{html}{\out{</div>}}
 }
@@ -101,6 +147,7 @@ k$k(matrix(c(2,1), ncol=1))
 \if{html}{\out{<a id="method-param_optim_upper"></a>}}
 \if{latex}{\out{\hypertarget{method-param_optim_upper}{}}}
 \subsection{Method \code{param_optim_upper()}}{
+Upper bounds of parameters for optimization
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{kernel_sum$param_optim_upper()}\if{html}{\out{</div>}}
 }
@@ -110,46 +157,103 @@ k$k(matrix(c(2,1), ncol=1))
 \if{html}{\out{<a id="method-set_params_from_optim"></a>}}
 \if{latex}{\out{\hypertarget{method-set_params_from_optim}{}}}
 \subsection{Method \code{set_params_from_optim()}}{
+Set parameters from optimization output
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{kernel_sum$set_params_from_optim(optim_out)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{optim_out}}{Output from optimization}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-dC_dparams"></a>}}
 \if{latex}{\out{\hypertarget{method-dC_dparams}{}}}
 \subsection{Method \code{dC_dparams()}}{
+Derivative of covariance with respect to parameters
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{kernel_sum$dC_dparams(params = NULL, C, X, C_nonug, nug)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{params}}{Kernel parameters}
+
+\item{\code{C}}{Covariance with nugget}
+
+\item{\code{X}}{matrix of points in rows}
+
+\item{\code{C_nonug}}{Covariance without nugget added to diagonal}
+
+\item{\code{nug}}{Value of nugget}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-C_dC_dparams"></a>}}
 \if{latex}{\out{\hypertarget{method-C_dC_dparams}{}}}
 \subsection{Method \code{C_dC_dparams()}}{
+Calculate covariance matrix and its derivative
+ with respect to parameters
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{kernel_sum$C_dC_dparams(params = NULL, X, nug)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{params}}{Kernel parameters}
+
+\item{\code{X}}{matrix of points in rows}
+
+\item{\code{nug}}{Value of nugget}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-dC_dx"></a>}}
 \if{latex}{\out{\hypertarget{method-dC_dx}{}}}
 \subsection{Method \code{dC_dx()}}{
+Derivative of covariance with respect to X
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{kernel_sum$dC_dx(XX, X)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{XX}}{matrix of points}
+
+\item{\code{X}}{matrix of points to take derivative with respect to}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-s2_from_params"></a>}}
 \if{latex}{\out{\hypertarget{method-s2_from_params}{}}}
 \subsection{Method \code{s2_from_params()}}{
+Get s2 from params vector
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{kernel_sum$s2_from_params(params)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{params}}{parameter vector}
+
+\item{\code{s2_est}}{Is s2 being estimated?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

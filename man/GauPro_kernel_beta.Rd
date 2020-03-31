@@ -58,6 +58,7 @@ Kernels that inherit this only need to implement kone and dC_dparams.
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize kernel object
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_beta$new(
   beta,
@@ -72,6 +73,29 @@ Kernels that inherit this only need to implement kone and dC_dparams.
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{beta}}{Initial beta value}
+
+\item{\code{s2}}{Initial variance}
+
+\item{\code{D}}{Number of input dimensions of data}
+
+\item{\code{beta_lower}}{Lower bound for beta}
+
+\item{\code{beta_upper}}{Upper bound for beta}
+
+\item{\code{beta_est}}{Should beta be estimated?}
+
+\item{\code{s2_lower}}{Lower bound for s2}
+
+\item{\code{s2_upper}}{Upper bound for s2}
+
+\item{\code{s2_est}}{Should s2 be estimated?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-k"></a>}}
@@ -101,6 +125,7 @@ Kernels that inherit this only need to implement kone and dC_dparams.
 \if{html}{\out{<a id="method-param_optim_start"></a>}}
 \if{latex}{\out{\hypertarget{method-param_optim_start}{}}}
 \subsection{Method \code{param_optim_start()}}{
+Starting point for parameters for optimization
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_beta$param_optim_start(
   jitter = F,
@@ -110,11 +135,25 @@ Kernels that inherit this only need to implement kone and dC_dparams.
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{jitter}}{Should there be a jitter?}
+
+\item{\code{y}}{Output}
+
+\item{\code{beta_est}}{Is beta being estimated?}
+
+\item{\code{s2_est}}{Is s2 being estimated?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-param_optim_start0"></a>}}
 \if{latex}{\out{\hypertarget{method-param_optim_start0}{}}}
 \subsection{Method \code{param_optim_start0()}}{
+Starting point for parameters for optimization
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_beta$param_optim_start0(
   jitter = F,
@@ -124,11 +163,25 @@ Kernels that inherit this only need to implement kone and dC_dparams.
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{jitter}}{Should there be a jitter?}
+
+\item{\code{y}}{Output}
+
+\item{\code{beta_est}}{Is beta being estimated?}
+
+\item{\code{s2_est}}{Is s2 being estimated?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-param_optim_lower"></a>}}
 \if{latex}{\out{\hypertarget{method-param_optim_lower}{}}}
 \subsection{Method \code{param_optim_lower()}}{
+Upper bounds of parameters for optimization
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_beta$param_optim_lower(
   beta_est = self$beta_est,
@@ -136,11 +189,23 @@ Kernels that inherit this only need to implement kone and dC_dparams.
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{s2_est}}{Is s2 being estimated?}
+
+\item{\code{p_est}}{Is p being estimated?}
+
+\item{\code{alpha_est}}{Is alpha being estimated?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-param_optim_upper"></a>}}
 \if{latex}{\out{\hypertarget{method-param_optim_upper}{}}}
 \subsection{Method \code{param_optim_upper()}}{
+Upper bounds of parameters for optimization
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_beta$param_optim_upper(
   beta_est = self$beta_est,
@@ -148,11 +213,23 @@ Kernels that inherit this only need to implement kone and dC_dparams.
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{s2_est}}{Is s2 being estimated?}
+
+\item{\code{p_est}}{Is p being estimated?}
+
+\item{\code{alpha_est}}{Is alpha being estimated?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-set_params_from_optim"></a>}}
 \if{latex}{\out{\hypertarget{method-set_params_from_optim}{}}}
 \subsection{Method \code{set_params_from_optim()}}{
+Set parameters from optimization output
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_beta$set_params_from_optim(
   optim_out,
@@ -161,6 +238,17 @@ Kernels that inherit this only need to implement kone and dC_dparams.
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{optim_out}}{Output from optimization}
+
+\item{\code{beta_est}}{Is beta being estimated?}
+
+\item{\code{s2_est}}{Is s2 being estimated?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-C_dC_dparams"></a>}}

@@ -54,6 +54,7 @@ k1 <- PowerExp$new(beta=0, alpha=0)
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize kernel object
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{PowerExp$new(
   alpha = 1.95,
@@ -72,6 +73,35 @@ k1 <- PowerExp$new(beta=0, alpha=0)
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{beta}}{Initial beta value}
+
+\item{\code{s2}}{Initial variance}
+
+\item{\code{D}}{Number of input dimensions of data}
+
+\item{\code{beta_lower}}{Lower bound for beta}
+
+\item{\code{beta_upper}}{Upper bound for beta}
+
+\item{\code{beta_est}}{Should beta be estimated?}
+
+\item{\code{alpha_lower}}{Lower bound for alpha}
+
+\item{\code{alpha_upper}}{Upper bound for alpha}
+
+\item{\code{alpha_est}}{Should alpha be estimated?}
+
+\item{\code{s2_lower}}{Lower bound for s2}
+
+\item{\code{s2_upper}}{Upper bound for s2}
+
+\item{\code{s2_est}}{Should s2 be estimated?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-k"></a>}}
@@ -192,6 +222,7 @@ Derivative of covariance with respect to X
 \if{html}{\out{<a id="method-param_optim_start"></a>}}
 \if{latex}{\out{\hypertarget{method-param_optim_start}{}}}
 \subsection{Method \code{param_optim_start()}}{
+Starting point for parameters for optimization
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{PowerExp$param_optim_start(
   jitter = F,
@@ -202,11 +233,27 @@ Derivative of covariance with respect to X
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{jitter}}{Should there be a jitter?}
+
+\item{\code{y}}{Output}
+
+\item{\code{beta_est}}{Is beta being estimated?}
+
+\item{\code{alpha_est}}{Is alpha being estimated?}
+
+\item{\code{s2_est}}{Is s2 being estimated?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-param_optim_start0"></a>}}
 \if{latex}{\out{\hypertarget{method-param_optim_start0}{}}}
 \subsection{Method \code{param_optim_start0()}}{
+Starting point for parameters for optimization
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{PowerExp$param_optim_start0(
   jitter = F,
@@ -217,11 +264,27 @@ Derivative of covariance with respect to X
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{jitter}}{Should there be a jitter?}
+
+\item{\code{y}}{Output}
+
+\item{\code{beta_est}}{Is beta being estimated?}
+
+\item{\code{alpha_est}}{Is alpha being estimated?}
+
+\item{\code{s2_est}}{Is s2 being estimated?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-param_optim_lower"></a>}}
 \if{latex}{\out{\hypertarget{method-param_optim_lower}{}}}
 \subsection{Method \code{param_optim_lower()}}{
+Lower bounds of parameters for optimization
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{PowerExp$param_optim_lower(
   beta_est = self$beta_est,
@@ -230,11 +293,23 @@ Derivative of covariance with respect to X
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{beta_est}}{Is beta being estimated?}
+
+\item{\code{alpha_est}}{Is alpha being estimated?}
+
+\item{\code{s2_est}}{Is s2 being estimated?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-param_optim_upper"></a>}}
 \if{latex}{\out{\hypertarget{method-param_optim_upper}{}}}
 \subsection{Method \code{param_optim_upper()}}{
+Upper bounds of parameters for optimization
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{PowerExp$param_optim_upper(
   beta_est = self$beta_est,
@@ -243,12 +318,23 @@ Derivative of covariance with respect to X
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{beta_est}}{Is beta being estimated?}
+
+\item{\code{alpha_est}}{Is alpha being estimated?}
+
+\item{\code{s2_est}}{Is s2 being estimated?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-set_params_from_optim"></a>}}
 \if{latex}{\out{\hypertarget{method-set_params_from_optim}{}}}
 \subsection{Method \code{set_params_from_optim()}}{
-Get s2 from params vector
+Set parameters from optimization output
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{PowerExp$set_params_from_optim(
   optim_out,
@@ -261,9 +347,13 @@ Get s2 from params vector
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{s2_est}}{Is s2 being estimated?}
+\item{\code{optim_out}}{Output from optimization}
 
-\item{\code{params}}{parameter vector}
+\item{\code{alpha_est}}{alpha estimate}
+
+\item{\code{s2_est}}{s2 estimate}
+
+\item{\code{p_est}}{p estimate}
 }
 \if{html}{\out{</div>}}
 }

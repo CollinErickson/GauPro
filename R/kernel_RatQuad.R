@@ -28,6 +28,19 @@ RatQuad <- R6::R6Class(
     logalpha_lower = NULL,
     logalpha_upper = NULL,
     alpha_est = NULL,
+    #' @description Initialize kernel object
+    #' @param beta Initial beta value
+    #' @param s2 Initial variance
+    #' @param D Number of input dimensions of data
+    #' @param beta_lower Lower bound for beta
+    #' @param beta_upper Upper bound for beta
+    #' @param beta_est Should beta be estimated?
+    #' @param alpha_lower Lower bound for alpha
+    #' @param alpha_upper Upper bound for alpha
+    #' @param alpha_est Should alpha be estimated?
+    #' @param s2_lower Lower bound for s2
+    #' @param s2_upper Upper bound for s2
+    #' @param s2_est Should s2 be estimated?
     initialize = function(beta, alpha=1, s2=1, D,
                           beta_lower=-8, beta_upper=6, beta_est=TRUE,
                           alpha_lower=0, alpha_upper=Inf, alpha_est=TRUE,
@@ -231,6 +244,12 @@ RatQuad <- R6::R6Class(
       }
       dC_dx
     },
+    #' @description Starting point for parameters for optimization
+    #' @param jitter Should there be a jitter?
+    #' @param y Output
+    #' @param beta_est Is beta being estimated?
+    #' @param alpha_est Is alpha being estimated?
+    #' @param s2_est Is s2 being estimated?
     param_optim_start = function(jitter=F, y, beta_est=self$beta_est,
                                  alpha_est=self$alpha_est, s2_est=self$s2_est) {
       # Use current values for theta, partial MLE for s2
@@ -244,6 +263,12 @@ RatQuad <- R6::R6Class(
       }
       vec
     },
+    #' @description Starting point for parameters for optimization
+    #' @param jitter Should there be a jitter?
+    #' @param y Output
+    #' @param beta_est Is beta being estimated?
+    #' @param alpha_est Is alpha being estimated?
+    #' @param s2_est Is s2 being estimated?
     param_optim_start0 = function(jitter=F, y, beta_est=self$beta_est,
                                   alpha_est=self$alpha_est, s2_est=self$s2_est) {
       # Use 0 for theta, partial MLE for s2
@@ -256,6 +281,10 @@ RatQuad <- R6::R6Class(
       }
       vec
     },
+    #' @description Lower bounds of parameters for optimization
+    #' @param beta_est Is beta being estimated?
+    #' @param alpha_est Is alpha being estimated?
+    #' @param s2_est Is s2 being estimated?
     param_optim_lower = function(beta_est=self$beta_est,
                                  alpha_est=self$alpha_est,
                                  s2_est=self$s2_est) {
@@ -265,6 +294,10 @@ RatQuad <- R6::R6Class(
       if (s2_est) {vec <- c(vec, self$logs2_lower)} else {}
       vec
     },
+    #' @description Upper bounds of parameters for optimization
+    #' @param beta_est Is beta being estimated?
+    #' @param alpha_est Is alpha being estimated?
+    #' @param s2_est Is s2 being estimated?
     param_optim_upper = function(beta_est=self$beta_est,
                                  alpha_est=self$alpha_est,
                                  s2_est=self$s2_est) {
@@ -274,8 +307,10 @@ RatQuad <- R6::R6Class(
       if (s2_est) {vec <- c(vec, self$logs2_upper)} else {}
       vec
     },
-    #' @description Get s2 from params vector
-    #' @param params parameter vector
+    #' @description Set parameters from optimization output
+    #' @param optim_out Output from optimization
+    #' @param beta_est Is beta being estimated?
+    #' @param alpha_est Is alpha being estimated?
     #' @param s2_est Is s2 being estimated?
     set_params_from_optim = function(optim_out, beta_est=self$beta_est,
                                      alpha_est=self$alpha_est, s2_est=self$s2_est) {

@@ -20,6 +20,12 @@ White <- R6::R6Class(
     logs2_lower = NULL,
     logs2_upper = NULL,
     s2_est = NULL,
+    #' @description Initialize kernel object
+    #' @param s2 Initial variance
+    #' @param D Number of input dimensions of data
+    #' @param s2_lower Lower bound for s2
+    #' @param s2_upper Upper bound for s2
+    #' @param s2_est Should s2 be estimated?
     initialize = function(s2=1, D, s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE) {
       self$s2 <- s2
       self$logs2 <- log(s2, 10)
@@ -35,7 +41,6 @@ White <- R6::R6Class(
     #' @param x vector.
     #' @param y vector, optional. If excluded, find correlation
     #' of x with itself.
-    #' @param beta Correlation parameters.
     #' @param s2 Variance parameter.
     #' @param params parameters to use instead of beta and s2.
     k = function(x, y=NULL, s2=self$s2, params=NULL) {#browser()
@@ -139,6 +144,10 @@ White <- R6::R6Class(
       dC_dx <- array(0, dim=c(nn, d, n))
       dC_dx
     },
+    #' @description Starting point for parameters for optimization
+    #' @param jitter Should there be a jitter?
+    #' @param y Output
+    #' @param s2_est Is s2 being estimated?
     param_optim_start = function(jitter=F, y, s2_est=self$s2_est) {
       # Use current values for theta, partial MLE for s2
       # vec <- c(log(self$theta, 10), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
@@ -151,6 +160,10 @@ White <- R6::R6Class(
       # }
       vec
     },
+    #' @description Starting point for parameters for optimization
+    #' @param jitter Should there be a jitter?
+    #' @param y Output
+    #' @param s2_est Is s2 being estimated?
     param_optim_start0 = function(jitter=F, y, s2_est=self$s2_est) {
       # Use 0 for theta, partial MLE for s2
       # vec <- c(rep(0, length(self$theta)), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
@@ -162,6 +175,8 @@ White <- R6::R6Class(
       # }
       vec
     },
+    #' @description Lower bounds of parameters for optimization
+    #' @param s2_est Is s2 being estimated?
     param_optim_lower = function(s2_est=self$s2_est) {
       # c(self$beta_lower, self$logs2_lower)
       # if (beta_est) {vec <- c(self$beta_lower)} else {vec <- c()}
@@ -169,6 +184,8 @@ White <- R6::R6Class(
       if (s2_est) {vec <- self$logs2_lower} else {c()}
       vec
     },
+    #' @description Upper bounds of parameters for optimization
+    #' @param s2_est Is s2 being estimated?
     param_optim_upper = function(s2_est=self$s2_est) {
       # c(self$beta_upper, self$logs2_upper)
       # if (beta_est) {vec <- c(self$beta_upper)} else {vec <- c()}
@@ -176,6 +193,9 @@ White <- R6::R6Class(
       if (s2_est) {vec <- self$logs2_upper} else {c()}
       vec
     },
+    #' @description Set parameters from optimization output
+    #' @param optim_out Output from optimization
+    #' @param s2_est s2 estimate
     set_params_from_optim = function(optim_out, s2_est=self$s2_est) {
       loo <- length(optim_out)
       if (s2_est) {

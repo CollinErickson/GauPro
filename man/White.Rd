@@ -54,10 +54,26 @@ k1 <- White$new(s2=1e-8)
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize kernel object
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{White$new(s2 = 1, D, s2_lower = 1e-08, s2_upper = 1e+08, s2_est = TRUE)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{s2}}{Initial variance}
+
+\item{\code{D}}{Number of input dimensions of data}
+
+\item{\code{s2_lower}}{Lower bound for s2}
+
+\item{\code{s2_upper}}{Upper bound for s2}
+
+\item{\code{s2_est}}{Should s2 be estimated?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-k"></a>}}
@@ -79,8 +95,6 @@ of x with itself.}
 \item{\code{s2}}{Variance parameter.}
 
 \item{\code{params}}{parameters to use instead of beta and s2.}
-
-\item{\code{beta}}{Correlation parameters.}
 }
 \if{html}{\out{</div>}}
 }
@@ -186,46 +200,96 @@ Derivative of covariance with respect to X
 \if{html}{\out{<a id="method-param_optim_start"></a>}}
 \if{latex}{\out{\hypertarget{method-param_optim_start}{}}}
 \subsection{Method \code{param_optim_start()}}{
+Starting point for parameters for optimization
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{White$param_optim_start(jitter = F, y, s2_est = self$s2_est)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{jitter}}{Should there be a jitter?}
+
+\item{\code{y}}{Output}
+
+\item{\code{s2_est}}{Is s2 being estimated?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-param_optim_start0"></a>}}
 \if{latex}{\out{\hypertarget{method-param_optim_start0}{}}}
 \subsection{Method \code{param_optim_start0()}}{
+Starting point for parameters for optimization
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{White$param_optim_start0(jitter = F, y, s2_est = self$s2_est)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{jitter}}{Should there be a jitter?}
+
+\item{\code{y}}{Output}
+
+\item{\code{s2_est}}{Is s2 being estimated?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-param_optim_lower"></a>}}
 \if{latex}{\out{\hypertarget{method-param_optim_lower}{}}}
 \subsection{Method \code{param_optim_lower()}}{
+Lower bounds of parameters for optimization
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{White$param_optim_lower(s2_est = self$s2_est)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{s2_est}}{Is s2 being estimated?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-param_optim_upper"></a>}}
 \if{latex}{\out{\hypertarget{method-param_optim_upper}{}}}
 \subsection{Method \code{param_optim_upper()}}{
+Upper bounds of parameters for optimization
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{White$param_optim_upper(s2_est = self$s2_est)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{s2_est}}{Is s2 being estimated?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-set_params_from_optim"></a>}}
 \if{latex}{\out{\hypertarget{method-set_params_from_optim}{}}}
 \subsection{Method \code{set_params_from_optim()}}{
+Set parameters from optimization output
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{White$set_params_from_optim(optim_out, s2_est = self$s2_est)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{optim_out}}{Output from optimization}
+
+\item{\code{s2_est}}{s2 estimate}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-s2_from_params"></a>}}
