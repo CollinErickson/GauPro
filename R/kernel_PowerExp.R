@@ -29,6 +29,7 @@ PowerExp <- R6::R6Class(
     alpha_upper = NULL,
     alpha_est = NULL,
     #' @description Initialize kernel object
+    #' @param alpha Initial alpha value (the exponent). Between 0 and 2.
     #' @param beta Initial beta value
     #' @param s2 Initial variance
     #' @param D Number of input dimensions of data

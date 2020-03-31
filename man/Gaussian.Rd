@@ -57,10 +57,27 @@ k1 <- Gaussian$new(beta=0)
 \if{html}{\out{<a id="method-k"></a>}}
 \if{latex}{\out{\hypertarget{method-k}{}}}
 \subsection{Method \code{k()}}{
+Calculate covariance between two points
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Gaussian$k(x, y = NULL, beta = self$beta, s2 = self$s2, params = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x}}{vector.}
+
+\item{\code{y}}{vector, optional. If excluded, find correlation
+of x with itself.}
+
+\item{\code{beta}}{Correlation parameters.}
+
+\item{\code{s2}}{Variance parameter.}
+
+\item{\code{params}}{parameters to use instead of beta and s2.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-dC_dparams"></a>}}

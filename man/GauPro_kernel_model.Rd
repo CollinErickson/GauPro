@@ -171,6 +171,7 @@ gp$predict(.454)
 \if{html}{\out{<a id="method-fit"></a>}}
 \if{latex}{\out{\hypertarget{method-fit}{}}}
 \subsection{Method \code{fit()}}{
+Fit model
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$fit(X, Z)}\if{html}{\out{</div>}}
 }
@@ -180,6 +181,7 @@ gp$predict(.454)
 \if{html}{\out{<a id="method-update_K_and_estimates"></a>}}
 \if{latex}{\out{\hypertarget{method-update_K_and_estimates}{}}}
 \subsection{Method \code{update_K_and_estimates()}}{
+Update covariance matrix and estimates
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$update_K_and_estimates()}\if{html}{\out{</div>}}
 }
@@ -189,24 +191,53 @@ gp$predict(.454)
 \if{html}{\out{<a id="method-predict"></a>}}
 \if{latex}{\out{\hypertarget{method-predict}{}}}
 \subsection{Method \code{predict()}}{
+Predict for a matrix of points
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$predict(XX, se.fit = F, covmat = F, split_speed = F)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{XX}}{points to predict at}
+
+\item{\code{se.fit}}{Should standard error be returned?}
+
+\item{\code{covmat}}{Should covariance matrix be returned?}
+
+\item{\code{split_speed}}{Should the matrix be split for faster predictions?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-pred"></a>}}
 \if{latex}{\out{\hypertarget{method-pred}{}}}
 \subsection{Method \code{pred()}}{
+Predict for a matrix of points
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$pred(XX, se.fit = F, covmat = F, split_speed = F)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{XX}}{points to predict at}
+
+\item{\code{se.fit}}{Should standard error be returned?}
+
+\item{\code{covmat}}{Should covariance matrix be returned?}
+
+\item{\code{split_speed}}{Should the matrix be split for faster predictions?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-pred_one_matrix"></a>}}
 \if{latex}{\out{\hypertarget{method-pred_one_matrix}{}}}
 \subsection{Method \code{pred_one_matrix()}}{
+Predict for a matrix of points
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$pred_one_matrix(
   XX,
@@ -216,33 +247,81 @@ gp$predict(.454)
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{XX}}{points to predict at}
+
+\item{\code{se.fit}}{Should standard error be returned?}
+
+\item{\code{covmat}}{Should covariance matrix be returned?}
+
+\item{\code{return_df}}{When returning se.fit, should it be returned in
+a data frame?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-pred_mean"></a>}}
 \if{latex}{\out{\hypertarget{method-pred_mean}{}}}
 \subsection{Method \code{pred_mean()}}{
+Predict mean
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$pred_mean(XX, kx.xx)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{XX}}{points to predict at}
+
+\item{\code{kx.xx}}{Covariance of X with XX}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-pred_meanC"></a>}}
 \if{latex}{\out{\hypertarget{method-pred_meanC}{}}}
 \subsection{Method \code{pred_meanC()}}{
+Predict mean using C
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$pred_meanC(XX, kx.xx)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{XX}}{points to predict at}
+
+\item{\code{kx.xx}}{Covariance of X with XX}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-pred_var"></a>}}
 \if{latex}{\out{\hypertarget{method-pred_var}{}}}
 \subsection{Method \code{pred_var()}}{
+Predict variance
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$pred_var(XX, kxx, kx.xx, covmat = F)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{XX}}{points to predict at}
+
+\item{\code{kxx}}{Covariance of XX with itself}
+
+\item{\code{kx.xx}}{Covariance of X with XX}
+
+\item{\code{covmat}}{Should the covariance matrix be returned?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-pred_LOO"></a>}}
@@ -265,42 +344,83 @@ leave one out predictions
 \if{html}{\out{<a id="method-pred_var_after_adding_points"></a>}}
 \if{latex}{\out{\hypertarget{method-pred_var_after_adding_points}{}}}
 \subsection{Method \code{pred_var_after_adding_points()}}{
+Predict variance after adding points
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$pred_var_after_adding_points(add_points, pred_points)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{add_points}}{Points to add}
+
+\item{\code{pred_points}}{Points to predict at}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-pred_var_after_adding_points_sep"></a>}}
 \if{latex}{\out{\hypertarget{method-pred_var_after_adding_points_sep}{}}}
 \subsection{Method \code{pred_var_after_adding_points_sep()}}{
+Predict variance reductions after adding each point separately
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$pred_var_after_adding_points_sep(add_points, pred_points)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{add_points}}{Points to add}
+
+\item{\code{pred_points}}{Points to predict at}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-pred_var_reduction"></a>}}
 \if{latex}{\out{\hypertarget{method-pred_var_reduction}{}}}
 \subsection{Method \code{pred_var_reduction()}}{
+Predict variance reduction for a single point
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$pred_var_reduction(add_point, pred_points)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{add_point}}{Point to add}
+
+\item{\code{pred_points}}{Points to predict at}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-pred_var_reductions"></a>}}
 \if{latex}{\out{\hypertarget{method-pred_var_reductions}{}}}
 \subsection{Method \code{pred_var_reductions()}}{
+Predict variance reductions
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$pred_var_reductions(add_points, pred_points)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{add_points}}{Points to add}
+
+\item{\code{pred_points}}{Points to predict at}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-cool1Dplot"></a>}}
 \if{latex}{\out{\hypertarget{method-cool1Dplot}{}}}
 \subsection{Method \code{cool1Dplot()}}{
+Make cool 1D plot
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$cool1Dplot(
   n2 = 20,
@@ -315,11 +435,35 @@ leave one out predictions
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{n2}}{Number of things to plot}
+
+\item{\code{nn}}{Number of things to plot}
+
+\item{\code{col2}}{color}
+
+\item{\code{xlab}}{x label}
+
+\item{\code{ylab}}{y label}
+
+\item{\code{xmin}}{xmin}
+
+\item{\code{xmax}}{xmax}
+
+\item{\code{ymin}}{ymin}
+
+\item{\code{ymax}}{ymax}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-plot1D"></a>}}
 \if{latex}{\out{\hypertarget{method-plot1D}{}}}
 \subsection{Method \code{plot1D()}}{
+Make 1D plot
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$plot1D(
   n2 = 20,
@@ -334,11 +478,35 @@ leave one out predictions
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{n2}}{Number of things to plot}
+
+\item{\code{nn}}{Number of things to plot}
+
+\item{\code{col2}}{color}
+
+\item{\code{xlab}}{x label}
+
+\item{\code{ylab}}{y label}
+
+\item{\code{xmin}}{xmin}
+
+\item{\code{xmax}}{xmax}
+
+\item{\code{ymin}}{ymin}
+
+\item{\code{ymax}}{ymax}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-plot2D"></a>}}
 \if{latex}{\out{\hypertarget{method-plot2D}{}}}
 \subsection{Method \code{plot2D()}}{
+Make 2D plot
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$plot2D()}\if{html}{\out{</div>}}
 }
@@ -348,24 +516,45 @@ leave one out predictions
 \if{html}{\out{<a id="method-loglikelihood"></a>}}
 \if{latex}{\out{\hypertarget{method-loglikelihood}{}}}
 \subsection{Method \code{loglikelihood()}}{
+Calculate loglikelihood of parameters
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$loglikelihood(mu = self$mu_hatX, s2 = self$s2_hat)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{mu}}{Mean parameters}
+
+\item{\code{s2}}{Variance parameter}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-get_optim_functions"></a>}}
 \if{latex}{\out{\hypertarget{method-get_optim_functions}{}}}
 \subsection{Method \code{get_optim_functions()}}{
+Get optimization functions
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$get_optim_functions(param_update, nug.update)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{param_update}}{Should parameters be updated?}
+
+\item{\code{nug.update}}{Should nugget be updated?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-param_optim_lower"></a>}}
 \if{latex}{\out{\hypertarget{method-param_optim_lower}{}}}
 \subsection{Method \code{param_optim_lower()}}{
+Lower bounds of parameters for optimization
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$param_optim_lower(nug.update)}\if{html}{\out{</div>}}
 }
@@ -375,6 +564,7 @@ leave one out predictions
 \if{html}{\out{<a id="method-param_optim_upper"></a>}}
 \if{latex}{\out{\hypertarget{method-param_optim_upper}{}}}
 \subsection{Method \code{param_optim_upper()}}{
+Upper bounds of parameters for optimization
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$param_optim_upper(nug.update)}\if{html}{\out{</div>}}
 }
@@ -384,33 +574,66 @@ leave one out predictions
 \if{html}{\out{<a id="method-param_optim_start"></a>}}
 \if{latex}{\out{\hypertarget{method-param_optim_start}{}}}
 \subsection{Method \code{param_optim_start()}}{
+Starting point for parameters for optimization
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$param_optim_start(nug.update, jitter)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{nug.update}}{Is nugget being updated?}
+
+\item{\code{jitter}}{Should there be a jitter?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-param_optim_start0"></a>}}
 \if{latex}{\out{\hypertarget{method-param_optim_start0}{}}}
 \subsection{Method \code{param_optim_start0()}}{
+Starting point for parameters for optimization
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$param_optim_start0(nug.update, jitter)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{nug.update}}{Is nugget being updated?}
+
+\item{\code{jitter}}{Should there be a jitter?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-param_optim_start_mat"></a>}}
 \if{latex}{\out{\hypertarget{method-param_optim_start_mat}{}}}
 \subsection{Method \code{param_optim_start_mat()}}{
+Get matrix for starting points of optimization
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$param_optim_start_mat(restarts, nug.update, l)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{restarts}}{Number of restarts to use}
+
+\item{\code{nug.update}}{Is nugget being updated?}
+
+\item{\code{l}}{Not used}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-optim"></a>}}
 \if{latex}{\out{\hypertarget{method-optim}{}}}
 \subsection{Method \code{optim()}}{
+Optimize parameters
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$optim(
   restarts = 5,
@@ -421,6 +644,21 @@ leave one out predictions
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{restarts}}{Number of restarts to do}
+
+\item{\code{param_update}}{Should parameters be updated?}
+
+\item{\code{nug.update}}{Should nugget be updated?}
+
+\item{\code{parallel}}{Should restarts be done in parallel?}
+
+\item{\code{parallel_cores}}{If running parallel, how many cores should be used?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-optimRestart"></a>}}

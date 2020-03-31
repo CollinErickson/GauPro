@@ -26,6 +26,13 @@ k1 <- Matern32$new(beta=0)
 \section{Super classes}{
 \code{\link[GauPro:GauPro_kernel]{GauPro::GauPro_kernel}} -> \code{\link[GauPro:GauPro_kernel_beta]{GauPro::GauPro_kernel_beta}} -> \code{GauPro_kernel_Matern32}
 }
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{sqrt3}}{Saved value of square root of 3}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{

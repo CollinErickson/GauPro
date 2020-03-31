@@ -29,6 +29,23 @@ k$k(matrix(c(2,1), ncol=1))
 \section{Super class}{
 \code{\link[GauPro:GauPro_kernel]{GauPro::GauPro_kernel}} -> \code{GauPro_kernel_product}
 }
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{k1}}{kernel 1}
+
+\item{\code{k2}}{kernel 2}
+
+\item{\code{k1_param_length}}{param length of kernel 1}
+
+\item{\code{k2_param_length}}{param length of kernel 2}
+
+\item{\code{k1pl}}{param length of kernel 1}
+
+\item{\code{k2pl}}{param length of kernel 2}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{

@@ -26,6 +26,20 @@ k1 <- Matern52$new(beta=0)
 \section{Super classes}{
 \code{\link[GauPro:GauPro_kernel]{GauPro::GauPro_kernel}} -> \code{\link[GauPro:GauPro_kernel_beta]{GauPro::GauPro_kernel_beta}} -> \code{GauPro_kernel_Matern52}
 }
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{sqrt3}}{Saved value of square root of 5}
+}
+\if{html}{\out{</div>}}
+}
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
+\item{\code{sqrt3}}{Saved value of square root of 5}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{

@@ -9,6 +9,13 @@
 #' @keywords data, kriging, Gaussian process, regression
 #' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
 #' @format \code{\link{R6Class}} object.
+#' @field k1 kernel 1
+#' @field k2 kernel 2
+#' @field k1_param_length param length of kernel 1
+#' @field k2_param_length param length of kernel 2
+#' @field k1pl param length of kernel 1
+#' @field k2pl param length of kernel 2
+#' @field s2 variance
 #' @examples
 #' k1 <- Exponential$new(beta=1)
 #' k2 <- Matern32$new(beta=2)

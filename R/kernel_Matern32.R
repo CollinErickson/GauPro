@@ -9,6 +9,7 @@
 #' @keywords data, kriging, Gaussian process, regression
 #' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
 #' @format \code{\link{R6Class}} object.
+#' @field sqrt3 Saved value of square root of 3
 #' @examples
 #' k1 <- Matern32$new(beta=0)
 Matern32 <- R6::R6Class(classname = "GauPro_kernel_Matern32",

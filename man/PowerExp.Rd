@@ -76,6 +76,8 @@ Initialize kernel object
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
+\item{\code{alpha}}{Initial alpha value (the exponent). Between 0 and 2.}
+
 \item{\code{beta}}{Initial beta value}
 
 \item{\code{s2}}{Initial variance}

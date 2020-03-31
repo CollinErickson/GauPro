@@ -116,7 +116,8 @@ Periodic <- R6::R6Class(
     #' @param x vector.
     #' @param y vector, optional. If excluded, find correlation
     #' of x with itself.
-    #' @param beta Correlation parameters.
+    #' @param logp Correlation parameters.
+    #' @param logalpha Correlation parameters.
     #' @param s2 Variance parameter.
     #' @param params parameters to use instead of beta and s2.
     k = function(x, y=NULL, logp=self$logp, logalpha=self$logalpha, s2=self$s2, params=NULL) {#browser()
@@ -178,8 +179,8 @@ Periodic <- R6::R6Class(
     #' @description Find covariance of two points
     #' @param x vector
     #' @param y vector
-    #' @param beta correlation parameters on log scale
-    #' @param theta correlation parameters on regular scale
+    #' @param logp correlation parameters on log scale
+    #' @param p correlation parameters on regular scale
     #' @param s2 Variance parameter
     kone = function(x, y, logp, p, alpha, s2) {
       if (missing(p)) {p <- 10^logp}
@@ -285,8 +286,8 @@ Periodic <- R6::R6Class(
     #' @description Derivative of covariance with respect to X
     #' @param XX matrix of points
     #' @param X matrix of points to take derivative with respect to
-    #' @param theta Correlation parameters
-    #' @param beta log of theta
+    #' @param logp log of p
+    #' @param logalpha log of alpha
     #' @param s2 Variance parameter
     dC_dx = function(XX, X, logp=self$logp, logalpha=self$logalpha, s2=self$s2) {#browser()
       # if (missing(theta)) {theta <- 10^beta}

@@ -48,6 +48,13 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
     #   self$logs2_lower <- log(s2_lower, 10)
     #   self$logs2_upper <- log(s2_upper, 10)
     # },
+    #' @description Calculate covariance between two points
+    #' @param x vector.
+    #' @param y vector, optional. If excluded, find correlation
+    #' of x with itself.
+    #' @param beta Correlation parameters.
+    #' @param s2 Variance parameter.
+    #' @param params parameters to use instead of beta and s2.
     k = function(x, y=NULL, beta=self$beta, s2=self$s2, params=NULL) {
       if (!is.null(params)) {
         lenparams <- length(params)

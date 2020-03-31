@@ -132,11 +132,13 @@ Calculate covariance between two points
 \item{\code{y}}{vector, optional. If excluded, find correlation
 of x with itself.}
 
+\item{\code{logp}}{Correlation parameters.}
+
+\item{\code{logalpha}}{Correlation parameters.}
+
 \item{\code{s2}}{Variance parameter.}
 
 \item{\code{params}}{parameters to use instead of beta and s2.}
-
-\item{\code{beta}}{Correlation parameters.}
 }
 \if{html}{\out{</div>}}
 }
@@ -157,11 +159,11 @@ Find covariance of two points
 
 \item{\code{y}}{vector}
 
+\item{\code{logp}}{correlation parameters on log scale}
+
+\item{\code{p}}{correlation parameters on regular scale}
+
 \item{\code{s2}}{Variance parameter}
-
-\item{\code{beta}}{correlation parameters on log scale}
-
-\item{\code{theta}}{correlation parameters on regular scale}
 }
 \if{html}{\out{</div>}}
 }
@@ -229,11 +231,11 @@ Derivative of covariance with respect to X
 
 \item{\code{X}}{matrix of points to take derivative with respect to}
 
+\item{\code{logp}}{log of p}
+
+\item{\code{logalpha}}{log of alpha}
+
 \item{\code{s2}}{Variance parameter}
-
-\item{\code{theta}}{Correlation parameters}
-
-\item{\code{beta}}{log of theta}
 }
 \if{html}{\out{</div>}}
 }

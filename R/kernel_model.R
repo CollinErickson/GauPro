@@ -162,9 +162,11 @@ GauPro_kernel_model <- R6::R6Class(
         },
         # initialize_GauPr = function() {
         # },
+        #' @description  Fit model
         fit = function(X, Z) {
           self$update()
         },
+        #' @description Update covariance matrix and estimates
         update_K_and_estimates = function () {
           # Update K, Kinv, mu_hat, and s2_hat, maybe nugget too
           self$K <- self$kernel$k(self$X) + diag(self$kernel$s2 * self$nug,
@@ -187,10 +189,20 @@ GauPro_kernel_model <- R6::R6Class(
           #                               (self$Z - self$mu_hat) / self$N)
           self$s2_hat <- self$kernel$s2
         },
+        #' @description Predict for a matrix of points
+        #' @param XX points to predict at
+        #' @param se.fit Should standard error be returned?
+        #' @param covmat Should covariance matrix be returned?
+        #' @param split_speed Should the matrix be split for faster predictions?
         predict = function(XX, se.fit=F, covmat=F, split_speed=F) {
           self$pred(XX=XX, se.fit=se.fit, covmat=covmat,
                     split_speed=split_speed)
         },
+        #' @description Predict for a matrix of points
+        #' @param XX points to predict at
+        #' @param se.fit Should standard error be returned?
+        #' @param covmat Should covariance matrix be returned?
+        #' @param split_speed Should the matrix be split for faster predictions?
         pred = function(XX, se.fit=F, covmat=F, split_speed=F) {
           if (!is.matrix(XX)) {
             if (self$D == 1) XX <- matrix(XX, ncol=1)
@@ -256,6 +268,12 @@ GauPro_kernel_model <- R6::R6Class(
             return(pred1)
           }
         },
+        #' @description Predict for a matrix of points
+        #' @param XX points to predict at
+        #' @param se.fit Should standard error be returned?
+        #' @param covmat Should covariance matrix be returned?
+        #' @param return_df When returning se.fit, should it be returned in
+        #' a data frame?
         pred_one_matrix = function(XX, se.fit=F, covmat=F, return_df=FALSE) {
           # input should already be checked for matrix
           # kxx <- self$kernel$k(XX) + diag(self$nug * self$s2_hat, nrow(XX))
@@ -333,12 +351,18 @@ GauPro_kernel_model <- R6::R6Class(
             list(mean=mn, s2=s2, se=se)
           }
         },
+        #' @description Predict mean
+        #' @param XX points to predict at
+        #' @param kx.xx Covariance of X with XX
         pred_mean = function(XX, kx.xx) { # 2-8x faster to use pred_meanC
           # c(self$mu_hat + t(kx.xx) %*% self$Kinv %*% (self$Z - self$mu_hat))
           # mu_hat_matX <- self$trend$Z(self$X)
           mu_hat_matXX <- self$trend$Z(XX)
           c(mu_hat_matXX + t(kx.xx) %*% self$Kinv %*% (self$Z - self$mu_hatX))
         },
+        #' @description Predict mean using C
+        #' @param XX points to predict at
+        #' @param kx.xx Covariance of X with XX
         pred_meanC = function(XX, kx.xx) { # Don't use if R uses pass by copy(?)
           # pred_meanC(XX, kx.xx, self$mu_hat, self$Kinv, self$Z)
           # mu_hat_matX <- self$trend$Z(self$X)
@@ -353,6 +377,11 @@ GauPro_kernel_model <- R6::R6Class(
           pred_meanC_mumat_fast(XX, kx.xx, self$Kinv_Z_minus_mu_hatX,
                                 mu_hat_matXX)
         },
+        #' @description Predict variance
+        #' @param XX points to predict at
+        #' @param kxx Covariance of XX with itself
+        #' @param kx.xx Covariance of X with XX
+        #' @param covmat Should the covariance matrix be returned?
         pred_var = function(XX, kxx, kx.xx, covmat=F) {
           # 2-4x faster to use C functions pred_var and pred_cov
           self$s2_hat * diag(kxx - t(kx.xx) %*% self$Kinv %*% kx.xx)
@@ -390,6 +419,9 @@ GauPro_kernel_model <- R6::R6Class(
             Z_LOO
           }
         },
+        #' @description Predict variance after adding points
+        #' @param add_points Points to add
+        #' @param pred_points Points to predict at
         pred_var_after_adding_points = function(add_points, pred_points) {
           # Calculate pred_var at pred_points after add_points
           #  have been added to the design self$X
@@ -421,6 +453,9 @@ GauPro_kernel_model <- R6::R6Class(
                    2 * colSums(C_Xa * (FF %*% C_Sa)) +
                    colSums(C_Sa * (G %*% C_Sa)))
         },
+        #' @description Predict variance reductions after adding each point separately
+        #' @param add_points Points to add
+        #' @param pred_points Points to predict at
         pred_var_after_adding_points_sep = function(add_points, pred_points) {
           # Calculate pred_var at pred_points after each add_points
           #  has individually (separately) been added to the design self$X
@@ -457,6 +492,9 @@ GauPro_kernel_model <- R6::R6Class(
           t3 <- sweep((C_Sa)^2, 1, G, `*`)
           return(C_a - (t1 + t(t2 + t3)))
         },
+        #' @description Predict variance reduction for a single point
+        #' @param add_point Point to add
+        #' @param pred_points Points to predict at
         pred_var_reduction = function(add_point, pred_points) {
           # Calculate pred_var at pred_points after add_point
           #  have been added to the design self$X
@@ -490,6 +528,9 @@ GauPro_kernel_model <- R6::R6Class(
           # else {prds <- pred_var_a_func(pred_points)}
           prds
         },
+        #' @description Predict variance reductions
+        #' @param add_points Points to add
+        #' @param pred_points Points to predict at
         pred_var_reductions = function(add_points, pred_points) {
           # Calculate pred_var at pred_points after each of add_points
           #  has been added to the design self$X separately.
@@ -513,6 +554,16 @@ GauPro_kernel_model <- R6::R6Class(
           prds <- sweep(((C_aX %*% C_X_inv_C_XS) - C_aS) ^ 2, 2, G, `*`)
           prds
         },
+        #' @description Make cool 1D plot
+        #' @param n2 Number of things to plot
+        #' @param nn Number of things to plot
+        #' @param col2 color
+        #' @param ylab y label
+        #' @param xlab x label
+        #' @param xmin xmin
+        #' @param xmax xmax
+        #' @param ymax ymax
+        #' @param ymin ymin
         cool1Dplot = function (n2=20, nn=201, col2="gray",
                                xlab='x', ylab='y',
                                xmin=NULL, xmax=NULL,
@@ -585,6 +636,16 @@ GauPro_kernel_model <- R6::R6Class(
                  } else {self$Z},
                  pch=19, col=1, cex=2)
         },
+        #' @description Make 1D plot
+        #' @param n2 Number of things to plot
+        #' @param nn Number of things to plot
+        #' @param col2 color
+        #' @param ylab y label
+        #' @param xlab x label
+        #' @param xmin xmin
+        #' @param xmax xmax
+        #' @param ymax ymax
+        #' @param ymin ymin
         plot1D = function(n2=20, nn=201, col2=2, #"gray",
                           xlab='x', ylab='y',
                           xmin=NULL, xmax=NULL,
@@ -634,6 +695,7 @@ GauPro_kernel_model <- R6::R6Class(
                  } else {self$Z},
                  pch=19, col=1, cex=2)
         },
+        #' @description Make 2D plot
         plot2D = function() {
           if (self$D != 2) {stop("plot2D only works in 2D")}
           mins <- apply(self$X, 2, min)
@@ -647,10 +709,16 @@ GauPro_kernel_model <- R6::R6Class(
                                     ylim=c(ymin, ymax),
                                     pts=self$X)
         },
+        #' @description Calculate loglikelihood of parameters
+        #' @param mu Mean parameters
+        #' @param s2 Variance parameter
         loglikelihood = function(mu=self$mu_hatX, s2=self$s2_hat) {
           -.5 * (self$N*log(s2) + log(det(self$K)) +
                    t(self$Z - mu)%*%self$Kinv%*%(self$Z - mu)/s2)
         },
+        #' @description Get optimization functions
+        #' @param param_update Should parameters be updated?
+        #' @param nug.update Should nugget be updated?
         get_optim_functions = function(param_update, nug.update) {
           # self$kernel$get_optim_functions(param_update=param_update)
           # if (nug.update) { # Nug will be last in vector of parameters
@@ -724,6 +792,7 @@ GauPro_kernel_model <- R6::R6Class(
             }
           )
         },
+        #' @description Lower bounds of parameters for optimization
         param_optim_lower = function(nug.update) {
           if (nug.update) {
           #   c(self$kernel$param_optim_lower(), log(self$nug.min,10))
@@ -736,6 +805,7 @@ GauPro_kernel_model <- R6::R6Class(
           kern_lower <- self$kernel$param_optim_lower()
           c(trend_lower, kern_lower, nug_lower)
         },
+        #' @description Upper bounds of parameters for optimization
         param_optim_upper = function(nug.update) {
           if (nug.update) {
           #   c(self$kernel$param_optim_upper(), Inf)
@@ -749,6 +819,9 @@ GauPro_kernel_model <- R6::R6Class(
           c(trend_upper, kern_upper, nug_upper)
 
         },
+        #' @description Starting point for parameters for optimization
+        #' @param jitter Should there be a jitter?
+        #' @param nug.update Is nugget being updated?
         param_optim_start = function(nug.update, jitter) {
           # param_start <- self$kernel$param_optim_start(jitter=jitter)
           if (nug.update) {
@@ -770,6 +843,9 @@ GauPro_kernel_model <- R6::R6Class(
           # nug_start <- Inf
           c(trend_start, kern_start, nug_start)
         },
+        #' @description Starting point for parameters for optimization
+        #' @param jitter Should there be a jitter?
+        #' @param nug.update Is nugget being updated?
         param_optim_start0 = function(nug.update, jitter) {
           # param_start <- self$kernel$param_optim_start0(jitter=jitter)
           if (nug.update) {
@@ -788,6 +864,10 @@ GauPro_kernel_model <- R6::R6Class(
           # nug_start <- Inf
           c(trend_start, kern_start, nug_start)
         },
+        #' @description Get matrix for starting points of optimization
+        #' @param restarts Number of restarts to use
+        #' @param nug.update Is nugget being updated?
+        #' @param l Not used
         param_optim_start_mat = function(restarts, nug.update, l) {
           s0 <- sample(c(T,F), size=restarts+1, replace=TRUE, prob = c(.33,.67))
           s0[1] <- TRUE
@@ -801,6 +881,12 @@ GauPro_kernel_model <- R6::R6Class(
           # mat <- matrix(0, nrow=restarts, ncol=l)
           # mat[1,] <- self$param_optim_start0(nug.update=nug.update)
         },
+        #' @description Optimize parameters
+        #' @param restarts Number of restarts to do
+        #' @param param_update Should parameters be updated?
+        #' @param nug.update Should nugget be updated?
+        #' @param parallel Should restarts be done in parallel?
+        #' @param parallel_cores If running parallel, how many cores should be used?
         optim = function (restarts = 5, param_update = T,
                           nug.update = self$nug.est, parallel=self$parallel,
                           parallel_cores=self$parallel_cores) {
