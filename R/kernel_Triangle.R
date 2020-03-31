@@ -15,6 +15,13 @@ Triangle <- R6::R6Class(
   classname = "GauPro_kernel_Triangle",
   inherit = GauPro_kernel_beta,
   public = list(
+    #' @description Calculate covariance between two points
+    #' @param x vector.
+    #' @param y vector, optional. If excluded, find correlation
+    #' of x with itself.
+    #' @param beta Correlation parameters.
+    #' @param s2 Variance parameter.
+    #' @param params parameters to use instead of beta and s2.
     k = function(x, y=NULL, beta=self$beta, s2=self$s2, params=NULL) {
       if (!is.null(params)) {
 
@@ -58,11 +65,23 @@ Triangle <- R6::R6Class(
         self$kone(x, y, theta=theta, s2=s2)
       }
     },
+    #' @description Find covariance of two points
+    #' @param x vector
+    #' @param y vector
+    #' @param beta correlation parameters on log scale
+    #' @param theta correlation parameters on regular scale
+    #' @param s2 Variance parameter
     kone = function(x, y, beta, theta, s2) {
       if (missing(theta)) {theta <- 10^beta}
       r <- sqrt(sum(theta * (x-y)^2))
       s2 * max(1 - r, 0)
     },
+    #' @description Derivative of covariance with respect to parameters
+    #' @param params Kernel parameters
+    #' @param X matrix of points in rows
+    #' @param C_nonug Covariance without nugget added to diagonal
+    #' @param C Covariance with nugget
+    #' @param nug Value of nugget
     dC_dparams = function(params=NULL, X, C_nonug, C, nug) {
       n <- nrow(X)
 
@@ -133,6 +152,12 @@ Triangle <- R6::R6Class(
 
       return(dC_dparams=dC_dparams)
     },
+    #' @description Derivative of covariance with respect to X
+    #' @param XX matrix of points
+    #' @param X matrix of points to take derivative with respect to
+    #' @param theta Correlation parameters
+    #' @param beta log of theta
+    #' @param s2 Variance parameter
     dC_dx = function(XX, X, theta, beta=self$beta, s2=self$s2) {
       stop("dC_dx not implemented for triangle")
       if (missing(theta)) {theta <- 10^beta}

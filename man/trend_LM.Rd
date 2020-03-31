@@ -26,6 +26,27 @@ t1 <- trend_LM$new(D=2)
 \section{Super class}{
 \code{\link[GauPro:GauPro_trend]{GauPro::GauPro_trend}} -> \code{GauPro_trend_LM}
 }
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{m}}{Trend parameters}
+
+\item{\code{m_lower}}{m lower bound}
+
+\item{\code{m_upper}}{m upper bound}
+
+\item{\code{m_est}}{Should m be estimated?}
+
+\item{\code{b}}{trend parameter}
+
+\item{\code{b_lower}}{trend lower bounds}
+
+\item{\code{b_upper}}{trend upper bounds}
+
+\item{\code{b_est}}{Should b be estimated?}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
@@ -51,6 +72,7 @@ t1 <- trend_LM$new(D=2)
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize trend object
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{trend_LM$new(
   D,
@@ -65,78 +87,189 @@ t1 <- trend_LM$new(D=2)
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{D}}{Number of input dimensions of data}
+
+\item{\code{m}}{trend initial parameters}
+
+\item{\code{m_lower}}{trend lower bounds}
+
+\item{\code{m_upper}}{trend upper bounds}
+
+\item{\code{m_est}}{Logical of whether each param should be estimated}
+
+\item{\code{b}}{trend parameter}
+
+\item{\code{b_lower}}{trend lower bounds}
+
+\item{\code{b_upper}}{trend upper bounds}
+
+\item{\code{b_est}}{Should b be estimated?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Z"></a>}}
 \if{latex}{\out{\hypertarget{method-Z}{}}}
 \subsection{Method \code{Z()}}{
+Get trend value for given matrix X
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{trend_LM$Z(X, m = self$m, b = self$b, params = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{X}}{matrix of points}
+
+\item{\code{m}}{trend parameters}
+
+\item{\code{b}}{trend parameters (slopes)}
+
+\item{\code{params}}{trend parameters}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-dZ_dparams"></a>}}
 \if{latex}{\out{\hypertarget{method-dZ_dparams}{}}}
 \subsection{Method \code{dZ_dparams()}}{
+Derivative of trend with respect to trend parameters
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{trend_LM$dZ_dparams(X, m = self$m_est, b = self$b_est, params = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{X}}{matrix of points}
+
+\item{\code{m}}{trend values}
+
+\item{\code{b}}{trend intercept}
+
+\item{\code{params}}{overrides m}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-dZ_dx"></a>}}
 \if{latex}{\out{\hypertarget{method-dZ_dx}{}}}
 \subsection{Method \code{dZ_dx()}}{
+Derivative of trend with respect to X
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{trend_LM$dZ_dx(X, m = self$m, params = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{X}}{matrix of points}
+
+\item{\code{m}}{trend values}
+
+\item{\code{params}}{overrides m}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-param_optim_start"></a>}}
 \if{latex}{\out{\hypertarget{method-param_optim_start}{}}}
 \subsection{Method \code{param_optim_start()}}{
+Get parameter initial point for optimization
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{trend_LM$param_optim_start(jitter, trend_est)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{jitter}}{Not used}
+
+\item{\code{trend_est}}{If the trend should be estimate.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-param_optim_start0"></a>}}
 \if{latex}{\out{\hypertarget{method-param_optim_start0}{}}}
 \subsection{Method \code{param_optim_start0()}}{
+Get parameter initial point for optimization
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{trend_LM$param_optim_start0(jitter, trend_est)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{jitter}}{Not used}
+
+\item{\code{trend_est}}{If the trend should be estimate.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-param_optim_lower"></a>}}
 \if{latex}{\out{\hypertarget{method-param_optim_lower}{}}}
 \subsection{Method \code{param_optim_lower()}}{
+Get parameter lower bounds for optimization
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{trend_LM$param_optim_lower(jitter, trend_est)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{jitter}}{Not used}
+
+\item{\code{trend_est}}{If the trend should be estimate.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-param_optim_upper"></a>}}
 \if{latex}{\out{\hypertarget{method-param_optim_upper}{}}}
 \subsection{Method \code{param_optim_upper()}}{
+Get parameter upper bounds for optimization
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{trend_LM$param_optim_upper(jitter, trend_est)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{jitter}}{Not used}
+
+\item{\code{trend_est}}{If the trend should be estimate.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-set_params_from_optim"></a>}}
 \if{latex}{\out{\hypertarget{method-set_params_from_optim}{}}}
 \subsection{Method \code{set_params_from_optim()}}{
+Set parameters after optimization
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{trend_LM$set_params_from_optim(optim_out)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{optim_out}}{Output from optim}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

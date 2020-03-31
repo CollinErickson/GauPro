@@ -54,37 +54,102 @@ k1 <- Matern52$new(beta=0)
 \if{html}{\out{<a id="method-k"></a>}}
 \if{latex}{\out{\hypertarget{method-k}{}}}
 \subsection{Method \code{k()}}{
+Calculate covariance between two points
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Matern52$k(x, y = NULL, beta = self$beta, s2 = self$s2, params = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x}}{vector.}
+
+\item{\code{y}}{vector, optional. If excluded, find correlation
+of x with itself.}
+
+\item{\code{beta}}{Correlation parameters.}
+
+\item{\code{s2}}{Variance parameter.}
+
+\item{\code{params}}{parameters to use instead of beta and s2.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-kone"></a>}}
 \if{latex}{\out{\hypertarget{method-kone}{}}}
 \subsection{Method \code{kone()}}{
+Find covariance of two points
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Matern52$kone(x, y, beta, theta, s2)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x}}{vector}
+
+\item{\code{y}}{vector}
+
+\item{\code{beta}}{correlation parameters on log scale}
+
+\item{\code{theta}}{correlation parameters on regular scale}
+
+\item{\code{s2}}{Variance parameter}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-dC_dparams"></a>}}
 \if{latex}{\out{\hypertarget{method-dC_dparams}{}}}
 \subsection{Method \code{dC_dparams()}}{
+Derivative of covariance with respect to parameters
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Matern52$dC_dparams(params = NULL, X, C_nonug, C, nug)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{params}}{Kernel parameters}
+
+\item{\code{X}}{matrix of points in rows}
+
+\item{\code{C_nonug}}{Covariance without nugget added to diagonal}
+
+\item{\code{C}}{Covariance with nugget}
+
+\item{\code{nug}}{Value of nugget}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-dC_dx"></a>}}
 \if{latex}{\out{\hypertarget{method-dC_dx}{}}}
 \subsection{Method \code{dC_dx()}}{
+Derivative of covariance with respect to X
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Matern52$dC_dx(XX, X, theta, beta = self$beta, s2 = self$s2)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{XX}}{matrix of points}
+
+\item{\code{X}}{matrix of points to take derivative with respect to}
+
+\item{\code{theta}}{Correlation parameters}
+
+\item{\code{beta}}{log of theta}
+
+\item{\code{s2}}{Variance parameter}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

@@ -45,6 +45,13 @@ PowerExp <- R6::R6Class(
       self$alpha_est <- alpha_est
 
     },
+    #' @description Calculate covariance between two points
+    #' @param x vector.
+    #' @param y vector, optional. If excluded, find correlation
+    #' of x with itself.
+    #' @param beta Correlation parameters.
+    #' @param s2 Variance parameter.
+    #' @param params parameters to use instead of beta and s2.
     k = function(x, y=NULL, beta=self$beta, alpha=self$alpha, s2=self$s2, params=NULL) {#browser()
       if (!is.null(params)) {
         lenparams <- length(params)
@@ -102,12 +109,24 @@ PowerExp <- R6::R6Class(
         self$kone(x, y, theta=theta, alpha=alpha, s2=s2)
       }
     },
+    #' @description Find covariance of two points
+    #' @param x vector
+    #' @param y vector
+    #' @param beta correlation parameters on log scale
+    #' @param theta correlation parameters on regular scale
+    #' @param s2 Variance parameter
     kone = function(x, y, beta, theta, alpha, s2) {
       if (missing(theta)) {theta <- 10^beta}
       # t1 <- self$sqrt
       r2 <- sum(theta * abs(x-y)^alpha)
       s2 * exp(-r2)
     },
+    #' @description Derivative of covariance with respect to parameters
+    #' @param params Kernel parameters
+    #' @param X matrix of points in rows
+    #' @param C_nonug Covariance without nugget added to diagonal
+    #' @param C Covariance with nugget
+    #' @param nug Value of nugget
     dC_dparams = function(params=NULL, X, C_nonug, C, nug) {#browser(text = "Make sure all in one list")
       n <- nrow(X)
       # if (is.null(params)) {params <- c(self$beta, self$logalpha, self$logs2)}
@@ -193,6 +212,12 @@ PowerExp <- R6::R6Class(
       }
       return(dC_dparams)
     },
+    #' @description Derivative of covariance with respect to X
+    #' @param XX matrix of points
+    #' @param X matrix of points to take derivative with respect to
+    #' @param theta Correlation parameters
+    #' @param beta log of theta
+    #' @param s2 Variance parameter
     dC_dx = function(XX, X, theta, beta=self$beta, alpha=self$alpha, s2=self$s2) {#browser()
       if (missing(theta)) {theta <- 10^beta}
       # p <- 10 ^ logp
@@ -259,6 +284,9 @@ PowerExp <- R6::R6Class(
       if (s2_est) {vec <- c(vec, self$logs2_upper)} else {}
       vec
     },
+    #' @description Get s2 from params vector
+    #' @param params parameter vector
+    #' @param s2_est Is s2 being estimated?
     set_params_from_optim = function(optim_out, beta_est=self$beta_est,
                                      alpha_est=self$alpha_est, s2_est=self$s2_est) {
       loo <- length(optim_out)

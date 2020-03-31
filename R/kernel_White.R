@@ -31,6 +31,13 @@ White <- R6::R6Class(
       else {self$D <- D}
 
     },
+    #' @description Calculate covariance between two points
+    #' @param x vector.
+    #' @param y vector, optional. If excluded, find correlation
+    #' of x with itself.
+    #' @param beta Correlation parameters.
+    #' @param s2 Variance parameter.
+    #' @param params parameters to use instead of beta and s2.
     k = function(x, y=NULL, s2=self$s2, params=NULL) {#browser()
       if (!is.null(params)) {
         logs2 <- params #[lenpar]
@@ -63,12 +70,24 @@ White <- R6::R6Class(
         0
       }
     },
+    #' @description Find covariance of two points
+    #' @param x vector
+    #' @param y vector
+    #' @param beta correlation parameters on log scale
+    #' @param theta correlation parameters on regular scale
+    #' @param s2 Variance parameter
     kone = function(x, y, beta, theta, alpha, s2) {
       if (missing(theta)) {theta <- 10^beta}
       # t1 <- self$sqrt
       r2 <- sum(theta * (x-y)^2)
       s2 * (1 + r2 / alpha) ^ -alpha
     },
+    #' @description Derivative of covariance with respect to parameters
+    #' @param params Kernel parameters
+    #' @param X matrix of points in rows
+    #' @param C_nonug Covariance without nugget added to diagonal
+    #' @param C Covariance with nugget
+    #' @param nug Value of nugget
     dC_dparams = function(params=NULL, X, C_nonug, C, nug) {#browser(text = "Make sure all in one list")
       n <- nrow(X)
       lenparams <- length(params)
@@ -93,6 +112,11 @@ White <- R6::R6Class(
       }
       return(dC_dparams)
     },
+    #' @description Calculate covariance matrix and its derivative
+    #'  with respect to parameters
+    #' @param params Kernel parameters
+    #' @param X matrix of points in rows
+    #' @param nug Value of nugget
     C_dC_dparams = function(params=NULL, X, nug) {
       s2 <- self$s2_from_params(params)
       C_nonug <- self$k(x=X, params=params)
@@ -100,6 +124,12 @@ White <- R6::R6Class(
       dC_dparams <- self$dC_dparams(params=params, X=X, C_nonug=C_nonug, C=C, nug=nug)
       list(C=C, dC_dparams=dC_dparams)
     },
+    #' @description Derivative of covariance with respect to X
+    #' @param XX matrix of points
+    #' @param X matrix of points to take derivative with respect to
+    #' @param theta Correlation parameters
+    #' @param beta log of theta
+    #' @param s2 Variance parameter
     dC_dx = function(XX, X, s2=self$s2) {#browser()
       if (!is.matrix(XX)) {stop()}
       d <- ncol(XX)
@@ -156,6 +186,9 @@ White <- R6::R6Class(
         if (loo != 0) {stop("Error in white kernel #3245235")}
       }
     },
+    #' @description Get s2 from params vector
+    #' @param params parameter vector
+    #' @param s2_est Is s2 being estimated?
     s2_from_params = function(params, s2_est=self$s2_est) {
       # 10 ^ params[length(params)]
       if (s2_est && !is.null(params)) { # Is last if in params

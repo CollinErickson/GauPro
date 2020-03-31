@@ -357,6 +357,8 @@ GauPro_kernel_model <- R6::R6Class(
           # 2-4x faster to use C functions pred_var and pred_cov
           self$s2_hat * diag(kxx - t(kx.xx) %*% self$Kinv %*% kx.xx)
         },
+        #' @description leave one out predictions
+        #' @param se.fit Should standard errors be included?
         pred_LOO = function(se.fit=FALSE) {
           # Predict LOO (leave-one-out) on data used to fit model
           # See vignette for explanation of equations

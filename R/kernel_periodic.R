@@ -98,6 +98,13 @@ Periodic <- R6::R6Class(
       self$s2_est <- s2_est
 
     },
+    #' @description Calculate covariance between two points
+    #' @param x vector.
+    #' @param y vector, optional. If excluded, find correlation
+    #' of x with itself.
+    #' @param beta Correlation parameters.
+    #' @param s2 Variance parameter.
+    #' @param params parameters to use instead of beta and s2.
     k = function(x, y=NULL, logp=self$logp, logalpha=self$logalpha, s2=self$s2, params=NULL) {#browser()
       if (!is.null(params)) {
         lenparams <- length(params)
@@ -154,12 +161,24 @@ Periodic <- R6::R6Class(
         self$kone(x, y, p=p, alpha=alpha, s2=s2)
       }
     },
+    #' @description Find covariance of two points
+    #' @param x vector
+    #' @param y vector
+    #' @param beta correlation parameters on log scale
+    #' @param theta correlation parameters on regular scale
+    #' @param s2 Variance parameter
     kone = function(x, y, logp, p, alpha, s2) {
       if (missing(p)) {p <- 10^logp}
       out <- s2 * exp(-sum(alpha*sin(p * (x-y))^2))
       if (any(is.nan(out))) {browser()}
       out
     },
+    #' @description Derivative of covariance with respect to parameters
+    #' @param params Kernel parameters
+    #' @param X matrix of points in rows
+    #' @param C_nonug Covariance without nugget added to diagonal
+    #' @param C Covariance with nugget
+    #' @param nug Value of nugget
     dC_dparams = function(params=NULL, X, C_nonug, C, nug) {#browser(text = "Make sure all in one list")
       n <- nrow(X)
 
@@ -237,6 +256,11 @@ Periodic <- R6::R6Class(
       }
       return(dC_dparams)
     },
+    #' @description Calculate covariance matrix and its derivative
+    #'  with respect to parameters
+    #' @param params Kernel parameters
+    #' @param X matrix of points in rows
+    #' @param nug Value of nugget
     C_dC_dparams = function(params=NULL, X, nug) {
       s2 <- self$s2_from_params(params)
       C_nonug <- self$k(x=X, params=params)
@@ -244,6 +268,12 @@ Periodic <- R6::R6Class(
       dC_dparams <- self$dC_dparams(params=params, X=X, C_nonug=C_nonug, C=C, nug=nug)
       list(C=C, dC_dparams=dC_dparams)
     },
+    #' @description Derivative of covariance with respect to X
+    #' @param XX matrix of points
+    #' @param X matrix of points to take derivative with respect to
+    #' @param theta Correlation parameters
+    #' @param beta log of theta
+    #' @param s2 Variance parameter
     dC_dx = function(XX, X, logp=self$logp, logalpha=self$logalpha, s2=self$s2) {#browser()
       # if (missing(theta)) {theta <- 10^beta}
       p <- 10 ^ logp
@@ -324,6 +354,9 @@ Periodic <- R6::R6Class(
         self$s2 <- 10 ^ self$logs2
       }
     },
+    #' @description Get s2 from params vector
+    #' @param params parameter vector
+    #' @param s2_est Is s2 being estimated?
     s2_from_params = function(params, s2_est=self$s2_est) {
       # 10 ^ params[length(params)]
       if (s2_est && !is.null(params)) { # Is last if in params

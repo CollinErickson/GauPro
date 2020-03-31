@@ -66,55 +66,148 @@ k1 <- Gaussian$new(beta=0)
 \if{html}{\out{<a id="method-dC_dparams"></a>}}
 \if{latex}{\out{\hypertarget{method-dC_dparams}{}}}
 \subsection{Method \code{dC_dparams()}}{
+Derivative of covariance with respect to parameters
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Gaussian$dC_dparams(params = NULL, X, C_nonug, C, nug)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{params}}{Kernel parameters}
+
+\item{\code{X}}{matrix of points in rows}
+
+\item{\code{C_nonug}}{Covariance without nugget added to diagonal}
+
+\item{\code{C}}{Covariance with nugget}
+
+\item{\code{nug}}{Value of nugget}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-C_dC_dparams"></a>}}
 \if{latex}{\out{\hypertarget{method-C_dC_dparams}{}}}
 \subsection{Method \code{C_dC_dparams()}}{
+Calculate covariance matrix and its derivative
+ with respect to parameters
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Gaussian$C_dC_dparams(params = NULL, X, nug)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{params}}{Kernel parameters}
+
+\item{\code{X}}{matrix of points in rows}
+
+\item{\code{nug}}{Value of nugget}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-dC_dx"></a>}}
 \if{latex}{\out{\hypertarget{method-dC_dx}{}}}
 \subsection{Method \code{dC_dx()}}{
+Derivative of covariance with respect to X
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Gaussian$dC_dx(XX, X, theta, beta = self$beta, s2 = self$s2)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{XX}}{matrix of points}
+
+\item{\code{X}}{matrix of points to take derivative with respect to}
+
+\item{\code{theta}}{Correlation parameters}
+
+\item{\code{beta}}{log of theta}
+
+\item{\code{s2}}{Variance parameter}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-d2C_dx2"></a>}}
 \if{latex}{\out{\hypertarget{method-d2C_dx2}{}}}
 \subsection{Method \code{d2C_dx2()}}{
+Second derivative of covariance with respect to X
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Gaussian$d2C_dx2(XX, X, theta, beta = self$beta, s2 = self$s2)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{XX}}{matrix of points}
+
+\item{\code{X}}{matrix of points to take derivative with respect to}
+
+\item{\code{theta}}{Correlation parameters}
+
+\item{\code{beta}}{log of theta}
+
+\item{\code{s2}}{Variance parameter}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-d2C_dudv"></a>}}
 \if{latex}{\out{\hypertarget{method-d2C_dudv}{}}}
 \subsection{Method \code{d2C_dudv()}}{
+Second derivative of covariance with respect to
+X and XX each once.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Gaussian$d2C_dudv(XX, X, theta, beta = self$beta, s2 = self$s2)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{XX}}{matrix of points}
+
+\item{\code{X}}{matrix of points to take derivative with respect to}
+
+\item{\code{theta}}{Correlation parameters}
+
+\item{\code{beta}}{log of theta}
+
+\item{\code{s2}}{Variance parameter}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-d2C_dudv_ueqvrows"></a>}}
 \if{latex}{\out{\hypertarget{method-d2C_dudv_ueqvrows}{}}}
 \subsection{Method \code{d2C_dudv_ueqvrows()}}{
+Second derivative of covariance with respect to X and XX
+when they equal the same value
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Gaussian$d2C_dudv_ueqvrows(XX, theta, beta = self$beta, s2 = self$s2)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{XX}}{matrix of points}
+
+\item{\code{theta}}{Correlation parameters}
+
+\item{\code{beta}}{log of theta}
+
+\item{\code{s2}}{Variance parameter}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

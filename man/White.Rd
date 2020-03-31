@@ -63,46 +63,124 @@ k1 <- White$new(s2=1e-8)
 \if{html}{\out{<a id="method-k"></a>}}
 \if{latex}{\out{\hypertarget{method-k}{}}}
 \subsection{Method \code{k()}}{
+Calculate covariance between two points
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{White$k(x, y = NULL, s2 = self$s2, params = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x}}{vector.}
+
+\item{\code{y}}{vector, optional. If excluded, find correlation
+of x with itself.}
+
+\item{\code{s2}}{Variance parameter.}
+
+\item{\code{params}}{parameters to use instead of beta and s2.}
+
+\item{\code{beta}}{Correlation parameters.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-kone"></a>}}
 \if{latex}{\out{\hypertarget{method-kone}{}}}
 \subsection{Method \code{kone()}}{
+Find covariance of two points
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{White$kone(x, y, beta, theta, alpha, s2)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x}}{vector}
+
+\item{\code{y}}{vector}
+
+\item{\code{beta}}{correlation parameters on log scale}
+
+\item{\code{theta}}{correlation parameters on regular scale}
+
+\item{\code{s2}}{Variance parameter}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-dC_dparams"></a>}}
 \if{latex}{\out{\hypertarget{method-dC_dparams}{}}}
 \subsection{Method \code{dC_dparams()}}{
+Derivative of covariance with respect to parameters
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{White$dC_dparams(params = NULL, X, C_nonug, C, nug)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{params}}{Kernel parameters}
+
+\item{\code{X}}{matrix of points in rows}
+
+\item{\code{C_nonug}}{Covariance without nugget added to diagonal}
+
+\item{\code{C}}{Covariance with nugget}
+
+\item{\code{nug}}{Value of nugget}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-C_dC_dparams"></a>}}
 \if{latex}{\out{\hypertarget{method-C_dC_dparams}{}}}
 \subsection{Method \code{C_dC_dparams()}}{
+Calculate covariance matrix and its derivative
+ with respect to parameters
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{White$C_dC_dparams(params = NULL, X, nug)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{params}}{Kernel parameters}
+
+\item{\code{X}}{matrix of points in rows}
+
+\item{\code{nug}}{Value of nugget}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-dC_dx"></a>}}
 \if{latex}{\out{\hypertarget{method-dC_dx}{}}}
 \subsection{Method \code{dC_dx()}}{
+Derivative of covariance with respect to X
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{White$dC_dx(XX, X, s2 = self$s2)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{XX}}{matrix of points}
+
+\item{\code{X}}{matrix of points to take derivative with respect to}
+
+\item{\code{s2}}{Variance parameter}
+
+\item{\code{theta}}{Correlation parameters}
+
+\item{\code{beta}}{log of theta}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-param_optim_start"></a>}}
@@ -153,10 +231,20 @@ k1 <- White$new(s2=1e-8)
 \if{html}{\out{<a id="method-s2_from_params"></a>}}
 \if{latex}{\out{\hypertarget{method-s2_from_params}{}}}
 \subsection{Method \code{s2_from_params()}}{
+Get s2 from params vector
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{White$s2_from_params(params, s2_est = self$s2_est)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{params}}{parameter vector}
+
+\item{\code{s2_est}}{Is s2 being estimated?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

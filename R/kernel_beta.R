@@ -196,6 +196,9 @@ GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
       dC_dparams <- self$dC_dparams(params=params, X=X, C_nonug=C_nonug, C=C, nug=nug)
       list(C=C, dC_dparams=dC_dparams)
     },
+    #' @description Get s2 from params vector
+    #' @param params parameter vector
+    #' @param s2_est Is s2 being estimated?
     s2_from_params = function(params, s2_est=self$s2_est) {
       # 10 ^ params[length(params)]
       if (s2_est && !is.null(params)) { # Is last if in params

@@ -11,6 +11,11 @@
 Object of \code{\link{R6Class}} with methods for fitting GP model.
 }
 \description{
+GauPro model that uses kernels
+
+GauPro model that uses kernels
+}
+\details{
 Class providing object with methods for fitting a GP model.
 Allows for different kernel and trend functions to be used.
 }
@@ -243,10 +248,18 @@ gp$predict(.454)
 \if{html}{\out{<a id="method-pred_LOO"></a>}}
 \if{latex}{\out{\hypertarget{method-pred_LOO}{}}}
 \subsection{Method \code{pred_LOO()}}{
+leave one out predictions
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$pred_LOO(se.fit = FALSE)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{se.fit}}{Should standard errors be included?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-pred_var_after_adding_points"></a>}}

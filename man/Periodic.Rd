@@ -11,6 +11,11 @@
 Object of \code{\link{R6Class}} with methods for fitting GP model.
 }
 \description{
+Periodic Kernel R6 class
+
+Periodic Kernel R6 class
+}
+\details{
 p is the period for each dimension, a is a single number for scaling
 }
 \examples{
@@ -75,6 +80,7 @@ k1 <- Periodic$new(p=1, alpha=1)
 \if{html}{\out{<a id="method-k"></a>}}
 \if{latex}{\out{\hypertarget{method-k}{}}}
 \subsection{Method \code{k()}}{
+Calculate covariance between two points
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Periodic$k(
   x,
@@ -86,42 +92,119 @@ k1 <- Periodic$new(p=1, alpha=1)
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x}}{vector.}
+
+\item{\code{y}}{vector, optional. If excluded, find correlation
+of x with itself.}
+
+\item{\code{s2}}{Variance parameter.}
+
+\item{\code{params}}{parameters to use instead of beta and s2.}
+
+\item{\code{beta}}{Correlation parameters.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-kone"></a>}}
 \if{latex}{\out{\hypertarget{method-kone}{}}}
 \subsection{Method \code{kone()}}{
+Find covariance of two points
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Periodic$kone(x, y, logp, p, alpha, s2)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x}}{vector}
+
+\item{\code{y}}{vector}
+
+\item{\code{s2}}{Variance parameter}
+
+\item{\code{beta}}{correlation parameters on log scale}
+
+\item{\code{theta}}{correlation parameters on regular scale}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-dC_dparams"></a>}}
 \if{latex}{\out{\hypertarget{method-dC_dparams}{}}}
 \subsection{Method \code{dC_dparams()}}{
+Derivative of covariance with respect to parameters
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Periodic$dC_dparams(params = NULL, X, C_nonug, C, nug)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{params}}{Kernel parameters}
+
+\item{\code{X}}{matrix of points in rows}
+
+\item{\code{C_nonug}}{Covariance without nugget added to diagonal}
+
+\item{\code{C}}{Covariance with nugget}
+
+\item{\code{nug}}{Value of nugget}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-C_dC_dparams"></a>}}
 \if{latex}{\out{\hypertarget{method-C_dC_dparams}{}}}
 \subsection{Method \code{C_dC_dparams()}}{
+Calculate covariance matrix and its derivative
+ with respect to parameters
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Periodic$C_dC_dparams(params = NULL, X, nug)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{params}}{Kernel parameters}
+
+\item{\code{X}}{matrix of points in rows}
+
+\item{\code{nug}}{Value of nugget}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-dC_dx"></a>}}
 \if{latex}{\out{\hypertarget{method-dC_dx}{}}}
 \subsection{Method \code{dC_dx()}}{
+Derivative of covariance with respect to X
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Periodic$dC_dx(XX, X, logp = self$logp, logalpha = self$logalpha, s2 = self$s2)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{XX}}{matrix of points}
+
+\item{\code{X}}{matrix of points to take derivative with respect to}
+
+\item{\code{s2}}{Variance parameter}
+
+\item{\code{theta}}{Correlation parameters}
+
+\item{\code{beta}}{log of theta}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-param_optim_start"></a>}}
@@ -197,10 +280,20 @@ k1 <- Periodic$new(p=1, alpha=1)
 \if{html}{\out{<a id="method-s2_from_params"></a>}}
 \if{latex}{\out{\hypertarget{method-s2_from_params}{}}}
 \subsection{Method \code{s2_from_params()}}{
+Get s2 from params vector
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Periodic$s2_from_params(params, s2_est = self$s2_est)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{params}}{parameter vector}
+
+\item{\code{s2_est}}{Is s2 being estimated?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

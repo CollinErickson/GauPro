@@ -11,6 +11,11 @@
 Object of \code{\link{R6Class}} with methods for fitting GP model.
 }
 \description{
+Beta Kernel R6 class
+
+Beta Kernel R6 class
+}
+\details{
 This is the base structure for a kernel that uses beta = log10(theta)
 for the lengthscale parameter.
 It standardizes the params because they all use the same underlying structure.
@@ -170,10 +175,20 @@ Kernels that inherit this only need to implement kone and dC_dparams.
 \if{html}{\out{<a id="method-s2_from_params"></a>}}
 \if{latex}{\out{\hypertarget{method-s2_from_params}{}}}
 \subsection{Method \code{s2_from_params()}}{
+Get s2 from params vector
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_beta$s2_from_params(params, s2_est = self$s2_est)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{params}}{parameter vector}
+
+\item{\code{s2_est}}{Is s2 being estimated?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

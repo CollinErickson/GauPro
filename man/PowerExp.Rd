@@ -77,6 +77,7 @@ k1 <- PowerExp$new(beta=0, alpha=0)
 \if{html}{\out{<a id="method-k"></a>}}
 \if{latex}{\out{\hypertarget{method-k}{}}}
 \subsection{Method \code{k()}}{
+Calculate covariance between two points
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{PowerExp$k(
   x,
@@ -88,29 +89,78 @@ k1 <- PowerExp$new(beta=0, alpha=0)
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x}}{vector.}
+
+\item{\code{y}}{vector, optional. If excluded, find correlation
+of x with itself.}
+
+\item{\code{beta}}{Correlation parameters.}
+
+\item{\code{s2}}{Variance parameter.}
+
+\item{\code{params}}{parameters to use instead of beta and s2.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-kone"></a>}}
 \if{latex}{\out{\hypertarget{method-kone}{}}}
 \subsection{Method \code{kone()}}{
+Find covariance of two points
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{PowerExp$kone(x, y, beta, theta, alpha, s2)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x}}{vector}
+
+\item{\code{y}}{vector}
+
+\item{\code{beta}}{correlation parameters on log scale}
+
+\item{\code{theta}}{correlation parameters on regular scale}
+
+\item{\code{s2}}{Variance parameter}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-dC_dparams"></a>}}
 \if{latex}{\out{\hypertarget{method-dC_dparams}{}}}
 \subsection{Method \code{dC_dparams()}}{
+Derivative of covariance with respect to parameters
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{PowerExp$dC_dparams(params = NULL, X, C_nonug, C, nug)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{params}}{Kernel parameters}
+
+\item{\code{X}}{matrix of points in rows}
+
+\item{\code{C_nonug}}{Covariance without nugget added to diagonal}
+
+\item{\code{C}}{Covariance with nugget}
+
+\item{\code{nug}}{Value of nugget}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-dC_dx"></a>}}
 \if{latex}{\out{\hypertarget{method-dC_dx}{}}}
 \subsection{Method \code{dC_dx()}}{
+Derivative of covariance with respect to X
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{PowerExp$dC_dx(
   XX,
@@ -122,6 +172,21 @@ k1 <- PowerExp$new(beta=0, alpha=0)
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{XX}}{matrix of points}
+
+\item{\code{X}}{matrix of points to take derivative with respect to}
+
+\item{\code{theta}}{Correlation parameters}
+
+\item{\code{beta}}{log of theta}
+
+\item{\code{s2}}{Variance parameter}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-param_optim_start"></a>}}
@@ -183,6 +248,7 @@ k1 <- PowerExp$new(beta=0, alpha=0)
 \if{html}{\out{<a id="method-set_params_from_optim"></a>}}
 \if{latex}{\out{\hypertarget{method-set_params_from_optim}{}}}
 \subsection{Method \code{set_params_from_optim()}}{
+Get s2 from params vector
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{PowerExp$set_params_from_optim(
   optim_out,
@@ -192,6 +258,15 @@ k1 <- PowerExp$new(beta=0, alpha=0)
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{s2_est}}{Is s2 being estimated?}
+
+\item{\code{params}}{parameter vector}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

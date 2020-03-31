@@ -23,6 +23,13 @@ Trend R6 class
 \keyword{kriging,}
 \keyword{process,}
 \keyword{regression}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{D}}{Number of input dimensions of data}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{

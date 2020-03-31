@@ -96,6 +96,12 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
         s2 * exp(-sum(theta * (x-y)^2))
       }
     },
+    #' @description Derivative of covariance with respect to parameters
+    #' @param params Kernel parameters
+    #' @param X matrix of points in rows
+    #' @param C_nonug Covariance without nugget added to diagonal
+    #' @param C Covariance with nugget
+    #' @param nug Value of nugget
     dC_dparams = function(params=NULL, X, C_nonug, C, nug) {
       n <- nrow(X)
       lenparams <- length(params)
@@ -163,6 +169,11 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
       # mats <- c(dC_dbetas, list(dC_dlogs2))
       return(dC_dparams)
     },
+    #' @description Calculate covariance matrix and its derivative
+    #'  with respect to parameters
+    #' @param params Kernel parameters
+    #' @param X matrix of points in rows
+    #' @param nug Value of nugget
     C_dC_dparams = function(params=NULL, X, nug) {
       n <- nrow(X)
       lenparams <- length(params)
@@ -245,12 +256,24 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
     #   dC_dx
     # },
     # Below is updated version using arma, was called dC_dx_arma before
+    #' @description Derivative of covariance with respect to X
+    #' @param XX matrix of points
+    #' @param X matrix of points to take derivative with respect to
+    #' @param theta Correlation parameters
+    #' @param beta log of theta
+    #' @param s2 Variance parameter
     dC_dx = function(XX, X, theta, beta=self$beta, s2=self$s2) {
       if (missing(theta)) {theta <- 10^beta}
       if (!is.matrix(XX)) {stop("XX must be matrix")}
       if (ncol(X) != ncol(XX)) {stop("XX and X must have same number")}
       corr_gauss_dCdX(XX, X, theta, s2)
     },
+    #' @description Second derivative of covariance with respect to X
+    #' @param XX matrix of points
+    #' @param X matrix of points to take derivative with respect to
+    #' @param theta Correlation parameters
+    #' @param beta log of theta
+    #' @param s2 Variance parameter
     d2C_dx2 = function(XX, X, theta, beta=self$beta, s2=self$s2) {
       if (missing(theta)) {theta <- 10^beta}
       if (!is.matrix(XX)) {stop("XX must be matrix")}
@@ -280,6 +303,13 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
       }
       d2C_dx2
     },
+    #' @description Second derivative of covariance with respect to
+    #' X and XX each once.
+    #' @param XX matrix of points
+    #' @param X matrix of points to take derivative with respect to
+    #' @param theta Correlation parameters
+    #' @param beta log of theta
+    #' @param s2 Variance parameter
     d2C_dudv = function(XX, X, theta, beta=self$beta, s2=self$s2) {
       if (missing(theta)) {theta <- 10^beta}
       if (!is.matrix(XX)) {stop("XX must be matrix")}
@@ -309,6 +339,12 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
       }
       d2C_dx2
     },
+    #' @description Second derivative of covariance with respect to X and XX
+    #' when they equal the same value
+    #' @param XX matrix of points
+    #' @param theta Correlation parameters
+    #' @param beta log of theta
+    #' @param s2 Variance parameter
     d2C_dudv_ueqvrows = function(XX, theta, beta=self$beta, s2=self$s2) {
       # Calculates derivative of C w.r.t. each component evaluated for
       #  both components equal to rows of XX
