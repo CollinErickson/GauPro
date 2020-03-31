@@ -29,6 +29,21 @@ k1 <- Periodic$new(p=1, alpha=1)
 \section{Super class}{
 \code{\link[GauPro:GauPro_kernel]{GauPro::GauPro_kernel}} -> \code{GauPro_kernel_Periodic}
 }
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{p}}{Parameter for correlation}
+
+\item{\code{p_est}}{Should p be estimated?}
+
+\item{\code{logp}}{Log of p}
+
+\item{\code{logp_lower}}{Lower bound of logp}
+
+\item{\code{logp_upper}}{Upper bound of logp}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
@@ -162,6 +177,8 @@ Find covariance of two points
 \item{\code{logp}}{correlation parameters on log scale}
 
 \item{\code{p}}{correlation parameters on regular scale}
+
+\item{\code{alpha}}{correlation parameter}
 
 \item{\code{s2}}{Variance parameter}
 }

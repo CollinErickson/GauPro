@@ -43,6 +43,8 @@ k$k(matrix(c(2,1), ncol=1))
 \item{\code{k1pl}}{param length of kernel 1}
 
 \item{\code{k2pl}}{param length of kernel 2}
+
+\item{\code{s2}}{Variance}
 }
 \if{html}{\out{</div>}}
 }

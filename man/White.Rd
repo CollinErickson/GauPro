@@ -26,6 +26,21 @@ k1 <- White$new(s2=1e-8)
 \section{Super class}{
 \code{\link[GauPro:GauPro_kernel]{GauPro::GauPro_kernel}} -> \code{GauPro_kernel_White}
 }
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{s2}}{variance}
+
+\item{\code{logs2}}{Log of s2}
+
+\item{\code{logs2_lower}}{Lower bound of logs2}
+
+\item{\code{logs2_upper}}{Upper bound of logs2}
+
+\item{\code{s2_est}}{Should s2 be estimated?}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{

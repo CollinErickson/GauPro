@@ -206,6 +206,8 @@ Derivative of covariance with respect to X
 
 \item{\code{beta}}{log of theta}
 
+\item{\code{alpha}}{parameter}
+
 \item{\code{s2}}{Variance parameter}
 }
 \if{html}{\out{</div>}}

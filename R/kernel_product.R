@@ -15,6 +15,7 @@
 #' @field k2_param_length param length of kernel 2
 #' @field k1pl param length of kernel 1
 #' @field k2pl param length of kernel 2
+#' @field s2 Variance
 #' @examples
 #' k1 <- Exponential$new(beta=1)
 #' k2 <- Matern32$new(beta=2)

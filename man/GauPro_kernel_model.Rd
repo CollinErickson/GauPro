@@ -176,6 +176,15 @@ Fit model
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$fit(X, Z)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{X}}{Inputs}
+
+\item{\code{Z}}{Outputs}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-update_K_and_estimates"></a>}}
@@ -803,78 +812,153 @@ Optimize parameters
 \if{html}{\out{<a id="method-grad"></a>}}
 \if{latex}{\out{\hypertarget{method-grad}{}}}
 \subsection{Method \code{grad()}}{
+Calculate gradient
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$grad(XX, X = self$X, Z = self$Z)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{XX}}{points to calculate at}
+
+\item{\code{X}}{X points}
+
+\item{\code{Z}}{output points}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-grad_norm"></a>}}
 \if{latex}{\out{\hypertarget{method-grad_norm}{}}}
 \subsection{Method \code{grad_norm()}}{
+Calculate norm of gradient
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$grad_norm(XX)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{XX}}{points to calculate at}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-grad_dist"></a>}}
 \if{latex}{\out{\hypertarget{method-grad_dist}{}}}
 \subsection{Method \code{grad_dist()}}{
+Calculate distribution of gradient
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$grad_dist(XX)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{XX}}{points to calculate at}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-grad_sample"></a>}}
 \if{latex}{\out{\hypertarget{method-grad_sample}{}}}
 \subsection{Method \code{grad_sample()}}{
+Sample gradient at points
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$grad_sample(XX, n)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{XX}}{points to calculate at}
+
+\item{\code{n}}{Number of samples}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-grad_norm2_mean"></a>}}
 \if{latex}{\out{\hypertarget{method-grad_norm2_mean}{}}}
 \subsection{Method \code{grad_norm2_mean()}}{
+Calculate mean of gradient norm squared
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$grad_norm2_mean(XX)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{XX}}{points to calculate at}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-grad_norm2_dist"></a>}}
 \if{latex}{\out{\hypertarget{method-grad_norm2_dist}{}}}
 \subsection{Method \code{grad_norm2_dist()}}{
+Calculate distribution of gradient norm squared
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$grad_norm2_dist(XX)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{XX}}{points to calculate at}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-grad_norm2_sample"></a>}}
 \if{latex}{\out{\hypertarget{method-grad_norm2_sample}{}}}
 \subsection{Method \code{grad_norm2_sample()}}{
+Get samples of squared norm of gradient
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$grad_norm2_sample(XX, n)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{XX}}{points to sample at}
+
+\item{\code{n}}{Number of samples}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-hessian"></a>}}
 \if{latex}{\out{\hypertarget{method-hessian}{}}}
 \subsection{Method \code{hessian()}}{
+Calculate Hessian
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$hessian(XX, as_array = FALSE)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{XX}}{Points to calculate Hessian at}
+
+\item{\code{as_array}}{Should result be an array?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-sample"></a>}}
 \if{latex}{\out{\hypertarget{method-sample}{}}}
 \subsection{Method \code{sample()}}{
+Sample at rows of XX
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$sample(XX, n = 1)}\if{html}{\out{</div>}}
 }
@@ -884,6 +968,7 @@ Optimize parameters
 \if{html}{\out{<a id="method-print"></a>}}
 \if{latex}{\out{\hypertarget{method-print}{}}}
 \subsection{Method \code{print()}}{
+Print this object
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$print()}\if{html}{\out{</div>}}
 }

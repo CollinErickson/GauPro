@@ -29,6 +29,11 @@
 #' @keywords data, kriging, Gaussian process, regression
 #' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
 #' @format \code{\link{R6Class}} object.
+#' @field p Parameter for correlation
+#' @field p_est Should p be estimated?
+#' @field logp Log of p
+#' @field logp_lower Lower bound of logp
+#' @field logp_upper Upper bound of logp
 #' @examples
 #' k1 <- Periodic$new(p=1, alpha=1)
 Periodic <- R6::R6Class(
@@ -181,6 +186,7 @@ Periodic <- R6::R6Class(
     #' @param y vector
     #' @param logp correlation parameters on log scale
     #' @param p correlation parameters on regular scale
+    #' @param alpha correlation parameter
     #' @param s2 Variance parameter
     kone = function(x, y, logp, p, alpha, s2) {
       if (missing(p)) {p <- 10^logp}

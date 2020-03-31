@@ -221,6 +221,7 @@ RatQuad <- R6::R6Class(
     #' @param X matrix of points to take derivative with respect to
     #' @param theta Correlation parameters
     #' @param beta log of theta
+    #' @param alpha parameter
     #' @param s2 Variance parameter
     dC_dx = function(XX, X, theta, beta=self$beta, alpha=self$alpha, s2=self$s2) {#browser()
       if (missing(theta)) {theta <- 10^beta}

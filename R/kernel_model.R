@@ -163,6 +163,8 @@ GauPro_kernel_model <- R6::R6Class(
         # initialize_GauPr = function() {
         # },
         #' @description  Fit model
+        #' @param X Inputs
+        #' @param Z Outputs
         fit = function(X, Z) {
           self$update()
         },
@@ -1518,6 +1520,10 @@ GauPro_kernel_model <- R6::R6Class(
           out <- list(fn=dev, gr=gr)
           out
         },
+        #' @description Calculate gradient
+        #' @param XX points to calculate at
+        #' @param X X points
+        #' @param Z output points
         grad = function(XX, X=self$X, Z=self$Z) {
           if (!is.matrix(XX)) {
             if (length(XX) == self$D) {
@@ -1545,11 +1551,15 @@ GauPro_kernel_model <- R6::R6Class(
           # }
           # dtrend_dx + dC_dx %*% solve(self$K, Z - trendX)
         },
+        #' @description Calculate norm of gradient
+        #' @param XX points to calculate at
         grad_norm = function (XX) {
           grad1 <- self$grad(XX)
           if (!is.matrix(grad1)) return(abs(grad1))
           apply(grad1,1, function(xx) {sqrt(sum(xx^2))})
         },
+        #' @description Calculate distribution of gradient
+        #' @param XX points to calculate at
         grad_dist = function(XX) {
           # Calculates distribution of gradient at rows of XX
           if (!is.matrix(XX)) {
@@ -1576,6 +1586,9 @@ GauPro_kernel_model <- R6::R6Class(
           }
           list(mean=mn, cov=cv)
         },
+        #' @description Sample gradient at points
+        #' @param XX points to calculate at
+        #' @param n Number of samples
         grad_sample = function(XX, n) {
           if (!is.matrix(XX)) {
             if (length(XX) == self$D) {XX <- matrix(XX, nrow=1)}
@@ -1590,6 +1603,8 @@ GauPro_kernel_model <- R6::R6Class(
           # gs2 <- apply(gs, 1, . %>% sum((.)^2))
           # c(mean(1/gs2), var(1/gs2))
         },
+        #' @description Calculate mean of gradient norm squared
+        #' @param XX points to calculate at
         grad_norm2_mean = function(XX) {
           # Calculate mean of squared norm of gradient
           # XX is matrix of points to calculate it at
@@ -1605,6 +1620,8 @@ GauPro_kernel_model <- R6::R6Class(
             }
           })
         },
+        #' @description Calculate distribution of gradient norm squared
+        #' @param XX points to calculate at
         grad_norm2_dist = function(XX) {
           # Calculate mean and var for squared norm of gradient
           # grad_dist <- gp$grad_dist(XX=XX) # Too slow because it does all
@@ -1636,6 +1653,9 @@ GauPro_kernel_model <- R6::R6Class(
           }
           data.frame(mean=means, var=vars)
         },
+        #' @description Get samples of squared norm of gradient
+        #' @param XX points to sample at
+        #' @param n Number of samples
         grad_norm2_sample = function(XX, n) {
           # Get samples of squared norm of gradient, check with grad_norm2_dist
           d <- ncol(XX)
@@ -1679,6 +1699,9 @@ GauPro_kernel_model <- R6::R6Class(
         #  if (!is.matrix(grad1)) return(abs(grad1))
         #  apply(grad1,1, function(xx) {sqrt(sum(xx^2))})
         #},
+        #' @description Calculate Hessian
+        #' @param XX Points to calculate Hessian at
+        #' @param as_array Should result be an array?
         hessian = function(XX, as_array=FALSE) {#browser()
           if (!is.matrix(XX)) {
             if (self$D == 1) XX <- matrix(XX, ncol=1)
@@ -1701,6 +1724,7 @@ GauPro_kernel_model <- R6::R6Class(
             hess1
           }
         },
+        #' @description Sample at rows of XX
         sample = function(XX, n=1) {
           # Generates n samples at rows of XX
           px <- self$pred(XX, covmat = T)
@@ -1716,6 +1740,7 @@ GauPro_kernel_model <- R6::R6Class(
           }
           newy # Not transposing matrix since it gives var a problem
         },
+        #' @description Print this object
         print = function() {
           cat("GauPro object\n")
           cat(paste0("\tD = ", self$D, ", N = ", self$N,"\n"))
