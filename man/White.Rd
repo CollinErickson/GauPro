@@ -120,7 +120,7 @@ of x with itself.}
 \subsection{Method \code{kone()}}{
 Find covariance of two points
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{White$kone(x, y, beta, theta, alpha, s2)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{White$kone(x, y, s2)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -129,10 +129,6 @@ Find covariance of two points
 \item{\code{x}}{vector}
 
 \item{\code{y}}{vector}
-
-\item{\code{beta}}{correlation parameters on log scale}
-
-\item{\code{theta}}{correlation parameters on regular scale}
 
 \item{\code{s2}}{Variance parameter}
 }

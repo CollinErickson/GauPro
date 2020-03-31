@@ -9,6 +9,10 @@
 #' @keywords data, kriging, Gaussian process, regression
 #' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
 #' @format \code{\link{R6Class}} object.
+#' @field alpha alpha value (the exponent). Between 0 and 2.
+#' @field logalpha_lower Lower bound for log of alpha
+#' @field logalpha_upper Upper bound for log of alpha
+#' @field alpha_est Should alpha be estimated?
 #' @examples
 #' k1 <- RatQuad$new(beta=0, alpha=0)
 RatQuad <- R6::R6Class(
@@ -61,6 +65,7 @@ RatQuad <- R6::R6Class(
     #' @param y vector, optional. If excluded, find correlation
     #' of x with itself.
     #' @param beta Correlation parameters.
+    #' @param logalpha A correlation parameter
     #' @param s2 Variance parameter.
     #' @param params parameters to use instead of beta and s2.
     k = function(x, y=NULL, beta=self$beta, logalpha=self$logalpha, s2=self$s2, params=NULL) {#browser()
@@ -124,6 +129,7 @@ RatQuad <- R6::R6Class(
     #' @param x vector
     #' @param y vector
     #' @param beta correlation parameters on log scale
+    #' @param alpha A correlation parameter
     #' @param theta correlation parameters on regular scale
     #' @param s2 Variance parameter
     kone = function(x, y, beta, theta, alpha, s2) {

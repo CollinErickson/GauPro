@@ -8,6 +8,10 @@
 #' @importFrom stats optim
 #' @keywords data, kriging, Gaussian process, regression
 #' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
+#' @field alpha alpha value (the exponent). Between 0 and 2.
+#' @field alpha_lower Lower bound for alpha
+#' @field alpha_upper Upper bound for alpha
+#' @field alpha_est Should alpha be estimated?
 #' @format \code{\link{R6Class}} object.
 #' @examples
 #' k1 <- PowerExp$new(beta=0, alpha=0)
@@ -63,6 +67,7 @@ PowerExp <- R6::R6Class(
     #' @param x vector.
     #' @param y vector, optional. If excluded, find correlation
     #' of x with itself.
+    #' @param alpha alpha value (the exponent). Between 0 and 2.
     #' @param beta Correlation parameters.
     #' @param s2 Variance parameter.
     #' @param params parameters to use instead of beta and s2.
@@ -128,6 +133,7 @@ PowerExp <- R6::R6Class(
     #' @param y vector
     #' @param beta correlation parameters on log scale
     #' @param theta correlation parameters on regular scale
+    #' @param alpha alpha value (the exponent). Between 0 and 2.
     #' @param s2 Variance parameter
     kone = function(x, y, beta, theta, alpha, s2) {
       if (missing(theta)) {theta <- 10^beta}
@@ -231,6 +237,7 @@ PowerExp <- R6::R6Class(
     #' @param X matrix of points to take derivative with respect to
     #' @param theta Correlation parameters
     #' @param beta log of theta
+    #' @param alpha alpha value (the exponent). Between 0 and 2.
     #' @param s2 Variance parameter
     dC_dx = function(XX, X, theta, beta=self$beta, alpha=self$alpha, s2=self$s2) {#browser()
       if (missing(theta)) {theta <- 10^beta}
@@ -320,9 +327,9 @@ PowerExp <- R6::R6Class(
     },
     #' @description Set parameters from optimization output
     #' @param optim_out Output from optimization
-    #' @param p_est p estimate
-    #' @param alpha_est alpha estimate
-    #' @param s2_est s2 estimate
+    #' @param beta_est Is beta estimate?
+    #' @param alpha_est Is alpha estimated?
+    #' @param s2_est Is s2 estimated?
     set_params_from_optim = function(optim_out, beta_est=self$beta_est,
                                      alpha_est=self$alpha_est, s2_est=self$s2_est) {
       loo <- length(optim_out)

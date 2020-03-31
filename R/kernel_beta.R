@@ -32,6 +32,11 @@
 #' @keywords data, kriging, Gaussian process, regression
 #' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
 #' @format \code{\link{R6Class}} object.
+#' @field beta Parameter for correlation. Log of theta.
+#' @field beta_est Should beta be estimated?
+#' @field beta_lower Lower bound of beta
+#' @field beta_upper Upper bound of beta
+#' @field beta_length length of beta
 #' @examples
 #' #k1 <- Matern52$new(beta=0)
 GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
@@ -90,6 +95,13 @@ GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
       self$logs2_upper <- log(s2_upper, 10)
       self$s2_est <- s2_est
     },
+    #' @description Calculate covariance between two points
+    #' @param x vector.
+    #' @param y vector, optional. If excluded, find correlation
+    #' of x with itself.
+    #' @param beta Correlation parameters. Log of theta.
+    #' @param s2 Variance parameter.
+    #' @param params parameters to use instead of beta and s2.
     k = function(x, y=NULL, beta=self$beta, s2=self$s2, params=NULL) {#browser()
       if (!is.null(params)) {
         lenpar <- length(params)
@@ -124,6 +136,12 @@ GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
         self$kone(x, y, theta=theta, s2=s2)
       }
     },
+    #' @description Calculate covariance between two points
+    #' @param x vector.
+    #' @param y vector.
+    #' @param beta Correlation parameters. Log of theta.
+    #' @param theta Correlation parameters.
+    #' @param s2 Variance parameter.
     kone = function(x, y, beta, theta, s2) {
       # Kernels that inherit should implement this or k.
     },
@@ -221,6 +239,11 @@ GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
     # dC_dparams = function(params=NULL, C, X, C_nonug) {
     #   Kernels that inherit from this must implement this.
     # },
+    #' @description Calculate covariance matrix and its derivative
+    #'  with respect to parameters
+    #' @param params Kernel parameters
+    #' @param X matrix of points in rows
+    #' @param nug Value of nugget
     C_dC_dparams = function(params=NULL, X, nug) {
       s2 <- self$s2_from_params(params)
       C_nonug <- self$k(x=X, params=params)

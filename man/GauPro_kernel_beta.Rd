@@ -32,6 +32,21 @@ Kernels that inherit this only need to implement kone and dC_dparams.
 \section{Super class}{
 \code{\link[GauPro:GauPro_kernel]{GauPro::GauPro_kernel}} -> \code{GauPro_kernel_beta}
 }
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{beta}}{Parameter for correlation. Log of theta.}
+
+\item{\code{beta_est}}{Should beta be estimated?}
+
+\item{\code{beta_lower}}{Lower bound of beta}
+
+\item{\code{beta_upper}}{Upper bound of beta}
+
+\item{\code{beta_length}}{length of beta}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
@@ -101,6 +116,7 @@ Initialize kernel object
 \if{html}{\out{<a id="method-k"></a>}}
 \if{latex}{\out{\hypertarget{method-k}{}}}
 \subsection{Method \code{k()}}{
+Calculate covariance between two points
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_beta$k(
   x,
@@ -111,15 +127,47 @@ Initialize kernel object
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x}}{vector.}
+
+\item{\code{y}}{vector, optional. If excluded, find correlation
+of x with itself.}
+
+\item{\code{beta}}{Correlation parameters. Log of theta.}
+
+\item{\code{s2}}{Variance parameter.}
+
+\item{\code{params}}{parameters to use instead of beta and s2.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-kone"></a>}}
 \if{latex}{\out{\hypertarget{method-kone}{}}}
 \subsection{Method \code{kone()}}{
+Calculate covariance between two points
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_beta$kone(x, y, beta, theta, s2)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x}}{vector.}
+
+\item{\code{y}}{vector.}
+
+\item{\code{beta}}{Correlation parameters. Log of theta.}
+
+\item{\code{theta}}{Correlation parameters.}
+
+\item{\code{s2}}{Variance parameter.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-param_optim_start"></a>}}
@@ -254,10 +302,23 @@ Set parameters from optimization output
 \if{html}{\out{<a id="method-C_dC_dparams"></a>}}
 \if{latex}{\out{\hypertarget{method-C_dC_dparams}{}}}
 \subsection{Method \code{C_dC_dparams()}}{
+Calculate covariance matrix and its derivative
+ with respect to parameters
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_beta$C_dC_dparams(params = NULL, X, nug)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{params}}{Kernel parameters}
+
+\item{\code{X}}{matrix of points in rows}
+
+\item{\code{nug}}{Value of nugget}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-s2_from_params"></a>}}

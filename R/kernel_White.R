@@ -83,14 +83,12 @@ White <- R6::R6Class(
     #' @description Find covariance of two points
     #' @param x vector
     #' @param y vector
-    #' @param beta correlation parameters on log scale
-    #' @param theta correlation parameters on regular scale
     #' @param s2 Variance parameter
-    kone = function(x, y, beta, theta, alpha, s2) {
-      if (missing(theta)) {theta <- 10^beta}
-      # t1 <- self$sqrt
-      r2 <- sum(theta * (x-y)^2)
-      s2 * (1 + r2 / alpha) ^ -alpha
+    kone = function(x, y, s2) {
+      # I don't think this should ever be used.
+      stop('kernel_white kone should never be used #2398273')
+      # Should this return s2 when all(x==y)?
+      return(0)
     },
     #' @description Derivative of covariance with respect to parameters
     #' @param params Kernel parameters

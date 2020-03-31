@@ -29,14 +29,7 @@ k1 <- Matern52$new(beta=0)
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{sqrt3}}{Saved value of square root of 5}
-}
-\if{html}{\out{</div>}}
-}
-\section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{sqrt3}}{Saved value of square root of 5}
+\item{\code{sqrt5}}{Saved value of square root of 5}
 }
 \if{html}{\out{</div>}}
 }

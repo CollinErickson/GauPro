@@ -26,6 +26,19 @@ k1 <- PowerExp$new(beta=0, alpha=0)
 \section{Super classes}{
 \code{\link[GauPro:GauPro_kernel]{GauPro::GauPro_kernel}} -> \code{\link[GauPro:GauPro_kernel_beta]{GauPro::GauPro_kernel_beta}} -> \code{GauPro_kernel_PowerExp}
 }
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{alpha}}{alpha value (the exponent). Between 0 and 2.}
+
+\item{\code{alpha_lower}}{Lower bound for alpha}
+
+\item{\code{alpha_upper}}{Upper bound for alpha}
+
+\item{\code{alpha_est}}{Should alpha be estimated?}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
@@ -131,6 +144,8 @@ of x with itself.}
 
 \item{\code{beta}}{Correlation parameters.}
 
+\item{\code{alpha}}{alpha value (the exponent). Between 0 and 2.}
+
 \item{\code{s2}}{Variance parameter.}
 
 \item{\code{params}}{parameters to use instead of beta and s2.}
@@ -157,6 +172,8 @@ Find covariance of two points
 \item{\code{beta}}{correlation parameters on log scale}
 
 \item{\code{theta}}{correlation parameters on regular scale}
+
+\item{\code{alpha}}{alpha value (the exponent). Between 0 and 2.}
 
 \item{\code{s2}}{Variance parameter}
 }
@@ -214,6 +231,8 @@ Derivative of covariance with respect to X
 \item{\code{theta}}{Correlation parameters}
 
 \item{\code{beta}}{log of theta}
+
+\item{\code{alpha}}{alpha value (the exponent). Between 0 and 2.}
 
 \item{\code{s2}}{Variance parameter}
 }
@@ -351,11 +370,11 @@ Set parameters from optimization output
 \describe{
 \item{\code{optim_out}}{Output from optimization}
 
-\item{\code{alpha_est}}{alpha estimate}
+\item{\code{beta_est}}{Is beta estimate?}
 
-\item{\code{s2_est}}{s2 estimate}
+\item{\code{alpha_est}}{Is alpha estimated?}
 
-\item{\code{p_est}}{p estimate}
+\item{\code{s2_est}}{Is s2 estimated?}
 }
 \if{html}{\out{</div>}}
 }

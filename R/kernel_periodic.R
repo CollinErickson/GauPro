@@ -34,6 +34,12 @@
 #' @field logp Log of p
 #' @field logp_lower Lower bound of logp
 #' @field logp_upper Upper bound of logp
+#' @field p_length length of p
+#' @field s2 variance
+#' @field s2_est Is s2 estimated?
+#' @field logs2 Log of s2
+#' @field logs2_lower Lower bound of logs2
+#' @field logs2_upper Upper bound of logs2
 #' @examples
 #' k1 <- Periodic$new(p=1, alpha=1)
 Periodic <- R6::R6Class(

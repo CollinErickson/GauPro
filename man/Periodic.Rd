@@ -41,6 +41,18 @@ k1 <- Periodic$new(p=1, alpha=1)
 \item{\code{logp_lower}}{Lower bound of logp}
 
 \item{\code{logp_upper}}{Upper bound of logp}
+
+\item{\code{p_length}}{length of p}
+
+\item{\code{s2}}{variance}
+
+\item{\code{s2_est}}{Is s2 estimated?}
+
+\item{\code{logs2}}{Log of s2}
+
+\item{\code{logs2_lower}}{Lower bound of logs2}
+
+\item{\code{logs2_upper}}{Upper bound of logs2}
 }
 \if{html}{\out{</div>}}
 }
