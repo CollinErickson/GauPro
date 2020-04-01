@@ -9,6 +9,8 @@
 #' @keywords data, kriging, Gaussian process, regression
 #' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
 #' @format \code{\link{R6Class}} object.
+#' @field tmod A second GP model for the t-values of leave-one-out predictions
+#' @field use_LOO Should the leave-one-out error corrections be used?
 #' @examples
 #' n <- 12
 #' x <- matrix(seq(0,1,length.out = n), ncol=1)
@@ -25,6 +27,12 @@ GauPro_kernel_model_LOO <- R6::R6Class(
     tmod = NULL, # A second GP model for the t-values of leave-one-out predictions
     use_LOO = TRUE, # Should predicted errors use leave-one-out correction?
     # Initialize: kernel, nug for LOO model, rest passed on to super$initialize
+    #' @description Create a kernel model that uses a leave-one-out GP model
+    #' to fix the standard error predictions.
+    #' @param ... Passed to super$initialize.
+    #' @param LOO_kernel The kernel that should be used for the
+    #' leave-one-out model. Shouldn't be too smooth.
+    #' @param LOO_options Options passed to the leave-one-out model.
     initialize = function (..., LOO_kernel, LOO_options=list()) {
       # Set tmod to be a function that will use input if given
       if (!missing(LOO_kernel) || !(length(LOO_options)==0)) {
@@ -40,9 +48,20 @@ GauPro_kernel_model_LOO <- R6::R6Class(
       # Initialize rest with super
       super$initialize(...)
     },
+    #' @description Update the model. Should only give in
+    #' (Xnew and Znew) or (Xall and Zall).
+    #' @param Xnew New X values to add.
+    #' @param Znew New Z values to add.
+    #' @param Xall All X values to be used. Will replace existing X.
+    #' @param Zall All Z values to be used. Will replace existing Z.
+    #' @param nug.update Is the nugget being updated?
+    #' @param restarts Number of optimization restarts.
+    #' @param param_update Are the parameters being updated?
+    #' @param no_update Are no parameters being updated?
     update = function (Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL,
                        restarts = 5,
-                       param_update = self$param.est, nug.update = self$nug.est, no_update=FALSE) {
+                       param_update = self$param.est,
+                       nug.update = self$nug.est, no_update=FALSE) {
       self$update_data(Xnew=Xnew, Znew=Znew, Xall=Xall, Zall=Zall) # Doesn't update Kinv, etc
 
       if (!no_update || (!param_update && !nug.update)) { # This option lets it skip parameter optimization entirely

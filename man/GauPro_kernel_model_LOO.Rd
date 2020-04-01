@@ -33,6 +33,15 @@ gp <- GauPro_kernel_model_LOO$new(X=x, Z=y, kernel=Matern52)
 \section{Super class}{
 \code{\link[GauPro:GauPro]{GauPro::GauPro}} -> \code{GauPro_kernel_model_LOO}
 }
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{tmod}}{A second GP model for the t-values of leave-one-out predictions}
+
+\item{\code{use_LOO}}{Should the leave-one-out error corrections be used?}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
@@ -94,15 +103,31 @@ gp <- GauPro_kernel_model_LOO$new(X=x, Z=y, kernel=Matern52)
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
+Create a kernel model that uses a leave-one-out GP model
+to fix the standard error predictions.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model_LOO$new(..., LOO_kernel, LOO_options = list())}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{Passed to super$initialize.}
+
+\item{\code{LOO_kernel}}{The kernel that should be used for the
+leave-one-out model. Shouldn't be too smooth.}
+
+\item{\code{LOO_options}}{Options passed to the leave-one-out model.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-update"></a>}}
 \if{latex}{\out{\hypertarget{method-update}{}}}
 \subsection{Method \code{update()}}{
+Update the model. Should only give in
+(Xnew and Znew) or (Xall and Zall).
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model_LOO$update(
   Xnew = NULL,
@@ -116,11 +141,33 @@ gp <- GauPro_kernel_model_LOO$new(X=x, Z=y, kernel=Matern52)
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{Xnew}}{New X values to add.}
+
+\item{\code{Znew}}{New Z values to add.}
+
+\item{\code{Xall}}{All X values to be used. Will replace existing X.}
+
+\item{\code{Zall}}{All Z values to be used. Will replace existing Z.}
+
+\item{\code{restarts}}{Number of optimization restarts.}
+
+\item{\code{param_update}}{Are the parameters being updated?}
+
+\item{\code{nug.update}}{Is the nugget being updated?}
+
+\item{\code{no_update}}{Are no parameters being updated?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-pred_one_matrix"></a>}}
 \if{latex}{\out{\hypertarget{method-pred_one_matrix}{}}}
 \subsection{Method \code{pred_one_matrix()}}{
+Predict for a matrix of points
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model_LOO$pred_one_matrix(
   XX,
@@ -130,6 +177,20 @@ gp <- GauPro_kernel_model_LOO$new(X=x, Z=y, kernel=Matern52)
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{XX}}{points to predict at}
+
+\item{\code{se.fit}}{Should standard error be returned?}
+
+\item{\code{covmat}}{Should covariance matrix be returned?}
+
+\item{\code{return_df}}{When returning se.fit, should it be returned in
+a data frame?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

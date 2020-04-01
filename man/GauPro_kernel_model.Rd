@@ -59,13 +59,15 @@ gp$predict(.454)
 
 \item{\code{D}}{Dimension of data}
 
-\item{\code{corr}}{Type of correlation function}
-
 \item{\code{nug.min}}{Minimum value of nugget}
+
+\item{\code{nug.max}}{Maximum value of the nugget.}
+
+\item{\code{nug.est}}{Should the nugget be estimated?}
 
 \item{\code{nug}}{Value of the nugget, is estimated unless told otherwise}
 
-\item{\code{separable}}{Are the dimensions separable?}
+\item{\code{param.est}}{Should the kernel parameters be estimated?}
 
 \item{\code{verbose}}{0 means nothing printed, 1 prints some, 2 prints most.}
 
@@ -76,15 +78,35 @@ gp$predict(.454)
 \item{\code{parallel}}{Should the code be run in parallel?}
 
 \item{\code{parallel_cores}}{How many cores are there? By default it detects.}
-}
-\if{html}{\out{</div>}}
-}
-\section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{corr}}{Type of correlation function}
 
-\item{\code{separable}}{Are the dimensions separable?}
+\item{\code{kernel}}{The kernel to determine the correlations.}
+
+\item{\code{trend}}{The trend.}
+
+\item{\code{mu_hatX}}{Predicted trend value for each point in X.}
+
+\item{\code{s2_hat}}{Variance parameter estimate}
+
+\item{\code{K}}{Covariance matrix}
+
+\item{\code{Kchol}}{Cholesky factorization of K}
+
+\item{\code{Kinv}}{Inverse of K}
+
+\item{\code{Kinv_Z_minus_mu_hatX}}{K inverse times Z minus the predicted
+trend at X.}
+
+\item{\code{restarts}}{Number of optimization restarts to do when updating.}
+
+\item{\code{normalize}}{Should the inputs be normalized?}
+
+\item{\code{normalize_mean}}{If using normalize, the mean of each column.}
+
+\item{\code{normalize_sd}}{If using normalize, the standard
+deviation of each column.}
+
+\item{\code{optimizer}}{What algorithm should be used to optimize the
+parameters.}
 }
 \if{html}{\out{</div>}}
 }
@@ -614,6 +636,13 @@ Lower bounds of parameters for optimization
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$param_optim_lower(nug.update)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{nug.update}}{Is the nugget being updated?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-param_optim_upper"></a>}}
@@ -624,6 +653,13 @@ Upper bounds of parameters for optimization
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$param_optim_upper(nug.update)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{nug.update}}{Is the nugget being updated?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-param_optim_start"></a>}}
@@ -751,7 +787,7 @@ Run a single optimization restart.
 
 \item{\code{optim.grad}}{Gradient of function to optimize.}
 
-\item{\code{optim.grad}}{Function that returns the function value
+\item{\code{optim.fngr}}{Function that returns the function value
 and its gradient.}
 
 \item{\code{lower}}{Lower bounds for optimization}
@@ -769,6 +805,8 @@ and its gradient.}
 \if{html}{\out{<a id="method-update"></a>}}
 \if{latex}{\out{\hypertarget{method-update}{}}}
 \subsection{Method \code{update()}}{
+Update the model. Should only give in
+(Xnew and Znew) or (Xall and Zall).
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$update(
   Xnew = NULL,
@@ -782,24 +820,65 @@ and its gradient.}
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{Xnew}}{New X values to add.}
+
+\item{\code{Znew}}{New Z values to add.}
+
+\item{\code{Xall}}{All X values to be used. Will replace existing X.}
+
+\item{\code{Zall}}{All Z values to be used. Will replace existing Z.}
+
+\item{\code{restarts}}{Number of optimization restarts.}
+
+\item{\code{param_update}}{Are the parameters being updated?}
+
+\item{\code{nug.update}}{Is the nugget being updated?}
+
+\item{\code{no_update}}{Are no parameters being updated?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-update_fast"></a>}}
 \if{latex}{\out{\hypertarget{method-update_fast}{}}}
 \subsection{Method \code{update_fast()}}{
+Fast update when adding new data.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$update_fast(Xnew = NULL, Znew = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{Xnew}}{New X values to add.}
+
+\item{\code{Znew}}{New Z values to add.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-update_params"></a>}}
 \if{latex}{\out{\hypertarget{method-update_params}{}}}
 \subsection{Method \code{update_params()}}{
+Update the parameters.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$update_params(..., nug.update)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{Passed to optim.}
+
+\item{\code{nug.update}}{Is the nugget being updated?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-update_data"></a>}}
@@ -839,6 +918,13 @@ Update correlation parameters. Not the nugget.
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$update_corrparams(...)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{Passed to self$update()}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-update_nugget"></a>}}
@@ -849,6 +935,13 @@ Update nugget Not the correlation parameters.
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$update_nugget(...)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{Passed to self$update()}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-deviance"></a>}}

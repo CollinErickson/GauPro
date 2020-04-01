@@ -23,15 +23,34 @@
 #' @field Z Responses
 #' @field N Number of data points
 #' @field D Dimension of data
-#' @field corr Type of correlation function
+# @field corr Type of correlation function
 #' @field nug.min Minimum value of nugget
+#' @field nug.max Maximum value of the nugget.
+#' @field nug.est Should the nugget be estimated?
 #' @field nug Value of the nugget, is estimated unless told otherwise
-#' @field separable Are the dimensions separable?
+# @field separable Are the dimensions separable?
+#' @field param.est Should the kernel parameters be estimated?
 #' @field verbose 0 means nothing printed, 1 prints some, 2 prints most.
 #' @field useGrad Should grad be used?
 #' @field useC Should C code be used?
 #' @field parallel Should the code be run in parallel?
 #' @field parallel_cores How many cores are there? By default it detects.
+#' @field kernel The kernel to determine the correlations.
+#' @field trend The trend.
+#' @field mu_hatX Predicted trend value for each point in X.
+#' @field s2_hat Variance parameter estimate
+#' @field K Covariance matrix
+#' @field Kchol Cholesky factorization of K
+#' @field Kinv Inverse of K
+#' @field Kinv_Z_minus_mu_hatX K inverse times Z minus the predicted
+#' trend at X.
+#' @field restarts Number of optimization restarts to do when updating.
+#' @field normalize Should the inputs be normalized?
+#' @field normalize_mean If using normalize, the mean of each column.
+#' @field normalize_sd If using normalize, the standard
+#' deviation of each column.
+#' @field optimizer What algorithm should be used to optimize the
+#' parameters.
 #' @section Methods:
 #' \describe{
 #'   \item{\code{new(X, Z, corr="Gauss", verbose=0, separable=T, useC=F,
@@ -818,6 +837,7 @@ GauPro_kernel_model <- R6::R6Class(
           )
         },
         #' @description Lower bounds of parameters for optimization
+        #' @param nug.update Is the nugget being updated?
         param_optim_lower = function(nug.update) {
           if (nug.update) {
           #   c(self$kernel$param_optim_lower(), log(self$nug.min,10))
@@ -831,6 +851,7 @@ GauPro_kernel_model <- R6::R6Class(
           c(trend_lower, kern_lower, nug_lower)
         },
         #' @description Upper bounds of parameters for optimization
+        #' @param nug.update Is the nugget being updated?
         param_optim_upper = function(nug.update) {
           if (nug.update) {
           #   c(self$kernel$param_optim_upper(), Inf)
@@ -1109,7 +1130,7 @@ GauPro_kernel_model <- R6::R6Class(
         #' @param nug.update Should nugget be updated?
         #' @param optim.func Function to optimize.
         #' @param optim.grad Gradient of function to optimize.
-        #' @param optim.grad Function that returns the function value
+        #' @param optim.fngr Function that returns the function value
         #' and its gradient.
         #' @param lower Lower bounds for optimization
         #' @param upper Upper bounds for optimization
@@ -1211,6 +1232,16 @@ GauPro_kernel_model <- R6::R6Class(
           }
           list(current=current, details=details.new)
         },
+        #' @description Update the model. Should only give in
+        #' (Xnew and Znew) or (Xall and Zall).
+        #' @param Xnew New X values to add.
+        #' @param Znew New Z values to add.
+        #' @param Xall All X values to be used. Will replace existing X.
+        #' @param Zall All Z values to be used. Will replace existing Z.
+        #' @param nug.update Is the nugget being updated?
+        #' @param restarts Number of optimization restarts.
+        #' @param param_update Are the parameters being updated?
+        #' @param no_update Are no parameters being updated?
         update = function (Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL,
                            restarts = self$restarts,
                            param_update = self$param.est,
@@ -1229,6 +1260,9 @@ GauPro_kernel_model <- R6::R6Class(
 
           invisible(self)
         },
+        #' @description Fast update when adding new data.
+        #' @param Xnew New X values to add.
+        #' @param Znew New Z values to add.
         update_fast = function (Xnew=NULL, Znew=NULL) {
           # Updates data, K, and Kinv, quickly without adjusting parameters
           # Should be O(n^2) instead of O(n^3), but in practice not much faster
@@ -1277,6 +1311,9 @@ GauPro_kernel_model <- R6::R6Class(
 
           invisible(self)
         },
+        #' @description Update the parameters.
+        #' @param nug.update Is the nugget being updated?
+        #' @param ... Passed to optim.
         update_params = function(..., nug.update) {
           # Find lengths of params to optimize for each part
           tl <- length(self$trend$param_optim_start())
@@ -1336,12 +1373,12 @@ GauPro_kernel_model <- R6::R6Class(
                                   # update Kinv, etc, DONT THINK I NEED IT
         },
         #' @description Update correlation parameters. Not the nugget.
-        #' @params ... Passed to self$update()
+        #' @param ... Passed to self$update()
         update_corrparams = function (...) {
           self$update(nug.update = F, ...=...)
         },
         #' @description Update nugget Not the correlation parameters.
-        #' @params ... Passed to self$update()
+        #' @param ... Passed to self$update()
         update_nugget = function (...) {
           self$update(param_update = F, ...=...)
         },
