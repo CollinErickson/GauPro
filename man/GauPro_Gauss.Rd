@@ -81,9 +81,9 @@ gp <- GauPro_Gauss$new(X=x, Z=y, parallel=FALSE)
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="predict">}\href{../../GauPro/html/GauPro.html#method-predict}{\code{GauPro::GauPro$predict()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="sample">}\href{../../GauPro/html/GauPro.html#method-sample}{\code{GauPro::GauPro$sample()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="update">}\href{../../GauPro/html/GauPro.html#method-update}{\code{GauPro::GauPro$update()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="update_K_and_estimates">}\href{../../GauPro/html/GauPro.html#method-update_K_and_estimates}{\code{GauPro::GauPro$update_K_and_estimates()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="update_corrparams">}\href{../../GauPro/html/GauPro.html#method-update_corrparams}{\code{GauPro::GauPro$update_corrparams()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="update_data">}\href{../../GauPro/html/GauPro.html#method-update_data}{\code{GauPro::GauPro$update_data()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="update_K_and_estimates">}\href{../../GauPro/html/GauPro.html#method-update_K_and_estimates}{\code{GauPro::GauPro$update_K_and_estimates()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="update_nugget">}\href{../../GauPro/html/GauPro.html#method-update_nugget}{\code{GauPro::GauPro$update_nugget()}}\out{</span>}
 }
 \out{</details>}
