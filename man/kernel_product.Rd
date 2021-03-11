@@ -21,11 +21,6 @@ k2 <- Matern32$new(beta=2)
 k <- k1 + k2
 k$k(matrix(c(2,1), ncol=1))
 }
-\keyword{Gaussian}
-\keyword{data,}
-\keyword{kriging,}
-\keyword{process,}
-\keyword{regression}
 \section{Super class}{
 \code{\link[GauPro:GauPro_kernel]{GauPro::GauPro_kernel}} -> \code{GauPro_kernel_product}
 }

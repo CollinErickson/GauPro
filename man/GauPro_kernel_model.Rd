@@ -43,11 +43,6 @@ gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian$new(1),
                               parallel=FALSE)
 gp$predict(.454)
 }
-\keyword{Gaussian}
-\keyword{data,}
-\keyword{kriging,}
-\keyword{process,}
-\keyword{regression}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{

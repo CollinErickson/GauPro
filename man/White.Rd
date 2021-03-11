@@ -18,11 +18,6 @@ White noise Kernel R6 class
 \examples{
 k1 <- White$new(s2=1e-8)
 }
-\keyword{Gaussian}
-\keyword{data,}
-\keyword{kriging,}
-\keyword{process,}
-\keyword{regression}
 \section{Super class}{
 \code{\link[GauPro:GauPro_kernel]{GauPro::GauPro_kernel}} -> \code{GauPro_kernel_White}
 }

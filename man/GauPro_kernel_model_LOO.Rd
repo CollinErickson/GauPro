@@ -25,11 +25,6 @@ gp <- GauPro_kernel_model_LOO$new(X=x, Z=y, kernel=Matern52)
 y <- exp(-1.4*x)*cos(7*pi*x/2)
 gp <- GauPro_kernel_model_LOO$new(X=x, Z=y, kernel=Matern52)
 }
-\keyword{Gaussian}
-\keyword{data,}
-\keyword{kriging,}
-\keyword{process,}
-\keyword{regression}
 \section{Super class}{
 \code{\link[GauPro:GauPro]{GauPro::GauPro}} -> \code{GauPro_kernel_model_LOO}
 }
@@ -73,8 +68,8 @@ gp <- GauPro_kernel_model_LOO$new(X=x, Z=y, kernel=Matern52)
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="optimRestart">}\href{../../GauPro/html/GauPro.html#method-optimRestart}{\code{GauPro::GauPro$optimRestart()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="param_optim_lower">}\href{../../GauPro/html/GauPro.html#method-param_optim_lower}{\code{GauPro::GauPro$param_optim_lower()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="param_optim_start">}\href{../../GauPro/html/GauPro.html#method-param_optim_start}{\code{GauPro::GauPro$param_optim_start()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="param_optim_start_mat">}\href{../../GauPro/html/GauPro.html#method-param_optim_start_mat}{\code{GauPro::GauPro$param_optim_start_mat()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="param_optim_start0">}\href{../../GauPro/html/GauPro.html#method-param_optim_start0}{\code{GauPro::GauPro$param_optim_start0()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="param_optim_start_mat">}\href{../../GauPro/html/GauPro.html#method-param_optim_start_mat}{\code{GauPro::GauPro$param_optim_start_mat()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="param_optim_upper">}\href{../../GauPro/html/GauPro.html#method-param_optim_upper}{\code{GauPro::GauPro$param_optim_upper()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="plot1D">}\href{../../GauPro/html/GauPro.html#method-plot1D}{\code{GauPro::GauPro$plot1D()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="plot2D">}\href{../../GauPro/html/GauPro.html#method-plot2D}{\code{GauPro::GauPro$plot2D()}}\out{</span>}
@@ -90,10 +85,10 @@ gp <- GauPro_kernel_model_LOO$new(X=x, Z=y, kernel=Matern52)
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="predict">}\href{../../GauPro/html/GauPro.html#method-predict}{\code{GauPro::GauPro$predict()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="print">}\href{../../GauPro/html/GauPro.html#method-print}{\code{GauPro::GauPro$print()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="sample">}\href{../../GauPro/html/GauPro.html#method-sample}{\code{GauPro::GauPro$sample()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="update_K_and_estimates">}\href{../../GauPro/html/GauPro.html#method-update_K_and_estimates}{\code{GauPro::GauPro$update_K_and_estimates()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="update_corrparams">}\href{../../GauPro/html/GauPro.html#method-update_corrparams}{\code{GauPro::GauPro$update_corrparams()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="update_data">}\href{../../GauPro/html/GauPro.html#method-update_data}{\code{GauPro::GauPro$update_data()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="update_fast">}\href{../../GauPro/html/GauPro.html#method-update_fast}{\code{GauPro::GauPro$update_fast()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="update_K_and_estimates">}\href{../../GauPro/html/GauPro.html#method-update_K_and_estimates}{\code{GauPro::GauPro$update_K_and_estimates()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="update_nugget">}\href{../../GauPro/html/GauPro.html#method-update_nugget}{\code{GauPro::GauPro$update_nugget()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="update_params">}\href{../../GauPro/html/GauPro.html#method-update_params}{\code{GauPro::GauPro$update_params()}}\out{</span>}
 }

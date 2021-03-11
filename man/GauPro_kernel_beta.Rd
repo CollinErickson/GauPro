@@ -24,11 +24,6 @@ Kernels that inherit this only need to implement kone and dC_dparams.
 \examples{
 #k1 <- Matern52$new(beta=0)
 }
-\keyword{Gaussian}
-\keyword{data,}
-\keyword{kriging,}
-\keyword{process,}
-\keyword{regression}
 \section{Super class}{
 \code{\link[GauPro:GauPro_kernel]{GauPro::GauPro_kernel}} -> \code{GauPro_kernel_beta}
 }

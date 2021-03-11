@@ -18,11 +18,6 @@ Trend R6 class
 \examples{
 t1 <- trend_LM$new(D=2)
 }
-\keyword{Gaussian}
-\keyword{data,}
-\keyword{kriging,}
-\keyword{process,}
-\keyword{regression}
 \section{Super class}{
 \code{\link[GauPro:GauPro_trend]{GauPro::GauPro_trend}} -> \code{GauPro_trend_LM}
 }

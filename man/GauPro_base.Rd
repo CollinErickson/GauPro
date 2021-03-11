@@ -33,11 +33,6 @@ param_update = T, nug.update = self$nug.est)}}{This method updates the model, ad
 #y <- sin(2*pi*x) + rnorm(n,0,1e-1)
 #gp <- GauPro(X=x, Z=y, parallel=FALSE)
 }
-\keyword{Gaussian}
-\keyword{data,}
-\keyword{kriging,}
-\keyword{process,}
-\keyword{regression}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{

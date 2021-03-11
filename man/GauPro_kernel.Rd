@@ -18,11 +18,6 @@ Kernel R6 class
 \examples{
 #k <- GauPro_kernel$new()
 }
-\keyword{Gaussian}
-\keyword{data,}
-\keyword{kriging,}
-\keyword{process,}
-\keyword{regression}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{

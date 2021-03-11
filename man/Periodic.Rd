@@ -21,11 +21,6 @@ p is the period for each dimension, a is a single number for scaling
 \examples{
 k1 <- Periodic$new(p=1, alpha=1)
 }
-\keyword{Gaussian}
-\keyword{data,}
-\keyword{kriging,}
-\keyword{process,}
-\keyword{regression}
 \section{Super class}{
 \code{\link[GauPro:GauPro_kernel]{GauPro::GauPro_kernel}} -> \code{GauPro_kernel_Periodic}
 }
