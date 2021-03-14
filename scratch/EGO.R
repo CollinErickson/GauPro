@@ -6,7 +6,7 @@
 #' @useDynLib GauPro, .registration = TRUE
 #' @importFrom Rcpp evalCpp
 #' @importFrom stats optim
-#' @keywords optimization, Bayesian optimization
+# @keywords optimization, Bayesian optimization
 #' @return Object of \code{\link{R6Class}} with methods for running EGO.
 #' @format \code{\link{R6Class}} object.
 #' @examples
