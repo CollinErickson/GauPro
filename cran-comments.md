@@ -1,14 +1,18 @@
-Version 0.2.1 was accepted 9/8/17 but there was a
-valgrind error. I believe I have found and fixed
-the issue.
+Minor updates to the package.
+Updating this so I can get my other package, IGP,
+back onto CRAN.
 
 ## Test environments
-* local Windows install, R 3.4.1
+* local Windows install, R 4.0.3
+* R-hub builder
 * win-builder
-* Ubuntu 12.04.5 LTS, R 3.4.1 (Travis)
+* local Ubuntu 20.04.2 LTS, R 4.0.3
+* Ubuntu 16.04.6 LTS, R 4.0.2 (Travis)
 
 ## R CMD check results
-There were no ERRORs or WARNINGs on Windows using R 3.4.1.
+There were no ERRORs R 4.0.3.
+There is 1 warning for qpdf not being installed, but I wasn't able to get
+qpdf to work in that laptop.
 There is 1 note.
 
 "
@@ -29,9 +33,9 @@ so I don't think it is a real problem.
 On Travis there is one note
 
 "
-installed size is  6.6Mb
+installed size is 11.0Mb
   sub-directories of 1Mb or more:
-    libs   6.1Mb
+    libs   9.5Mb
 "
 
 I think this is a Unix problem because I don't get it on Windows,
@@ -39,6 +43,15 @@ and I've had this problem for previous packages.
 
 The only note on win-builder is 
 "checking CRAN incoming feasibility- Maintainer."
+
+On my Ubuntu 20.04.2, there are 0 errors and 0 warnings, but 1 note
+
+"
+checking installed package size ... NOTE
+    installed size is 14.1Mb
+    sub-directories of 1Mb or more:
+      libs  12.6Mb
+"
 
 ## Downstream dependencies
 
