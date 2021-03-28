@@ -1,4 +1,6 @@
-# GauPro 0.2.2.9000
+# GauPro 0.2.3
+
+Minor changes.
 
 # GauPro 0.2.2
 

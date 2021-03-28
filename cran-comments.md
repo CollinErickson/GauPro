@@ -10,9 +10,11 @@ back onto CRAN.
 * Ubuntu 16.04.6 LTS, R 4.0.2 (Travis)
 
 ## R CMD check results
-There were no ERRORs R 4.0.3.
+
+There were no ERRORs on R 4.0.3 on Windows.
 There is 1 warning for qpdf not being installed, but I wasn't able to get
-qpdf to work in that laptop.
+qpdf to work in that laptop. Since I didn't have this warning on the others,
+I think it's fine.
 There is 1 note.
 
 "
@@ -23,12 +25,8 @@ It is good practice to register native routines and to disable symbol
 search.
 "
 
-I have tried everything to get rid of this note,
-but can't get it to go away.
-I have done what I think is the correct thing
-based on all the comments I've read online.
-Also I don't get this message on Travis or Win-builder,
-so I don't think it is a real problem.
+This message always seems to be there,
+so I don't think it's a problem.
 
 On Travis there is one note
 
@@ -44,13 +42,38 @@ and I've had this problem for previous packages.
 The only note on win-builder is 
 "checking CRAN incoming feasibility- Maintainer."
 
-On my Ubuntu 20.04.2, there are 0 errors and 0 warnings, but 1 note
+On my personal Ubuntu 20.04.2, there are 0 errors and 0 warnings, but 1 note
 
 "
 checking installed package size ... NOTE
     installed size is 14.1Mb
     sub-directories of 1Mb or more:
       libs  12.6Mb
+"
+
+On R-hub builder Windows Server 2008 R2 SP1, R-devel, 32/64 bit, there is 1 NOTE.
+"
+  * checking CRAN incoming feasibility ... NOTE
+  Maintainer: 'Collin Erickson <collinberickson@gmail.com>'
+  Version contains large components (0.2.3)
+"
+
+On R-hub builder	Ubuntu Linux 20.04.1 LTS, R-release, GCC, there are three notes,
+but none of them are problematic.
+
+"
+* checking CRAN incoming feasibility ... NOTE
+Maintainer: ‘Collin Erickson <collinberickson@gmail.com>’
+
+Version contains large components (0.2.3)
+* checking installed package size ... NOTE
+  installed size is 14.1Mb
+  sub-directories of 1Mb or more:
+    libs  12.6Mb
+* checking examples ... NOTE
+Examples with CPU (user + system) or elapsed time > 5s
+                         user system elapsed
+GauPro_kernel_model_LOO 2.896  0.021   8.736
 "
 
 ## Downstream dependencies
