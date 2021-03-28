@@ -11,7 +11,6 @@ Description: Fits a Gaussian process model to data. Gaussian processes
  has been used to speed up calculations. Other R packages that perform
  similar calculations include 'laGP', 'DiceKriging', 'GPfit', and 'mlegp'.
 License: GPL-3
-LazyData: TRUE
 LinkingTo: Rcpp, RcppArmadillo
 Imports:
     Rcpp,
