@@ -76,6 +76,12 @@ Examples with CPU (user + system) or elapsed time > 5s
 GauPro_kernel_model_LOO 2.896  0.021   8.736
 "
 
+On win-builder, there are only two notes. The first for 
+"checking CRAN incoming feasibility", and the second for
+"'LazyData' is specified without a 'data' directory".
+The first isn't a problem, the second I thought was
+recommended for all packages even if there isn't data.
+
 ## Downstream dependencies
 
 None.

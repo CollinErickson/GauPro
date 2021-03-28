@@ -85,7 +85,7 @@ This will give the matrix $\frac{\partial R}{\partial \theta_l}$, which can be u
 
 ## Lifted brownian covariance
 
-The [lifted brownian covariance](http://amstat.tandfonline.com/doi/abs/10.1080/00401706.2016.1211555) function is 
+The [lifted brownian covariance](https://amstat.tandfonline.com/doi/abs/10.1080/00401706.2016.1211555) function is 
 $$  c(x, x') = \psi(x) + \psi(x') + \psi(x-x') - 1  $$
 where 
 $$ \psi(h) = (1 + ||h||_a^{2\gamma} ) ^{\beta} $$
