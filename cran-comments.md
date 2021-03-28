@@ -2,6 +2,10 @@ Minor updates to the package.
 Updating this so I can get my other package, IGP,
 back onto CRAN.
 
+I submitted this earlier today (3/228/21) and it was rejected automatically.
+I fixed the issue (LazyData was specified in DESCRIPTION but there is no data)
+and am resubmitting.
+
 ## Test environments
 * local Windows install, R 4.0.3
 * R-hub builder
@@ -76,11 +80,8 @@ Examples with CPU (user + system) or elapsed time > 5s
 GauPro_kernel_model_LOO 2.896  0.021   8.736
 "
 
-On win-builder, there are only two notes. The first for 
-"checking CRAN incoming feasibility", and the second for
-"'LazyData' is specified without a 'data' directory".
-The first isn't a problem, the second I thought was
-recommended for all packages even if there isn't data.
+On win-builder, it says:
+  Status: OK
 
 ## Downstream dependencies
 
