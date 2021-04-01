@@ -6,3 +6,7 @@ scratch
 cran-comments.md
 ^\.travis\.yml$
 ^CRAN-RELEASE$
+
+\.o$
+\.so$
+\.dll$

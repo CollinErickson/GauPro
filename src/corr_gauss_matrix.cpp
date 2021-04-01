@@ -267,21 +267,21 @@ arma::cube kernel_gauss_dC(arma::mat x, arma::vec theta, arma::mat C_nonug, bool
   }*/
 
   if (s2_est) {
-    // dC_dparams(lenparams_D,,) = C * log(10);
+    // dC_dparams(lenparams_D,,) = C * log(10.0);
     for (int i = 0; i < nrow - 1; i++) {
       for (int j = i + 1; j < nrow; j++) {
-        dC_dparams(lenparams_D - 1,i,j) = C_nonug(i,j) * log(10);
+        dC_dparams(lenparams_D - 1,i,j) = C_nonug(i,j) * log(10.0);
         dC_dparams(lenparams_D - 1,j,i) = dC_dparams(lenparams_D - 1,i,j);
       }
-      dC_dparams(lenparams_D - 1, i, i) = (C_nonug(i,i) + s2_nug) * log(10);
+      dC_dparams(lenparams_D - 1, i, i) = (C_nonug(i,i) + s2_nug) * log(10.0);
     }
-    dC_dparams(lenparams_D - 1, nrow - 1, nrow - 1) = (C_nonug(nrow - 1, nrow - 1) + s2_nug) * log(10);
+    dC_dparams(lenparams_D - 1, nrow - 1, nrow - 1) = (C_nonug(nrow - 1, nrow - 1) + s2_nug) * log(10.0);
   }
   if (beta_est) {
     for (int k = 0; k < nsum; k++) {
       for (int i = 0; i < nrow - 1; i++) {
         for (int j = i + 1; j < nrow; j++) {
-          dC_dparams(k,i,j) = - C_nonug(i,j) * pow(x(i,k) - x(j,k), 2) * theta(k) * log(10);
+          dC_dparams(k,i,j) = - C_nonug(i,j) * pow(x(i,k) - x(j,k), 2) * theta(k) * log(10.0);
           dC_dparams(k,j,i) = dC_dparams(k,i,j);
         }
       }

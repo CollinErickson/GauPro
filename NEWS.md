@@ -1,6 +1,12 @@
+# GauPro 0.2.4
+
+Very minor change in Rcpp code to remove CRAN error.
+
 # GauPro 0.2.3
 
 Minor changes.
+
+Accepted to CRAN on 3/28/21, but was notified of error on same day.
 
 # GauPro 0.2.2
 

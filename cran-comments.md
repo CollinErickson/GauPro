@@ -1,10 +1,22 @@
-Minor updates to the package.
-Updating this so I can get my other package, IGP,
-back onto CRAN.
+My update was accepted to cran on 3/28/21, but then shortly after that I
+received an email saying that I need to fix the errors on 
+https://cran.r-project.org/web/checks/check_results_GauPro.html.
 
-I submitted this earlier today (3/228/21) and it was rejected automatically.
-I fixed the issue (LazyData was specified in DESCRIPTION but there is no data)
-and am resubmitting.
+The error on there is on r-patched-solaris-x86:
+  error: call of overloaded ‘log(int)’ is ambiguous
+
+I had Rcpp code with log(10). It isn't sure if it should return an int
+or float/double. I changed the code to be log(10.0), which some answers
+on Stack Overflow said would fix the error.
+
+There was also a warning on r-devel-windows-x86_64-gcc10-UCRT:
+    checking if this is a source package ... WARNING
+    Subdirectory 'GauPro/src' contains apparent object files/libraries
+      GauPro_init.o
+    Object files/libraries should not be included in a source package.
+
+I don't fully understand this. There is no file GauPro_init.o in /src that I can see.
+If there is
 
 ## Test environments
 * local Windows install, R 4.0.3
