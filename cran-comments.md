@@ -23,12 +23,31 @@ since this will fix the known error.
 
 I reran R CMD check on my computer, on R-hub, and win-devel and had no new issues come up.
 
+
+I resubmitted this on 4/1/21, but it did not go through because I hadn't fixed the valgrind error.
+I specifically checked the valgrind output before submitting it, but on the valgrind 00check.log 
+(https://www.stats.ox.ac.uk/pub/bdr/memtests/valgrind/GauPro/00check.log), 
+the status says OK with no notes, warnings, or errors, so I thought it was fine.
+
+On checking the Ex.Rout file, I see that there are errors on 3 lines of code. 
+It appears that all of them are when I use "exp" in Rcpp code. According to this Stack Overflow by Dirk 
+(https://stackoverflow.com/questions/40997722/rcpp-armadillo-rstudio-says-exp-is-ambiguous),
+I think the issue is that I just used "exp" instead of "std:exp" or "arma::exp".
+
+I have fixed these errors and also ran on R-hub with valgrind, which had no errors,
+so it is good to go. I also reran on R-hub and win-devel, with no change in results
+on any of those.
+
+
+
+
 ## Test environments
 * local Windows install, R 4.0.3
 * R-hub builder
 * win-builder
 * local Ubuntu 20.04.2 LTS, R 4.0.3
 * Ubuntu 16.04.6 LTS, R 4.0.2 (Travis)
+* R-hub with valgrind
 
 ## R CMD check results
 
@@ -95,6 +114,17 @@ On win-builder, it says:
     Maintainer: 'Collin Erickson <collinberickson@gmail.com>'
     
     Days since last update: 4
+
+Because of the valgrind error, I also ran with valgrind on R-hub using rhub::check_with_valgrind(),
+where there was only a standard note.
+
+    checking installed package size ... NOTE
+    
+    installed size is 12.8Mb
+    
+    sub-directories of 1Mb or more:
+    
+    libs 11.4Mb
 
 ## Downstream dependencies
 
