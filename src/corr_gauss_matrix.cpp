@@ -58,7 +58,7 @@ NumericMatrix corr_gauss_matrixC(NumericMatrix x, NumericMatrix y, NumericVector
   NumericMatrix out(nrow, ncol);
   for (int i = 0; i < nrow; i++) {
     for (int j = 0; j < ncol; j++) {
-      out(i, j) = exp(-sum(theta * pow(x.row(i) - y.row(j), 2.0)));;
+      out(i, j) = std::exp(-sum(theta * Rcpp::pow(x.row(i) - y.row(j), 2.0)));
     }
   }
   return out;
@@ -106,9 +106,9 @@ NumericMatrix corr_gauss_matrix_symC(NumericMatrix x, NumericVector theta) {
 
       double total = 0;
       for(int k = 0; k < nsum; ++k) {
-        total += theta[k] * pow((x(i,k) - x(j,k)), 2);
+        total += theta[k] * std::pow((x(i,k) - x(j,k)), 2);
       }
-      total = exp(-total);
+      total = std::exp(-total);
 
       out(i, j) = total;
       out(j, i) = total; // since symmetric
@@ -132,9 +132,9 @@ NumericVector corr_gauss_matrixvecC(NumericMatrix x, NumericVector y, NumericVec
   for (int i = 0; i < nrow; i++) {
     double total = 0;
     for(int k = 0; k < nsum; ++k) {
-      total += theta[k] * pow((x(i,k) - y(k)), 2);
+      total += theta[k] * std::pow((x(i,k) - y(k)), 2);
     }
-    total = exp(-total);
+    total = std::exp(-total);
 
     out(i) = total;
   }
@@ -171,9 +171,9 @@ arma::mat corr_gauss_matrix_sym_armaC(arma::mat x, arma::vec theta) {
 
       double total = 0;
       for(int k = 0; k < nsum; ++k) {
-        total += theta[k] * pow((x(i,k) - x(j,k)), 2);
+        total += theta[k] * std::pow((x(i,k) - x(j,k)), 2);
       }
-      total = exp(-total);
+      total = std::exp(-total);
 
       out(i, j) = total;
       out(j, i) = total;
@@ -215,11 +215,11 @@ arma::mat corr_gauss_matrix_armaC(arma::mat x, arma::mat y, arma::vec theta, dou
   for(int k = 0; k < nsum; ++k) {
     for (int i = 0; i < nrowx; i++) {
       for (int j = 0; j < nrowy; j++) {
-        out(i,j) += theta[k] * pow((x(i,k) - y(j,k)), 2);
+        out(i,j) += theta[k] * std::pow((x(i,k) - y(j,k)), 2);
       }
     }
   }
-  out = exp(-out);
+  out = arma::exp(-out);
   if (s2 != 1.0) {
     out *= s2;
   }
@@ -281,7 +281,7 @@ arma::cube kernel_gauss_dC(arma::mat x, arma::vec theta, arma::mat C_nonug, bool
     for (int k = 0; k < nsum; k++) {
       for (int i = 0; i < nrow - 1; i++) {
         for (int j = i + 1; j < nrow; j++) {
-          dC_dparams(k,i,j) = - C_nonug(i,j) * pow(x(i,k) - x(j,k), 2) * theta(k) * log(10.0);
+          dC_dparams(k,i,j) = - C_nonug(i,j) * std::pow(x(i,k) - x(j,k), 2) * theta(k) * log(10.0);
           dC_dparams(k,j,i) = dC_dparams(k,i,j);
         }
       }
