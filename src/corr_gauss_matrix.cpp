@@ -55,10 +55,18 @@ using namespace Rcpp;
 // [[Rcpp::export]]
 NumericMatrix corr_gauss_matrixC(NumericMatrix x, NumericMatrix y, NumericVector theta) {
   int nrow = x.nrow(), ncol = y.nrow();
+  // int ndim = x.ncol();
   NumericMatrix out(nrow, ncol);
   for (int i = 0; i < nrow; i++) {
     for (int j = 0; j < ncol; j++) {
+      // Vectorized way with sugar, should work
       out(i, j) = std::exp(-sum(theta * Rcpp::pow(x.row(i) - y.row(j), 2.0)));
+      // // As a for loop.
+      // out(i, j) = 0;
+      // for (int k=0; k < ndim; k++) {
+      //   out(i,j) -= theta[k] * std::pow(x(i, k) - y(j, k), 2);
+      // }
+      // out(i, j) = std::exp(out(i, j));
     }
   }
   return out;

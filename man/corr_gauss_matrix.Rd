@@ -20,5 +20,5 @@ Correlation matrix
 Gaussian correlation
 }
 \examples{
-corr_gauss_matrix(matrix(1:10,ncol=1), matrix(6:15,ncol=1), 1e-2/(1:10))
+corr_gauss_matrix(matrix(1:10,ncol=1), matrix(6:15,ncol=1), 1e-2)
 }
