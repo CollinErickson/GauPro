@@ -1,3 +1,17 @@
+(Update for 4/4/21)
+
+Uwe emailed me with the details of the valgrind error upon my last resubmission.
+I finally found that there was a single perilous example with bad inputs.
+I fixed the example and added a test so it won't happen again.
+
+I reran the check on my computer, Travis, R-hub, and win-devel
+with no new issues.
+
+I apologize for these failed resubmissions. I hate to think I wasted your time.
+I have tried to fix all errors each time.
+
+(From previous submission)
+
 My update was accepted to cran on 3/28/21, but then shortly after that I
 received an email saying that I need to fix the errors on 
 https://cran.r-project.org/web/checks/check_results_GauPro.html.
