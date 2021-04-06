@@ -26,7 +26,7 @@ corr_gauss_matrix_armaC(matrix(c(1,0,0,1),2,2),matrix(c(1,0,1,1),2,2),c(1,1))
 
 x1 <- matrix(runif(100*6), nrow=100, ncol=6)
 x2 <- matrix(runif(1e4*6), ncol=6)
-th <- c(.3,3.3)
+th <- runif(6)
 t1 <- corr_gauss_matrixC(x1, x2, th)
 t2 <- corr_gauss_matrix_armaC(x1, x2, th)
 identical(t1, t2)

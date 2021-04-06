@@ -1,3 +1,8 @@
+(Update for 4/5/21)
+
+My last submission still had two valgrind errors in the examples.
+I have fixed these and am resubmitting. Sorry again.
+
 (Update for 4/4/21)
 
 Uwe emailed me with the details of the valgrind error upon my last resubmission.

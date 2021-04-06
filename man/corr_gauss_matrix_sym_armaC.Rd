@@ -21,7 +21,7 @@ About 30% faster than Rcpp version.
 corr_gauss_matrix_sym_armaC(matrix(c(1,0,0,1),2,2),c(1,1))
 
 x3 <- matrix(runif(1e3*6), ncol=6)
-th <- c(.3,3.3)
+th <- runif(6)
 t3 <- corr_gauss_matrix_symC(x3, th)
 t4 <- corr_gauss_matrix_sym_armaC(x3, th)
 identical(t3, t4)

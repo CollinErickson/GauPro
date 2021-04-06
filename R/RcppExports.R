@@ -137,7 +137,7 @@ corr_gauss_matrixvecC <- function(x, y, theta) {
 #' corr_gauss_matrix_sym_armaC(matrix(c(1,0,0,1),2,2),c(1,1))
 #'
 #' x3 <- matrix(runif(1e3*6), ncol=6)
-#' th <- c(.3,3.3)
+#' th <- runif(6)
 #' t3 <- corr_gauss_matrix_symC(x3, th)
 #' t4 <- corr_gauss_matrix_sym_armaC(x3, th)
 #' identical(t3, t4)
@@ -161,7 +161,7 @@ corr_gauss_matrix_sym_armaC <- function(x, theta) {
 #'
 #' x1 <- matrix(runif(100*6), nrow=100, ncol=6)
 #' x2 <- matrix(runif(1e4*6), ncol=6)
-#' th <- c(.3,3.3)
+#' th <- runif(6)
 #' t1 <- corr_gauss_matrixC(x1, x2, th)
 #' t2 <- corr_gauss_matrix_armaC(x1, x2, th)
 #' identical(t1, t2)

@@ -19,8 +19,13 @@ corr_gauss_matrix_noC <- function(x, x2=x, theta) {#browser()
 #' @examples
 #' corr_gauss_matrix(matrix(1:10,ncol=1), matrix(6:15,ncol=1), 1e-2)
 corr_gauss_matrix <- function(x, x2=NULL, theta) {
-  if (is.null(x2)) corr_gauss_matrix_symC(x, theta)
-  else corr_gauss_matrixC(x, x2, theta)
+  stopifnot(is.matrix(x), is.vector(theta))
+  if (is.null(x2)) {
+    corr_gauss_matrix_symC(x, theta)
+  } else {
+    stopifnot(is.matrix(x2), ncol(x)==ncol(x2), ncol(x)==length(theta))
+    corr_gauss_matrixC(x, x2, theta)
+  }
 }
 
 
