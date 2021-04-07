@@ -1,7 +1,9 @@
-(Update for 4/5/21)
+(Update for 4/6/21)
 
 My last submission still had two valgrind errors in the examples.
-I have fixed these and am resubmitting. Sorry again.
+I have fixed these and am resubmitting. I reran the check on my personal laptop,
+Travis, R-hub, and win-devel, with no new issues.
+Sorry again.
 
 (Update for 4/4/21)
 
