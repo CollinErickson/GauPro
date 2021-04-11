@@ -39,11 +39,11 @@ corr_gauss_matrix <- function(x, x2=NULL, theta) {
 #   total = exp(-total);
 #   return total;
 #   }')
-if (F) {
-  corr_gaussC(1:5, 6:10, 1e-2/(1:5))
-
-  system.time(replicate(1e5, corr_gaussC(1:10, 6:15, 1e-2/(1:10))))
-}
+# if (F) {
+#   corr_gaussC(1:5, 6:10, 1e-2)
+#
+#   system.time(replicate(1e5, corr_gaussC(1:10, 6:15, 1e-2)))
+# }
 
 # Rcpp::cppFunction('NumericMatrix corr_gauss_matrixC_wrongplace(NumericMatrix x, NumericMatrix y, NumericVector theta) {
 #   int nrow = x.nrow(), ncol = y.nrow();

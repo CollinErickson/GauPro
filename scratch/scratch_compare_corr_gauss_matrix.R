@@ -1,7 +1,7 @@
 d <- 6
 x1 <- matrix(runif(100*d), ncol=d)
 x2 <- matrix(runif(1e4*d), ncol=d)
-th <- c(.3,3.3)
+th <- runif(d)
 t1 <- corr_gauss_matrixC(x1, x2, th)
 t2 <- corr_gauss_matrix_armaC(x1, x2, th)
 identical(t1, t2)
