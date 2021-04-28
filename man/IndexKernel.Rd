@@ -37,23 +37,13 @@ https://stackoverflow.com/questions/27086195/linear-index-upper-triangular-matri
 
 \item{\code{p_est}}{Should p be estimated?}
 
-\item{\code{logp}}{Log of p}
+\item{\code{p}}{Log of p}
 
-\item{\code{logp_lower}}{Lower bound of logp}
+\item{\code{p_lower}}{Lower bound of logp}
 
-\item{\code{logp_upper}}{Upper bound of logp}
+\item{\code{p_upper}}{Upper bound of logp}
 
 \item{\code{p_length}}{length of p}
-
-\item{\code{alpha}}{Parameter for correlation}
-
-\item{\code{alpha_est}}{Should alpha be estimated?}
-
-\item{\code{logalpha}}{Log of alpha}
-
-\item{\code{logalpha_lower}}{Lower bound of logalpha}
-
-\item{\code{logalpha_upper}}{Upper bound of logalpha}
 
 \item{\code{s2}}{variance}
 
@@ -64,27 +54,6 @@ https://stackoverflow.com/questions/27086195/linear-index-upper-triangular-matri
 \item{\code{logs2_lower}}{Lower bound of logs2}
 
 \item{\code{logs2_upper}}{Upper bound of logs2}
-}
-\if{html}{\out{</div>}}
-}
-\section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{logp}}{Log of p}
-
-\item{\code{logp_lower}}{Lower bound of logp}
-
-\item{\code{logp_upper}}{Upper bound of logp}
-
-\item{\code{alpha}}{Parameter for correlation}
-
-\item{\code{alpha_est}}{Should alpha be estimated?}
-
-\item{\code{logalpha}}{Log of alpha}
-
-\item{\code{logalpha_lower}}{Lower bound of logalpha}
-
-\item{\code{logalpha_upper}}{Upper bound of logalpha}
 }
 \if{html}{\out{</div>}}
 }
@@ -152,12 +121,6 @@ Initialize kernel object
 \item{\code{p}}{Periodic parameter}
 
 \item{\code{alpha}}{Periodic parameter}
-
-\item{\code{alpha_lower}}{Lower bound for alpha}
-
-\item{\code{alpha_upper}}{Upper bound for alpha}
-
-\item{\code{alpha_est}}{Should alpha be estimated?}
 }
 \if{html}{\out{</div>}}
 }
