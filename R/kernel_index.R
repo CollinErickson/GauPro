@@ -42,13 +42,13 @@
 #' @field logs2_lower Lower bound of logs2
 #' @field logs2_upper Upper bound of logs2
 #' @examples
-#' kk <- IndexKernel$new(D=5)
+#' kk <- FactorKernel$new(D=1, nlevels=5, xindex=1)
 #' kk$p <- (1:10)/100
 #' kmat <- outer(1:5, 1:5, Vectorize(kk$k))
 #' kmat
-# IndexKernel ----
-IndexKernel <- R6::R6Class(
-  classname = "GauPro_kernel_Index",
+# FactorKernel ----
+FactorKernel <- R6::R6Class(
+  classname = "GauPro_kernel_FactorKernel",
   inherit = GauPro_kernel,
   public = list(
     p = NULL, # Period

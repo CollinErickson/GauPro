@@ -6,7 +6,7 @@ for (i in 0:(n-1-1)) {
   }
 }
 
-kk <- IndexKernel$new(D=1, nlevels=5, xindex=1)
+kk <- FactorKernel$new(D=1, nlevels=5, xindex=1)
 kk
 kk$kone(1,1, s2=1)
 # kk$kone(1,2, s2=1)
@@ -40,7 +40,7 @@ library(dplyr)
 X <- matrix(sample(1:3, size=12, replace=T), ncol=1)
 Z <- c(X) %>% {ifelse(.==2,10,0) + rnorm(length(.),0,.2)}
 tibble(X=X[,1], Z) %>% arrange(X,Z)
-k2 <- IndexKernel$new(D=1, nlevels=3, xind=1)
+k2 <- FactorKernel$new(D=1, nlevels=3, xind=1)
 # debugonce(k2$dC_dparams)
 # k2$p_upper <- .99*k2$p_upper
 gp <- GauPro_kernel_model$new(X=X, Z=Z, kernel = k2, verbose = 5)
@@ -57,7 +57,7 @@ X <- cbind(matrix(sample(1:3, size=n, replace=T), ncol=1),
            matrix(sample(1:3, size=n, replace=T), ncol=1))
 Z <- X[,1] - X[,2] + rnorm(n,0,.1)
 tibble(X=X, Z) %>% arrange(X,Z)
-k2 <- IndexKernel$new(D=2, nlevels=3, xind=1)
+k2 <- FactorKernel$new(D=2, nlevels=3, xind=1)
 # debugonce(k2$dC_dparams)
 # k2$p_upper <- .65*k2$p_upper
 gp <- GauPro_kernel_model$new(X=X, Z=Z, kernel = k2, verbose = 5)
@@ -73,7 +73,7 @@ X <- cbind(matrix(sample(1:3, size=n, replace=T), ncol=1),
            matrix(sample(1:3, size=n, replace=T), ncol=1))
 Z <- X[,1] - X[,2]^2 + rnorm(n,0,.1)
 tibble(X=X, Z) %>% arrange(X,Z)
-k2 <- IndexKernel$new(D=2, nlevels=3, xind=1) * IndexKernel$new(D=2, nlevels=3, xind=2)
+k2 <- FactorKernel$new(D=2, nlevels=3, xind=1) * FactorKernel$new(D=2, nlevels=3, xind=2)
 # debugonce(k2$dC_dparams)
 k2$k1$p_upper <- .5*k2$k1$p_upper
 k2$k2$p_upper <- .5*k2$k2$p_upper
@@ -99,7 +99,7 @@ n <- nrow(X)
 Z <- X[,1] - (X[,2]-1.8)^2 + rnorm(n,0,.1)
 tibble(X=X, Z) %>% arrange(X,Z)
 k2a <- IgnoreIndsKernel$new(k=Gaussian$new(D=1), ignoreinds = 2)
-k2b <- IndexKernel$new(D=2, nlevels=3, xind=2)
+k2b <- FactorKernel$new(D=2, nlevels=3, xind=2)
 k2 <- k2a * k2b
 # debugonce(k2$dC_dparams)
 k2b$p_upper <- .65*k2b$p_upper
