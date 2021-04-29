@@ -90,6 +90,8 @@ Initialize kernel object
 \if{html}{\out{<div class="r">}}\preformatted{IndexKernel$new(
   s2 = 1,
   D,
+  nlevels,
+  xindex,
   p_lower = 0,
   p_upper = 1,
   p_est = TRUE,
@@ -166,7 +168,7 @@ of x with itself.}
 \subsection{Method \code{kone()}}{
 Find covariance of two points
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{IndexKernel$kone(x, y, p, s2)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{IndexKernel$kone(x, y, p, s2, isdiag = 1, offdiagequal = 1 - 1e-06)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

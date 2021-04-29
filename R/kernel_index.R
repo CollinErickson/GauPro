@@ -46,6 +46,7 @@
 #' kk$p <- (1:10)/100
 #' kmat <- outer(1:5, 1:5, Vectorize(kk$k))
 #' kmat
+# IndexKernel ----
 IndexKernel <- R6::R6Class(
   classname = "GauPro_kernel_Index",
   inherit = GauPro_kernel,
