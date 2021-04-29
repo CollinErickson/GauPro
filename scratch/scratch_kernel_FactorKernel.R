@@ -116,3 +116,64 @@ legend(legend=1:3, fill=1:3, x="topleft")
 cbind(X, cov=gp$kernel$k(X, c(5.5,3))) %>% arrange(-cov)
 # See which points affect (5.5, 3 themost)
 data.frame(X, cov=gp$kernel$k(X, c(5.5,3))) %>% arrange(-cov)
+
+
+
+
+
+
+# OrderedFactor Kernel
+ko1 <- OrderedFactorKernel$new(D=1, nlevels=5, xindex=1)
+ko1$p
+ko1$k(matrix(1:5, ncol=1))
+ko1$p <- c(.01, .02,.03,.04)
+ko1$k(matrix(1:5, ncol=1))
+ko1$p <- c(.1, .2,.3,.4)
+ko1$k(matrix(1:5, ncol=1))
+# ko1$C_dC_dparams(X=matrix(1:5, ncol=1), nug=1e-4)
+
+# 1D example
+library(dplyr)
+X <- matrix(sample(1:3, size=12, replace=T), ncol=1)
+Z <- c(X)^3 %>% {. + rnorm(length(.),0,.2)} # %>% {ifelse(.==2,10,0) + rnorm(length(.),0,.2)}
+plot(X, Z)
+tibble(X=X[,1], Z) %>% arrange(X,Z)
+k2 <- OrderedFactorKernel$new(D=1, nlevels=3, xind=1)
+# debugonce(k2$dC_dparams)
+# k2$p_upper <- .99*k2$p_upper
+gp <- GauPro_kernel_model$new(X=X, Z=Z, kernel = k2, verbose = 5)
+gp$kernel$p
+cbind(X, (gp$kernel$k(x = gp$X) / gp$kernel$s2) %>% round(4))
+tibble(X=X[,1], Z=Z, pred=gp$predict(X)[,1]) %>% arrange(X, Z)
+tibble(X=X[,1], Z) %>% group_by(X) %>% summarize(n=n(), mean(Z))
+
+
+# 2D, Gaussian on 1D, OrderedFactor on 2nd dim
+library(dplyr)
+n <- 20
+X <- cbind(matrix(runif(n,2,6), ncol=1),
+           matrix(sample(1:2, size=n, replace=T), ncol=1))
+X <- rbind(X, c(3.3,3), c(3.7,3))
+n <- nrow(X)
+Z <- X[,1] - (4-X[,2])^2 + rnorm(n,0,.1)
+plot(X[,1], Z, col=X[,2])
+tibble(X=X, Z) %>% arrange(X,Z)
+k2a <- IgnoreIndsKernel$new(k=Gaussian$new(D=1), ignoreinds = 2)
+k2b <- OrderedFactorKernel$new(D=2, nlevels=3, xind=2)
+k2 <- k2a * k2b
+# debugonce(k2$dC_dparams)
+k2b$p_upper <- .65*k2b$p_upper
+gp <- GauPro_kernel_model$new(X=X, Z=Z, kernel = k2, verbose = 5, nug.min=1e-2)
+gp$kernel$k1$kernel$beta
+gp$kernel$k2$p
+gp$kernel$k(x = gp$X)
+tibble(X=X, Z=Z, pred=gp$predict(X)[,1]) %>% arrange(X, Z)
+tibble(X=X[,2], Z) %>% group_by(X) %>% summarize(n=n(), mean(Z))
+curve(gp$pred(cbind(matrix(x,ncol=1),1)),2,6, ylim=c(min(Z), max(Z))); points(X[X[,2]==1,1], Z[X[,2]==1])
+curve(gp$pred(cbind(matrix(x,ncol=1),2)), add=T, col=2); points(X[X[,2]==2,1], Z[X[,2]==2], col=2)
+curve(gp$pred(cbind(matrix(x,ncol=1),3)), add=T, col=3); points(X[X[,2]==3,1], Z[X[,2]==3], col=3)
+legend(legend=1:3, fill=1:3, x="topleft")
+cbind(X, cov=gp$kernel$k(X, c(5.5,3))) %>% arrange(-cov)
+# See which points affect (5.5, 3 themost)
+data.frame(X, cov=gp$kernel$k(X, c(5.5,3))) %>% arrange(-cov)
+

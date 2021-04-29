@@ -42,13 +42,13 @@
 #' @field logs2_lower Lower bound of logs2
 #' @field logs2_upper Upper bound of logs2
 #' @examples
-#' kk <- FactorKernel$new(D=1, nlevels=5, xindex=1)
+#' kk <- OrderedFactorKernel$new(D=1, nlevels=5, xindex=1)
 #' kk$p <- (1:10)/100
 #' kmat <- outer(1:5, 1:5, Vectorize(kk$k))
 #' kmat
-# FactorKernel ----
-FactorKernel <- R6::R6Class(
-  classname = "GauPro_kernel_FactorKernel",
+# OrderedFactorKernel ----
+OrderedFactorKernel <- R6::R6Class(
+  classname = "GauPro_kernel_OrderedFactorKernel",
   inherit = GauPro_kernel,
   public = list(
     p = NULL, # Period
@@ -92,12 +92,13 @@ FactorKernel <- R6::R6Class(
       self$xindex <- xindex
 
       # p <- rep(0, D * (D-1) / 2)
-      p <- rep(0, nlevels * (nlevels-1) / 2)
+      p <- rep(0, nlevels - 1)
       self$p <- p
       self$p_length <- length(p)
-      self$p_lower <-rep(0, self$p_length)
+      # Ensure separation between levels to avoid instability
+      self$p_lower <- rep(1e-1, self$p_length)
       # Don't give upper 1 since it will give optimization error
-      self$p_upper <-rep(.9, self$p_length)
+      self$p_upper <- rep(5, self$p_length)
       # self$logp <- log(p, 10)
 
       # Now set upper and lower so they have correct length
@@ -125,7 +126,8 @@ FactorKernel <- R6::R6Class(
     #' @param x vector.
     #' @param y vector, optional. If excluded, find correlation
     #' of x with itself.
-    #' @param p Correlation parameters.
+    #' @param logp Correlation parameters.
+    #' @param logalpha Correlation parameters.
     #' @param s2 Variance parameter.
     #' @param params parameters to use instead of beta and s2.
     k = function(x, y=NULL, p=self$p, s2=self$s2, params=NULL) {#browser()
@@ -214,11 +216,11 @@ FactorKernel <- R6::R6Class(
       } else {
         # i <- x-1
         # j <- y-1
-        i <- min(x-1, y-1)
-        j <- max(x-1, y-1)
-        n <- self$nlevels
-        ind <- (n*(n-1)/2) - (n-i)*((n-i)-1)/2 + j - i #- 1
-        out <- s2 * p[ind]
+        i <- min(x,y) #min(x-1, y-1)
+        j <- max(x,y) - 1 #max(x-1, y-1)
+        # n <- self$nlevels
+        p_dist <- sum(p[i:j])
+        out <- s2 * exp(-p_dist^2)
       }
       if (any(is.nan(out))) {browser()}
       out
@@ -288,13 +290,18 @@ FactorKernel <- R6::R6Class(
               if (xx == yy) {
                 # Corr is just 1, parameter has no effect
               } else {
-                ii <- min(xx-1, yy-1)
-                jj <- max(xx-1, yy-1)
-                nn <- self$nlevels
-                ind <- (nn*(nn-1)/2) - (nn-ii)*((nn-ii)-1)/2 + jj - ii #- 1
-                if (ind == k) { # Does correspond to the correct parameter
-                  dC_dparams[k,i,j] <- 1
+                # ii <- min(xx-1, yy-1)
+                # jj <- max(xx-1, yy-1)
+                # nn <- self$nlevels
+                # ind <- (nn*(nn-1)/2) - (nn-ii)*((nn-ii)-1)/2 + jj - ii #- 1
+                ii <- min(xx,yy)
+                jj <- max(xx,yy) - 1
+                if (ii <= k && k <= jj) { # Does correspond to the correct parameter
+                  p_dist <- sum(p[ii:jj]^2)
+                  r <- exp(-p_dist^2)
+                  dC_dparams[k,i,j] <- -2 * p_dist * r
                   dC_dparams[k,j,i] <- dC_dparams[k,i,j]
+
                 } else {
                   # Parameter has no effect
                 }
@@ -345,7 +352,7 @@ FactorKernel <- R6::R6Class(
     #' @param logalpha log of alpha
     #' @param s2 Variance parameter
     dC_dx = function(XX, X, logp=self$logp, logalpha=self$logalpha, s2=self$s2) {#browser()
-      stop("not implemented, kernel index, dC_dx")
+      stop("not implemented, ordered factor kernel, dC_dx")
       # if (missing(theta)) {theta <- 10^beta}
       p <- 10 ^ logp
       alpha <- 10 ^ logalpha

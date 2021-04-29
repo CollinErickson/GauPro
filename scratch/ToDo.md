@@ -16,3 +16,5 @@
 
 * Cool1Dplot uses nugget, but shouldn't, too jumpy
 
+* dC of factor kernels need to be times s2?
+
