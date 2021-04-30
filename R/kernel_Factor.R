@@ -55,7 +55,7 @@
 #' library(dplyr)
 #' n <- 20
 #' X <- cbind(matrix(runif(n,2,6), ncol=1),
-#'            matrix(sample(1:2, size=n, replace=T), ncol=1))
+#'            matrix(sample(1:2, size=n, replace=TRUE), ncol=1))
 #' X <- rbind(X, c(3.3,3))
 #' n <- nrow(X)
 #' Z <- X[,1] - (X[,2]-1.8)^2 + rnorm(n,0,.1)
@@ -509,7 +509,7 @@ FactorKernel <- R6::R6Class(
       X1 <- X2 <- matrix(data=0, ncol=self$D, nrow=self$nlevels)
       X1[, self$xindex] <- x1
       X2[, self$xindex] <- x1
-      print(X1); print(X2)
+      # print(X1); print(X2)
       k <- self$k(X1, X2)
       k
 
@@ -520,7 +520,7 @@ FactorKernel <- R6::R6Class(
                       data.frame(x1=i, x2=j, k=k[i,j]))
         }
       }
-      print(df)
+      # print(df)
       ggplot2::ggplot(data=df, ggplot2::aes(x1, x2, fill=k)) + ggplot2::geom_tile() +
         # ggplot2::scale_color_continuous() +
         ggplot2::scale_fill_gradient(low='white', high='red') +

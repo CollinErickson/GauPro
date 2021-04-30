@@ -31,7 +31,7 @@ kk$plot()
 library(dplyr)
 n <- 20
 X <- cbind(matrix(runif(n,2,6), ncol=1),
-           matrix(sample(1:2, size=n, replace=T), ncol=1))
+           matrix(sample(1:2, size=n, replace=TRUE), ncol=1))
 X <- rbind(X, c(3.3,3))
 n <- nrow(X)
 Z <- X[,1] - (X[,2]-1.8)^2 + rnorm(n,0,.1)

@@ -80,6 +80,8 @@ k2$k2$p_upper <- .5*k2$k2$p_upper
 gp <- GauPro_kernel_model$new(X=X, Z=Z, kernel = k2, verbose = 5, nug.min = 1e-4)
 gp$kernel$k1$p
 gp$kernel$k2$p
+gp$kernel$k1 %>% plot
+gp$kernel$k2 %>% plot
 gp$kernel$k(x = gp$X)
 tibble(X=X, Z=Z, pred=gp$predict(X)[,1]) %>% arrange(X, Z)
 tibble(X=X, Z) %>% group_by(X) %>% summarize(n=n(), mean(Z))
@@ -106,6 +108,8 @@ k2b$p_upper <- .65*k2b$p_upper
 gp <- GauPro_kernel_model$new(X=X, Z=Z, kernel = k2, verbose = 5, nug.min=1e-2)
 gp$kernel$k1$kernel$beta
 gp$kernel$k2$p
+gp$kernel$k1$kernel %>% plot
+gp$kernel$k2 %>% plot
 gp$kernel$k(x = gp$X)
 tibble(X=X, Z=Z, pred=gp$predict(X)[,1]) %>% arrange(X, Z)
 tibble(X=X[,2], Z) %>% group_by(X) %>% summarize(n=n(), mean(Z))
@@ -113,7 +117,7 @@ curve(gp$pred(cbind(matrix(x,ncol=1),1)),2,6, ylim=c(min(Z), max(Z))); points(X[
 curve(gp$pred(cbind(matrix(x,ncol=1),2)), add=T, col=2); points(X[X[,2]==2,1], Z[X[,2]==2], col=2)
 curve(gp$pred(cbind(matrix(x,ncol=1),3)), add=T, col=3); points(X[X[,2]==3,1], Z[X[,2]==3], col=3)
 legend(legend=1:3, fill=1:3, x="topleft")
-cbind(X, cov=gp$kernel$k(X, c(5.5,3))) %>% arrange(-cov)
+# cbind(X, cov=gp$kernel$k(X, c(5.5,3))) %>% arrange(-cov)
 # See which points affect (5.5, 3 themost)
 data.frame(X, cov=gp$kernel$k(X, c(5.5,3))) %>% arrange(-cov)
 
@@ -173,7 +177,7 @@ curve(gp$pred(cbind(matrix(x,ncol=1),1)),2,6, ylim=c(min(Z), max(Z))); points(X[
 curve(gp$pred(cbind(matrix(x,ncol=1),2)), add=T, col=2); points(X[X[,2]==2,1], Z[X[,2]==2], col=2)
 curve(gp$pred(cbind(matrix(x,ncol=1),3)), add=T, col=3); points(X[X[,2]==3,1], Z[X[,2]==3], col=3)
 legend(legend=1:3, fill=1:3, x="topleft")
-cbind(X, cov=gp$kernel$k(X, c(5.5,3))) %>% arrange(-cov)
+# cbind(X, cov=gp$kernel$k(X, c(5.5,3))) %>% arrange(-cov)
 # See which points affect (5.5, 3 themost)
 data.frame(X, cov=gp$kernel$k(X, c(5.5,3))) %>% arrange(-cov)
 
