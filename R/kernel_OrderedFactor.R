@@ -125,7 +125,7 @@ OrderedFactorKernel <- R6::R6Class(
       self$xindex <- xindex
 
       # p <- rep(0, D * (D-1) / 2)
-      p <- rep(0, nlevels - 1)
+      p <- rep(1, nlevels - 1)
       self$p <- p
       self$p_length <- length(p)
       # Ensure separation between levels to avoid instability
@@ -502,6 +502,30 @@ OrderedFactorKernel <- R6::R6Class(
       } else { # Else it is just using set value, not being estimated
         self$s2
       }
+    },
+    #' @param ... Not used.
+    plot = function(...) {
+      x1=1:self$nlevels
+      # x2=1:self$nlevels
+      X1 <- X2 <- matrix(data=0, ncol=self$D, nrow=self$nlevels)
+      X1[, self$xindex] <- x1
+      X2[, self$xindex] <- x1
+      print(X1); print(X2)
+      k <- self$k(X1, X2)
+      k
+
+      df <- NULL
+      for (i in 1:self$nlevels) {
+        for (j in 1:self$nlevels) {
+          df <- rbind(df,
+                      data.frame(x1=i, x2=j, k=k[i,j]))
+        }
+      }
+      print(df)
+      ggplot2::ggplot(data=df, ggplot2::aes(x1, x2, fill=k)) + ggplot2::geom_tile() +
+        # ggplot2::scale_color_continuous()
+        ggplot2::scale_fill_gradient(low='white', high='red') +
+        ggplot2::scale_y_reverse()
     }
   )
 )

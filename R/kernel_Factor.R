@@ -48,6 +48,7 @@
 #' kk$p <- (1:10)/100
 #' kmat <- outer(1:5, 1:5, Vectorize(kk$k))
 #' kmat
+#' kk$plot()
 #'
 #'
 #' # 2D, Gaussian on 1D, index on 2nd dim
@@ -76,9 +77,9 @@
 #' curve(gp$pred(cbind(matrix(x,ncol=1),3)), add=T, col=3)
 #' points(X[X[,2]==3,1], Z[X[,2]==3], col=3)
 #' legend(legend=1:3, fill=1:3, x="topleft")
-#' cbind(X, cov=gp$kernel$k(X, c(5.5,3))) %>% arrange(-cov)
 #' # See which points affect (5.5, 3 themost)
 #' data.frame(X, cov=gp$kernel$k(X, c(5.5,3))) %>% arrange(-cov)
+#' plot(k2b)
 #'
 #'
 # FactorKernel ----
@@ -499,6 +500,30 @@ FactorKernel <- R6::R6Class(
       } else { # Else it is just using set value, not being estimated
         self$s2
       }
+    },
+    #' @param ... Not used.
+    plot = function(...) {
+      x1=1:self$nlevels
+      # x2=1:self$nlevels
+      X1 <- X2 <- matrix(data=0, ncol=self$D, nrow=self$nlevels)
+      X1[, self$xindex] <- x1
+      X2[, self$xindex] <- x1
+      print(X1); print(X2)
+      k <- self$k(X1, X2)
+      k
+
+      df <- NULL
+      for (i in 1:self$nlevels) {
+        for (j in 1:self$nlevels) {
+          df <- rbind(df,
+                      data.frame(x1=i, x2=j, k=k[i,j]))
+        }
+      }
+      print(df)
+      ggplot2::ggplot(data=df, ggplot2::aes(x1, x2, fill=k)) + ggplot2::geom_tile() +
+        # ggplot2::scale_color_continuous() +
+        ggplot2::scale_fill_gradient(low='white', high='red') +
+        ggplot2::scale_y_reverse()
     }
   )
 )

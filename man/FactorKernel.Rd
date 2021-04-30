@@ -24,6 +24,7 @@ kk <- FactorKernel$new(D=1, nlevels=5, xindex=1)
 kk$p <- (1:10)/100
 kmat <- outer(1:5, 1:5, Vectorize(kk$k))
 kmat
+kk$plot()
 
 
 # 2D, Gaussian on 1D, index on 2nd dim
@@ -52,9 +53,9 @@ points(X[X[,2]==2,1], Z[X[,2]==2], col=2)
 curve(gp$pred(cbind(matrix(x,ncol=1),3)), add=T, col=3)
 points(X[X[,2]==3,1], Z[X[,2]==3], col=3)
 legend(legend=1:3, fill=1:3, x="topleft")
-cbind(X, cov=gp$kernel$k(X, c(5.5,3))) \%>\% arrange(-cov)
 # See which points affect (5.5, 3 themost)
 data.frame(X, cov=gp$kernel$k(X, c(5.5,3))) \%>\% arrange(-cov)
+plot(k2b)
 
 
 }
@@ -105,6 +106,7 @@ data.frame(X, cov=gp$kernel$k(X, c(5.5,3))) \%>\% arrange(-cov)
 \item \href{#method-param_optim_upper}{\code{FactorKernel$param_optim_upper()}}
 \item \href{#method-set_params_from_optim}{\code{FactorKernel$set_params_from_optim()}}
 \item \href{#method-s2_from_params}{\code{FactorKernel$s2_from_params()}}
+\item \href{#method-plot}{\code{FactorKernel$plot()}}
 \item \href{#method-clone}{\code{FactorKernel$clone()}}
 }
 }
@@ -444,6 +446,15 @@ Get s2 from params vector
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-plot"></a>}}
+\if{latex}{\out{\hypertarget{method-plot}{}}}
+\subsection{Method \code{plot()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{FactorKernel$plot(...)}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
