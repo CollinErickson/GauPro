@@ -57,7 +57,8 @@ GauPro_kernel <- R6::R6Class(classname = "GauPro_kernel",
                     data.frame(i=i, x2=xseq, k=k)
         )
       }
-      ggplot(df, aes(x2, k)) + geom_line() + facet_wrap(.~i)
+      ggplot2::ggplot(df, ggplot2::aes(x2, k)) + ggplot2::geom_line() +
+        ggplot2::facet_wrap(.~i)
     }
   ),
   private = list(

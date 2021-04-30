@@ -46,14 +46,14 @@ tibble(X=X, Z=Z, pred=gp$predict(X)[,1]) \%>\% arrange(X, Z)
 tibble(X=X[,2], Z) \%>\% group_by(X) \%>\% summarize(n=n(), mean(Z))
 curve(gp$pred(cbind(matrix(x,ncol=1),1)),2,6, ylim=c(min(Z), max(Z)))
 points(X[X[,2]==1,1], Z[X[,2]==1])
-curve(gp$pred(cbind(matrix(x,ncol=1),2)), add=T, col=2)
+curve(gp$pred(cbind(matrix(x,ncol=1),2)), add=TRUE, col=2)
 points(X[X[,2]==2,1], Z[X[,2]==2], col=2)
-curve(gp$pred(cbind(matrix(x,ncol=1),3)), add=T, col=3)
+curve(gp$pred(cbind(matrix(x,ncol=1),3)), add=TRUE, col=3)
 points(X[X[,2]==3,1], Z[X[,2]==3], col=3)
 legend(legend=1:3, fill=1:3, x="topleft")
-cbind(X, cov=gp$kernel$k(X, c(5.5,3))) \%>\% arrange(-cov)
 # See which points affect (5.5, 3 themost)
 data.frame(X, cov=gp$kernel$k(X, c(5.5,3))) \%>\% arrange(-cov)
+plot(k2b)
 }
 \references{
 https://stackoverflow.com/questions/27086195/linear-index-upper-triangular-matrix
