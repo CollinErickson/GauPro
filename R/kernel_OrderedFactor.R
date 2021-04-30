@@ -31,21 +31,53 @@
 #' @format \code{\link{R6Class}} object.
 #' @field p Parameter for correlation
 #' @field p_est Should p be estimated?
-#' @field p Log of p
 #' @field p_lower Lower bound of logp
 #' @field p_upper Upper bound of logp
 #' @field p_length length of p
-
 #' @field s2 variance
 #' @field s2_est Is s2 estimated?
 #' @field logs2 Log of s2
 #' @field logs2_lower Lower bound of logs2
 #' @field logs2_upper Upper bound of logs2
+#' @field xindex Index of the factor (which column of X)
+#' @field nlevels Number of levels for the factor
 #' @examples
 #' kk <- OrderedFactorKernel$new(D=1, nlevels=5, xindex=1)
 #' kk$p <- (1:10)/100
 #' kmat <- outer(1:5, 1:5, Vectorize(kk$k))
 #' kmat
+#'
+#'
+# 2D, Gaussian on 1D, OrderedFactor on 2nd dim
+#' library(dplyr)
+#' n <- 20
+#' X <- cbind(matrix(runif(n,2,6), ncol=1),
+#'            matrix(sample(1:2, size=n, replace=T), ncol=1))
+#' X <- rbind(X, c(3.3,3), c(3.7,3))
+#' n <- nrow(X)
+#' Z <- X[,1] - (4-X[,2])^2 + rnorm(n,0,.1)
+#' plot(X[,1], Z, col=X[,2])
+#' tibble(X=X, Z) %>% arrange(X,Z)
+#' k2a <- IgnoreIndsKernel$new(k=Gaussian$new(D=1), ignoreinds = 2)
+#' k2b <- OrderedFactorKernel$new(D=2, nlevels=3, xind=2)
+#' k2 <- k2a * k2b
+#' k2b$p_upper <- .65*k2b$p_upper
+#' gp <- GauPro_kernel_model$new(X=X, Z=Z, kernel = k2, verbose = 5, nug.min=1e-2)
+#' gp$kernel$k1$kernel$beta
+#' gp$kernel$k2$p
+#' gp$kernel$k(x = gp$X)
+#' tibble(X=X, Z=Z, pred=gp$predict(X)[,1]) %>% arrange(X, Z)
+#' tibble(X=X[,2], Z) %>% group_by(X) %>% summarize(n=n(), mean(Z))
+#' curve(gp$pred(cbind(matrix(x,ncol=1),1)),2,6, ylim=c(min(Z), max(Z)))
+#' points(X[X[,2]==1,1], Z[X[,2]==1])
+#' curve(gp$pred(cbind(matrix(x,ncol=1),2)), add=T, col=2)
+#' points(X[X[,2]==2,1], Z[X[,2]==2], col=2)
+#' curve(gp$pred(cbind(matrix(x,ncol=1),3)), add=T, col=3)
+#' points(X[X[,2]==3,1], Z[X[,2]==3], col=3)
+#' legend(legend=1:3, fill=1:3, x="topleft")
+#' cbind(X, cov=gp$kernel$k(X, c(5.5,3))) %>% arrange(-cov)
+#' # See which points affect (5.5, 3 themost)
+#' data.frame(X, cov=gp$kernel$k(X, c(5.5,3))) %>% arrange(-cov)
 # OrderedFactorKernel ----
 OrderedFactorKernel <- R6::R6Class(
   classname = "GauPro_kernel_OrderedFactorKernel",
@@ -71,7 +103,6 @@ OrderedFactorKernel <- R6::R6Class(
     # alpha_est = NULL,
     #' @description Initialize kernel object
     #' @param p Periodic parameter
-    #' @param alpha Periodic parameter
     #' @param s2 Initial variance
     #' @param D Number of input dimensions of data
     #' @param p_lower Lower bound for p
@@ -80,6 +111,8 @@ OrderedFactorKernel <- R6::R6Class(
     #' @param s2_lower Lower bound for s2
     #' @param s2_upper Upper bound for s2
     #' @param s2_est Should s2 be estimated?
+    #' @param xindex Index of X to use the kernel on
+    #' @param nlevels Number of levels for the factor
     initialize = function(s2=1, D, nlevels, xindex,
                           p_lower=0, p_upper=1, p_est=TRUE,
                           s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE
@@ -126,8 +159,7 @@ OrderedFactorKernel <- R6::R6Class(
     #' @param x vector.
     #' @param y vector, optional. If excluded, find correlation
     #' of x with itself.
-    #' @param logp Correlation parameters.
-    #' @param logalpha Correlation parameters.
+    #' @param p Correlation parameters.
     #' @param s2 Variance parameter.
     #' @param params parameters to use instead of beta and s2.
     k = function(x, y=NULL, p=self$p, s2=self$s2, params=NULL) {#browser()
@@ -193,10 +225,12 @@ OrderedFactorKernel <- R6::R6Class(
     #' @description Find covariance of two points
     #' @param x vector
     #' @param y vector
-    #' @param logp correlation parameters on log scale
     #' @param p correlation parameters on regular scale
-    #' @param alpha correlation parameter
     #' @param s2 Variance parameter
+    #' @param isdiag Is this on the diagonal of the covariance?
+    #' @param offdiagequal What should offdiagonal values be set to when the
+    #' indices are the same? Use to avoid decomposition errors, similar to
+    #' adding a nugget.
     #' @references https://stackoverflow.com/questions/27086195/linear-index-upper-triangular-matrix
     kone = function(x, y, p, s2, isdiag=1, offdiagequal=1-1e-6) {
       # if (missing(p)) {p <- 10^logp}
@@ -280,7 +314,7 @@ OrderedFactorKernel <- R6::R6Class(
         dC_dparams[lenparams_D,,] <- C * log10
       }
       # browser()
-      print(p)
+      # print(p)
       if (self$p_est) {
         for (k in 1:length(p)) { # k is index of parameter
           for (i in seq(1, n-1, 1)) {

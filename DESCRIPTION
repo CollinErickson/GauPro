@@ -22,6 +22,7 @@ Suggests: testthat,
     rmarkdown,
     microbenchmark,
     numDeriv,
+    dplyr,
     MASS
 VignetteBuilder: knitr
 URL: https://github.com/CollinErickson/GauPro

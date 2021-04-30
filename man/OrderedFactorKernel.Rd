@@ -23,6 +23,37 @@ kk <- OrderedFactorKernel$new(D=1, nlevels=5, xindex=1)
 kk$p <- (1:10)/100
 kmat <- outer(1:5, 1:5, Vectorize(kk$k))
 kmat
+
+
+library(dplyr)
+n <- 20
+X <- cbind(matrix(runif(n,2,6), ncol=1),
+           matrix(sample(1:2, size=n, replace=T), ncol=1))
+X <- rbind(X, c(3.3,3), c(3.7,3))
+n <- nrow(X)
+Z <- X[,1] - (4-X[,2])^2 + rnorm(n,0,.1)
+plot(X[,1], Z, col=X[,2])
+tibble(X=X, Z) \%>\% arrange(X,Z)
+k2a <- IgnoreIndsKernel$new(k=Gaussian$new(D=1), ignoreinds = 2)
+k2b <- OrderedFactorKernel$new(D=2, nlevels=3, xind=2)
+k2 <- k2a * k2b
+k2b$p_upper <- .65*k2b$p_upper
+gp <- GauPro_kernel_model$new(X=X, Z=Z, kernel = k2, verbose = 5, nug.min=1e-2)
+gp$kernel$k1$kernel$beta
+gp$kernel$k2$p
+gp$kernel$k(x = gp$X)
+tibble(X=X, Z=Z, pred=gp$predict(X)[,1]) \%>\% arrange(X, Z)
+tibble(X=X[,2], Z) \%>\% group_by(X) \%>\% summarize(n=n(), mean(Z))
+curve(gp$pred(cbind(matrix(x,ncol=1),1)),2,6, ylim=c(min(Z), max(Z)))
+points(X[X[,2]==1,1], Z[X[,2]==1])
+curve(gp$pred(cbind(matrix(x,ncol=1),2)), add=T, col=2)
+points(X[X[,2]==2,1], Z[X[,2]==2], col=2)
+curve(gp$pred(cbind(matrix(x,ncol=1),3)), add=T, col=3)
+points(X[X[,2]==3,1], Z[X[,2]==3], col=3)
+legend(legend=1:3, fill=1:3, x="topleft")
+cbind(X, cov=gp$kernel$k(X, c(5.5,3))) \%>\% arrange(-cov)
+# See which points affect (5.5, 3 themost)
+data.frame(X, cov=gp$kernel$k(X, c(5.5,3))) \%>\% arrange(-cov)
 }
 \references{
 https://stackoverflow.com/questions/27086195/linear-index-upper-triangular-matrix
@@ -36,8 +67,6 @@ https://stackoverflow.com/questions/27086195/linear-index-upper-triangular-matri
 \item{\code{p}}{Parameter for correlation}
 
 \item{\code{p_est}}{Should p be estimated?}
-
-\item{\code{p}}{Log of p}
 
 \item{\code{p_lower}}{Lower bound of logp}
 
@@ -54,6 +83,10 @@ https://stackoverflow.com/questions/27086195/linear-index-upper-triangular-matri
 \item{\code{logs2_lower}}{Lower bound of logs2}
 
 \item{\code{logs2_upper}}{Upper bound of logs2}
+
+\item{\code{xindex}}{Index of the factor (which column of X)}
+
+\item{\code{nlevels}}{Number of levels for the factor}
 }
 \if{html}{\out{</div>}}
 }
@@ -108,6 +141,10 @@ Initialize kernel object
 
 \item{\code{D}}{Number of input dimensions of data}
 
+\item{\code{nlevels}}{Number of levels for the factor}
+
+\item{\code{xindex}}{Index of X to use the kernel on}
+
 \item{\code{p_lower}}{Lower bound for p}
 
 \item{\code{p_upper}}{Upper bound for p}
@@ -121,8 +158,6 @@ Initialize kernel object
 \item{\code{s2_est}}{Should s2 be estimated?}
 
 \item{\code{p}}{Periodic parameter}
-
-\item{\code{alpha}}{Periodic parameter}
 }
 \if{html}{\out{</div>}}
 }
@@ -144,13 +179,11 @@ Calculate covariance between two points
 \item{\code{y}}{vector, optional. If excluded, find correlation
 of x with itself.}
 
+\item{\code{p}}{Correlation parameters.}
+
 \item{\code{s2}}{Variance parameter.}
 
 \item{\code{params}}{parameters to use instead of beta and s2.}
-
-\item{\code{logp}}{Correlation parameters.}
-
-\item{\code{logalpha}}{Correlation parameters.}
 }
 \if{html}{\out{</div>}}
 }
@@ -175,9 +208,11 @@ Find covariance of two points
 
 \item{\code{s2}}{Variance parameter}
 
-\item{\code{logp}}{correlation parameters on log scale}
+\item{\code{isdiag}}{Is this on the diagonal of the covariance?}
 
-\item{\code{alpha}}{correlation parameter}
+\item{\code{offdiagequal}}{What should offdiagonal values be set to when the
+indices are the same? Use to avoid decomposition errors, similar to
+adding a nugget.}
 }
 \if{html}{\out{</div>}}
 }

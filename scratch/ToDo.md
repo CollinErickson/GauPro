@@ -2,11 +2,11 @@
 
 * Plot kernels
 
-* factor/index kernel
+* Factor kernel: example, check gradient
 
-* Ordered factor kernel
+* Ordered factor kernel: example, check gradient
 
-* Ignore input kernel
+* Ignore input kernel: example
 
 * Take in data/formula input in addition to matrix
 
@@ -17,4 +17,6 @@
 * Cool1Dplot uses nugget, but shouldn't, too jumpy
 
 * dC of factor kernels need to be times s2?
+
+* optim: store best so far?
 
