@@ -28,8 +28,19 @@ Kernel R6 class
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
+\item \href{#method-plot}{\code{GauPro_kernel$plot()}}
 \item \href{#method-clone}{\code{GauPro_kernel$clone()}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-plot"></a>}}
+\if{latex}{\out{\hypertarget{method-plot}{}}}
+\subsection{Method \code{plot()}}{
+Plot kernel decay.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel$plot()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

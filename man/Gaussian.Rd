@@ -17,6 +17,9 @@ Gaussian Kernel R6 class
 }
 \examples{
 k1 <- Gaussian$new(beta=0)
+plot(k1)
+k1 <- Gaussian$new(beta=c(0,-1, 1))
+plot(k1)
 }
 \section{Super classes}{
 \code{\link[GauPro:GauPro_kernel]{GauPro::GauPro_kernel}} -> \code{\link[GauPro:GauPro_kernel_beta]{GauPro::GauPro_kernel_beta}} -> \code{GauPro_kernel_Gaussian}
@@ -37,6 +40,7 @@ k1 <- Gaussian$new(beta=0)
 \if{html}{
 \out{<details ><summary>Inherited methods</summary>}
 \itemize{
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel" data-id="plot">}\href{../../GauPro/html/GauPro_kernel.html#method-plot}{\code{GauPro::GauPro_kernel$plot()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="initialize">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-initialize}{\code{GauPro::GauPro_kernel_beta$initialize()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="kone">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-kone}{\code{GauPro::GauPro_kernel_beta$kone()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="param_optim_lower">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-param_optim_lower}{\code{GauPro::GauPro_kernel_beta$param_optim_lower()}}\out{</span>}

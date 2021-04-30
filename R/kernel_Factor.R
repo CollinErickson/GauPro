@@ -331,8 +331,9 @@ FactorKernel <- R6::R6Class(
                 jj <- max(xx-1, yy-1)
                 nn <- self$nlevels
                 ind <- (nn*(nn-1)/2) - (nn-ii)*((nn-ii)-1)/2 + jj - ii #- 1
+                # print(c(k, i, j, xx, yy, ii, jj, ind, nn))
                 if (ind == k) { # Does correspond to the correct parameter
-                  dC_dparams[k,i,j] <- 1
+                  dC_dparams[k,i,j] <- 1 * s2
                   dC_dparams[k,j,i] <- dC_dparams[k,i,j]
                 } else {
                   # Parameter has no effect

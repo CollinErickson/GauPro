@@ -333,7 +333,7 @@ OrderedFactorKernel <- R6::R6Class(
                 if (ii <= k && k <= jj) { # Does correspond to the correct parameter
                   p_dist <- sum(p[ii:jj]^2)
                   r <- exp(-p_dist^2)
-                  dC_dparams[k,i,j] <- -2 * p_dist * r
+                  dC_dparams[k,i,j] <- -2 * p_dist * r * s2
                   dC_dparams[k,j,i] <- dC_dparams[k,i,j]
 
                 } else {

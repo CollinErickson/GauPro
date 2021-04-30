@@ -75,3 +75,25 @@ test_that("All kernels work in 2-D", {
     expect_equal(object = dC, expected = C_dC[[2]], info = class(kernel)[1])
   }
 })
+
+
+
+test_that("FactorKernel has correct grad", {
+  kfac <- FactorKernel$new(D=1, nlevels = 3, xindex = 1, s2 = .333)
+  kfac$p <- c(.1,.2,.3)
+  X <- matrix(c(1,2,3,1,2,3), ncol=1)
+  eps <- 1e-8
+  for (i in 1:length(kfac$p)) {
+    # print(i)
+    epsvec <- rep(0, length(kfac$p))
+    epsvec[i] <- eps
+    CdC0 <- kfac$C_dC_dparams(params = c(kfac$p, kfac$logs2), X=X, nug=1e-4)
+    CdC1 <- kfac$C_dC_dparams(params = c(kfac$p+epsvec, kfac$logs2), X=X, nug=1e-4)
+    d1 <- (CdC1$C - CdC0$C) / (1e-8)
+    d2 <- CdC0$dC_dparams[i,,]
+    d1
+    d2
+    expect_equal(d1, d2)
+  }
+})
+

@@ -53,6 +53,7 @@ k1 <- PowerExp$new(beta=0, alpha=0)
 \if{html}{
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel" data-id="plot">}\href{../../GauPro/html/GauPro_kernel.html#method-plot}{\code{GauPro::GauPro_kernel$plot()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="C_dC_dparams">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-C_dC_dparams}{\code{GauPro::GauPro_kernel_beta$C_dC_dparams()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="s2_from_params">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-s2_from_params}{\code{GauPro::GauPro_kernel_beta$s2_from_params()}}\out{</span>}
 }

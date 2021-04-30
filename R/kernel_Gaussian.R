@@ -30,6 +30,9 @@
 #' @format \code{\link{R6Class}} object.
 #' @examples
 #' k1 <- Gaussian$new(beta=0)
+#' plot(k1)
+#' k1 <- Gaussian$new(beta=c(0,-1, 1))
+#' plot(k1)
 Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
   inherit = GauPro_kernel_beta,
   public = list(

@@ -38,6 +38,27 @@ GauPro_kernel <- R6::R6Class(classname = "GauPro_kernel",
     #   else if (length(x) == self$D) {self$s2}
     #   else {stop("Error in k_diag #4928")}
     # }
+    ,
+    #' @description Plot kernel decay.
+    plot = function() {
+      stopifnot(!is.null(self$D), self$D >= 1)
+      n <- 51
+      xseq <- seq(0,1,l=n)
+      x0 <- rep(0, self$D)
+      df <- NULL
+      # browser()
+      for (i in 1:self$D) {
+        X <- matrix(0, ncol=self$D, nrow=n)
+        X[, i] <- xseq
+        # xi <- rep(0, self$D)
+        # xi[i] <-
+        k <- self$k(x0, X)
+        df <- rbind(df,
+                    data.frame(i=i, x2=xseq, k=k)
+        )
+      }
+      ggplot(df, aes(x2, k)) + geom_line() + facet_wrap(.~i)
+    }
   ),
   private = list(
 

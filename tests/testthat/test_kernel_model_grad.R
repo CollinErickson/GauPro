@@ -1,6 +1,6 @@
 # Test to check that grad returns right length and
 # agrees with numerical grad.
-test_that("kernel grad works", {
+test_that("kernel grad works", { # kernel grad works----
 
 
 
@@ -41,6 +41,7 @@ test_that("kernel grad works", {
   }
 })
 
+# grad_norm2 for Gaussian ----
 test_that("grad_norm2 for Gaussian", { # only implemented for Gaussian now
   set.seed(0)
   n <- 20
@@ -88,3 +89,4 @@ test_that("grad_norm2 for Gaussian", { # only implemented for Gaussian now
   expect_equal(dim(gd[[2]]), c(1,2,2))
 
 })
+
