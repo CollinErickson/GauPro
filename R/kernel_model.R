@@ -19,6 +19,8 @@
 #' gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian$new(1),
 #'                               parallel=FALSE)
 #' gp$predict(.454)
+#' gp$plot1D()
+#' gp$cool1Dplot()
 #' @field X Design matrix
 #' @field Z Responses
 #' @field N Number of data points
@@ -633,18 +635,25 @@ GauPro_kernel_model <- R6::R6Class(
       # nn <- 201
       x <- seq(x1, x2, length.out = nn)
       px <- self$pred(x, covmat = T)
+      # px$cov <- self$kernel$k(matrix(x,ncol=1))
       # n2 <- 20
       Sigma.try <- try(newy <- MASS::mvrnorm(n=n2, mu=px$mean,
                                              Sigma=px$cov),
                        silent = TRUE)
-      if (inherits(Sigma.try, "try-error")) {
-        message("Adding nugget to cool1Dplot")
-        Sigma.try2 <- try(
+      nug_Sig <- self$nug
+      while (inherits(Sigma.try, "try-error")) {
+        message(paste0("Adding nugget to cool1Dplot: ", nug_Sig))
+        Sigma.try <- try(
           newy <- MASS::mvrnorm(n=n2, mu=px$mean,
-                                Sigma=px$cov + diag(self$nug, nrow(px$cov))))
-        if (inherits(Sigma.try2, "try-error")) {
-          stop("Can't do cool1Dplot")
-        }
+                                Sigma=px$cov + diag(nug_Sig, nrow(px$cov))),
+          silent = TRUE)
+        # if (inherits(Sigma.try2, "try-error")) {
+        #   stop("Can't do cool1Dplot")
+        # }
+        nug_Sig <- 2*nug_Sig
+      }
+      if (n2==1) { # Avoid error when n2=1
+        newy <- matrix(newy, nrow=1)
       }
       # plot(x,px$me, type='l', lwd=4, ylim=c(min(newy),max(newy)),
       #      xlab=xlab, ylab=ylab)
@@ -1531,7 +1540,7 @@ GauPro_kernel_model <- R6::R6Class(
     deviance_fngr = function(params=NULL, kernel_update=TRUE,
                              X=self$X,
                              nug=self$nug, nug.update, nuglog,
-                             trend_params=NULL, trend_update=TRUE) {#browser()
+                             trend_params=NULL, trend_update=TRUE) {
       if (!missing(nuglog) && !is.null(nuglog)) {
         nug <- 10^nuglog
       }
@@ -1823,7 +1832,7 @@ GauPro_kernel_model <- R6::R6Class(
     #' @description Calculate Hessian
     #' @param XX Points to calculate Hessian at
     #' @param as_array Should result be an array?
-    hessian = function(XX, as_array=FALSE) {#browser()
+    hessian = function(XX, as_array=FALSE) {
       if (!is.matrix(XX)) {
         if (self$D == 1) XX <- matrix(XX, ncol=1)
         else if (length(XX) == self$D) XX <- matrix(XX, nrow=1)

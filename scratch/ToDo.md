@@ -20,3 +20,4 @@
 
 * Improve kernel model plot
 
+* Predict mean vs value?
