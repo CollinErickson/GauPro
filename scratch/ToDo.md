@@ -18,5 +18,5 @@
 
 * dC of factor kernels need to be times s2?
 
-* optim: store best so far?
+* Improve kernel model plot
 
