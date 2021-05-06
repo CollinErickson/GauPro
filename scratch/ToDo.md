@@ -2,9 +2,9 @@
 
 * Plot kernels
 
-* Factor kernel: example, check gradient
+* Factor kernel: example
 
-* Ordered factor kernel: example, check gradient
+* Ordered factor kernel: example
 
 * Ignore input kernel: example
 

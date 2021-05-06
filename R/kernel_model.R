@@ -1187,45 +1187,47 @@ GauPro_kernel_model <- R6::R6Class(
         cat("\tRestart (parallel): starts pars =",start.par.i,"\n")
       }
       current <- try(
-        if (self$useGrad) {
-          if (is.null(optim.fngr)) {
-            lbfgs::lbfgs(optim.func, optim.grad, start.par.i, invisible=1)
-          } else {
-            # Two options for shared grad
-            if (self$optimizer == "L-BFGS-B") {
-              # optim uses L-BFGS-B which uses upper and lower
-              # optim_share(fngr=optim.fngr, par=start.par.i,
-              #             method='L-BFGS-B', upper=upper, lower=lower)
-              # if (use_optim_share2) {
-              optim_share2(fngr=optim.fngr, par=start.par.i,
-                           method='L-BFGS-B', upper=upper, lower=lower)
-              # } else {
-              #   optim_share(fngr=optim.fngr, par=start.par.i,
-              #               method='L-BFGS-B', upper=upper, lower=lower)
-              # }
-            } else if (self$optimizer == "lbfgs") {
-              # lbfgs does not, so no longer using it
-              lbfgs_share(optim.fngr, start.par.i, invisible=1)
-              # 1.7x speedup uses grad_share
-            } else if (self$optimizer == "genoud") {
-              capture.output(suppressWarnings({
-                tmp <- rgenoud::genoud(fn=optim.func,
-                                       nvars=length(start.par.i),
-                                       starting.values=start.par.i,
-                                       Domains=cbind(lower, upper),
-                                       gr=optim.grad,
-                                       boundary.enforcement = 2,
-                                       pop.size=1e2, max.generations=10)
-              }))
-              tmp
-            } else{
-              stop("Optimizer not recognized")
+        {
+          if (self$useGrad) {
+            if (is.null(optim.fngr)) {
+              lbfgs::lbfgs(optim.func, optim.grad, start.par.i, invisible=1)
+            } else {
+              # Two options for shared grad
+              if (self$optimizer == "L-BFGS-B") {
+                # optim uses L-BFGS-B which uses upper and lower
+                # optim_share(fngr=optim.fngr, par=start.par.i,
+                #             method='L-BFGS-B', upper=upper, lower=lower)
+                # if (use_optim_share2) {
+                optim_share2(fngr=optim.fngr, par=start.par.i,
+                             method='L-BFGS-B', upper=upper, lower=lower)
+                # } else {
+                #   optim_share(fngr=optim.fngr, par=start.par.i,
+                #               method='L-BFGS-B', upper=upper, lower=lower)
+                # }
+              } else if (self$optimizer == "lbfgs") {
+                # lbfgs does not, so no longer using it
+                lbfgs_share(optim.fngr, start.par.i, invisible=1)
+                # 1.7x speedup uses grad_share
+              } else if (self$optimizer == "genoud") {
+                capture.output(suppressWarnings({
+                  tmp <- rgenoud::genoud(fn=optim.func,
+                                         nvars=length(start.par.i),
+                                         starting.values=start.par.i,
+                                         Domains=cbind(lower, upper),
+                                         gr=optim.grad,
+                                         boundary.enforcement = 2,
+                                         pop.size=1e2, max.generations=10)
+                }))
+                tmp
+              } else{
+                stop("Optimizer not recognized")
+              }
             }
+          } else {
+            optim(start.par.i, optim.func, method="L-BFGS-B",
+                  lower=lower, upper=upper, hessian=F)
           }
-        } else {
-          optim(start.par.i, optim.func, method="L-BFGS-B",
-                lower=lower, upper=upper, hessian=F)
-        }
+        }, silent=TRUE
       )
       if (!inherits(current, "try-error")) {
         if (self$useGrad) {

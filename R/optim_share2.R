@@ -30,7 +30,7 @@ optim_share2 <- function(par, fngr, ...) {
   # optim(par=par, fn=env$fn, gr=env$gr, ...)
   optim_out <- try({
     optim(par=par, fn=f1, gr=env$gr, ...)
-  })
+  }, silent = TRUE)
   if (inherits(optim_out, "try-error")) {
     # print('try-error')
     if (is.infinite(besty)) {
