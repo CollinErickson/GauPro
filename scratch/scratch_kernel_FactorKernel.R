@@ -104,7 +104,7 @@ k2a <- IgnoreIndsKernel$new(k=Gaussian$new(D=1), ignoreinds = 2)
 k2b <- FactorKernel$new(D=2, nlevels=3, xind=2)
 k2 <- k2a * k2b
 # debugonce(k2$dC_dparams)
-k2b$p_upper <- .65*k2b$p_upper
+# k2b$p_upper <- .65*k2b$p_upper
 gp <- GauPro_kernel_model$new(X=X, Z=Z, kernel = k2, verbose = 5, nug.min=1e-2)
 gp$kernel$k1$kernel$beta
 gp$kernel$k2$p
@@ -166,7 +166,7 @@ k2a <- IgnoreIndsKernel$new(k=Gaussian$new(D=1), ignoreinds = 2)
 k2b <- OrderedFactorKernel$new(D=2, nlevels=3, xind=2)
 k2 <- k2a * k2b
 # debugonce(k2$dC_dparams)
-k2b$p_upper <- .65*k2b$p_upper
+# k2b$p_upper <- .65*k2b$p_upper
 gp <- GauPro_kernel_model$new(X=X, Z=Z, kernel = k2, verbose = 5, nug.min=1e-2)
 gp$kernel$k1$kernel$beta
 gp$kernel$k2$p

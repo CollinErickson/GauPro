@@ -223,7 +223,7 @@ GauPro_kernel_model <- R6::R6Class(
             self$nug <- max(1e-8, 2 * self$nug)
             self$K <- self$K + diag(self$kernel$s2 * (self$nug - oldnug),
                                     self$N)
-            print(c(oldnug, self$nug))
+            cat("Increasing nugget to get invertibility from ", oldnug, ' to ', self$nug, "\n")
           }
           self$Kinv <- chol2inv(self$Kchol)
           # self$mu_hat <- sum(self$Kinv %*% self$Z) / sum(self$Kinv)
@@ -1107,7 +1107,7 @@ GauPro_kernel_model <- R6::R6Class(
                 try(restarts.out[[bestparallel]]$current$val, silent = T),
                 "try-error")
              ) { # need this in case all are restart vals are Inf
-            print("All restarts had error, keeping initial")
+            message("All restarts had error, keeping initial")
           } else if (restarts.out[[bestparallel]]$current$val < best$val) {
             best <- restarts.out[[bestparallel]]$current
           }
@@ -1184,8 +1184,15 @@ GauPro_kernel_model <- R6::R6Class(
                 # Two options for shared grad
                 if (self$optimizer == "L-BFGS-B") {
                   # optim uses L-BFGS-B which uses upper and lower
-                  optim_share(fngr=optim.fngr, par=start.par.i,
-                              method='L-BFGS-B', upper=upper, lower=lower)
+                  # optim_share(fngr=optim.fngr, par=start.par.i,
+                  #             method='L-BFGS-B', upper=upper, lower=lower)
+                  # if (use_optim_share2) {
+                  optim_share2(fngr=optim.fngr, par=start.par.i,
+                               method='L-BFGS-B', upper=upper, lower=lower)
+                  # } else {
+                  #   optim_share(fngr=optim.fngr, par=start.par.i,
+                  #               method='L-BFGS-B', upper=upper, lower=lower)
+                  # }
                 } else if (self$optimizer == "lbfgs") {
                   # lbfgs does not, so no longer using it
                   lbfgs_share(optim.fngr, start.par.i, invisible=1)
@@ -1408,7 +1415,7 @@ GauPro_kernel_model <- R6::R6Class(
           }
           K <- self$kernel$k(x=self$X, params=params) +
             diag(nug, self$N) * self$kernel$s2_from_params(params=params)
-          if (is.nan(log(det(K)))) {browser();return(Inf)}
+          if (is.nan(log(det(K)))) {return(Inf)}
           Z_hat <- self$trend$Z(X=self$X, params=trend_params)
           # dev.try <- try(dev <- log(det(K)) + sum((self$Z - self$mu_hat) *
           #                            solve(K, self$Z - self$mu_hat)))
@@ -1630,6 +1637,7 @@ GauPro_kernel_model <- R6::R6Class(
 
           # print(c(params, nuglog, out))
           out <- list(fn=dev, gr=gr)
+          # cat('finished fngr, dev=', dev, ' par was', params, '\n')
           out
         },
         #' @description Calculate gradient
