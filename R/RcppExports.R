@@ -266,7 +266,7 @@ deviance_grad_joint <- function(X, K, Kinv, y) {
 #' @param Cinv_yminusmu Vector that is the inverse of C times y minus the mean.
 #' @return Vector, one value for each parameter
 #' @examples
-#' # corr_gauss_dCdX(matrix(c(1,0,0,1),2,2),c(1,1))
+#' gradfuncarray(array(dim=c(2,4,4), data=rnorm(32)), matrix(rnorm(16),4,4), rnorm(4))
 #' @export
 gradfuncarray <- function(dC_dparams, Cinv, Cinv_yminusmu) {
     .Call(`_GauPro_gradfuncarray`, dC_dparams, Cinv, Cinv_yminusmu)

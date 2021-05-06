@@ -24,5 +24,5 @@ NEEDS TO APERM dC_dparams
 Doesn't need to be exported, should only be useful in functions.
 }
 \examples{
-# corr_gauss_dCdX(matrix(c(1,0,0,1),2,2),c(1,1))
+gradfuncarray(array(dim=c(2,4,4), data=rnorm(32)), matrix(rnorm(16),4,4), rnorm(4))
 }
