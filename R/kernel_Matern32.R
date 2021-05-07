@@ -12,6 +12,16 @@
 #' @field sqrt3 Saved value of square root of 3
 #' @examples
 #' k1 <- Matern32$new(beta=0)
+#' plot(k1)
+#'
+#' n <- 12
+#' x <- matrix(seq(0,1,length.out = n), ncol=1)
+#' y <- sin(2*pi*x) + rnorm(n,0,1e-1)
+#' gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Matern32$new(1),
+#'                               parallel=FALSE)
+#' gp$predict(.454)
+#' gp$plot1D()
+#' gp$cool1Dplot()
 Matern32 <- R6::R6Class(classname = "GauPro_kernel_Matern32",
   inherit = GauPro_kernel_beta,
   public = list(
@@ -60,11 +70,11 @@ Matern32 <- R6::R6Class(classname = "GauPro_kernel_Matern32",
         # outer(1:nrow(x), 1:nrow(y), Vectorize(function(i,j){self$kone(x[i,],y[j,],theta=theta, s2=s2)}))
         s2 * corr_matern32_matrixC(x, y, theta)
       } else if (is.matrix(x) & !is.matrix(y)) {
-        # apply(x, 1, function(xx) {self$kone(xx, y, theta=theta, s2=s2)})
-        s2 * corr_matern32_matvecC(x, y, theta)
+        apply(x, 1, function(xx) {self$kone(xx, y, theta=theta, s2=s2)})
+        # s2 * corr_matern32_matvecC(x, y, theta)
       } else if (is.matrix(y)) {
-        # apply(y, 1, function(yy) {self$kone(yy, x, theta=theta, s2=s2)})
-        s2 * corr_matern32_matvecC(y, x, theta)
+        apply(y, 1, function(yy) {self$kone(yy, x, theta=theta, s2=s2)})
+        # s2 * corr_matern32_matvecC(y, x, theta)
       } else {
         self$kone(x, y, theta=theta, s2=s2)
       }

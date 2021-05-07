@@ -33,6 +33,16 @@
 #' plot(k1)
 #' k1 <- Gaussian$new(beta=c(0,-1, 1))
 #' plot(k1)
+#'
+#'
+#' n <- 12
+#' x <- matrix(seq(0,1,length.out = n), ncol=1)
+#' y <- sin(2*pi*x) + rnorm(n,0,1e-1)
+#' gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian$new(1),
+#'                               parallel=FALSE)
+#' gp$predict(.454)
+#' gp$plot1D()
+#' gp$cool1Dplot()
 Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
   inherit = GauPro_kernel_beta,
   public = list(

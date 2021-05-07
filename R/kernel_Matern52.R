@@ -12,6 +12,16 @@
 #' @field sqrt5 Saved value of square root of 5
 #' @examples
 #' k1 <- Matern52$new(beta=0)
+#' plot(k1)
+#'
+#' n <- 12
+#' x <- matrix(seq(0,1,length.out = n), ncol=1)
+#' y <- sin(2*pi*x) + rnorm(n,0,1e-1)
+#' gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Matern52$new(1),
+#'                               parallel=FALSE)
+#' gp$predict(.454)
+#' gp$plot1D()
+#' gp$cool1Dplot()
 Matern52 <- R6::R6Class(classname = "GauPro_kernel_Matern52",
   inherit = GauPro_kernel_beta,
   public = list(
@@ -62,12 +72,12 @@ Matern52 <- R6::R6Class(classname = "GauPro_kernel_Matern52",
         s2 * corr_matern52_matrixC(x, y, theta)
       } else if (is.matrix(x) & !is.matrix(y)) {
         # s2 * corr_gauss_matrixvecC(x, y, theta)
-        # apply(x, 1, function(xx) {self$kone(xx, y, theta=theta, s2=s2)})
-        s2 * corr_matern52_matvecC(x, y, theta)
+        apply(x, 1, function(xx) {self$kone(xx, y, theta=theta, s2=s2)})
+        # s2 * corr_matern52_matvecC(x, y, theta)
       } else if (is.matrix(y)) {
         # s2 * corr_gauss_matrixvecC(y, x, theta)
-        # apply(y, 1, function(yy) {self$kone(yy, x, theta=theta, s2=s2)})
-        s2 * corr_matern52_matvecC(y, x, theta)
+        apply(y, 1, function(yy) {self$kone(yy, x, theta=theta, s2=s2)})
+        # s2 * corr_matern52_matvecC(y, x, theta)
       } else {
         self$kone(x, y, theta=theta, s2=s2)
       }

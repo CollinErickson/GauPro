@@ -11,6 +11,16 @@
 #' @format \code{\link{R6Class}} object.
 #' @examples
 #' k1 <- Triangle$new(beta=0)
+#' plot(k1)
+#'
+#' n <- 12
+#' x <- matrix(seq(0,1,length.out = n), ncol=1)
+#' y <- sin(2*pi*x) + rnorm(n,0,1e-1)
+#' gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Triangle$new(1),
+#'                               parallel=FALSE)
+#' gp$predict(.454)
+#' gp$plot1D()
+#' gp$cool1Dplot()
 Triangle <- R6::R6Class(
   classname = "GauPro_kernel_Triangle",
   inherit = GauPro_kernel_beta,

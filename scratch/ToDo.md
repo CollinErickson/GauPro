@@ -22,9 +22,8 @@
 
 * Plot marginal
 
-* gp$kernel$plot() when using Matern52 matvec doesn't exist
-
 * progress bar for restarts
 
 * Fewer restarts in high dim
 
+* Give kernel in as string. If missing, give better error or just use Mat52.

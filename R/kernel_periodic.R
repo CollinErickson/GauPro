@@ -48,6 +48,17 @@
 #' @field logs2_upper Upper bound of logs2
 #' @examples
 #' k1 <- Periodic$new(p=1, alpha=1)
+#' plot(k1)
+#'
+#' n <- 12
+#' x <- matrix(seq(0,1,length.out = n), ncol=1)
+#' y <- sin(2*pi*x) + rnorm(n,0,1e-1)
+#' gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Periodic$new(D=1),
+#'                               parallel=FALSE)
+#' gp$predict(.454)
+#' gp$plot1D()
+#' gp$cool1Dplot()
+#' plot(gp$kernel)
 Periodic <- R6::R6Class(
   classname = "GauPro_kernel_Periodic",
   inherit = GauPro_kernel,
