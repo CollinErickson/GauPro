@@ -160,6 +160,7 @@ X <- cbind(matrix(runif(n,2,6), ncol=1),
 X <- rbind(X, c(3.3,3), c(3.7,3))
 n <- nrow(X)
 Z <- X[,1] - (4-X[,2])^2 + rnorm(n,0,.1)
+Z[(n-1):n] <- c(2.8,2.2) #%>% rev
 plot(X[,1], Z, col=X[,2])
 tibble(X=X, Z) %>% arrange(X,Z)
 k2a <- IgnoreIndsKernel$new(k=Gaussian$new(D=1), ignoreinds = 2)
@@ -173,7 +174,7 @@ gp$kernel$k2$p
 gp$kernel$k(x = gp$X)
 tibble(X=X, Z=Z, pred=gp$predict(X)[,1]) %>% arrange(X, Z)
 tibble(X=X[,2], Z) %>% group_by(X) %>% summarize(n=n(), mean(Z))
-curve(gp$pred(cbind(matrix(x,ncol=1),1)),2,6, ylim=c(min(Z), max(Z))); points(X[X[,2]==1,1], Z[X[,2]==1])
+curve(gp$pred(cbind(matrix(x,ncol=1),1)),2-10,6+10, ylim=c(min(Z)-3, 3+max(Z))); points(X[X[,2]==1,1], Z[X[,2]==1])
 curve(gp$pred(cbind(matrix(x,ncol=1),2)), add=T, col=2); points(X[X[,2]==2,1], Z[X[,2]==2], col=2)
 curve(gp$pred(cbind(matrix(x,ncol=1),3)), add=T, col=3); points(X[X[,2]==3,1], Z[X[,2]==3], col=3)
 legend(legend=1:3, fill=1:3, x="topleft")

@@ -14,10 +14,17 @@
 
 * Change print, summary
 
-* Cool1Dplot uses nugget, but shouldn't, too jumpy
-
-* dC of factor kernels need to be times s2?
+* Cool1Dplot too jumpy
 
 * Improve kernel model plot
 
 * Predict mean vs value?
+
+* Plot marginal
+
+* gp$kernel$plot() when using Matern52 matvec doesn't exist
+
+* progress bar for restarts
+
+* Fewer restarts in high dim
+

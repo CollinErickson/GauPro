@@ -16,11 +16,14 @@ if (F) {
 
 optim_share2 <- function(par, fngr, ...) {
   env <- grad_share(fngr)
-  bestx <- NULL
+  bestx <- 0
   besty <- Inf
+  # browser()
+  # iter <- 0
   f1 <- function(x) {
     out <- env$fn(x)
-    # print(c(x, out, bestx, besty))
+    # iter <<- iter + 1
+    # print(c(iter, round(x,4), out, round(bestx,4), besty))
     if (!is.na(out) && out < besty) {
       bestx <<- x
       besty <<- out
@@ -29,7 +32,7 @@ optim_share2 <- function(par, fngr, ...) {
   }
   # optim(par=par, fn=env$fn, gr=env$gr, ...)
   optim_out <- try({
-    optim(par=par, fn=f1, gr=env$gr, ...)
+    optim(par=par, fn=f1, gr=env$gr, control=list(factr=1e11), ...)
   }, silent = TRUE)
   if (inherits(optim_out, "try-error")) {
     # print('try-error')

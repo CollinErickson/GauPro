@@ -767,7 +767,7 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param mu Mean parameters
     #' @param s2 Variance parameter
     loglikelihood = function(mu=self$mu_hatX, s2=self$s2_hat) {
-      -.5 * (self$N*log(s2) + log(det(self$K)) +
+      -.5 * (self$N*log(s2) + as.numeric(determinant(self$K,logarithm=TRUE)$modulus) + #log(det(self$K)) +
                t(self$Z - mu)%*%self$Kinv%*%(self$Z - mu)/s2)
     },
     #' @description Get optimization functions
@@ -963,6 +963,7 @@ GauPro_kernel_model <- R6::R6Class(
       #} else {
       #  stop("Can't optimize over no variables")
       #}
+
       optim_functions <- self$get_optim_functions(
         param_update=param_update,
         nug.update=nug.update)
@@ -1020,7 +1021,7 @@ GauPro_kernel_model <- R6::R6Class(
       # try.devlog <- try(devlog <- optim.func(start.par), silent = T)
       try.devlog <- try(devlog <- optim.func(param_optim_start_mat[,1]),
                         silent = T)
-      if (inherits(try.devlog, "try-error")) {
+      if (inherits(try.devlog, "try-error") || is.infinite(devlog)) {
         warning("Current nugget doesn't work, increasing it #31973")
         # This will increase the nugget until cholesky works
         self$update_K_and_estimates()
@@ -1427,12 +1428,17 @@ GauPro_kernel_model <- R6::R6Class(
       }
       K <- self$kernel$k(x=self$X, params=params) +
         diag(nug, self$N) * self$kernel$s2_from_params(params=params)
-      if (is.nan(log(det(K)))) {return(Inf)}
+      # if (is.nan(log(det(K)))) {return(Inf)}
       Z_hat <- self$trend$Z(X=self$X, params=trend_params)
       # dev.try <- try(dev <- log(det(K)) + sum((self$Z - self$mu_hat) *
       #                            solve(K, self$Z - self$mu_hat)))
+      # browser()
       dev.try <- try(
-        dev <- log(det(K)) + sum((self$Z - Z_hat) * solve(K, self$Z - Z_hat))
+        # dev <- log(det(K)) + sum((self$Z - Z_hat) * solve(K, self$Z - Z_hat))
+        # Less likely to overflow by telling it to do logarithm
+        dev <- (as.numeric(determinant(K,logarithm=TRUE)$modulus) +
+                  sum((self$Z - Z_hat) * solve(K, self$Z - Z_hat)))
+
       )
       if (inherits(dev.try, "try-error")) {
         if (self$verbose>=2) {
@@ -1622,7 +1628,7 @@ GauPro_kernel_model <- R6::R6Class(
       }
 
       # Calculate fn
-      logdetC <- log(det(C))
+      logdetC <- as.numeric(determinant(C,logarithm=TRUE)$modulus) #log(det(C))
       if (is.nan(logdetC)) {
         dev <- Inf #return(Inf)
       } else {
@@ -1638,9 +1644,9 @@ GauPro_kernel_model <- R6::R6Class(
         if (is.infinite(abs(dev))) {
           if (self$verbose>=2) {
             # print("Deviance infinite #2333, returning Inf")
-            print("Deviance infinite #2333, returning 1e100,
-                      this is a hack and gives noticeable worse
-                      results on this restart.")
+            message(paste0("Deviance infinite #2333, returning 1e100, ",
+                           "this is a hack and gives noticeable worse ",
+                           "results on this restart."))
           }
           dev <- 1e100 # .Machine$double.xmax # Inf
         }
