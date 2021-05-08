@@ -1940,9 +1940,9 @@ GauPro_kernel_model <- R6::R6Class(
     EI = function(x, minimize=FALSE, eps=.01) {
       stopifnot(length(minimize)==1, is.logical(minimize))
       stopifnot(length(eps)==1, is.numeric(eps), eps >= 0)
-      if (minimize) {
-        stop('can only max for EI, not min')
-      }
+      # if (minimize) {
+      #   stop('can only max for EI, not min')
+      # }
       if (is.matrix(x)) {
         stopifnot(ncol(x) == ncol(self$X))
       } else if (is.vector(x)) {
@@ -1951,9 +1951,13 @@ GauPro_kernel_model <- R6::R6Class(
         stop(paste0("bad x in EI, class is: ", class(x)))
       }
       # stopifnot(is.vector(x), length(x) == ncol(self$X))
-      fxplus <- max(self$Z)
+      fxplus <- if (minimize) {min(self$Z)} else {max(self$Z)}
       pred <- self$pred(x, se.fit=T)
-      Ztop <- pred$mean - fxplus - eps
+      if (minimize) {
+        Ztop <- fxplus - pred$mean - eps
+      } else {
+        Ztop <- pred$mean - fxplus - eps
+      }
       Z <- Ztop / pred$se
       # if (pred$se <= 0) {return(0)}
       # (Ztop) * pnorm(Z) + pred$se * dnorm(Z)
@@ -1965,9 +1969,10 @@ GauPro_kernel_model <- R6::R6Class(
       stopifnot(all(lower < upper))
       stopifnot(length(n0)==1, is.numeric(n0), n0>=1)
       X0 <- lhs::randomLHS(n=n0, k=ncol(self$X))
+      bestZind <- if (minimize) {which.min(self$Z)} else {which.max(self$Z)}
       X0 <- rbind(X0,
-                  pmax(pmin(self$X[which.max(self$Z),] +
-                              rnorm(ncol(self$X),0,1e-4),
+                  pmax(pmin(self$X[bestZind, ] +
+                              rnorm(ncol(self$X), 0, 1e-4),
                             upper),
                        lower))
       EI0 <- self$EI(x=X0, minimize=minimize, eps=eps)
@@ -1975,7 +1980,7 @@ GauPro_kernel_model <- R6::R6Class(
       optim_out <- optim(par=X0[ind,],
                          lower=lower, upper=upper,
                          # fn=function(xx){ei <- -gp$EI(xx); cat(xx, ei, "\n"); ei},
-                         fn=function(xx){-gp$EI(xx)},
+                         fn=function(xx){-gp$EI(xx, minimize = minimize)},
                          method="L-BFGS-B")
       optim_out$par
     },

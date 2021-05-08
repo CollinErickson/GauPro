@@ -8,7 +8,9 @@
 
 * Take in data/formula input in addition to matrix
 
-* Calculate EI
+* Calculate EI: nopt
+
+* max_qEI. Copy self, update data no param update
 
 * Change print, summary
 
@@ -31,3 +33,5 @@
 * Better handling of ignore input when using factors?
 
 * Add cubic correlation
+
+* Transform inputs
