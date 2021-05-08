@@ -25,3 +25,9 @@
 * Give kernel in as string. If missing, give better error or just use Mat52.
 
 * Reduce L-BFGS-B tolerance? Need to change tests too.
+
+* Add documentation for kernels, esp. factor ones
+
+* Better handling of ignore input when using factors?
+
+* Add cubic correlation

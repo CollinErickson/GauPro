@@ -763,6 +763,10 @@ GauPro_kernel_model <- R6::R6Class(
                                 ylim=c(ymin, ymax),
                                 pts=self$X)
     },
+    #' @description Plot marginal. For each input, hold all others at a constant
+    #' value and adjust it along it's range to see how the prediction changes.
+    #' @param pt What point to use as a center. All values except the one being
+    #' plotted are held constant at this value.
     plotmarginal = function(pt=colMeans(self$X)) {
       # pt <- colMeans(self$X)
       pt
@@ -788,6 +792,32 @@ GauPro_kernel_model <- R6::R6Class(
         ggplot2::geom_line(size=1) +
         ggplot2::ylab("Predicted Z (95% interval)") +
         ggplot2::xlab("x along dimension i")
+
+    },
+    plotmarginalrandom = function(n=51) {
+      # Plot marginal random averages
+      X <- lhs::randomLHS(n=151, k=ncol(self$X))
+      X2 <- sweep(X, 2, apply(self$X, 2, max) - apply(self$X, 2, min), "*")
+      X3 <- sweep(X2, 2, apply(self$X, 2, min), "+")
+      X3pred <- self$pred(X3, se.fit = T)
+      X3pred$irow <- 1:nrow(X3pred)
+      # head(X3pred)
+      X4 <- dplyr::inner_join(
+        X3pred,
+        tidyr::pivot_longer(cbind(as.data.frame(X),irow=1:nrow(X)), cols=1:7),
+        "irow")
+      # head(X4)
+      X4$upper <- X4$mean + 2*X4$se
+      X4$lower <- X4$mean - 2*X4$se
+      ggplot2::ggplot(X4, ggplot2::aes(value, mean)) +
+        ggplot2::facet_wrap(.~name) +
+        # geom_point(aes(y=upper), color="green") +
+        ggplot2::geom_segment(ggplot2::aes(y=upper, yend=lower, xend=value),
+                              color="green", size=2) +
+        ggplot2::geom_point() +
+        ggplot2::ylab("Predicted Z (95% interval)") +
+        ggplot2::xlab("x along dimension i (other dims at random values)")
+
 
     },
     #' @description Calculate loglikelihood of parameters
@@ -1906,6 +1936,48 @@ GauPro_kernel_model <- R6::R6Class(
         }
       }
       newy # Not transposing matrix since it gives var a problem
+    },
+    EI = function(x, minimize=FALSE, eps=.01) {
+      stopifnot(length(minimize)==1, is.logical(minimize))
+      stopifnot(length(eps)==1, is.numeric(eps), eps >= 0)
+      if (minimize) {
+        stop('can only max for EI, not min')
+      }
+      if (is.matrix(x)) {
+        stopifnot(ncol(x) == ncol(self$X))
+      } else if (is.vector(x)) {
+        stopifnot(length(x) == ncol(self$X))
+      } else {
+        stop(paste0("bad x in EI, class is: ", class(x)))
+      }
+      # stopifnot(is.vector(x), length(x) == ncol(self$X))
+      fxplus <- max(self$Z)
+      pred <- self$pred(x, se.fit=T)
+      Ztop <- pred$mean - fxplus - eps
+      Z <- Ztop / pred$se
+      # if (pred$se <= 0) {return(0)}
+      # (Ztop) * pnorm(Z) + pred$se * dnorm(Z)
+      ifelse(pred$se <= 0, 0,
+             (Ztop) * pnorm(Z) + pred$se * dnorm(Z))
+    },
+    maxEI = function(lower=apply(self$X, 2, min), upper=apply(self$X, 2, max),
+                     n0=100, minimize=FALSE, eps=.01) {
+      stopifnot(all(lower < upper))
+      stopifnot(length(n0)==1, is.numeric(n0), n0>=1)
+      X0 <- lhs::randomLHS(n=n0, k=ncol(self$X))
+      X0 <- rbind(X0,
+                  pmax(pmin(self$X[which.max(self$Z),] +
+                              rnorm(ncol(self$X),0,1e-4),
+                            upper),
+                       lower))
+      EI0 <- self$EI(x=X0, minimize=minimize, eps=eps)
+      ind <- which.max(EI0)
+      optim_out <- optim(par=X0[ind,],
+                         lower=lower, upper=upper,
+                         # fn=function(xx){ei <- -gp$EI(xx); cat(xx, ei, "\n"); ei},
+                         fn=function(xx){-gp$EI(xx)},
+                         method="L-BFGS-B")
+      optim_out$par
     },
     #' @description Print this object
     print = function() {
