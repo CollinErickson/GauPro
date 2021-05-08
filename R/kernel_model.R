@@ -763,6 +763,33 @@ GauPro_kernel_model <- R6::R6Class(
                                 ylim=c(ymin, ymax),
                                 pts=self$X)
     },
+    plotmarginal = function(pt=colMeans(self$X)) {
+      # pt <- colMeans(self$X)
+      pt
+      pts <- NULL
+      for (i in 1:ncol(self$X)) {
+        xseq <- seq(min(self$X[,i]), max(self$X[,i]), l=51)
+        Xmat <- matrix(pt, byrow=T, ncol=length(pt), nrow=length(xseq))
+        Xmat[, i] <- xseq
+        pX <- self$pred(Xmat, se.fit = T)
+        pts <- rbind(pts,
+                     cbind(pred=pX$mean, predse=pX$se, xi=xseq, i=i))
+      }
+      pts2 <- as.data.frame(pts)
+      # pts2 %>%
+      #   mutate(predupper=pred+2*predse,
+      #          predlower=pred-2*predse)
+      pts2$predupper <- pts2$pred + 2*pts2$predse
+      pts2$predlower <- pts2$pred - 2*pts2$predse
+      ggplot2::ggplot(data=pts2, ggplot2::aes(xi, pred)) +
+        ggplot2::facet_wrap(.~i, scales = "free_x") +
+        ggplot2::geom_line(ggplot2::aes(y=predupper), color="green") +
+        ggplot2::geom_line(ggplot2::aes(y=predlower), color="green") +
+        ggplot2::geom_line(size=1) +
+        ggplot2::ylab("Predicted Z (95% interval)") +
+        ggplot2::xlab("x along dimension i")
+
+    },
     #' @description Calculate loglikelihood of parameters
     #' @param mu Mean parameters
     #' @param s2 Variance parameter

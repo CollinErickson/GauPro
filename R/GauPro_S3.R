@@ -43,7 +43,8 @@ plot.GauPro <- function(x,  ...) {
   } else if (x$D == 2) {
     x$plot2D(...)
   } else {
-    stop("No plot method for higher than 2 dimension")
+    # stop("No plot method for higher than 2 dimension")
+    x$plotmarginal()
   }
 }
 

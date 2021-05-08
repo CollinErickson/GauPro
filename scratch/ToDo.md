@@ -1,7 +1,5 @@
 # GauPro to do
 
-* Plot kernels
-
 * Factor kernel: example
 
 * Ordered factor kernel: example
@@ -20,10 +18,10 @@
 
 * Predict mean vs value?
 
-* Plot marginal
-
 * progress bar for restarts
 
 * Fewer restarts in high dim
 
 * Give kernel in as string. If missing, give better error or just use Mat52.
+
+* Reduce L-BFGS-B tolerance? Need to change tests too.
