@@ -241,16 +241,16 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param se.fit Should standard error be returned?
     #' @param covmat Should covariance matrix be returned?
     #' @param split_speed Should the matrix be split for faster predictions?
-    predict = function(XX, se.fit=F, covmat=F, split_speed=F) {
+    predict = function(XX, se.fit=F, covmat=F, split_speed=F, mean_dist=FALSE) {
       self$pred(XX=XX, se.fit=se.fit, covmat=covmat,
-                split_speed=split_speed)
+                split_speed=split_speed, mean_dist=mean_dist)
     },
     #' @description Predict for a matrix of points
     #' @param XX points to predict at
     #' @param se.fit Should standard error be returned?
     #' @param covmat Should covariance matrix be returned?
     #' @param split_speed Should the matrix be split for faster predictions?
-    pred = function(XX, se.fit=F, covmat=F, split_speed=F) {
+    pred = function(XX, se.fit=F, covmat=F, split_speed=F, mean_dist=FALSE) {
       if (!is.matrix(XX)) {
         if (self$D == 1) XX <- matrix(XX, ncol=1)
         else if (length(XX) == self$D) XX <- matrix(XX, nrow=1)
@@ -276,7 +276,7 @@ GauPro_kernel_model <- R6::R6Class(
           # kxxj <- self$corr_func(XXj)
           # kx.xxj <- self$corr_func(self$X, XXj)
           predj <- self$pred_one_matrix(XX=XXj, se.fit=se.fit,
-                                        covmat=covmat)
+                                        covmat=covmat, mean_dist=mean_dist)
           #mn[(j*ni+1):(min((j+1)*ni,N))] <- pred_meanC(XXj, kx.xxj,
           #                                self$mu_hat, self$Kinv, self$Z)
           if (!se.fit) { # if no se.fit, just set vector
@@ -311,7 +311,8 @@ GauPro_kernel_model <- R6::R6Class(
 
       } else {
         pred1 <- self$pred_one_matrix(XX=XX, se.fit=se.fit,
-                                      covmat=covmat, return_df=TRUE)
+                                      covmat=covmat, return_df=TRUE,
+                                      mean_dist=mean_dist)
         return(pred1)
       }
     },
@@ -321,7 +322,8 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param covmat Should covariance matrix be returned?
     #' @param return_df When returning se.fit, should it be returned in
     #' a data frame?
-    pred_one_matrix = function(XX, se.fit=F, covmat=F, return_df=FALSE) {
+    pred_one_matrix = function(XX, se.fit=F, covmat=F, return_df=FALSE,
+                               mean_dist=FALSE) {
       # input should already be checked for matrix
       # kxx <- self$kernel$k(XX) + diag(self$nug * self$s2_hat, nrow(XX))
       kx.xx <- self$kernel$k(self$X, XX)
@@ -345,7 +347,11 @@ GauPro_kernel_model <- R6::R6Class(
       }
       if (covmat) {
         # new for kernel
-        kxx <- self$kernel$k(XX) + diag(self$nug * self$s2_hat, nrow(XX))
+        # kxx <- self$kernel$k(XX) + diag(self$nug * self$s2_hat, nrow(XX))
+        kxx <- self$kernel$k(XX)
+        if (!mean_dist) {
+          kxx <- kxx + diag(self$nug * self$s2_hat, nrow(XX))
+        }
         covmatdat <- kxx - t(kx.xx) %*% self$Kinv %*% kx.xx
 
         if (self$normalize) {
@@ -378,7 +384,11 @@ GauPro_kernel_model <- R6::R6Class(
       # s2 <- diag.kxx - colSums( (kx.xx) * (self$Kinv %*% kx.xx))
       # This method is fastest, assumes that correlation of point
       #   with itself is 1, which is true for basic kernels.
-      diag.kxx <- self$nug * self$s2_hat + rep(self$s2_hat, nrow(XX))
+      # diag.kxx <- self$nug * self$s2_hat + rep(self$s2_hat, nrow(XX))
+      diag.kxx <- rep(self$s2_hat, nrow(XX))
+      if (!mean_dist) {
+        diag.kxx <- diag.kxx + self$nug * self$s2_hat
+      }
       s2 <- diag.kxx - colSums( (kx.xx) * (self$Kinv %*% kx.xx))
 
       if (self$normalize) {
@@ -634,13 +644,13 @@ GauPro_kernel_model <- R6::R6Class(
       x2 <- maxx + .1 * (maxx - minx)
       # nn <- 201
       x <- seq(x1, x2, length.out = nn)
-      px <- self$pred(x, covmat = T)
+      px <- self$pred(x, covmat = T, mean_dist=TRUE)
       # px$cov <- self$kernel$k(matrix(x,ncol=1))
       # n2 <- 20
       Sigma.try <- try(newy <- MASS::mvrnorm(n=n2, mu=px$mean,
                                              Sigma=px$cov),
                        silent = TRUE)
-      nug_Sig <- self$nug
+      nug_Sig <- 1e-8 # self$nug, now use 1e-8 since self$nug is excluded in pred.
       while (inherits(Sigma.try, "try-error")) {
         message(paste0("Adding nugget to cool1Dplot: ", nug_Sig))
         Sigma.try <- try(
