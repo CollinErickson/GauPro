@@ -20,6 +20,10 @@ gp$maxEI()
 gp$maxEI(minimize = T)
 f(gp$maxEI())
 f(gp$maxEI(minimize = T))
+gp$maxqEI(5)
+f(gp$maxqEI(5))
+gp$maxqEI(5, minimize = T)
+f(gp$maxqEI(5, minimize = T))
 
 reldiff <- function(a,b) {abs(a-b)/max(abs(c(a,b)))}
 

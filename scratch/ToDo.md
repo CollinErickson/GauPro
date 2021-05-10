@@ -8,9 +8,12 @@
 
 * Take in data/formula input in addition to matrix
 
-* Calculate EI: nopt
+* Calculate EI: nopt, test, doc
 
-* max_qEI. Copy self, update data no param update
+* max_qEI: test, doc, exact solution
+
+* With many points, just estimate param from subset of data, but use all data
+at end for K/Kinv so predictions are good.
 
 * Change print, summary
 
@@ -35,3 +38,5 @@
 * Add cubic correlation
 
 * Transform inputs
+
+* Change S3 plot to R6

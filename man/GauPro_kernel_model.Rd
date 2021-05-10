@@ -127,6 +127,8 @@ parameters.}
 \item \href{#method-cool1Dplot}{\code{GauPro_kernel_model$cool1Dplot()}}
 \item \href{#method-plot1D}{\code{GauPro_kernel_model$plot1D()}}
 \item \href{#method-plot2D}{\code{GauPro_kernel_model$plot2D()}}
+\item \href{#method-plotmarginal}{\code{GauPro_kernel_model$plotmarginal()}}
+\item \href{#method-plotmarginalrandom}{\code{GauPro_kernel_model$plotmarginalrandom()}}
 \item \href{#method-loglikelihood}{\code{GauPro_kernel_model$loglikelihood()}}
 \item \href{#method-get_optim_functions}{\code{GauPro_kernel_model$get_optim_functions()}}
 \item \href{#method-param_optim_lower}{\code{GauPro_kernel_model$param_optim_lower()}}
@@ -154,6 +156,9 @@ parameters.}
 \item \href{#method-grad_norm2_sample}{\code{GauPro_kernel_model$grad_norm2_sample()}}
 \item \href{#method-hessian}{\code{GauPro_kernel_model$hessian()}}
 \item \href{#method-sample}{\code{GauPro_kernel_model$sample()}}
+\item \href{#method-EI}{\code{GauPro_kernel_model$EI()}}
+\item \href{#method-maxEI}{\code{GauPro_kernel_model$maxEI()}}
+\item \href{#method-maxqEI}{\code{GauPro_kernel_model$maxqEI()}}
 \item \href{#method-print}{\code{GauPro_kernel_model$print()}}
 \item \href{#method-clone}{\code{GauPro_kernel_model$clone()}}
 }
@@ -585,6 +590,42 @@ Make 2D plot
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$plot2D()}\if{html}{\out{</div>}}
 }
 
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-plotmarginal"></a>}}
+\if{latex}{\out{\hypertarget{method-plotmarginal}{}}}
+\subsection{Method \code{plotmarginal()}}{
+Plot marginal. For each input, hold all others at a constant
+value and adjust it along it's range to see how the prediction changes.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$plotmarginal(pt = colMeans(self$X))}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{pt}}{What point to use as a center. All values except the one being
+plotted are held constant at this value.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-plotmarginalrandom"></a>}}
+\if{latex}{\out{\hypertarget{method-plotmarginalrandom}{}}}
+\subsection{Method \code{plotmarginalrandom()}}{
+Plot marginal prediction for random sample of inputs
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$plotmarginalrandom(n = 50)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{n}}{Number of random points to evaluate}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-loglikelihood"></a>}}
@@ -1215,6 +1256,97 @@ Sample at rows of XX
 \item{\code{XX}}{Input matrix}
 
 \item{\code{n}}{Number of samples}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-EI"></a>}}
+\if{latex}{\out{\hypertarget{method-EI}{}}}
+\subsection{Method \code{EI()}}{
+Calculate expected improvement
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$EI(x, minimize = FALSE, eps = 0.01)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x}}{Vector to calculate EI of, or matrix for whose rows it should
+be calculated}
+
+\item{\code{minimize}}{Are you trying to minimize the output?}
+
+\item{\code{eps}}{Exploration parameter}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-maxEI"></a>}}
+\if{latex}{\out{\hypertarget{method-maxEI}{}}}
+\subsection{Method \code{maxEI()}}{
+Find the point that maximizes the expected improvement
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$maxEI(
+  lower = apply(self$X, 2, min),
+  upper = apply(self$X, 2, max),
+  n0 = 100,
+  minimize = FALSE,
+  eps = 0.01
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{lower}}{Lower bounds to search within}
+
+\item{\code{upper}}{Upper bounds to search within}
+
+\item{\code{n0}}{Number of points to evaluate in initial stage}
+
+\item{\code{minimize}}{Are you trying to minimize the output?}
+
+\item{\code{eps}}{Exploration parameter}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-maxqEI"></a>}}
+\if{latex}{\out{\hypertarget{method-maxqEI}{}}}
+\subsection{Method \code{maxqEI()}}{
+Find the multiple points that maximize the expected
+improvement. Currently only implements the constant liar method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$maxqEI(
+  npoints,
+  method = "CL",
+  lower = apply(self$X, 2, min),
+  upper = apply(self$X, 2, max),
+  n0 = 100,
+  minimize = FALSE,
+  eps = 0.01
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{npoints}}{Number of points to add}
+
+\item{\code{method}}{Method to use. Can only be "CL" for constant liar.}
+
+\item{\code{lower}}{Lower bounds to search within}
+
+\item{\code{upper}}{Upper bounds to search within}
+
+\item{\code{n0}}{Number of points to evaluate in initial stage}
+
+\item{\code{minimize}}{Are you trying to minimize the output?}
+
+\item{\code{eps}}{Exploration parameter}
 }
 \if{html}{\out{</div>}}
 }

@@ -49,6 +49,7 @@ gp <- GauPro_kernel_model_LOO$new(X=x, Z=y, kernel=Matern52)
 \if{html}{
 \out{<details ><summary>Inherited methods</summary>}
 \itemize{
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="EI">}\href{../../GauPro/html/GauPro.html#method-EI}{\code{GauPro::GauPro$EI()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="cool1Dplot">}\href{../../GauPro/html/GauPro.html#method-cool1Dplot}{\code{GauPro::GauPro$cool1Dplot()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="deviance">}\href{../../GauPro/html/GauPro.html#method-deviance}{\code{GauPro::GauPro$deviance()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="deviance_fngr">}\href{../../GauPro/html/GauPro.html#method-deviance_fngr}{\code{GauPro::GauPro$deviance_fngr()}}\out{</span>}
@@ -64,6 +65,8 @@ gp <- GauPro_kernel_model_LOO$new(X=x, Z=y, kernel=Matern52)
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="grad_sample">}\href{../../GauPro/html/GauPro.html#method-grad_sample}{\code{GauPro::GauPro$grad_sample()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="hessian">}\href{../../GauPro/html/GauPro.html#method-hessian}{\code{GauPro::GauPro$hessian()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="loglikelihood">}\href{../../GauPro/html/GauPro.html#method-loglikelihood}{\code{GauPro::GauPro$loglikelihood()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="maxEI">}\href{../../GauPro/html/GauPro.html#method-maxEI}{\code{GauPro::GauPro$maxEI()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="maxqEI">}\href{../../GauPro/html/GauPro.html#method-maxqEI}{\code{GauPro::GauPro$maxqEI()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="optim">}\href{../../GauPro/html/GauPro.html#method-optim}{\code{GauPro::GauPro$optim()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="optimRestart">}\href{../../GauPro/html/GauPro.html#method-optimRestart}{\code{GauPro::GauPro$optimRestart()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="param_optim_lower">}\href{../../GauPro/html/GauPro.html#method-param_optim_lower}{\code{GauPro::GauPro$param_optim_lower()}}\out{</span>}
@@ -73,6 +76,8 @@ gp <- GauPro_kernel_model_LOO$new(X=x, Z=y, kernel=Matern52)
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="param_optim_upper">}\href{../../GauPro/html/GauPro.html#method-param_optim_upper}{\code{GauPro::GauPro$param_optim_upper()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="plot1D">}\href{../../GauPro/html/GauPro.html#method-plot1D}{\code{GauPro::GauPro$plot1D()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="plot2D">}\href{../../GauPro/html/GauPro.html#method-plot2D}{\code{GauPro::GauPro$plot2D()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="plotmarginal">}\href{../../GauPro/html/GauPro.html#method-plotmarginal}{\code{GauPro::GauPro$plotmarginal()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="plotmarginalrandom">}\href{../../GauPro/html/GauPro.html#method-plotmarginalrandom}{\code{GauPro::GauPro$plotmarginalrandom()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="pred">}\href{../../GauPro/html/GauPro.html#method-pred}{\code{GauPro::GauPro$pred()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="pred_LOO">}\href{../../GauPro/html/GauPro.html#method-pred_LOO}{\code{GauPro::GauPro$pred_LOO()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="pred_mean">}\href{../../GauPro/html/GauPro.html#method-pred_mean}{\code{GauPro::GauPro$pred_mean()}}\out{</span>}
