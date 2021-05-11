@@ -710,7 +710,7 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param xmax xmax
     #' @param ymax ymax
     #' @param ymin ymin
-    plot1D = function(n2=20, nn=201, col2=2, #"gray",
+    plot1D = function(n2=20, nn=201, col2=2, col3=3, #"gray",
                       xlab='x', ylab='y',
                       xmin=NULL, xmax=NULL,
                       ymin=NULL, ymax=NULL) {
@@ -733,6 +733,7 @@ GauPro_kernel_model <- R6::R6Class(
       # nn <- 201
       x <- seq(x1, x2, length.out = nn)
       px <- self$pred(x, se=T)
+      pxmean <- self$pred(x, se=T, mean_dist=T)
       # n2 <- 20
 
       # Setting ylim, giving user option
@@ -750,8 +751,12 @@ GauPro_kernel_model <- R6::R6Class(
       plot(x, px$mean+2*px$se, type='l', col=col2, lwd=2,
            # ylim=c(min(newy),max(newy)),
            ylim=c(miny,maxy),
-           xlab=xlab, ylab=ylab)
+           xlab=xlab, ylab=ylab,
+           main=paste0("Predicted output (95% interval for mean is green,",
+                       " 95% interval for sample is red"))
       points(x, px$mean-2*px$se, type='l', col=col2, lwd=2)
+      points(x, pxmean$mean+2*pxmean$se, type='l', col=col3, lwd=2)
+      points(x, pxmean$mean-2*pxmean$se, type='l', col=col3, lwd=2)
       points(x,px$me, type='l', lwd=4)
       points(self$X,
              if (self$normalize) {
@@ -1968,18 +1973,28 @@ GauPro_kernel_model <- R6::R6Class(
         stop(paste0("bad x in EI, class is: ", class(x)))
       }
       # stopifnot(is.vector(x), length(x) == ncol(self$X))
-      fxplus <- if (minimize) {min(self$Z)} else {max(self$Z)}
-      pred <- self$pred(x, se.fit=T)
+      # fxplus <- if (minimize) {min(self$Z)} else {max(self$Z)}
+      # pred <- self$pred(x, se.fit=T)
+      # Need to use prediction of mean
+      Xmeanpred <- self$pred(x, se.fit=T, mean_dist=T)
+      # Use predicted mean at each point since it doesn't make sense not to
+      # when there is noise. Or should fxplus be optimized over inputs?
+      fxplus <- if (minimize) {min(Xmeanpred$mean)} else {max(Xmeanpred$mean)}
       if (minimize) {
-        Ztop <- fxplus - pred$mean - eps
+        # Ztop <- fxplus - pred$mean - eps
+        Ztop <- fxplus - Xmeanpred$mean - eps
       } else {
-        Ztop <- pred$mean - fxplus - eps
+        # Ztop <- pred$mean - fxplus - eps
+        Ztop <- Xmeanpred$mean - fxplus - eps
       }
-      Z <- Ztop / pred$se
+      # Z <- Ztop / pred$se
+      Z <- Ztop / Xmeanpred$se
       # if (pred$se <= 0) {return(0)}
       # (Ztop) * pnorm(Z) + pred$se * dnorm(Z)
-      ifelse(pred$se <= 0, 0,
-             (Ztop) * pnorm(Z) + pred$se * dnorm(Z))
+      # ifelse(pred$se <= 0, 0,
+      #        (Ztop) * pnorm(Z) + pred$se * dnorm(Z))
+      ifelse(Xmeanpred$se <= 0, 0,
+             (Ztop) * pnorm(Z) + Xmeanpred$se * dnorm(Z))
     },
     #' @description Find the point that maximizes the expected improvement
     #' @param lower Lower bounds to search within
@@ -1991,15 +2006,19 @@ GauPro_kernel_model <- R6::R6Class(
                      n0=100, minimize=FALSE, eps=.01) {
       stopifnot(all(lower < upper))
       stopifnot(length(n0)==1, is.numeric(n0), n0>=1)
+      # Random points to evaluate to find best starting point
       X0 <- lhs::randomLHS(n=n0, k=ncol(self$X))
+      # Also use point near current optimum
       bestZind <- if (minimize) {which.min(self$Z)} else {which.max(self$Z)}
       X0 <- rbind(X0,
                   pmax(pmin(self$X[bestZind, ] +
                               rnorm(ncol(self$X), 0, 1e-4),
                             upper),
                        lower))
+      # Calculate EI at these points
       EI0 <- self$EI(x=X0, minimize=minimize, eps=eps)
       ind <- which.max(EI0)
+      # Optimize starting from that point to find input that maximizes EI
       optim_out <- optim(par=X0[ind,],
                          lower=lower, upper=upper,
                          # fn=function(xx){ei <- -self$EI(xx); cat(xx, ei, "\n"); ei},
@@ -2022,16 +2041,24 @@ GauPro_kernel_model <- R6::R6Class(
       stopifnot(is.numeric(npoints), length(npoints)==1, npoints >= 1)
       stopifnot(method=="CL")
       # browser()
+      # Clone object since we will add fake data
       gpclone <- self$clone(deep=TRUE)
+      # Track points selected
       selectedX <- matrix(data=NA, nrow=npoints, ncol=ncol(self$X))
-      Zimpute <- if (minimize) {min(self$Z)} else {max(self$Z)}
+      Xmeanpred <- self$pred(self$X, se.fit=T, mean_dist=T)
+      # Zimpute <- if (minimize) {min(self$Z)} else {max(self$Z)}
+      # Constant liar value
+      Zimpute <- if (minimize) {min(Xmeanpred$mean)} else {max(Xmeanpred$mean)}
       for (i in 1:npoints) {
+        # Find and store point that maximizes EI
         xi <- gpclone$maxEI(lower=lower, upper=upper, n0=n0, eps=eps, minimize=minimize)
         selectedX[i, ] <- xi
+        # Update clone with new data, don't update parameters since it's fake data
         if (i < npoints) {
           gpclone$update(Xnew=xi, Znew=Zimpute, no_update=TRUE)
         }
       }
+      # Return matrix of points
       selectedX
     },
     #' @description Print this object

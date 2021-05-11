@@ -22,8 +22,6 @@ at end for K/Kinv so predictions are good.
 
 * Improve kernel model plot
 
-* Predict mean vs value?
-
 * progress bar for restarts
 
 * Fewer restarts in high dim
@@ -42,6 +40,6 @@ at end for K/Kinv so predictions are good.
 
 * Change S3 plot to R6
 
-* plot1D show interval for mean as well as predictive
-
 * plot2D option to do se instead of mean, or side by side
+
+* use self$kernel$k on x instead of assuming it is 1
