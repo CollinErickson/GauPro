@@ -9,8 +9,6 @@
 * With many points, just estimate param from subset of data, but use all data
 at end for K/Kinv so predictions are good.
 
-* Change print, summary
-
 * Improve kernel model plot
 
 * progress bar for restarts
@@ -32,3 +30,7 @@ at end for K/Kinv so predictions are good.
 * optim NaN starting value (found on 1D doing EI)
 
 * Redo kernel tests
+
+* plot LOO calibration
+
+* Speed up m52 grad, Cubic k/grad

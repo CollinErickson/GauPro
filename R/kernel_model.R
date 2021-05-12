@@ -1993,25 +1993,26 @@ GauPro_kernel_model <- R6::R6Class(
       # fxplus <- if (minimize) {min(self$Z)} else {max(self$Z)}
       # pred <- self$pred(x, se.fit=T)
       # Need to use prediction of mean
-      Xmeanpred <- self$pred(x, se.fit=T, mean_dist=T)
+      xnew_meanpred <- self$pred(x, se.fit=T, mean_dist=T)
+      Xold_meanpred <- self$pred(self$X, se.fit=T, mean_dist=T)
       # Use predicted mean at each point since it doesn't make sense not to
       # when there is noise. Or should fxplus be optimized over inputs?
-      fxplus <- if (minimize) {min(Xmeanpred$mean)} else {max(Xmeanpred$mean)}
+      fxplus <- if (minimize) {min(Xold_meanpred$mean)} else {max(Xold_meanpred$mean)}
       if (minimize) {
         # Ztop <- fxplus - pred$mean - eps
-        Ztop <- fxplus - Xmeanpred$mean - eps
+        Ztop <- fxplus - xnew_meanpred$mean - eps
       } else {
         # Ztop <- pred$mean - fxplus - eps
-        Ztop <- Xmeanpred$mean - fxplus - eps
+        Ztop <- xnew_meanpred$mean - fxplus - eps
       }
       # Z <- Ztop / pred$se
-      Z <- Ztop / Xmeanpred$se
+      Z <- Ztop / xnew_meanpred$se
       # if (pred$se <= 0) {return(0)}
       # (Ztop) * pnorm(Z) + pred$se * dnorm(Z)
       # ifelse(pred$se <= 0, 0,
       #        (Ztop) * pnorm(Z) + pred$se * dnorm(Z))
-      ifelse(Xmeanpred$se <= 0, 0,
-             (Ztop) * pnorm(Z) + Xmeanpred$se * dnorm(Z))
+      ifelse(xnew_meanpred$se <= 0, 0,
+             (Ztop) * pnorm(Z) + xnew_meanpred$se * dnorm(Z))
     },
     #' @description Find the point that maximizes the expected improvement
     #' @param lower Lower bounds to search within
@@ -2080,11 +2081,12 @@ GauPro_kernel_model <- R6::R6Class(
     },
     #' @description Print this object
     print = function() {
-      cat("GauPro object\n")
+      cat("GauPro kernel model object\n")
       cat(paste0("\tD = ", self$D, ", N = ", self$N,"\n"))
       cat(paste0("\tNugget = ", signif(self$nug, 3), "\n"))
-      cat("\tRun update to add data and/or optimize again\n")
-      cat("\tUse pred to get predictions at new points\n")
+      cat("\tRun $update() to add data and/or optimize again\n")
+      cat("\tUse $pred() to get predictions at new points\n")
+      cat("\tUse $plot() to visualize the model\n")
       invisible(self)
     }
   ),
