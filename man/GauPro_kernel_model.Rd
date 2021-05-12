@@ -124,6 +124,7 @@ parameters.}
 \item \href{#method-pred_var_after_adding_points_sep}{\code{GauPro_kernel_model$pred_var_after_adding_points_sep()}}
 \item \href{#method-pred_var_reduction}{\code{GauPro_kernel_model$pred_var_reduction()}}
 \item \href{#method-pred_var_reductions}{\code{GauPro_kernel_model$pred_var_reductions()}}
+\item \href{#method-plot}{\code{GauPro_kernel_model$plot()}}
 \item \href{#method-cool1Dplot}{\code{GauPro_kernel_model$cool1Dplot()}}
 \item \href{#method-plot1D}{\code{GauPro_kernel_model$plot1D()}}
 \item \href{#method-plot2D}{\code{GauPro_kernel_model$plot2D()}}
@@ -272,7 +273,13 @@ Update covariance matrix and estimates
 \subsection{Method \code{predict()}}{
 Predict for a matrix of points
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$predict(XX, se.fit = F, covmat = F, split_speed = F)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$predict(
+  XX,
+  se.fit = F,
+  covmat = F,
+  split_speed = F,
+  mean_dist = FALSE
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -285,6 +292,8 @@ Predict for a matrix of points
 \item{\code{covmat}}{Should covariance matrix be returned?}
 
 \item{\code{split_speed}}{Should the matrix be split for faster predictions?}
+
+\item{\code{mean_dist}}{Should the error be for the distribution of the mean?}
 }
 \if{html}{\out{</div>}}
 }
@@ -295,7 +304,13 @@ Predict for a matrix of points
 \subsection{Method \code{pred()}}{
 Predict for a matrix of points
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$pred(XX, se.fit = F, covmat = F, split_speed = F)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$pred(
+  XX,
+  se.fit = F,
+  covmat = F,
+  split_speed = F,
+  mean_dist = FALSE
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -308,6 +323,8 @@ Predict for a matrix of points
 \item{\code{covmat}}{Should covariance matrix be returned?}
 
 \item{\code{split_speed}}{Should the matrix be split for faster predictions?}
+
+\item{\code{mean_dist}}{Should the error be for the distribution of the mean?}
 }
 \if{html}{\out{</div>}}
 }
@@ -322,7 +339,8 @@ Predict for a matrix of points
   XX,
   se.fit = F,
   covmat = F,
-  return_df = FALSE
+  return_df = FALSE,
+  mean_dist = FALSE
 )}\if{html}{\out{</div>}}
 }
 
@@ -337,6 +355,8 @@ Predict for a matrix of points
 
 \item{\code{return_df}}{When returning se.fit, should it be returned in
 a data frame?}
+
+\item{\code{mean_dist}}{Should the error be for the distribution of the mean?}
 }
 \if{html}{\out{</div>}}
 }
@@ -496,6 +516,23 @@ Predict variance reductions
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-plot"></a>}}
+\if{latex}{\out{\hypertarget{method-plot}{}}}
+\subsection{Method \code{plot()}}{
+Plot the object
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$plot(...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{Parameters passed to cool1Dplot(), plot2D(), or plotmarginal()}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-cool1Dplot"></a>}}
 \if{latex}{\out{\hypertarget{method-cool1Dplot}{}}}
 \subsection{Method \code{cool1Dplot()}}{
@@ -548,6 +585,7 @@ Make 1D plot
   n2 = 20,
   nn = 201,
   col2 = 2,
+  col3 = 3,
   xlab = "x",
   ylab = "y",
   xmin = NULL,
@@ -564,7 +602,9 @@ Make 1D plot
 
 \item{\code{nn}}{Number of things to plot}
 
-\item{\code{col2}}{color}
+\item{\code{col2}}{Color of the prediction interval}
+
+\item{\code{col3}}{Color of the interval for the mean}
 
 \item{\code{xlab}}{x label}
 

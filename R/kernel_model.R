@@ -164,7 +164,8 @@ GauPro_kernel_model <- R6::R6Class(
         # Otherwise it should already be a kernel
         self$kernel <- kernel
       } else {
-        stop("Error: bad kernel #68347")
+        stop(paste0("Kernel given to GauPro_kernel_model is not valid. ",
+                    "Consider using Gaussian or Matern52."))
       }
 
       # Set trend
@@ -241,6 +242,7 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param se.fit Should standard error be returned?
     #' @param covmat Should covariance matrix be returned?
     #' @param split_speed Should the matrix be split for faster predictions?
+    #' @param mean_dist Should the error be for the distribution of the mean?
     predict = function(XX, se.fit=F, covmat=F, split_speed=F, mean_dist=FALSE) {
       self$pred(XX=XX, se.fit=se.fit, covmat=covmat,
                 split_speed=split_speed, mean_dist=mean_dist)
@@ -250,6 +252,7 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param se.fit Should standard error be returned?
     #' @param covmat Should covariance matrix be returned?
     #' @param split_speed Should the matrix be split for faster predictions?
+    #' @param mean_dist Should the error be for the distribution of the mean?
     pred = function(XX, se.fit=F, covmat=F, split_speed=F, mean_dist=FALSE) {
       if (!is.matrix(XX)) {
         if (self$D == 1) XX <- matrix(XX, ncol=1)
@@ -322,6 +325,7 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param covmat Should covariance matrix be returned?
     #' @param return_df When returning se.fit, should it be returned in
     #' a data frame?
+    #' @param mean_dist Should the error be for the distribution of the mean?
     pred_one_matrix = function(XX, se.fit=F, covmat=F, return_df=FALSE,
                                mean_dist=FALSE) {
       # input should already be checked for matrix
@@ -611,6 +615,18 @@ GauPro_kernel_model <- R6::R6Class(
       prds <- sweep(((C_aX %*% C_X_inv_C_XS) - C_aS) ^ 2, 2, G, `*`)
       prds
     },
+    #' @description Plot the object
+    #' @param ... Parameters passed to cool1Dplot(), plot2D(), or plotmarginal()
+    plot = function(...) {
+      if (self$D == 1) {
+        self$cool1Dplot(...)
+      } else if (x$D == 2) {
+        self$plot2D(...)
+      } else {
+        # stop("No plot method for higher than 2 dimension")
+        self$plotmarginal(...)
+      }
+    },
     #' @description Make cool 1D plot
     #' @param n2 Number of things to plot
     #' @param nn Number of things to plot
@@ -703,7 +719,8 @@ GauPro_kernel_model <- R6::R6Class(
     #' @description Make 1D plot
     #' @param n2 Number of things to plot
     #' @param nn Number of things to plot
-    #' @param col2 color
+    #' @param col2 Color of the prediction interval
+    #' @param col3 Color of the interval for the mean
     #' @param ylab y label
     #' @param xlab x label
     #' @param xmin xmin

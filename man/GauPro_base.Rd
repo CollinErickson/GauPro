@@ -88,6 +88,7 @@ param_update = T, nug.update = self$nug.est)}}{This method updates the model, ad
 \item \href{#method-pred_meanC}{\code{GauPro_base$pred_meanC()}}
 \item \href{#method-pred_var}{\code{GauPro_base$pred_var()}}
 \item \href{#method-pred_LOO}{\code{GauPro_base$pred_LOO()}}
+\item \href{#method-plot}{\code{GauPro_base$plot()}}
 \item \href{#method-cool1Dplot}{\code{GauPro_base$cool1Dplot()}}
 \item \href{#method-plot1D}{\code{GauPro_base$plot1D()}}
 \item \href{#method-plot2D}{\code{GauPro_base$plot2D()}}
@@ -225,6 +226,23 @@ param_update = T, nug.update = self$nug.est)}}{This method updates the model, ad
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_base$pred_LOO(se.fit = FALSE)}\if{html}{\out{</div>}}
 }
 
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-plot"></a>}}
+\if{latex}{\out{\hypertarget{method-plot}{}}}
+\subsection{Method \code{plot()}}{
+Plot the object
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_base$plot(...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{Parameters passed to cool1Dplot(), plot2D(), or plotmarginal()}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-cool1Dplot"></a>}}

@@ -74,6 +74,7 @@ gp <- GauPro_kernel_model_LOO$new(X=x, Z=y, kernel=Matern52)
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="param_optim_start0">}\href{../../GauPro/html/GauPro.html#method-param_optim_start0}{\code{GauPro::GauPro$param_optim_start0()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="param_optim_start_mat">}\href{../../GauPro/html/GauPro.html#method-param_optim_start_mat}{\code{GauPro::GauPro$param_optim_start_mat()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="param_optim_upper">}\href{../../GauPro/html/GauPro.html#method-param_optim_upper}{\code{GauPro::GauPro$param_optim_upper()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="plot">}\href{../../GauPro/html/GauPro.html#method-plot}{\code{GauPro::GauPro$plot()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="plot1D">}\href{../../GauPro/html/GauPro.html#method-plot1D}{\code{GauPro::GauPro$plot1D()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="plot2D">}\href{../../GauPro/html/GauPro.html#method-plot2D}{\code{GauPro::GauPro$plot2D()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="plotmarginal">}\href{../../GauPro/html/GauPro.html#method-plotmarginal}{\code{GauPro::GauPro$plotmarginal()}}\out{</span>}

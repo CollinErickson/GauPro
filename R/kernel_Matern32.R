@@ -22,7 +22,8 @@
 #' gp$predict(.454)
 #' gp$plot1D()
 #' gp$cool1Dplot()
-Matern32 <- R6::R6Class(classname = "GauPro_kernel_Matern32",
+Matern32 <- R6::R6Class(
+  classname = "GauPro_kernel_Matern32",
   inherit = GauPro_kernel_beta,
   public = list(
     sqrt3 = sqrt(3),
