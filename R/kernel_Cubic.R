@@ -1,0 +1,208 @@
+#' Cubic Kernel R6 class
+#'
+#' @docType class
+#' @importFrom R6 R6Class
+#' @export
+#' @useDynLib GauPro, .registration = TRUE
+#' @importFrom Rcpp evalCpp
+#' @importFrom stats optim
+# @keywords data, kriging, Gaussian process, regression
+#' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
+#' @format \code{\link{R6Class}} object.
+#' @examples
+#' k1 <- Cubic$new(beta=runif(6)-.5)
+#' plot(k1)
+#'
+#' n <- 12
+#' x <- matrix(seq(0,1,length.out = n), ncol=1)
+#' y <- sin(2*pi*x) + rnorm(n,0,1e-1)
+#' gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Cubic$new(1),
+#'                               parallel=FALSE, restarts=1)
+#' gp$predict(.454)
+#' gp$plot1D()
+#' gp$cool1Dplot()
+Cubic <- R6::R6Class(
+  classname = "GauPro_kernel_Cubic",
+  inherit = GauPro_kernel_beta,
+  public = list(
+    #' @description Calculate covariance between two points
+    #' @param x vector.
+    #' @param y vector, optional. If excluded, find correlation
+    #' of x with itself.
+    #' @param beta Correlation parameters.
+    #' @param s2 Variance parameter.
+    #' @param params parameters to use instead of beta and s2.
+    k = function(x, y=NULL, beta=self$beta, s2=self$s2, params=NULL) {#browser()
+      if (!is.null(params)) {
+        # lenpar <- length(params)
+        # beta <- params[1:(lenpar-1)]
+        # logs2 <- params[lenpar]
+
+        lenparams <- length(params)
+        if (self$beta_est) {
+          beta <- params[1:self$beta_length]
+        } else {
+          beta <- self$beta
+        }
+        if (self$s2_est) {
+          logs2 <- params[lenparams]
+        } else {
+          logs2 <- self$logs2
+        }
+
+        s2 <- 10^logs2
+      } else {
+        if (is.null(beta)) {beta <- self$beta}
+        if (is.null(s2)) {s2 <- self$s2}
+      }
+      theta <- 10^beta
+      if (is.null(y)) {
+        if (is.matrix(x)) {
+          val <- outer(1:nrow(x), 1:nrow(x), Vectorize(function(i,j){self$kone(x[i,],x[j,],theta=theta, s2=s2)}))
+          # val <- s2 * corr_matern52_matrix_symC(x, theta)
+          return(val)
+        } else {
+          return(s2 * 1)
+        }
+      }
+      if (is.matrix(x) & is.matrix(y)) {
+        # s2 * corr_gauss_matrixC(x, y, theta)
+        outer(1:nrow(x), 1:nrow(y), Vectorize(function(i,j){self$kone(x[i,],y[j,],theta=theta, s2=s2)}))
+        # s2 * corr_matern52_matrixC(x, y, theta)
+      } else if (is.matrix(x) & !is.matrix(y)) {
+        # s2 * corr_gauss_matrixvecC(x, y, theta)
+        apply(x, 1, function(xx) {self$kone(xx, y, theta=theta, s2=s2)})
+        # s2 * corr_matern52_matvecC(x, y, theta)
+      } else if (is.matrix(y)) {
+        # s2 * corr_gauss_matrixvecC(y, x, theta)
+        apply(y, 1, function(yy) {self$kone(yy, x, theta=theta, s2=s2)})
+        # s2 * corr_matern52_matvecC(y, x, theta)
+      } else {
+        self$kone(x, y, theta=theta, s2=s2)
+      }
+    },
+    #' @description Find covariance of two points
+    #' @param x vector
+    #' @param y vector
+    #' @param beta correlation parameters on log scale
+    #' @param theta correlation parameters on regular scale
+    #' @param s2 Variance parameter
+    kone = function(x, y, beta, theta, s2) {
+      if (missing(theta)) {theta <- 10^beta}
+      h <- x-y
+      d <- h/theta
+      r <- ifelse(abs(d) <= 0.5, 1-6*d^2+6*abs(d)^3, ifelse(abs(d) <= 1, 2*(1-abs(d))^3, 0))
+      prod(r) * s2
+    },
+    #' @description Derivative of covariance with respect to parameters
+    #' @param params Kernel parameters
+    #' @param X matrix of points in rows
+    #' @param C_nonug Covariance without nugget added to diagonal
+    #' @param C Covariance with nugget
+    #' @param nug Value of nugget
+    dC_dparams = function(params=NULL, X, C_nonug, C, nug) {
+      n <- nrow(X)
+      # stop("cubic dC_dparams not implemented")
+
+      lenparams <- length(params)
+      if (lenparams > 0) {
+        if (self$beta_est) {
+          beta <- params[1:self$beta_length]
+        } else {
+          beta <- self$beta
+        }
+        if (self$s2_est) {
+          logs2 <- params[lenparams]
+        } else {
+          logs2 <- self$logs2
+        }
+      } else {
+        beta <- self$beta
+        logs2 <- self$logs2
+      }
+
+      # lenparams <- length(params)
+      # beta <- params[1:(lenparams - 1)]
+      theta <- 10^beta
+      log10 <- log(10)
+      # logs2 <- params[lenparams]
+      s2 <- 10 ^ logs2
+
+      # if (is.null(params)) {params <- c(self$beta, self$logs2)}
+      if (missing(C_nonug)) { # Assume C missing too, must have nug
+        C_nonug <- self$k(x=X, params=params)
+        C <- C_nonug + diag(nug*s2, nrow(C_nonug))
+      }
+
+      lenparams_D <- self$beta_length*self$beta_est + self$s2_est
+      dC_dparams <- array(dim=c(lenparams_D, n, n), data = 0)
+
+      # Deriv for logs2
+      if (self$s2_est) {
+        dC_dparams[lenparams_D,,] <- C * log10 # Deriv for logs2
+      }
+
+      # Deriv for beta
+      if (self$beta_est) {
+        for (i in seq(1, n-1, 1)) {
+          for (j in seq(i+1, n, 1)) {
+            # tx2 <- sum(theta * (X[i,]-X[j,])^2)
+            # t1 <- sqrt(5 * tx2)
+            # t3 <- C[i,j] * ((1+2*t1/3)/(1+t1+t1^2/3) - 1) * self$sqrt5 * log10
+            # half_over_sqrttx2 <- .5 / sqrt(tx2)
+            h <- X[i,] - X[j,] #x-y
+            d <- h/theta
+            dabs <- abs(d)
+            r <- ifelse(abs(d) <= 0.5, 1-6*d^2+6*abs(d)^3, ifelse(abs(d) <= 1, 2*(1-abs(d))^3, 0))
+            # prod(r)
+            for (k in 1:length(beta)) {
+              # dt1dbk <- half_over_sqrttx2 * (X[i,k] - X[j,k])^2
+              # # drk_dbk
+              # drk_ddk <- ifelse(d[k]>=0,
+              #                   ifelse(d[k] <= 0.5,  -12*d[k]+18*d[k]^2, ifelse(d[k] <= 1,  -6*(1-d[k])^2, 0)),
+              #                   ifelse(d[k] >= -0.5, -12*d[k]-18*d[k]^2, ifelse(d[k] >= -1, -6*(1+d[k])^2, 0)))
+              drk_ddk <- sign(d[k]) * ifelse(dabs[k] <= 0.5,
+                                             -12*dabs[k]+18*dabs[k]^2,
+                                             ifelse(dabs[k] <= 1,  -6*(1-dabs[k])^2, 0))
+              # dC_dparams[k,i,j] <- s2 * log10 * theta[k] * (-h[k]/theta[k]^2) * drk_ddk * prod(r[-k])
+              dC_dparams[k,i,j] <- s2 * log10 * (-h[k]) /theta[k] * drk_ddk * prod(r[-k])
+              dC_dparams[k,j,i] <- dC_dparams[k,i,j]
+            }
+          }
+        }
+        for (i in seq(1, n, 1)) { # Get diagonal set to zero
+          for (k in 1:length(beta)) {
+            dC_dparams[k,i,i] <- 0
+          }
+        }
+      }
+
+      return(dC_dparams)
+    },
+    #' @description Derivative of covariance with respect to X
+    #' @param XX matrix of points
+    #' @param X matrix of points to take derivative with respect to
+    #' @param theta Correlation parameters
+    #' @param beta log of theta
+    #' @param s2 Variance parameter
+    dC_dx = function(XX, X, theta, beta=self$beta, s2=self$s2) {#browser()
+      stop("cubic dC_dparams not implemented")
+      if (missing(theta)) {theta <- 10^beta}
+      if (!is.matrix(XX)) {stop()}
+      d <- ncol(XX)
+      if (ncol(X) != d) {stop()}
+      n <- nrow(X)
+      nn <- nrow(XX)
+      dC_dx <- array(NA, dim=c(nn, d, n))
+      for (i in 1:nn) {
+        for (j in 1:d) {
+          for (k in 1:n) {
+            r <- sqrt(sum(theta * (XX[i,] - X[k,]) ^ 2))
+            dC_dx[i, j, k] <- (-5*r/3 - 5/3*self$sqrt5*r^2) * s2 * exp(-self$sqrt5 * r) * theta[j] * (XX[i, j] - X[k, j]) / r
+          }
+        }
+      }
+      dC_dx
+    }
+  )
+)
