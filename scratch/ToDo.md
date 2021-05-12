@@ -1,11 +1,5 @@
 # GauPro to do
 
-* Factor kernel: example
-
-* Ordered factor kernel: example
-
-* Ignore input kernel: example
-
 * Take in data/formula input in addition to matrix
 
 * Calculate EI: nopt, test, doc
@@ -31,10 +25,10 @@ at end for K/Kinv so predictions are good.
 
 * Better handling of ignore input when using factors?
 
-* Add cubic correlation
-
 * Transform inputs
 
 * plot2D option to do se instead of mean, or side by side
 
 * optim NaN starting value (found on 1D doing EI)
+
+* Redo kernel tests

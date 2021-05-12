@@ -62,7 +62,8 @@
 #' k2b <- OrderedFactorKernel$new(D=2, nlevels=3, xind=2)
 #' k2 <- k2a * k2b
 #' k2b$p_upper <- .65*k2b$p_upper
-#' gp <- GauPro_kernel_model$new(X=X, Z=Z, kernel = k2, verbose = 5, nug.min=1e-2)
+#' gp <- GauPro_kernel_model$new(X=X, Z=Z, kernel = k2, verbose = 5,
+#'   nug.min=1e-2, restarts=1)
 #' gp$kernel$k1$kernel$beta
 #' gp$kernel$k2$p
 #' gp$kernel$k(x = gp$X)
@@ -505,14 +506,11 @@ OrderedFactorKernel <- R6::R6Class(
     },
     #' @param ... Not used.
     plot = function(...) {
-      x1=1:self$nlevels
-      # x2=1:self$nlevels
+      x1 <- 1:self$nlevels
       X1 <- X2 <- matrix(data=0, ncol=self$D, nrow=self$nlevels)
       X1[, self$xindex] <- x1
       X2[, self$xindex] <- x1
-      # print(X1); print(X2)
       k <- self$k(X1, X2)
-      k
 
       df <- NULL
       for (i in 1:self$nlevels) {
@@ -521,10 +519,9 @@ OrderedFactorKernel <- R6::R6Class(
                       data.frame(x1=i, x2=j, k=k[i,j]))
         }
       }
-      # print(df)
-      ggplot2::ggplot(data=df, ggplot2::aes(x1, x2, fill=k)) + ggplot2::geom_tile() +
-        # ggplot2::scale_color_continuous()
-        ggplot2::scale_fill_gradient(low='white', high='red') +
+      ggplot2::ggplot(data=df, ggplot2::aes(x1, x2, fill=k)) +
+        ggplot2::geom_tile() +
+        ggplot2::scale_fill_gradient(low='white', high='red', limits=c(0, NA)) +
         ggplot2::scale_y_reverse()
     }
   )
