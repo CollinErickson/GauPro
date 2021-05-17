@@ -620,7 +620,7 @@ GauPro_kernel_model <- R6::R6Class(
     plot = function(...) {
       if (self$D == 1) {
         self$cool1Dplot(...)
-      } else if (x$D == 2) {
+      } else if (self$D == 2) {
         self$plot2D(...)
       } else {
         # stop("No plot method for higher than 2 dimension")
@@ -838,7 +838,7 @@ GauPro_kernel_model <- R6::R6Class(
       # head(X3pred)
       X4 <- dplyr::inner_join(
         X3pred,
-        tidyr::pivot_longer(cbind(as.data.frame(X),irow=1:nrow(X)), cols=1:7),
+        tidyr::pivot_longer(cbind(as.data.frame(X),irow=1:nrow(X)), cols=1:ncol(self$X)),
         "irow")
       # head(X4)
       X4$upper <- X4$mean + 2*X4$se

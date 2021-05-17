@@ -4,7 +4,8 @@ test_that("trend_0 works", {
   x <- matrix(seq(0,1,length.out = n), ncol=1)
   f <- Vectorize(function(x) {sin(2*pi*x) + .001*sin(8*pi*x) +rnorm(1,0,.03)})
   y <- f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
-  gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Matern32$new(1), trend=trend_0$new(), parallel=FALSE, verbose=10, nug.est=T, nug.min=0)
+  gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Matern32$new(1), trend=trend_0$new(),
+                                parallel=FALSE, verbose=0, nug.est=T, nug.min=0)
 
   expect_equal(gp$kernel$beta, 0.4609827, tolerance=.01)
   expect_equal(gp$kernel$s2, 1.083443, tolerance=.01)
@@ -29,7 +30,8 @@ test_that("trend_c works", {
   x <- matrix(seq(0,1,length.out = n), ncol=1)
   f <- Vectorize(function(x) {sin(2*pi*x) + .001*sin(8*pi*x) +rnorm(1,0,.03)})
   y <- f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
-  gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Matern32$new(1), trend=trend_c$new(), parallel=FALSE, verbose=10, nug.est=T, nug.min=0)
+  gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Matern32$new(1), trend=trend_c$new(),
+                                parallel=FALSE, verbose=0, nug.est=T, nug.min=0)
 
   expect_equal(gp$trend$m, -0.002844272, tolerance=.01)
   expect_equal(gp$kernel$beta, 0.4609827, tolerance=.01)
@@ -55,7 +57,8 @@ test_that("trend_LM works", {
   x <- matrix(seq(0,1,length.out = n), ncol=1)
   f <- Vectorize(function(x) {sin(2*pi*x) + .001*sin(8*pi*x) +rnorm(1,0,.03)})
   y <- f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
-  gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Matern32$new(1), trend=trend_LM$new(D=1), parallel=FALSE, verbose=10, nug.est=T)
+  gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Matern32$new(1), trend=trend_LM$new(D=1),
+                                parallel=FALSE, verbose=0, nug.est=T)
 
   expect_equal(gp$trend$b, -0.5470029, tolerance=.01)
   expect_equal(gp$trend$m, 1.087638, tolerance=.01)

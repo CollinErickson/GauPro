@@ -4,7 +4,7 @@
 
 * Calculate EI: nopt, test, doc
 
-* max_qEI: test, doc, exact solution
+* max_qEI: test, doc, exact solution. Change CL to CLpred
 
 * With many points, just estimate param from subset of data, but use all data
 at end for K/Kinv so predictions are good.
@@ -28,8 +28,6 @@ at end for K/Kinv so predictions are good.
 * plot2D option to do se instead of mean, or side by side
 
 * optim NaN starting value (found on 1D doing EI)
-
-* Redo kernel tests
 
 * plot LOO calibration
 

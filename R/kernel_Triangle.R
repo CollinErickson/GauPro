@@ -143,7 +143,8 @@ Triangle <- R6::R6Class(
             C <- max(1 - r, 0)
             for (k in 1:length(beta)) {
               if (C > 0) {
-                dC_dparams[k,i,j] <- dC_dparams[k,j,i] <- -1/2/r * (X[i,k]-X[j,k])^2
+                # dC_dparams[k,i,j] <- dC_dparams[k,j,i] <- -1/2/r * (X[i,k]-X[j,k])^2
+                dC_dparams[k,i,j] <- dC_dparams[k,j,i] <- -1/2/r * (X[i,k]-X[j,k])^2 * s2 * theta[k] * log10
               } else {
                 dC_dparams[k,i,j] <- dC_dparams[k,j,i] <- 0
               }

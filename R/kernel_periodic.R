@@ -214,7 +214,7 @@ Periodic <- R6::R6Class(
     kone = function(x, y, logp, p, alpha, s2) {
       if (missing(p)) {p <- 10^logp}
       out <- s2 * exp(-sum(alpha*sin(p * (x-y))^2))
-      if (any(is.nan(out))) {browser()}
+      if (any(is.nan(out))) {stop(paste0("Error in Periodic kernel #2362398"))}
       out
     },
     #' @description Derivative of covariance with respect to parameters
@@ -274,7 +274,7 @@ Periodic <- R6::R6Class(
         for (k in 1:length(logp)) {
           for (i in seq(1, n-1, 1)) {
             for (j in seq(i+1, n, 1)) {
-              r2 <- sum(p * (X[i,]-X[j,])^2)
+              # r2 <- sum(p * (X[i,]-X[j,])^2)
               dC_dparams[k,i,j] <- -C_nonug[i,j] * alpha * sin(2*p[k]*(X[i,k] - X[j,k])) * (X[i,k] - X[j,k]) * p[k] * log10
               dC_dparams[k,j,i] <- dC_dparams[k,i,j]
             }
