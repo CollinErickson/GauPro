@@ -182,3 +182,41 @@ legend(legend=1:3, fill=1:3, x="topleft")
 # See which points affect (5.5, 3 themost)
 data.frame(X, cov=gp$kernel$k(X, c(5.5,3))) %>% arrange(-cov)
 
+
+
+# 4D, Gaussian on 1D and 3D, OrderedFactor on 2nd dim, Factor in 4D
+library(dplyr)
+n <- 40
+X <- cbind(matrix(runif(n,2,6), ncol=1),
+           matrix(sample(1:4, size=n, replace=T), ncol=1),
+           matrix(runif(n,-2,3), ncol=1),
+           matrix(sample(1:3, size=n, replace=T), ncol=1))
+# X <- rbind(X, c(3.3,3), c(3.7,3))
+n <- nrow(X)
+Z <- X[,1] - (4-X[,2])^2 + (X[,3]^2*X[,4]) + rnorm(n,0,.1)
+# Z[(n-1):n] <- c(2.8,2.2) #%>% rev
+plot(X[,1], Z, col=X[,2])
+tibble(X=X, Z) %>% arrange(X,Z)
+k2a <- IgnoreIndsKernel$new(k=Gaussian$new(D=2), ignoreinds = c(2,4))
+k2b <- OrderedFactorKernel$new(D=4, nlevels=4, xind=2)
+k2c <- FactorKernel$new(D=4, nlevels=3, xind=4)
+k2 <- k2a * (k2b * k2c)
+# debugonce(k2$dC_dparams)
+# k2b$p_upper <- .65*k2b$p_upper
+gp <- GauPro_kernel_model$new(X=X, Z=Z, kernel = k2, verbose = 5, nug.min=1e-2, restarts=0)
+gp$kernel$k1$kernel$beta
+gp$kernel$k2$k1$p
+gp$kernel$k2$k2$p
+gp$kernel$k1$kernel %>% plot
+gp$kernel$k2$k1 %>% plot
+gp$kernel$k2$k2 %>% plot
+gp$kernel$k(x = gp$X)
+tibble(X=X, Z=Z, pred=gp$predict(X)[,1]) %>% arrange(X, Z)
+tibble(X2=X[,2], X4=X[,4], Z) %>% group_by(X2,X4) %>% summarize(n=n(), meanZ=mean(Z), max(Z), sd(Z)) %>% arrange(meanZ)
+curve(gp$pred(cbind(matrix(x,ncol=1),1)),2-10,6+10, ylim=c(min(Z)-3, 3+max(Z))); points(X[X[,2]==1,1], Z[X[,2]==1])
+curve(gp$pred(cbind(matrix(x,ncol=1),2)), add=T, col=2); points(X[X[,2]==2,1], Z[X[,2]==2], col=2)
+curve(gp$pred(cbind(matrix(x,ncol=1),3)), add=T, col=3); points(X[X[,2]==3,1], Z[X[,2]==3], col=3)
+legend(legend=1:3, fill=1:3, x="topleft")
+# cbind(X, cov=gp$kernel$k(X, c(5.5,3))) %>% arrange(-cov)
+# See which points affect (5.5, 3 themost)
+data.frame(X, cov=gp$kernel$k(X, c(5.5,3))) %>% arrange(-cov)

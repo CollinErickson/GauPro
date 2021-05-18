@@ -19,7 +19,7 @@
 #' @examples
 #' k1 <- Exponential$new(beta=1)
 #' k2 <- Matern32$new(beta=2)
-#' k <- k1 + k2
+#' k <- k1 * k2
 #' k$k(matrix(c(2,1), ncol=1))
 kernel_product <- R6::R6Class(classname = "GauPro_kernel_product",
   inherit = GauPro_kernel,
@@ -31,6 +31,7 @@ kernel_product <- R6::R6Class(classname = "GauPro_kernel_product",
     k1pl = NULL,
     k2pl = NULL,
     s2 = NULL,
+    s2_est = NULL,
     #' @description Initialize kernel
     #' @param k1 Kernel 1
     #' @param k2 Kernel 2
@@ -44,7 +45,8 @@ kernel_product <- R6::R6Class(classname = "GauPro_kernel_product",
       self$s2 <- self$k1$s2 * self$k2$s2
 
       # if (self$k1$s2_est && )
-      s2_est <- (self$k1$s2_est || self$k2$s2_est)
+      # browser()
+      self$s2_est <- (self$k1$s2_est || self$k2$s2_est)
     },
     #' @description Calculate covariance between two points
     #' @param x vector.
@@ -101,6 +103,7 @@ kernel_product <- R6::R6Class(classname = "GauPro_kernel_product",
     #' @param C Covariance with nugget
     #' @param nug Value of nugget
     dC_dparams = function(params=NULL, C, X, C_nonug, nug) {#browser(text = "Make sure all in one list")
+      stopifnot(length(params) > 0)
       params1 <- params[1:self$k1pl]
       params2 <- params[(self$k1pl+1):(self$k1pl+self$k2pl)]
       s2_1 <- self$k1$s2_from_params(params1)

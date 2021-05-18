@@ -18,7 +18,7 @@ Gaussian Kernel R6 class
 \examples{
 k1 <- Exponential$new(beta=1)
 k2 <- Matern32$new(beta=2)
-k <- k1 + k2
+k <- k1 * k2
 k$k(matrix(c(2,1), ncol=1))
 }
 \section{Super class}{

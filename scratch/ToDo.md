@@ -6,6 +6,10 @@
 
 * max_qEI: test, doc, exact solution. Change CL to CLpred
 
+* EI for factor variables
+
+* plot for factor variables
+
 * With many points, just estimate param from subset of data, but use all data
 at end for K/Kinv so predictions are good.
 
@@ -32,3 +36,7 @@ at end for K/Kinv so predictions are good.
 * plot LOO calibration
 
 * Speed up m52 grad, Cubic k/grad
+
+* 3 kernel product. prod/sum need to get s2_est from children
+
+* no param est gave error, dC_dparam can't be calculated

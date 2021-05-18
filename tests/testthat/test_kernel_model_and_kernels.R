@@ -10,7 +10,7 @@ test_that("kernels work and have correct grads", {
                   'PowerExp', 'Periodic', "Exponential", "RatQuad")
   for (j in 1:length(kern_chars)) {
     kern_char <- kern_chars[j]
-    # cat(j, kern_char, "\n")
+    cat(j, kern_char, "\n")
     kern <- eval(parse(text=kern_char))
     expect_is(kern, "R6ClassGenerator")
 

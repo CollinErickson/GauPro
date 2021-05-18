@@ -1574,9 +1574,14 @@ GauPro_kernel_model <- R6::R6Class(
       C_nonug <- self$kernel$k(x=X, params=params)
       s2_from_kernel <- self$kernel$s2_from_params(params=params)
       C <- C_nonug + s2_from_kernel * diag(nug, self$N)
+      # if (length(params) <= 0.5) {
+      #   # Avoid error when no params are being updated
+      #   kernel_update <- FALSE
+      # } else {
       dC_dparams_out <- self$kernel$dC_dparams(params=params, X=X, C=C,
                                                C_nonug=C_nonug, nug=nug)
       dC_dparams <- dC_dparams_out#[[1]]
+      # }
       # First of list should be list of dC_dparams
       # s2_from_kernel <- dC_dparams_out[[2]]
       # Second should be s2 for nugget deriv
@@ -2026,6 +2031,8 @@ GauPro_kernel_model <- R6::R6Class(
       stopifnot(length(n0)==1, is.numeric(n0), n0>=1)
       # Random points to evaluate to find best starting point
       X0 <- lhs::randomLHS(n=n0, k=ncol(self$X))
+      X0 <- sweep(X0, 2, upper-lower, "*")
+      X0 <- sweep(X0, 2, lower, "+")
       # Also use point near current optimum
       bestZind <- if (minimize) {which.min(self$Z)} else {which.max(self$Z)}
       X0 <- rbind(X0,
