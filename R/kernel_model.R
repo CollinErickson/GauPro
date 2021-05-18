@@ -801,10 +801,27 @@ GauPro_kernel_model <- R6::R6Class(
     #' plotted are held constant at this value.
     plotmarginal = function(pt=colMeans(self$X)) {
       # pt <- colMeans(self$X)
-      pt
+      # pt
+      factorinfo <- find_kernel_factor_dims(self$kernel)
+      if (length(factorinfo > 0)) {
+        factorindexes <- factorinfo[2*(1:(length(factorinfo)/2))-1]
+        factornlevels <- factorinfo[2*(1:(length(factorinfo)/2))]
+        for (i in 1:length(factorindexes)) {
+          if (!(pt[factorindexes[i]] %in% 1:factornlevels[i])) {
+            pt[factorindexes[i]] <- sample(1:factornlevels[i], 1)
+          }
+        }
+      } else {
+        factorindexes <- c()
+      }
       pts <- NULL
       for (i in 1:ncol(self$X)) {
-        xseq <- seq(min(self$X[,i]), max(self$X[,i]), l=51)
+        if (i %in% factorindexes) {
+          ind_i <- which(factorindexes == i)
+          xseq <- 1:(factorinfo[2*ind_i])
+        } else {
+          xseq <- seq(min(self$X[,i]), max(self$X[,i]), l=51)
+        }
         Xmat <- matrix(pt, byrow=T, ncol=length(pt), nrow=length(xseq))
         Xmat[, i] <- xseq
         pX <- self$pred(Xmat, se.fit = T)
