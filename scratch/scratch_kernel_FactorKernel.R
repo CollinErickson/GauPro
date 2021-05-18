@@ -193,7 +193,7 @@ X <- cbind(matrix(runif(n,2,6), ncol=1),
            matrix(sample(1:3, size=n, replace=T), ncol=1))
 # X <- rbind(X, c(3.3,3), c(3.7,3))
 n <- nrow(X)
-Z <- X[,1] - (4-X[,2])^2 + (X[,3]^2*X[,4]) + rnorm(n,0,.1)
+Z <- X[,1] - (2.4-X[,2])^2 + (X[,3]^2*X[,4]) + rnorm(n,0,.1)
 # Z[(n-1):n] <- c(2.8,2.2) #%>% rev
 plot(X[,1], Z, col=X[,2])
 tibble(X=X, Z) %>% arrange(X,Z)

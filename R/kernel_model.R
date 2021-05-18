@@ -828,23 +828,30 @@ GauPro_kernel_model <- R6::R6Class(
     },
     #' @description Plot marginal prediction for random sample of inputs
     #' @param n Number of random points to evaluate
-    plotmarginalrandom = function(n=50) {
+    plotmarginalrandom = function(n=151) {
       # Plot marginal random averages
-      X <- lhs::randomLHS(n=151, k=ncol(self$X))
+      # Get random matrix, scale to proper lower/upper
+      X <- lhs::randomLHS(n=n, k=ncol(self$X))
       X2 <- sweep(X, 2, apply(self$X, 2, max) - apply(self$X, 2, min), "*")
       X3 <- sweep(X2, 2, apply(self$X, 2, min), "+")
+      factorinfo <- find_kernel_factor_dims(self$kernel)
+      if (length(factorinfo) > 0) {
+        for (i in 1:(length(factorinfo)/2)) {
+          X3[, factorinfo[i*2-1]] <- sample(1:factorinfo[i*2], size=n, replace=T)
+        }
+      }
       X3pred <- self$pred(X3, se.fit = T)
       X3pred$irow <- 1:nrow(X3pred)
       # head(X3pred)
       X4 <- dplyr::inner_join(
         X3pred,
-        tidyr::pivot_longer(cbind(as.data.frame(X),irow=1:nrow(X)), cols=1:ncol(self$X)),
+        tidyr::pivot_longer(cbind(as.data.frame(X3),irow=1:nrow(X)), cols=1:ncol(self$X)),
         "irow")
       # head(X4)
       X4$upper <- X4$mean + 2*X4$se
       X4$lower <- X4$mean - 2*X4$se
       ggplot2::ggplot(X4, ggplot2::aes(value, mean)) +
-        ggplot2::facet_wrap(.~name) +
+        ggplot2::facet_wrap(.~name, scales="free_x") +
         # geom_point(aes(y=upper), color="green") +
         ggplot2::geom_segment(ggplot2::aes(y=upper, yend=lower, xend=value),
                               color="green", size=2) +
@@ -1322,10 +1329,10 @@ GauPro_kernel_model <- R6::R6Class(
         }, silent=TRUE
       )
       if (!inherits(current, "try-error")) {
-        if (self$useGrad) {
-          current$counts <- c(NA,NA)
-          if(is.null(current$message)) {current$message=NA}
-        }
+        # if (self$useGrad) {
+        if (is.null(current$counts)) {current$counts <- c(NA,NA)}
+        if(is.null(current$message)) {current$message=NA}
+        # }
         details.new <- data.frame(
           start=paste(signif(start.par.i,3),collapse=","),
           end=paste(signif(current$par,3),collapse=","),
@@ -2029,6 +2036,11 @@ GauPro_kernel_model <- R6::R6Class(
                      n0=100, minimize=FALSE, eps=.01) {
       stopifnot(all(lower < upper))
       stopifnot(length(n0)==1, is.numeric(n0), n0>=1)
+      # Check if any kernels have factors
+      if (length(find_kernel_factor_dims(self$kernel)) > 0) {
+        # Has at least one factor
+        return(self$maxEIwithfactors(lower=lower, upper=upper, n0=n0, minimize=minimize, eps=eps))
+      }
       # Random points to evaluate to find best starting point
       X0 <- lhs::randomLHS(n=n0, k=ncol(self$X))
       X0 <- sweep(X0, 2, upper-lower, "*")
@@ -2050,6 +2062,88 @@ GauPro_kernel_model <- R6::R6Class(
                          fn=function(xx){-self$EI(xx, minimize = minimize)},
                          method="L-BFGS-B")
       optim_out$par
+    },
+    #' @description Find the point that maximizes the expected improvement.
+    #' Used whenever one of the inputs is a factor (can only take values 1:n).
+    #' @param lower Lower bounds to search within
+    #' @param upper Upper bounds to search within
+    #' @param n0 Number of points to evaluate in initial stage
+    #' @param minimize Are you trying to minimize the output?
+    #' @param eps Exploration parameter
+    maxEIwithfactors = function(lower=apply(self$X, 2, min), upper=apply(self$X, 2, max),
+                                n0=100, minimize=FALSE, eps=.01) {
+      stopifnot(all(lower < upper))
+      stopifnot(length(n0)==1, is.numeric(n0), n0>=1)
+      # Get factor info
+      factorinfo <- find_kernel_factor_dims(self$kernel)
+      # Run inner EI over all factor combinations
+      stopifnot(length(factorinfo)>0)
+      # factordf <- data.frame(index=factorinfo[1]
+      factorlist <- list()
+      for (i_f in 1:(length(factorinfo)/2)) {
+        factorlist[[as.character(factorinfo[i_f*2-1])]] <- 1:factorinfo[i_f*2]
+      }
+      factordf <- do.call(expand.grid, factorlist)
+      # Track best seen in optimizing EI
+      bestval <- Inf
+      bestpar <- c()
+      factorxindex <- factorinfo[(1:(length(factorinfo)/2))*2-1] #factorinfo[[1]]
+      for (i_indcomb in 1:prod(factorinfo[(1:(length(factorinfo)/2))*2])) {
+        factorxlevel <- unname(unlist(factordf[i_indcomb,])) #i_indcomb #factorinfo[[2]]
+        # cat(factorxindex, factorxlevel, "\n")
+
+        # If no non-factor levels, just calculate and compare
+        if (length(factorxindex) == self$D) {
+          # stop()
+          xxinds1 <- c()
+          xxinds2 <- c()
+          xx <- rep(NA, self$D)
+          xx[factorxindex] <- factorxlevel
+          optim_out_i_indcomb <- list(par=xx)
+          optim_out_i_indcomb$value <- -self$EI(xx, minimize = minimize)
+        } else {
+
+          # Otherwise optimize over continuous values
+          X0 <- lhs::randomLHS(n=n0, k=self$D)
+          X0 <- sweep(X0, 2, upper-lower, "*")
+          X0 <- sweep(X0, 2, lower, "+")
+          for (j in 1:length(factorxindex)) {
+            X0[, factorxindex[j]] <- factorxlevel[j]
+          }
+
+          # Calculate EI at these points, use best as starting point for optim
+          EI0 <- self$EI(x=X0, minimize=minimize, eps=eps)
+          ind <- which.max(EI0)
+
+          # Continuous indexes
+          ctsinds <- setdiff(1:self$D, factorxindex)
+
+          # Optimize starting from that point to find input that maximizes EI
+          optim_out_i_indcomb <- optim(par=X0[ind, -factorxindex],
+                                       lower=lower[-factorxindex], upper=upper[-factorxindex],
+                                       # fn=function(xx){ei <- -self$EI(xx); cat(xx, ei, "\n"); ei},
+                                       fn=function(xx){
+                                         xx2 <- numeric(self$D)
+                                         xx2[ctsinds] <- xx
+                                         xx2[factorxindex] <- factorxlevel
+                                         # xx2 <- c(xx[xxinds1], factorxlevel, xx[xxinds2])
+                                         # cat(xx, xx2, "\n")
+                                         -self$EI(xx2, minimize = minimize)
+                                       },
+                                       method="L-BFGS-B")
+        }
+        if (optim_out_i_indcomb$value < bestval) {
+          # cat("new best val", optim_out_i_indcomb$value, bestval, i_indcomb, "\n")
+          bestval <- optim_out_i_indcomb$value
+
+          bestpar <- numeric(self$D)
+          bestpar[ctsinds] <- optim_out_i_indcomb$par #[xxinds1]
+          bestpar[factorxindex] <- factorxlevel
+          # bestpar <- c(optim_out_i_indcomb$par[xxinds1], factorxlevel, optim_out_i_indcomb$par[xxinds2])
+        }
+      }
+      stopifnot(length(bestpar) == self$D)
+      return(bestpar)
     },
     #' @description Find the multiple points that maximize the expected
     #' improvement. Currently only implements the constant liar method.

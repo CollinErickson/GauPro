@@ -34,40 +34,37 @@ maxEIwithfactors = function(lower=apply(self$X, 2, min), upper=apply(self$X, 2, 
     cat(factorxindex, factorxlevel, "\n")
 
     # If no non-factor levels, just calculate and compare
-    if (length(factorxindex) == ncol(self$X)) {
+    if (length(factorxindex) == self$D) {
       # stop()
       xxinds1 <- c()
       xxinds2 <- c()
-      xx <- rep(NA, ncol(self$X))
+      xx <- rep(NA, self$D)
       xx[factorxindex] <- factorxlevel
       optim_out_i_indcomb <- list(par=xx)
       optim_out_i_indcomb$value <- -self$EI(xx, minimize = minimize)
     } else {
 
       # Otherwise optimize over continuous values
-      X0 <- lhs::randomLHS(n=n0, k=ncol(self$X))
+      X0 <- lhs::randomLHS(n=n0, k=self$D)
       X0 <- sweep(X0, 2, upper-lower, "*")
       X0 <- sweep(X0, 2, lower, "+")
       for (j in 1:length(factorxindex)) {
         X0[, factorxindex[j]] <- factorxlevel[j]
       }
 
-      # Calculate EI at these points
+      # Calculate EI at these points, use best as starting point for optim
       EI0 <- self$EI(x=X0, minimize=minimize, eps=eps)
       ind <- which.max(EI0)
 
-      # xxinds1 <- (1:ncol(self$X))
-      # xxinds1 <- xxinds1[xxinds1 < factorxindex]
-      # xxinds2 <- (1:ncol(self$X))
-      # xxinds2 <- xxinds2[xxinds2 > factorxindex] - 1
-      ctsinds <- setdiff(1:ncol(self$X), factorxindex)
+      # Continuous indexes
+      ctsinds <- setdiff(1:self$D, factorxindex)
 
       # Optimize starting from that point to find input that maximizes EI
       optim_out_i_indcomb <- optim(par=X0[ind, -factorxindex],
                                    lower=lower[-factorxindex], upper=upper[-factorxindex],
                                    # fn=function(xx){ei <- -self$EI(xx); cat(xx, ei, "\n"); ei},
                                    fn=function(xx){
-                                     xx2 <- numeric(ncol(self$X))
+                                     xx2 <- numeric(self$D)
                                      xx2[ctsinds] <- xx
                                      xx2[factorxindex] <- factorxlevel
                                      # xx2 <- c(xx[xxinds1], factorxlevel, xx[xxinds2])
@@ -77,34 +74,15 @@ maxEIwithfactors = function(lower=apply(self$X, 2, min), upper=apply(self$X, 2, 
                                    method="L-BFGS-B")
     }
     if (optim_out_i_indcomb$value < bestval) {
-      cat("new best val", optim_out_i_indcomb$value, bestval, i_indcomb, "\n")
+      # cat("new best val", optim_out_i_indcomb$value, bestval, i_indcomb, "\n")
       bestval <- optim_out_i_indcomb$value
 
-      bestpar <- numeric(ncol(self$X))
+      bestpar <- numeric(self$D)
       bestpar[ctsinds] <- optim_out_i_indcomb$par[xxinds1]
       bestpar[factorxindex] <- factorxlevel
       # bestpar <- c(optim_out_i_indcomb$par[xxinds1], factorxlevel, optim_out_i_indcomb$par[xxinds2])
     }
   }
-  stopifnot(length(bestpar) == ncol(self$X))
+  stopifnot(length(bestpar) == self$D)
   return(bestpar)
-  # # Random points to evaluate to find best starting point
-  # X0 <- lhs::randomLHS(n=n0, k=ncol(self$X))
-  # # Also use point near current optimum
-  # bestZind <- if (minimize) {which.min(self$Z)} else {which.max(self$Z)}
-  # X0 <- rbind(X0,
-  #             pmax(pmin(self$X[bestZind, ] +
-  #                         rnorm(ncol(self$X), 0, 1e-4),
-  #                       upper),
-  #                  lower))
-  # # Calculate EI at these points
-  # EI0 <- self$EI(x=X0, minimize=minimize, eps=eps)
-  # ind <- which.max(EI0)
-  # # Optimize starting from that point to find input that maximizes EI
-  # optim_out <- optim(par=X0[ind,],
-  #                    lower=lower, upper=upper,
-  #                    # fn=function(xx){ei <- -self$EI(xx); cat(xx, ei, "\n"); ei},
-  #                    fn=function(xx){-self$EI(xx, minimize = minimize)},
-  #                    method="L-BFGS-B")
-  # optim_out$par
 }

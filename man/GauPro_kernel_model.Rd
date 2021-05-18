@@ -159,6 +159,7 @@ parameters.}
 \item \href{#method-sample}{\code{GauPro_kernel_model$sample()}}
 \item \href{#method-EI}{\code{GauPro_kernel_model$EI()}}
 \item \href{#method-maxEI}{\code{GauPro_kernel_model$maxEI()}}
+\item \href{#method-maxEIwithfactors}{\code{GauPro_kernel_model$maxEIwithfactors()}}
 \item \href{#method-maxqEI}{\code{GauPro_kernel_model$maxqEI()}}
 \item \href{#method-print}{\code{GauPro_kernel_model$print()}}
 \item \href{#method-clone}{\code{GauPro_kernel_model$clone()}}
@@ -1352,6 +1353,21 @@ Find the point that maximizes the expected improvement
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-maxEIwithfactors"></a>}}
+\if{latex}{\out{\hypertarget{method-maxEIwithfactors}{}}}
+\subsection{Method \code{maxEIwithfactors()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$maxEIwithfactors(
+  lower = apply(self$X, 2, min),
+  upper = apply(self$X, 2, max),
+  n0 = 100,
+  minimize = FALSE,
+  eps = 0.01
+)}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-maxqEI"></a>}}
