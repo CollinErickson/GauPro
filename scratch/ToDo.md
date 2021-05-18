@@ -6,10 +6,6 @@
 
 * max_qEI: test, doc, exact solution. Change CL to CLpred
 
-* EI for factor variables
-
-* plot for factor variables
-
 * With many points, just estimate param from subset of data, but use all data
 at end for K/Kinv so predictions are good.
 
@@ -40,3 +36,9 @@ at end for K/Kinv so predictions are good.
 * 3 kernel product. prod/sum need to get s2_est from children
 
 * no param est gave error, dC_dparam can't be calculated
+
+* Add test with repeated X. Add test with big nugget and make sure deriv still matches.
+
+* Change chol2inv to 2 backsolves, check speed and accuracy
+
+* Add travis test for time and prediction accuracy

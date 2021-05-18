@@ -40,6 +40,8 @@ k$k(matrix(c(2,1), ncol=1))
 \item{\code{k2pl}}{param length of kernel 2}
 
 \item{\code{s2}}{variance}
+
+\item{\code{s2_est}}{Is s2 being estimated?}
 }
 \if{html}{\out{</div>}}
 }

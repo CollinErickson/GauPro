@@ -841,7 +841,6 @@ GauPro_kernel_model <- R6::R6Class(
         ggplot2::geom_line(size=1) +
         ggplot2::ylab("Predicted Z (95% interval)") +
         ggplot2::xlab("x along dimension i")
-
     },
     #' @description Plot marginal prediction for random sample of inputs
     #' @param n Number of random points to evaluate
@@ -875,8 +874,6 @@ GauPro_kernel_model <- R6::R6Class(
         ggplot2::geom_point() +
         ggplot2::ylab("Predicted Z (95% interval)") +
         ggplot2::xlab("x along dimension i (other dims at random values)")
-
-
     },
     #' @description Calculate loglikelihood of parameters
     #' @param mu Mean parameters

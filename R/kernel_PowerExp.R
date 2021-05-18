@@ -71,7 +71,7 @@ PowerExp <- R6::R6Class(
     #' @param beta Correlation parameters.
     #' @param s2 Variance parameter.
     #' @param params parameters to use instead of beta and s2.
-    k = function(x, y=NULL, beta=self$beta, alpha=self$alpha, s2=self$s2, params=NULL) {#browser()
+    k = function(x, y=NULL, beta=self$beta, alpha=self$alpha, s2=self$s2, params=NULL) {
       if (!is.null(params)) {
         lenparams <- length(params)
         # beta <- params[1:(lenpar-2)]
@@ -95,7 +95,7 @@ PowerExp <- R6::R6Class(
         }
 
         s2 <- 10^logs2
-      } else {#browser()
+      } else {
         if (is.null(beta)) {beta <- self$beta}
         if (is.null(alpha)) {alpha <- self$alpha}
         if (is.null(s2)) {s2 <- self$s2}
@@ -103,7 +103,7 @@ PowerExp <- R6::R6Class(
       theta <- 10^beta
       # alpha <- 10^logalpha
       if (is.null(y)) {
-        if (is.matrix(x)) {#browser()
+        if (is.matrix(x)) {
           # cgmtry <- try(val <- s2 * corr_gauss_matrix_symC(x, theta))
           val <- outer(1:nrow(x), 1:nrow(x),
                        Vectorize(function(i,j){
@@ -147,7 +147,7 @@ PowerExp <- R6::R6Class(
     #' @param C_nonug Covariance without nugget added to diagonal
     #' @param C Covariance with nugget
     #' @param nug Value of nugget
-    dC_dparams = function(params=NULL, X, C_nonug, C, nug) {#browser(text = "Make sure all in one list")
+    dC_dparams = function(params=NULL, X, C_nonug, C, nug) {
       n <- nrow(X)
       # if (is.null(params)) {params <- c(self$beta, self$logalpha, self$logs2)}
 
@@ -199,7 +199,8 @@ PowerExp <- R6::R6Class(
             for (j in seq(i+1, n, 1)) {
               # r2 <- sum(theta * abs(X[i,]-X[j,])^alpha)
               # t1 <- 1 + r2 / alpha
-              dC_dparams[k,i,j] <- - C_nonug[i,j] * abs(X[i,k] - X[j,k])^alphak * theta[k] * log10   #s2 * (1+t1) * exp(-t1) *-dt1dbk + s2 * dt1dbk * exp(-t1)
+              dC_dparams[k,i,j] <- - C_nonug[i,j] * abs(X[i,k] - X[j,k])^alphak * theta[k] * log10
+              #s2 * (1+t1) * exp(-t1) *-dt1dbk + s2 * dt1dbk * exp(-t1)
               dC_dparams[k,j,i] <- dC_dparams[k,i,j]
             }
           }
@@ -216,11 +217,20 @@ PowerExp <- R6::R6Class(
           for (j in seq(i+1, n, 1)) {
             r2 <- sum(theta * abs(X[i,]-X[j,])^alpha)
             if (length(alpha) == 1) {
-              dC_dparams[alpha_dC_inds, i,j] <- C_nonug[i,j] * sum((-theta*(abs(X[i,]-X[j,]))^alpha)*log(abs(X[i,]-X[j,])))
+              if (r2 == 0) { # Avoid divide by zero error
+                dC_dparams[alpha_dC_inds, i,j] <- 0
+              } else {
+                dC_dparams[alpha_dC_inds, i,j] <- C_nonug[i,j] * sum((-theta*(abs(X[i,]-X[j,]))^alpha)*log(abs(X[i,]-X[j,])))
+              }
               dC_dparams[alpha_dC_inds, j,i] <- dC_dparams[alpha_dC_inds, i,j]
             } else { # alpha for each dimension
               for (k in alpha_dim_inds) { #seq(1, length(alpha))) {
-                dC_dparams[k + self$beta_est * length(beta), i,j] <- C_nonug[i,j] * (- theta[k]*(abs(X[i,k]-X[j,k]))^alpha[k]) * log(abs(X[i,k]-X[j,k]))
+                if (X[i,k] == X[j,k]) { # Avoid divide by zero error
+                  dC_dparams[k + self$beta_est * length(beta), i,j] <- 0
+                } else {
+                  dC_dparams[k + self$beta_est * length(beta), i,j] <- C_nonug[i,j] * (
+                    - theta[k]*(abs(X[i,k]-X[j,k]))^alpha[k]) * log(abs(X[i,k]-X[j,k]))
+                }
                 dC_dparams[k + self$beta_est * length(beta), j,i] <- dC_dparams[k + self$beta_est * length(beta), i,j]
               }
             }
@@ -239,7 +249,7 @@ PowerExp <- R6::R6Class(
     #' @param beta log of theta
     #' @param alpha alpha value (the exponent). Between 0 and 2.
     #' @param s2 Variance parameter
-    dC_dx = function(XX, X, theta, beta=self$beta, alpha=self$alpha, s2=self$s2) {#browser()
+    dC_dx = function(XX, X, theta, beta=self$beta, alpha=self$alpha, s2=self$s2) {
       if (missing(theta)) {theta <- 10^beta}
       # p <- 10 ^ logp
       # alpha <- 10 ^ logalpha
@@ -256,7 +266,8 @@ PowerExp <- R6::R6Class(
             # r <- sqrt(sum(theta * (XX[i,] - X[k,]) ^ 2))
             r2 <- sum(theta * abs(XX[i,] - X[k,])^alpha)
             CC <- s2 * exp(-r2)
-            dC_dx[i, j, k] <- CC * (-1) * theta[j] * alphaj * abs(XX[i, j]-X[k, j]) ^ (alphaj-1) * sign(XX[i, j]-X[k, j]) #) * p[j] #* (XX[i, j] - X[k, j])
+            dC_dx[i, j, k] <- CC * (-1) * theta[j] * alphaj * abs(XX[i, j]-X[k, j]) ^ (alphaj-1) * sign(XX[i, j]-X[k, j])
+            #) * p[j] #* (XX[i, j] - X[k, j])
           }
         }
       }

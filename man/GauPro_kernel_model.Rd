@@ -657,7 +657,7 @@ plotted are held constant at this value.}
 \subsection{Method \code{plotmarginalrandom()}}{
 Plot marginal prediction for random sample of inputs
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$plotmarginalrandom(n = 50)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$plotmarginalrandom(n = 151)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -1358,6 +1358,8 @@ Find the point that maximizes the expected improvement
 \if{html}{\out{<a id="method-maxEIwithfactors"></a>}}
 \if{latex}{\out{\hypertarget{method-maxEIwithfactors}{}}}
 \subsection{Method \code{maxEIwithfactors()}}{
+Find the point that maximizes the expected improvement.
+Used whenever one of the inputs is a factor (can only take values 1:n).
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$maxEIwithfactors(
   lower = apply(self$X, 2, min),
@@ -1368,6 +1370,21 @@ Find the point that maximizes the expected improvement
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{lower}}{Lower bounds to search within}
+
+\item{\code{upper}}{Upper bounds to search within}
+
+\item{\code{n0}}{Number of points to evaluate in initial stage}
+
+\item{\code{minimize}}{Are you trying to minimize the output?}
+
+\item{\code{eps}}{Exploration parameter}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-maxqEI"></a>}}

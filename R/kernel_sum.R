@@ -16,6 +16,7 @@
 #' @field k1pl param length of kernel 1
 #' @field k2pl param length of kernel 2
 #' @field s2 variance
+#' @field s2_est Is s2 being estimated?
 #' @examples
 #' k1 <- Exponential$new(beta=1)
 #' k2 <- Matern32$new(beta=2)

@@ -145,13 +145,18 @@ Matern52 <- R6::R6Class(
         for (i in seq(1, n-1, 1)) {
           for (j in seq(i+1, n, 1)) {
             tx2 <- sum(theta * (X[i,]-X[j,])^2)
-            t1 <- sqrt(5 * tx2)
-            t3 <- C[i,j] * ((1+2*t1/3)/(1+t1+t1^2/3) - 1) * self$sqrt5 * log10
-            half_over_sqrttx2 <- .5 / sqrt(tx2)
-            for (k in 1:length(beta)) {
-              dt1dbk <- half_over_sqrttx2 * (X[i,k] - X[j,k])^2
-              dC_dparams[k,i,j] <- t3 * dt1dbk * theta[k]
-              dC_dparams[k,j,i] <- dC_dparams[k,i,j]
+            if (tx2 == 0) { # Avoid divide by 0 error
+              # When x are equal, changing param has no effect on correlation
+              dC_dparams[1:length(beta),i,j] <- dC_dparams[1:length(beta),j,i] <- 0
+            } else {
+              t1 <- sqrt(5 * tx2)
+              t3 <- C[i,j] * ((1+2*t1/3)/(1+t1+t1^2/3) - 1) * self$sqrt5 * log10
+              half_over_sqrttx2 <- .5 / sqrt(tx2)
+              for (k in 1:length(beta)) {
+                dt1dbk <- half_over_sqrttx2 * (X[i,k] - X[j,k])^2
+                dC_dparams[k,i,j] <- t3 * dt1dbk * theta[k]
+                dC_dparams[k,j,i] <- dC_dparams[k,i,j]
+              }
             }
           }
         }
