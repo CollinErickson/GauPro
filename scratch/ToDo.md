@@ -39,6 +39,8 @@ at end for K/Kinv so predictions are good.
 
 * Add test with repeated X. Add test with big nugget and make sure deriv still matches.
 
-* Change chol2inv to 2 backsolves, check speed and accuracy
+* Fix travis after success
 
-* Add travis test for time and prediction accuracy
+* Prevent negative s2, e.g., borehole
+
+* optim: start by checking n points, then optimizing from best?

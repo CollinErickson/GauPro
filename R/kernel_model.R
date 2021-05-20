@@ -1544,7 +1544,6 @@ GauPro_kernel_model <- R6::R6Class(
       Z_hat <- self$trend$Z(X=self$X, params=trend_params)
       # dev.try <- try(dev <- log(det(K)) + sum((self$Z - self$mu_hat) *
       #                            solve(K, self$Z - self$mu_hat)))
-      # browser()
       dev.try <- try(
         # dev <- log(det(K)) + sum((self$Z - Z_hat) * solve(K, self$Z - Z_hat))
         # Less likely to overflow by telling it to do logarithm
@@ -1701,9 +1700,15 @@ GauPro_kernel_model <- R6::R6Class(
       # yminusmu <- self$Z - self$mu_hat
       yminusmu <- self$Z - Z_hat
       s2_from_kernel <- self$kernel$s2_from_params(params=params)
+      # I tried not doing chol2inv, but it's faster inside of gradfunc, so keep it
+      # if (calc_inv_from_chol) {
       Cinv <- chol2inv(chol(C))
       # solve.try <- try(Cinv_yminusmu <- solve(C, yminusmu))
       solve.try <- try(Cinv_yminusmu <- Cinv %*% yminusmu)
+      # } else {
+      #   chol_C <- chol(C)
+      #   solve.try <- try(Cinv_yminusmu <- solvewithchol(chol_C, yminusmu))
+      # }
       if (inherits(solve.try, "try-error")) {
         if (self$verbose>=2) {
           print("Deviance grad error #63466, returning Inf")
@@ -1715,7 +1720,11 @@ GauPro_kernel_model <- R6::R6Class(
       if (length(dZ_dparams) > 0 && trend_update) {
         trend_gradfunc <- function(di) {
           # -2 * t(yminusmu) %*% solve(C, di) # Siginv %*% du/db
+          # if (calc_inv_from_chol) {
           -2 * t(yminusmu) %*% (Cinv %*% di) # Siginv %*% du/db
+          # } else {
+          #   -2 * t(yminusmu) %*% solvewithchol(chol_C, di)
+          # }
         }
         trend_gr <- apply(dZ_dparams, 2, trend_gradfunc)
         gr <- trend_gr
@@ -1726,6 +1735,9 @@ GauPro_kernel_model <- R6::R6Class(
       gradfunc <- function(di) {
         # t1 <- sum(diag(solve(C, di))) # Waste to keep resolving
         # t1 <- sum(diag((Cinv %*% di))) # Don't need whole mat mul
+        # This is the main reason to calculate Cinv. Getting this trace this way
+        # is way faster than having to repeatedly do solves with chol_C and then
+        # taking the trace.
         t1 <- sum(Cinv * t(di))
         t2 <- sum(Cinv_yminusmu * (di %*% Cinv_yminusmu))
         t1 - t2
@@ -2173,7 +2185,6 @@ GauPro_kernel_model <- R6::R6Class(
                       n0=100, minimize=FALSE, eps=.01) {
       stopifnot(is.numeric(npoints), length(npoints)==1, npoints >= 1)
       stopifnot(method=="CL")
-      # browser()
       # Clone object since we will add fake data
       gpclone <- self$clone(deep=TRUE)
       # Track points selected

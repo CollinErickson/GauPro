@@ -1,11 +1,11 @@
 
 f <- TestFunctions::piston
 d <- 7
-n <- 60
+n <- 300
 x <- lhs::randomLHS(n=n,k=d)
 y <- f(x)
 # y
-system.time({gp <- GauPro_kernel_model$new(X=x, Z=y, kernel = Matern52$new(D=d), verbose = 5)})
+# system.time({gp <- GauPro_kernel_model$new(X=x, Z=y, kernel = Matern52$new(D=d), verbose = 5)})
 system.time({gp <- GauPro_kernel_model$new(X=x, Z=y, kernel = Gaussian$new(D=d), verbose = 5)})
 plot(gp$pred_LOO(), y)
 gp$plotmarginal()

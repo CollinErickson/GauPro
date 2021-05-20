@@ -10,5 +10,5 @@ r_packages:
 after_success:
   - Rscript -e 'library(covr); codecov()'
   #- Rscript -e 'devtools::build();install.packages("/home/travis/build/CollinErickson/CGGP_1.0.2.tar.gz", repos = NULL, type="source");devtools::install_github("CollinErickson/TestFunctions");source("./scratch/after_success.R")'
-  - Rscript -e 'devtools::build();library(GauPro);devtools::install_github("CollinErickson/TestFunctions");source("./scratch/after_success.R")'
+  - Rscript -e 'install.packages("devtools"); devtools::build();library(GauPro);devtools::install_github("CollinErickson/TestFunctions");source("./scratch/after_success.R")'
 
