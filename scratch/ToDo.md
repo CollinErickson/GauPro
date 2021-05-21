@@ -29,8 +29,6 @@ at end for K/Kinv so predictions are good.
 
 * optim NaN starting value (found on 1D doing EI)
 
-* plot LOO calibration
-
 * Speed up m52 grad, Cubic k/grad
 
 * 3 kernel product. prod/sum need to get s2_est from children
@@ -38,8 +36,6 @@ at end for K/Kinv so predictions are good.
 * no param est gave error, dC_dparam can't be calculated
 
 * Add test with repeated X. Add test with big nugget and make sure deriv still matches.
-
-* Fix travis after success
 
 * optim: start by checking n points, then optimizing from best?
 

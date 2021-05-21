@@ -891,6 +891,35 @@ GauPro_kernel_model <- R6::R6Class(
         ggplot2::ylab("Predicted Z (95% interval)") +
         ggplot2::xlab("x along dimension i (other dims at random values)")
     },
+    plotLOO = function() {
+      ploo <- self$pred_LOO(se.fit = T)
+      loodf <- cbind(ploo, Z=self$Z)
+      loodf
+      loodf$upper <- loodf$fit + 1.96 * loodf$se.fit
+      loodf$lower <- loodf$fit - 1.96 * loodf$se.fit
+      # Add text with coverage, R-sq
+      coveragevec <- with(loodf, upper >= Z & lower <= Z)
+      coverage <- mean(coveragevec)
+      coverage
+      rsq <- with(loodf, 1 - (sum((fit-Z)^2)) / (sum((mean(Z)-Z)^2)))
+      rsq
+      ggplot(loodf, aes(fit, Z)) +
+        stat_smooth(method="loess", formula="y~x") +
+        geom_abline(slope=1, intercept=0, color="red") +
+        geom_segment(aes(x=lower, xend=upper, yend=Z), color="green") +
+        geom_point() +
+        # geom_text(x=min(loodf$fit), y=max(loodf$Z), label="abc") +
+        geom_text(x=-Inf, y=Inf,
+                  label=paste("Coverage:", signif(coverage,5)),
+                  hjust=0, vjust=1) +
+        geom_text(x=-Inf, y=Inf,
+                  label=paste("R-sq:        ", signif(rsq,5)),
+                  hjust=0, vjust=2.2) +
+        # geom_text(x=Inf, y=-Inf, label="def", hjust=1, vjust=0)
+        xlab("Predicted values (fit)") +
+        ylab("Actual values (Z)") +
+        ggtitle("Calibration of leave-one-out (LOO) predictions")
+    },
     #' @description Calculate loglikelihood of parameters
     #' @param mu Mean parameters
     #' @param s2 Variance parameter
