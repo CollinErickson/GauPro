@@ -1,9 +1,9 @@
 
 f <- TestFunctions::piston
 d <- 7
-n <- 300
+n <- 30
 x <- lhs::randomLHS(n=n,k=d)
-y <- f(x)
+y <- f(x) + rnorm(nrow(x), 0,1e-1)
 # y
 # system.time({gp <- GauPro_kernel_model$new(X=x, Z=y, kernel = Matern52$new(D=d), verbose = 5)})
 system.time({gp <- GauPro_kernel_model$new(X=x, Z=y, kernel = Gaussian$new(D=d), verbose = 5)})

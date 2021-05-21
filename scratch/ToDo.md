@@ -41,6 +41,6 @@ at end for K/Kinv so predictions are good.
 
 * Fix travis after success
 
-* Prevent negative s2, e.g., borehole
-
 * optim: start by checking n points, then optimizing from best?
+
+* EI doesn't explore enough in 1D. Is eps wrong sign? Use t dist for fatter tails?

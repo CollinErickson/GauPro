@@ -9,6 +9,9 @@ r_packages:
 
 after_success:
   - Rscript -e 'library(covr); codecov()'
+  # Below: What works for CGGP
   #- Rscript -e 'devtools::build();install.packages("/home/travis/build/CollinErickson/CGGP_1.0.2.tar.gz", repos = NULL, type="source");devtools::install_github("CollinErickson/TestFunctions");source("./scratch/after_success.R")'
-  - Rscript -e 'install.packages("devtools"); devtools::build();library(GauPro);devtools::install_github("CollinErickson/TestFunctions");source("./scratch/after_success.R")'
+  # Below: See Travis #414. Failed on library(GauPro). Took 3.5 minutes to do first 2 commands.
+  # Skipping to save time.
+  #- Rscript -e 'install.packages("devtools"); devtools::build();library(GauPro);devtools::install_github("CollinErickson/TestFunctions");source("./scratch/after_success.R")'
 

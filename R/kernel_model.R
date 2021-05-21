@@ -366,9 +366,18 @@ GauPro_kernel_model <- R6::R6Class(
         # covmatdat <- pred_cov(XX, kxx, kx.xx, self$s2_hat, self$Kinv,
         #                       self$Z)
         s2 <- diag(covmatdat)
-        se <- rep(1e-8, length(mn)) # NEG VARS will be 0 for se,
-        #  NOT SURE I WANT THIS
-        se[s2>=0] <- sqrt(s2[s2>=0])
+        # se <- rep(1e-8, length(mn)) # NEG VARS will be 0 for se,
+        # #  NOT SURE I WANT THIS
+        # se[s2>=0] <- sqrt(s2[s2>=0])
+
+        if (any(s2 < 0)) {
+          min_s2 <- .Machine$double.eps
+          warning(paste0("Negative s2 predictions are being set to ",
+                         min_s2, " (", sum(s2<0)," values).",
+                         " covmat is not being altered."))
+          s2 <- pmax(s2, min_s2)
+        }
+        se <- sqrt(s2)
         return(list(mean=mn, s2=s2, se=se, cov=covmatdat))
       }
 
@@ -399,10 +408,17 @@ GauPro_kernel_model <- R6::R6Class(
         s2 <- s2 * self$normalize_sd ^ 2
       }
 
-      # s2 <- pred_var(XX, kxx, kx.xx, self$s2_hat, self$Kinv, self$Z)
-      se <- rep(0, length(mn)) # NEG VARS will be 0 for se,
-      #   NOT SURE I WANT THIS
-      se[s2>=0] <- sqrt(s2[s2>=0])
+      # # s2 <- pred_var(XX, kxx, kx.xx, self$s2_hat, self$Kinv, self$Z)
+      # se <- rep(0, length(mn)) # NEG VARS will be 0 for se,
+      # #   NOT SURE I WANT THIS
+      # se[s2>=0] <- sqrt(s2[s2>=0])
+      if (any(s2 < 0)) {
+        min_s2 <- .Machine$double.eps
+        warning(paste0("Negative s2 predictions are being set to ",
+                       min_s2, " (", sum(s2<0)," values)"))
+        s2 <- pmax(s2, min_s2)
+      }
+      se <- sqrt(s2)
 
       # se.fit but not covmat
       if (return_df) {
