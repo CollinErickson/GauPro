@@ -38,5 +38,3 @@ at end for K/Kinv so predictions are good.
 * Add test with repeated X. Add test with big nugget and make sure deriv still matches.
 
 * optim: start by checking n points, then optimizing from best?
-
-* EI doesn't explore enough in 1D. Is eps wrong sign? Use t dist for fatter tails?
