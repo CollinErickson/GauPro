@@ -163,6 +163,22 @@ GauPro_kernel_model <- R6::R6Class(
       } else if ("GauPro_kernel" %in% class(kernel)) {
         # Otherwise it should already be a kernel
         self$kernel <- kernel
+      } else if(is.character(kernel) && length(kernel)==1) {
+        kernel <- tolower(kernel)
+        if (kernel %in% c("gaussian", "gauss")) {
+          kernel <- Gaussian$new(D=self$D)
+        } else if (kernel %in% c("matern32", "m32", "matern3/2")) {
+          kernel <- Matern32$new(D=self$D)
+        } else if (kernel %in% c("matern32", "m32", "matern3/2")) {
+          kernel <- Matern52$new(D=self$D)
+        } else if (kernel %in% c("exp", "exponential", "m12", "matern12", "matern1/2")) {
+          kernel <- Exponential$new(D=self$D)
+        } else {
+          stop(paste0("Kernel given to GauPro_kernel_model (",
+                      kernel, ") is not valid. ",
+                      "Consider using Gaussian or Matern52."))
+        }
+        self$kernel <- kernel
       } else {
         stop(paste0("Kernel given to GauPro_kernel_model is not valid. ",
                     "Consider using Gaussian or Matern52."))
