@@ -78,6 +78,7 @@ gp <- GauPro_kernel_model_LOO$new(X=x, Z=y, kernel=Matern52)
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="plot">}\href{../../GauPro/html/GauPro.html#method-plot}{\code{GauPro::GauPro$plot()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="plot1D">}\href{../../GauPro/html/GauPro.html#method-plot1D}{\code{GauPro::GauPro$plot1D()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="plot2D">}\href{../../GauPro/html/GauPro.html#method-plot2D}{\code{GauPro::GauPro$plot2D()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="plotLOO">}\href{../../GauPro/html/GauPro.html#method-plotLOO}{\code{GauPro::GauPro$plotLOO()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="plotmarginal">}\href{../../GauPro/html/GauPro.html#method-plotmarginal}{\code{GauPro::GauPro$plotmarginal()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="plotmarginalrandom">}\href{../../GauPro/html/GauPro.html#method-plotmarginalrandom}{\code{GauPro::GauPro$plotmarginalrandom()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="pred">}\href{../../GauPro/html/GauPro.html#method-pred}{\code{GauPro::GauPro$pred()}}\out{</span>}

@@ -130,6 +130,7 @@ parameters.}
 \item \href{#method-plot2D}{\code{GauPro_kernel_model$plot2D()}}
 \item \href{#method-plotmarginal}{\code{GauPro_kernel_model$plotmarginal()}}
 \item \href{#method-plotmarginalrandom}{\code{GauPro_kernel_model$plotmarginalrandom()}}
+\item \href{#method-plotLOO}{\code{GauPro_kernel_model$plotLOO()}}
 \item \href{#method-loglikelihood}{\code{GauPro_kernel_model$loglikelihood()}}
 \item \href{#method-get_optim_functions}{\code{GauPro_kernel_model$get_optim_functions()}}
 \item \href{#method-param_optim_lower}{\code{GauPro_kernel_model$param_optim_lower()}}
@@ -667,6 +668,15 @@ Plot marginal prediction for random sample of inputs
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-plotLOO"></a>}}
+\if{latex}{\out{\hypertarget{method-plotLOO}{}}}
+\subsection{Method \code{plotLOO()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$plotLOO()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-loglikelihood"></a>}}
@@ -1307,7 +1317,7 @@ Sample at rows of XX
 \subsection{Method \code{EI()}}{
 Calculate expected improvement
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$EI(x, minimize = FALSE, eps = 0.01)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$EI(x, minimize = FALSE, eps = 0)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -1334,7 +1344,7 @@ Find the point that maximizes the expected improvement
   upper = apply(self$X, 2, max),
   n0 = 100,
   minimize = FALSE,
-  eps = 0.01
+  eps = 0
 )}\if{html}{\out{</div>}}
 }
 

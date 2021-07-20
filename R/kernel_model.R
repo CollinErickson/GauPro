@@ -169,10 +169,14 @@ GauPro_kernel_model <- R6::R6Class(
           kernel <- Gaussian$new(D=self$D)
         } else if (kernel %in% c("matern32", "m32", "matern3/2")) {
           kernel <- Matern32$new(D=self$D)
-        } else if (kernel %in% c("matern32", "m32", "matern3/2")) {
+        } else if (kernel %in% c("matern52", "m52", "matern5/2")) {
           kernel <- Matern52$new(D=self$D)
         } else if (kernel %in% c("exp", "exponential", "m12", "matern12", "matern1/2")) {
           kernel <- Exponential$new(D=self$D)
+        } else if (kernel %in% c("ratquad", "rationalquadratic", "rq")) {
+          kernel <- RatQuad$new(D=self$D)
+        } else if (kernel %in% c("powerexponential", "powexp", "pe")) {
+          kernel <- PowerExp$new(D=self$D)
         } else {
           stop(paste0("Kernel given to GauPro_kernel_model (",
                       kernel, ") is not valid. ",
