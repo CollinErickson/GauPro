@@ -43,3 +43,7 @@ at end for K/Kinv so predictions are good.
 * plot2D option to do se instead of mean, or side by side
 
 * use self$kernel$k on x instead of assuming it is 1
+
+* Fix crashing on laptop. Changed gradfuncarray from Rcpp to R, but something
+in optimRestart is now breaking instead.
+
