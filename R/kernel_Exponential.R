@@ -11,7 +11,8 @@
 #' @format \code{\link{R6Class}} object.
 #' @examples
 #' k1 <- Exponential$new(beta=0)
-Exponential <- R6::R6Class(classname = "GauPro_kernel_Exponential",
+Exponential <- R6::R6Class(
+  classname = "GauPro_kernel_Exponential",
   inherit = GauPro_kernel_beta,
   public = list(
     #' @description Calculate covariance between two points
@@ -128,7 +129,11 @@ Exponential <- R6::R6Class(classname = "GauPro_kernel_Exponential",
           for (j in seq(i+1, n, 1)) {
             t1 <- -1 * C_nonug[i,j] * log10 * .5 / (-log(C[i,j]/s2))
             for (k in 1:length(beta)) {
-              dC_dparams[k,i,j] <- t1 * (X[i,k] - X[j,k])^2 * theta[k]
+              if (X[i,k] == X[j,k]) {
+                dC_dparams[k,i,j] <- 0
+              } else {
+                dC_dparams[k,i,j] <- t1 * (X[i,k] - X[j,k])^2 * theta[k]
+              }
               dC_dparams[k,j,i] <- dC_dparams[k,i,j]
             }
           }

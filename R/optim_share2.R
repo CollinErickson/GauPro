@@ -20,7 +20,9 @@ optim_share2 <- function(par, fngr, ...) {
   besty <- Inf
   # browser()
   # iter <- 0
+  neval <- 0
   f1 <- function(x) {
+    neval <<- neval + 1
     out <- env$fn(x)
     # iter <<- iter + 1
     # print(c(iter, round(x,4), out, round(bestx,4), besty))
@@ -44,7 +46,7 @@ optim_share2 <- function(par, fngr, ...) {
     } else {
       return(list(par=bestx,
                   value=besty,
-                  counts=c('function'=NA, 'gradient'=NA),
+                  counts=c('function'=neval, 'gradient'=NA),
                   convergence=NA,
                   message="FAILED OPTIM: USING BEST SEEN, SEE optim_share2 FOR DETAILS"))
     }

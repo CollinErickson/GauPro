@@ -225,6 +225,18 @@ GauPro_base <- R6::R6Class(classname = "GauPro",
             Z_LOO
           }
         },
+        #' @description Plot the object
+        #' @param ... Parameters passed to cool1Dplot(), plot2D(), or plotmarginal()
+        plot = function(...) {
+          if (self$D == 1) {
+            self$cool1Dplot(...)
+          } else if (x$D == 2) {
+            self$plot2D(...)
+          } else {
+            stop("No plot method for higher than 2 dimension")
+            # self$plotmarginal(...)
+          }
+        },
         cool1Dplot = function (n2=20, nn=201, col2="gray",
                                xlab='x', ylab='y',
                                xmin=NULL, xmax=NULL,

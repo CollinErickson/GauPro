@@ -16,6 +16,7 @@
 #' @field k1pl param length of kernel 1
 #' @field k2pl param length of kernel 2
 #' @field s2 variance
+#' @field s2_est Is s2 being estimated?
 #' @examples
 #' k1 <- Exponential$new(beta=1)
 #' k2 <- Matern32$new(beta=2)
@@ -31,6 +32,7 @@ kernel_sum <- R6::R6Class(classname = "GauPro_kernel_sum",
     k1pl = NULL,
     k2pl = NULL,
     s2 = NULL,
+    s2_est = NULL,
     #' @description Initialize kernel
     #' @param k1 Kernel 1
     #' @param k2 Kernel 2
@@ -42,6 +44,7 @@ kernel_sum <- R6::R6Class(classname = "GauPro_kernel_sum",
       self$k2_param_length <- length(self$k2$param_optim_start())
       self$k2pl <- self$k2_param_length
       self$s2 <- self$k1$s2 + self$k2$s2
+      self$s2_est <- (self$k1$s2_est || self$k2$s2_est)
     },
     #' @description Calculate covariance between two points
     #' @param x vector.

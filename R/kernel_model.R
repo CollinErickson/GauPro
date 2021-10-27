@@ -163,8 +163,29 @@ GauPro_kernel_model <- R6::R6Class(
       } else if ("GauPro_kernel" %in% class(kernel)) {
         # Otherwise it should already be a kernel
         self$kernel <- kernel
+      } else if(is.character(kernel) && length(kernel)==1) {
+        kernel <- tolower(kernel)
+        if (kernel %in% c("gaussian", "gauss")) {
+          kernel <- Gaussian$new(D=self$D)
+        } else if (kernel %in% c("matern32", "m32", "matern3/2")) {
+          kernel <- Matern32$new(D=self$D)
+        } else if (kernel %in% c("matern52", "m52", "matern5/2")) {
+          kernel <- Matern52$new(D=self$D)
+        } else if (kernel %in% c("exp", "exponential", "m12", "matern12", "matern1/2")) {
+          kernel <- Exponential$new(D=self$D)
+        } else if (kernel %in% c("ratquad", "rationalquadratic", "rq")) {
+          kernel <- RatQuad$new(D=self$D)
+        } else if (kernel %in% c("powerexponential", "powexp", "pe")) {
+          kernel <- PowerExp$new(D=self$D)
+        } else {
+          stop(paste0("Kernel given to GauPro_kernel_model (",
+                      kernel, ") is not valid. ",
+                      "Consider using Gaussian or Matern52."))
+        }
+        self$kernel <- kernel
       } else {
-        stop("Error: bad kernel #68347")
+        stop(paste0("Kernel given to GauPro_kernel_model is not valid. ",
+                    "Consider using Gaussian or Matern52."))
       }
 
       # Set trend
@@ -241,6 +262,7 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param se.fit Should standard error be returned?
     #' @param covmat Should covariance matrix be returned?
     #' @param split_speed Should the matrix be split for faster predictions?
+    #' @param mean_dist Should the error be for the distribution of the mean?
     predict = function(XX, se.fit=F, covmat=F, split_speed=F, mean_dist=FALSE) {
       self$pred(XX=XX, se.fit=se.fit, covmat=covmat,
                 split_speed=split_speed, mean_dist=mean_dist)
@@ -250,6 +272,7 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param se.fit Should standard error be returned?
     #' @param covmat Should covariance matrix be returned?
     #' @param split_speed Should the matrix be split for faster predictions?
+    #' @param mean_dist Should the error be for the distribution of the mean?
     pred = function(XX, se.fit=F, covmat=F, split_speed=F, mean_dist=FALSE) {
       if (!is.matrix(XX)) {
         if (self$D == 1) XX <- matrix(XX, ncol=1)
@@ -322,6 +345,7 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param covmat Should covariance matrix be returned?
     #' @param return_df When returning se.fit, should it be returned in
     #' a data frame?
+    #' @param mean_dist Should the error be for the distribution of the mean?
     pred_one_matrix = function(XX, se.fit=F, covmat=F, return_df=FALSE,
                                mean_dist=FALSE) {
       # input should already be checked for matrix
@@ -362,9 +386,18 @@ GauPro_kernel_model <- R6::R6Class(
         # covmatdat <- pred_cov(XX, kxx, kx.xx, self$s2_hat, self$Kinv,
         #                       self$Z)
         s2 <- diag(covmatdat)
-        se <- rep(1e-8, length(mn)) # NEG VARS will be 0 for se,
-        #  NOT SURE I WANT THIS
-        se[s2>=0] <- sqrt(s2[s2>=0])
+        # se <- rep(1e-8, length(mn)) # NEG VARS will be 0 for se,
+        # #  NOT SURE I WANT THIS
+        # se[s2>=0] <- sqrt(s2[s2>=0])
+
+        if (any(s2 < 0)) {
+          min_s2 <- .Machine$double.eps
+          warning(paste0("Negative s2 predictions are being set to ",
+                         min_s2, " (", sum(s2<0)," values).",
+                         " covmat is not being altered."))
+          s2 <- pmax(s2, min_s2)
+        }
+        se <- sqrt(s2)
         return(list(mean=mn, s2=s2, se=se, cov=covmatdat))
       }
 
@@ -395,10 +428,17 @@ GauPro_kernel_model <- R6::R6Class(
         s2 <- s2 * self$normalize_sd ^ 2
       }
 
-      # s2 <- pred_var(XX, kxx, kx.xx, self$s2_hat, self$Kinv, self$Z)
-      se <- rep(0, length(mn)) # NEG VARS will be 0 for se,
-      #   NOT SURE I WANT THIS
-      se[s2>=0] <- sqrt(s2[s2>=0])
+      # # s2 <- pred_var(XX, kxx, kx.xx, self$s2_hat, self$Kinv, self$Z)
+      # se <- rep(0, length(mn)) # NEG VARS will be 0 for se,
+      # #   NOT SURE I WANT THIS
+      # se[s2>=0] <- sqrt(s2[s2>=0])
+      if (any(s2 < 0)) {
+        min_s2 <- .Machine$double.eps
+        warning(paste0("Negative s2 predictions are being set to ",
+                       min_s2, " (", sum(s2<0)," values)"))
+        s2 <- pmax(s2, min_s2)
+      }
+      se <- sqrt(s2)
 
       # se.fit but not covmat
       if (return_df) {
@@ -611,6 +651,18 @@ GauPro_kernel_model <- R6::R6Class(
       prds <- sweep(((C_aX %*% C_X_inv_C_XS) - C_aS) ^ 2, 2, G, `*`)
       prds
     },
+    #' @description Plot the object
+    #' @param ... Parameters passed to cool1Dplot(), plot2D(), or plotmarginal()
+    plot = function(...) {
+      if (self$D == 1) {
+        self$cool1Dplot(...)
+      } else if (self$D == 2) {
+        self$plot2D(...)
+      } else {
+        # stop("No plot method for higher than 2 dimension")
+        self$plotmarginal(...)
+      }
+    },
     #' @description Make cool 1D plot
     #' @param n2 Number of things to plot
     #' @param nn Number of things to plot
@@ -703,7 +755,8 @@ GauPro_kernel_model <- R6::R6Class(
     #' @description Make 1D plot
     #' @param n2 Number of things to plot
     #' @param nn Number of things to plot
-    #' @param col2 color
+    #' @param col2 Color of the prediction interval
+    #' @param col3 Color of the interval for the mean
     #' @param ylab y label
     #' @param xlab x label
     #' @param xmin xmin
@@ -784,10 +837,27 @@ GauPro_kernel_model <- R6::R6Class(
     #' plotted are held constant at this value.
     plotmarginal = function(pt=colMeans(self$X)) {
       # pt <- colMeans(self$X)
-      pt
+      # pt
+      factorinfo <- find_kernel_factor_dims(self$kernel)
+      if (length(factorinfo > 0)) {
+        factorindexes <- factorinfo[2*(1:(length(factorinfo)/2))-1]
+        factornlevels <- factorinfo[2*(1:(length(factorinfo)/2))]
+        for (i in 1:length(factorindexes)) {
+          if (!(pt[factorindexes[i]] %in% 1:factornlevels[i])) {
+            pt[factorindexes[i]] <- sample(1:factornlevels[i], 1)
+          }
+        }
+      } else {
+        factorindexes <- c()
+      }
       pts <- NULL
       for (i in 1:ncol(self$X)) {
-        xseq <- seq(min(self$X[,i]), max(self$X[,i]), l=51)
+        if (i %in% factorindexes) {
+          ind_i <- which(factorindexes == i)
+          xseq <- 1:(factorinfo[2*ind_i])
+        } else {
+          xseq <- seq(min(self$X[,i]), max(self$X[,i]), l=51)
+        }
         Xmat <- matrix(pt, byrow=T, ncol=length(pt), nrow=length(xseq))
         Xmat[, i] <- xseq
         pX <- self$pred(Xmat, se.fit = T)
@@ -807,35 +877,68 @@ GauPro_kernel_model <- R6::R6Class(
         ggplot2::geom_line(size=1) +
         ggplot2::ylab("Predicted Z (95% interval)") +
         ggplot2::xlab("x along dimension i")
-
     },
     #' @description Plot marginal prediction for random sample of inputs
     #' @param n Number of random points to evaluate
-    plotmarginalrandom = function(n=50) {
+    plotmarginalrandom = function(n=151) {
       # Plot marginal random averages
-      X <- lhs::randomLHS(n=151, k=ncol(self$X))
+      # Get random matrix, scale to proper lower/upper
+      X <- lhs::randomLHS(n=n, k=ncol(self$X))
       X2 <- sweep(X, 2, apply(self$X, 2, max) - apply(self$X, 2, min), "*")
       X3 <- sweep(X2, 2, apply(self$X, 2, min), "+")
+      factorinfo <- find_kernel_factor_dims(self$kernel)
+      if (length(factorinfo) > 0) {
+        for (i in 1:(length(factorinfo)/2)) {
+          X3[, factorinfo[i*2-1]] <- sample(1:factorinfo[i*2], size=n, replace=T)
+        }
+      }
       X3pred <- self$pred(X3, se.fit = T)
       X3pred$irow <- 1:nrow(X3pred)
       # head(X3pred)
       X4 <- dplyr::inner_join(
         X3pred,
-        tidyr::pivot_longer(cbind(as.data.frame(X),irow=1:nrow(X)), cols=1:7),
+        tidyr::pivot_longer(cbind(as.data.frame(X3),irow=1:nrow(X)), cols=1:ncol(self$X)),
         "irow")
       # head(X4)
       X4$upper <- X4$mean + 2*X4$se
       X4$lower <- X4$mean - 2*X4$se
       ggplot2::ggplot(X4, ggplot2::aes(value, mean)) +
-        ggplot2::facet_wrap(.~name) +
+        ggplot2::facet_wrap(.~name, scales="free_x") +
         # geom_point(aes(y=upper), color="green") +
         ggplot2::geom_segment(ggplot2::aes(y=upper, yend=lower, xend=value),
                               color="green", size=2) +
         ggplot2::geom_point() +
         ggplot2::ylab("Predicted Z (95% interval)") +
         ggplot2::xlab("x along dimension i (other dims at random values)")
-
-
+    },
+    plotLOO = function() {
+      ploo <- self$pred_LOO(se.fit = T)
+      loodf <- cbind(ploo, Z=self$Z)
+      loodf
+      loodf$upper <- loodf$fit + 1.96 * loodf$se.fit
+      loodf$lower <- loodf$fit - 1.96 * loodf$se.fit
+      # Add text with coverage, R-sq
+      coveragevec <- with(loodf, upper >= Z & lower <= Z)
+      coverage <- mean(coveragevec)
+      coverage
+      rsq <- with(loodf, 1 - (sum((fit-Z)^2)) / (sum((mean(Z)-Z)^2)))
+      rsq
+      ggplot(loodf, aes(fit, Z)) +
+        stat_smooth(method="loess", formula="y~x") +
+        geom_abline(slope=1, intercept=0, color="red") +
+        geom_segment(aes(x=lower, xend=upper, yend=Z), color="green") +
+        geom_point() +
+        # geom_text(x=min(loodf$fit), y=max(loodf$Z), label="abc") +
+        geom_text(x=-Inf, y=Inf,
+                  label=paste("Coverage:", signif(coverage,5)),
+                  hjust=0, vjust=1) +
+        geom_text(x=-Inf, y=Inf,
+                  label=paste("R-sq:        ", signif(rsq,5)),
+                  hjust=0, vjust=2.2) +
+        # geom_text(x=Inf, y=-Inf, label="def", hjust=1, vjust=0)
+        xlab("Predicted values (fit)") +
+        ylab("Actual values (Z)") +
+        ggtitle("Calibration of leave-one-out (LOO) predictions")
     },
     #' @description Calculate loglikelihood of parameters
     #' @param mu Mean parameters
@@ -1305,10 +1408,10 @@ GauPro_kernel_model <- R6::R6Class(
         }, silent=TRUE
       )
       if (!inherits(current, "try-error")) {
-        if (self$useGrad) {
-          current$counts <- c(NA,NA)
-          if(is.null(current$message)) {current$message=NA}
-        }
+        # if (self$useGrad) {
+        if (is.null(current$counts)) {current$counts <- c(NA,NA)}
+        if(is.null(current$message)) {current$message=NA}
+        # }
         details.new <- data.frame(
           start=paste(signif(start.par.i,3),collapse=","),
           end=paste(signif(current$par,3),collapse=","),
@@ -1506,7 +1609,6 @@ GauPro_kernel_model <- R6::R6Class(
       Z_hat <- self$trend$Z(X=self$X, params=trend_params)
       # dev.try <- try(dev <- log(det(K)) + sum((self$Z - self$mu_hat) *
       #                            solve(K, self$Z - self$mu_hat)))
-      # browser()
       dev.try <- try(
         # dev <- log(det(K)) + sum((self$Z - Z_hat) * solve(K, self$Z - Z_hat))
         # Less likely to overflow by telling it to do logarithm
@@ -1557,9 +1659,14 @@ GauPro_kernel_model <- R6::R6Class(
       C_nonug <- self$kernel$k(x=X, params=params)
       s2_from_kernel <- self$kernel$s2_from_params(params=params)
       C <- C_nonug + s2_from_kernel * diag(nug, self$N)
+      # if (length(params) <= 0.5) {
+      #   # Avoid error when no params are being updated
+      #   kernel_update <- FALSE
+      # } else {
       dC_dparams_out <- self$kernel$dC_dparams(params=params, X=X, C=C,
                                                C_nonug=C_nonug, nug=nug)
       dC_dparams <- dC_dparams_out#[[1]]
+      # }
       # First of list should be list of dC_dparams
       # s2_from_kernel <- dC_dparams_out[[2]]
       # Second should be s2 for nugget deriv
@@ -1658,9 +1765,15 @@ GauPro_kernel_model <- R6::R6Class(
       # yminusmu <- self$Z - self$mu_hat
       yminusmu <- self$Z - Z_hat
       s2_from_kernel <- self$kernel$s2_from_params(params=params)
+      # I tried not doing chol2inv, but it's faster inside of gradfunc, so keep it
+      # if (calc_inv_from_chol) {
       Cinv <- chol2inv(chol(C))
       # solve.try <- try(Cinv_yminusmu <- solve(C, yminusmu))
       solve.try <- try(Cinv_yminusmu <- Cinv %*% yminusmu)
+      # } else {
+      #   chol_C <- chol(C)
+      #   solve.try <- try(Cinv_yminusmu <- solvewithchol(chol_C, yminusmu))
+      # }
       if (inherits(solve.try, "try-error")) {
         if (self$verbose>=2) {
           print("Deviance grad error #63466, returning Inf")
@@ -1672,7 +1785,11 @@ GauPro_kernel_model <- R6::R6Class(
       if (length(dZ_dparams) > 0 && trend_update) {
         trend_gradfunc <- function(di) {
           # -2 * t(yminusmu) %*% solve(C, di) # Siginv %*% du/db
+          # if (calc_inv_from_chol) {
           -2 * t(yminusmu) %*% (Cinv %*% di) # Siginv %*% du/db
+          # } else {
+          #   -2 * t(yminusmu) %*% solvewithchol(chol_C, di)
+          # }
         }
         trend_gr <- apply(dZ_dparams, 2, trend_gradfunc)
         gr <- trend_gr
@@ -1683,6 +1800,9 @@ GauPro_kernel_model <- R6::R6Class(
       gradfunc <- function(di) {
         # t1 <- sum(diag(solve(C, di))) # Waste to keep resolving
         # t1 <- sum(diag((Cinv %*% di))) # Don't need whole mat mul
+        # This is the main reason to calculate Cinv. Getting this trace this way
+        # is way faster than having to repeatedly do solves with chol_C and then
+        # taking the trace.
         t1 <- sum(Cinv * t(di))
         t2 <- sum(Cinv_yminusmu * (di %*% Cinv_yminusmu))
         t1 - t2
@@ -1959,7 +2079,7 @@ GauPro_kernel_model <- R6::R6Class(
     #' be calculated
     #' @param minimize Are you trying to minimize the output?
     #' @param eps Exploration parameter
-    EI = function(x, minimize=FALSE, eps=.01) {
+    EI = function(x, minimize=FALSE, eps=0) {
       stopifnot(length(minimize)==1, is.logical(minimize))
       stopifnot(length(eps)==1, is.numeric(eps), eps >= 0)
       # if (minimize) {
@@ -1976,25 +2096,26 @@ GauPro_kernel_model <- R6::R6Class(
       # fxplus <- if (minimize) {min(self$Z)} else {max(self$Z)}
       # pred <- self$pred(x, se.fit=T)
       # Need to use prediction of mean
-      Xmeanpred <- self$pred(x, se.fit=T, mean_dist=T)
+      xnew_meanpred <- self$pred(x, se.fit=T, mean_dist=T)
+      Xold_meanpred <- self$pred(self$X, se.fit=T, mean_dist=T)
       # Use predicted mean at each point since it doesn't make sense not to
       # when there is noise. Or should fxplus be optimized over inputs?
-      fxplus <- if (minimize) {min(Xmeanpred$mean)} else {max(Xmeanpred$mean)}
+      fxplus <- if (minimize) {min(Xold_meanpred$mean)} else {max(Xold_meanpred$mean)}
       if (minimize) {
         # Ztop <- fxplus - pred$mean - eps
-        Ztop <- fxplus - Xmeanpred$mean - eps
+        Ztop <- fxplus - xnew_meanpred$mean - eps
       } else {
         # Ztop <- pred$mean - fxplus - eps
-        Ztop <- Xmeanpred$mean - fxplus - eps
+        Ztop <- xnew_meanpred$mean - fxplus - eps
       }
       # Z <- Ztop / pred$se
-      Z <- Ztop / Xmeanpred$se
+      Z <- Ztop / xnew_meanpred$se
       # if (pred$se <= 0) {return(0)}
       # (Ztop) * pnorm(Z) + pred$se * dnorm(Z)
       # ifelse(pred$se <= 0, 0,
       #        (Ztop) * pnorm(Z) + pred$se * dnorm(Z))
-      ifelse(Xmeanpred$se <= 0, 0,
-             (Ztop) * pnorm(Z) + Xmeanpred$se * dnorm(Z))
+      ifelse(xnew_meanpred$se <= 0, 0,
+             (Ztop) * pnorm(Z) + xnew_meanpred$se * dnorm(Z))
     },
     #' @description Find the point that maximizes the expected improvement
     #' @param lower Lower bounds to search within
@@ -2003,11 +2124,18 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param minimize Are you trying to minimize the output?
     #' @param eps Exploration parameter
     maxEI = function(lower=apply(self$X, 2, min), upper=apply(self$X, 2, max),
-                     n0=100, minimize=FALSE, eps=.01) {
+                     n0=100, minimize=FALSE, eps=0) {
       stopifnot(all(lower < upper))
       stopifnot(length(n0)==1, is.numeric(n0), n0>=1)
+      # Check if any kernels have factors
+      if (length(find_kernel_factor_dims(self$kernel)) > 0) {
+        # Has at least one factor
+        return(self$maxEIwithfactors(lower=lower, upper=upper, n0=n0, minimize=minimize, eps=eps))
+      }
       # Random points to evaluate to find best starting point
       X0 <- lhs::randomLHS(n=n0, k=ncol(self$X))
+      X0 <- sweep(X0, 2, upper-lower, "*")
+      X0 <- sweep(X0, 2, lower, "+")
       # Also use point near current optimum
       bestZind <- if (minimize) {which.min(self$Z)} else {which.max(self$Z)}
       X0 <- rbind(X0,
@@ -2026,6 +2154,88 @@ GauPro_kernel_model <- R6::R6Class(
                          method="L-BFGS-B")
       optim_out$par
     },
+    #' @description Find the point that maximizes the expected improvement.
+    #' Used whenever one of the inputs is a factor (can only take values 1:n).
+    #' @param lower Lower bounds to search within
+    #' @param upper Upper bounds to search within
+    #' @param n0 Number of points to evaluate in initial stage
+    #' @param minimize Are you trying to minimize the output?
+    #' @param eps Exploration parameter
+    maxEIwithfactors = function(lower=apply(self$X, 2, min), upper=apply(self$X, 2, max),
+                                n0=100, minimize=FALSE, eps=.01) {
+      stopifnot(all(lower < upper))
+      stopifnot(length(n0)==1, is.numeric(n0), n0>=1)
+      # Get factor info
+      factorinfo <- find_kernel_factor_dims(self$kernel)
+      # Run inner EI over all factor combinations
+      stopifnot(length(factorinfo)>0)
+      # factordf <- data.frame(index=factorinfo[1]
+      factorlist <- list()
+      for (i_f in 1:(length(factorinfo)/2)) {
+        factorlist[[as.character(factorinfo[i_f*2-1])]] <- 1:factorinfo[i_f*2]
+      }
+      factordf <- do.call(expand.grid, factorlist)
+      # Track best seen in optimizing EI
+      bestval <- Inf
+      bestpar <- c()
+      factorxindex <- factorinfo[(1:(length(factorinfo)/2))*2-1] #factorinfo[[1]]
+      for (i_indcomb in 1:prod(factorinfo[(1:(length(factorinfo)/2))*2])) {
+        factorxlevel <- unname(unlist(factordf[i_indcomb,])) #i_indcomb #factorinfo[[2]]
+        # cat(factorxindex, factorxlevel, "\n")
+
+        # If no non-factor levels, just calculate and compare
+        if (length(factorxindex) == self$D) {
+          # stop()
+          xxinds1 <- c()
+          xxinds2 <- c()
+          xx <- rep(NA, self$D)
+          xx[factorxindex] <- factorxlevel
+          optim_out_i_indcomb <- list(par=xx)
+          optim_out_i_indcomb$value <- -self$EI(xx, minimize = minimize)
+        } else {
+
+          # Otherwise optimize over continuous values
+          X0 <- lhs::randomLHS(n=n0, k=self$D)
+          X0 <- sweep(X0, 2, upper-lower, "*")
+          X0 <- sweep(X0, 2, lower, "+")
+          for (j in 1:length(factorxindex)) {
+            X0[, factorxindex[j]] <- factorxlevel[j]
+          }
+
+          # Calculate EI at these points, use best as starting point for optim
+          EI0 <- self$EI(x=X0, minimize=minimize, eps=eps)
+          ind <- which.max(EI0)
+
+          # Continuous indexes
+          ctsinds <- setdiff(1:self$D, factorxindex)
+
+          # Optimize starting from that point to find input that maximizes EI
+          optim_out_i_indcomb <- optim(par=X0[ind, -factorxindex],
+                                       lower=lower[-factorxindex], upper=upper[-factorxindex],
+                                       # fn=function(xx){ei <- -self$EI(xx); cat(xx, ei, "\n"); ei},
+                                       fn=function(xx){
+                                         xx2 <- numeric(self$D)
+                                         xx2[ctsinds] <- xx
+                                         xx2[factorxindex] <- factorxlevel
+                                         # xx2 <- c(xx[xxinds1], factorxlevel, xx[xxinds2])
+                                         # cat(xx, xx2, "\n")
+                                         -self$EI(xx2, minimize = minimize)
+                                       },
+                                       method="L-BFGS-B")
+        }
+        if (optim_out_i_indcomb$value < bestval) {
+          # cat("new best val", optim_out_i_indcomb$value, bestval, i_indcomb, "\n")
+          bestval <- optim_out_i_indcomb$value
+
+          bestpar <- numeric(self$D)
+          bestpar[ctsinds] <- optim_out_i_indcomb$par #[xxinds1]
+          bestpar[factorxindex] <- factorxlevel
+          # bestpar <- c(optim_out_i_indcomb$par[xxinds1], factorxlevel, optim_out_i_indcomb$par[xxinds2])
+        }
+      }
+      stopifnot(length(bestpar) == self$D)
+      return(bestpar)
+    },
     #' @description Find the multiple points that maximize the expected
     #' improvement. Currently only implements the constant liar method.
     #' @param npoints Number of points to add
@@ -2040,7 +2250,6 @@ GauPro_kernel_model <- R6::R6Class(
                       n0=100, minimize=FALSE, eps=.01) {
       stopifnot(is.numeric(npoints), length(npoints)==1, npoints >= 1)
       stopifnot(method=="CL")
-      # browser()
       # Clone object since we will add fake data
       gpclone <- self$clone(deep=TRUE)
       # Track points selected
@@ -2063,11 +2272,12 @@ GauPro_kernel_model <- R6::R6Class(
     },
     #' @description Print this object
     print = function() {
-      cat("GauPro object\n")
+      cat("GauPro kernel model object\n")
       cat(paste0("\tD = ", self$D, ", N = ", self$N,"\n"))
       cat(paste0("\tNugget = ", signif(self$nug, 3), "\n"))
-      cat("\tRun update to add data and/or optimize again\n")
-      cat("\tUse pred to get predictions at new points\n")
+      cat("\tRun $update() to add data and/or optimize again\n")
+      cat("\tUse $pred() to get predictions at new points\n")
+      cat("\tUse $plot() to visualize the model\n")
       invisible(self)
     }
   ),

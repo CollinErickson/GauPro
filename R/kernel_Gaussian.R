@@ -255,7 +255,7 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
       # kernel_gauss_dC(X, theta, C_nonug, self$s2_est,
       #                  self$beta_est, lenparams_D, s2*nug)
       # mats <- c(dC_dbetas, list(dC_dlogs2))
-      return(list(C = C, dC_dparams))
+      return(list(C = C, dC_dparams = dC_dparams))
     },
     # dC_dx = function(XX, X, theta, beta=self$beta, s2=self$s2) {#browser()
     #   if (missing(theta)) {theta <- 10^beta}

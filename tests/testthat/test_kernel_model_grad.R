@@ -24,7 +24,8 @@ test_that("kernel grad works", { # kernel grad works----
 
     # Fit GP using kernel
     #' kernel=Gaussian$new(c(0.1,.2))
-    gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=kernel, parallel=FALSE, verbose=10, nug.est=T, restarts=0)
+    gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=kernel, parallel=FALSE,
+                                  verbose=0, nug.est=T, restarts=0)
 
     grad1 <- gp$grad(x1)
     expect_is(object = grad1, class = 'matrix')
@@ -48,7 +49,9 @@ test_that("grad_norm2 for Gaussian", { # only implemented for Gaussian now
   x <- matrix(seq(0,1,length.out = n), ncol=1)
   f <- Vectorize(function(x) {sin(2*pi*x) + .5*sin(4*pi*x) +rnorm(1,0,.3)}+10*x)
   y <- 123 + f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
-  gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian$new(beta=0.152, s2=10^1.7194, beta_est=F, s2_est=F), restarts=0, no_update=T, parallel=FALSE, verbose=10, nug.est=F, param.est=F, nug=0.00357)
+  gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian$new(beta=0.152, s2=10^1.7194, beta_est=F, s2_est=F),
+                                restarts=0, no_update=T,
+                                parallel=FALSE, verbose=0, nug.est=F, param.est=F, nug=0.00357)
   expect_equal(unlist(gp$grad_norm2_dist(matrix(.1,ncol=1))), c(mean=324.1904, var=3781.708), tol=1)
   set.seed(1)
   ts <- gp$grad_norm2_sample(matrix(.1,ncol=1), n=1e4)
@@ -66,7 +69,8 @@ test_that("grad_norm2 for Gaussian", { # only implemented for Gaussian now
   x <- matrix(runif(2*n), ncol=2)
   f <- function(x) {sin(2*pi*x[1]) + .5*sin(4*pi*x[1]) +rnorm(1,0,.03) + x[2]^2}
   y <- apply(x, 1, f) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
-  gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian$new(beta=c(.966, -.64),s2=10^.4848), parallel=FALSE, verbose=10, nug.est=F, nug=0.0001721, param.est=F)
+  gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian$new(beta=c(.966, -.64),s2=10^.4848),
+                                parallel=FALSE, verbose=0, nug.est=F, nug=0.0001721, param.est=F)
   # Check grad_norm2_dist is correct
   tx <- matrix(c(.1,.2),ncol=2)
   expect_equal(unlist(gp$grad_norm2_dist(tx)), c(mean=45.46676, var=31.37130), tol=.0001)

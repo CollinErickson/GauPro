@@ -5,7 +5,7 @@ f <- function(x) {abs(sin(2*pi*x^1.3))^1.3}
 d <- 1
 n <- 7
 x <- lhs::randomLHS(n=n,k=d)
-noisesd <- 1e-1
+noisesd <- 1e-16
 y <- f(x) + rnorm(n,0, noisesd)
 plot(x,y)
 # y
@@ -22,7 +22,7 @@ gp$maxqEI(5)
 
 # Run EI
 for (i in 1:15) {
-  x.ei <- gp$maxEI(lower=0, upper=1)
+  x.ei <- gp$maxEI(lower=0, upper=1, minimize = F)
   gp$update(Xnew=x.ei, Znew=f(x.ei) + rnorm(1,0, noisesd))
   gp$cool1Dplot()
 }

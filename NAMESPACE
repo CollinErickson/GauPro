@@ -2,8 +2,9 @@
 
 S3method("*",GauPro_kernel)
 S3method("+",GauPro_kernel)
-S3method(plot,GauPro)
 S3method(predict,GauPro)
+export()
+export(Cubic)
 export(Exponential)
 export(FactorKernel)
 export(GauPro)

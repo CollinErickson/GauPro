@@ -1,4 +1,4 @@
-#' Matern 5/2 Kernel R6 class
+#' Cubic Kernel R6 class
 #'
 #' @docType class
 #' @importFrom R6 R6Class
@@ -9,24 +9,22 @@
 # @keywords data, kriging, Gaussian process, regression
 #' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
 #' @format \code{\link{R6Class}} object.
-#' @field sqrt5 Saved value of square root of 5
 #' @examples
-#' k1 <- Matern52$new(beta=0)
+#' k1 <- Cubic$new(beta=runif(6)-.5)
 #' plot(k1)
 #'
 #' n <- 12
 #' x <- matrix(seq(0,1,length.out = n), ncol=1)
 #' y <- sin(2*pi*x) + rnorm(n,0,1e-1)
-#' gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Matern52$new(1),
-#'                               parallel=FALSE)
+#' gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Cubic$new(1),
+#'                               parallel=FALSE, restarts=1)
 #' gp$predict(.454)
 #' gp$plot1D()
 #' gp$cool1Dplot()
-Matern52 <- R6::R6Class(
-  classname = "GauPro_kernel_Matern52",
+Cubic <- R6::R6Class(
+  classname = "GauPro_kernel_Cubic",
   inherit = GauPro_kernel_beta,
   public = list(
-    sqrt5 = sqrt(5),
     #' @description Calculate covariance between two points
     #' @param x vector.
     #' @param y vector, optional. If excluded, find correlation
@@ -60,8 +58,8 @@ Matern52 <- R6::R6Class(
       theta <- 10^beta
       if (is.null(y)) {
         if (is.matrix(x)) {
-          # val <- outer(1:nrow(x), 1:nrow(x), Vectorize(function(i,j){self$kone(x[i,],x[j,],theta=theta, s2=s2)}))
-          val <- s2 * corr_matern52_matrix_symC(x, theta)
+          val <- outer(1:nrow(x), 1:nrow(x), Vectorize(function(i,j){self$kone(x[i,],x[j,],theta=theta, s2=s2)}))
+          # val <- s2 * corr_matern52_matrix_symC(x, theta)
           return(val)
         } else {
           return(s2 * 1)
@@ -69,8 +67,8 @@ Matern52 <- R6::R6Class(
       }
       if (is.matrix(x) & is.matrix(y)) {
         # s2 * corr_gauss_matrixC(x, y, theta)
-        # outer(1:nrow(x), 1:nrow(y), Vectorize(function(i,j){self$kone(x[i,],y[j,],theta=theta, s2=s2)}))
-        s2 * corr_matern52_matrixC(x, y, theta)
+        outer(1:nrow(x), 1:nrow(y), Vectorize(function(i,j){self$kone(x[i,],y[j,],theta=theta, s2=s2)}))
+        # s2 * corr_matern52_matrixC(x, y, theta)
       } else if (is.matrix(x) & !is.matrix(y)) {
         # s2 * corr_gauss_matrixvecC(x, y, theta)
         apply(x, 1, function(xx) {self$kone(xx, y, theta=theta, s2=s2)})
@@ -91,9 +89,10 @@ Matern52 <- R6::R6Class(
     #' @param s2 Variance parameter
     kone = function(x, y, beta, theta, s2) {
       if (missing(theta)) {theta <- 10^beta}
-      r <- sqrt(sum(theta * (x-y)^2))
-      t1 <- self$sqrt5 * r
-      s2 * (1 + t1 + t1^2 / 3) * exp(-t1)
+      h <- x-y
+      d <- h/theta
+      r <- ifelse(abs(d) <= 0.5, 1-6*d^2+6*abs(d)^3, ifelse(abs(d) <= 1, 2*(1-abs(d))^3, 0))
+      prod(r) * s2
     },
     #' @description Derivative of covariance with respect to parameters
     #' @param params Kernel parameters
@@ -101,8 +100,9 @@ Matern52 <- R6::R6Class(
     #' @param C_nonug Covariance without nugget added to diagonal
     #' @param C Covariance with nugget
     #' @param nug Value of nugget
-    dC_dparams = function(params=NULL, X, C_nonug, C, nug) {#browser(text = "Make sure all in one list")
+    dC_dparams = function(params=NULL, X, C_nonug, C, nug) {
       n <- nrow(X)
+      # stop("cubic dC_dparams not implemented")
 
       lenparams <- length(params)
       if (lenparams > 0) {
@@ -136,6 +136,8 @@ Matern52 <- R6::R6Class(
 
       lenparams_D <- self$beta_length*self$beta_est + self$s2_est
       dC_dparams <- array(dim=c(lenparams_D, n, n), data = 0)
+
+      # Deriv for logs2
       if (self$s2_est) {
         dC_dparams[lenparams_D,,] <- C * log10 # Deriv for logs2
       }
@@ -144,19 +146,27 @@ Matern52 <- R6::R6Class(
       if (self$beta_est) {
         for (i in seq(1, n-1, 1)) {
           for (j in seq(i+1, n, 1)) {
-            tx2 <- sum(theta * (X[i,]-X[j,])^2)
-            if (tx2 == 0) { # Avoid divide by 0 error
-              # When x are equal, changing param has no effect on correlation
-              dC_dparams[1:length(beta),i,j] <- dC_dparams[1:length(beta),j,i] <- 0
-            } else {
-              t1 <- sqrt(5 * tx2)
-              t3 <- C[i,j] * ((1+2*t1/3)/(1+t1+t1^2/3) - 1) * self$sqrt5 * log10
-              half_over_sqrttx2 <- .5 / sqrt(tx2)
-              for (k in 1:length(beta)) {
-                dt1dbk <- half_over_sqrttx2 * (X[i,k] - X[j,k])^2
-                dC_dparams[k,i,j] <- t3 * dt1dbk * theta[k]
-                dC_dparams[k,j,i] <- dC_dparams[k,i,j]
-              }
+            # tx2 <- sum(theta * (X[i,]-X[j,])^2)
+            # t1 <- sqrt(5 * tx2)
+            # t3 <- C[i,j] * ((1+2*t1/3)/(1+t1+t1^2/3) - 1) * self$sqrt5 * log10
+            # half_over_sqrttx2 <- .5 / sqrt(tx2)
+            h <- X[i,] - X[j,] #x-y
+            d <- h/theta
+            dabs <- abs(d)
+            r <- ifelse(abs(d) <= 0.5, 1-6*d^2+6*abs(d)^3, ifelse(abs(d) <= 1, 2*(1-abs(d))^3, 0))
+            # prod(r)
+            for (k in 1:length(beta)) {
+              # dt1dbk <- half_over_sqrttx2 * (X[i,k] - X[j,k])^2
+              # # drk_dbk
+              # drk_ddk <- ifelse(d[k]>=0,
+              #                   ifelse(d[k] <= 0.5,  -12*d[k]+18*d[k]^2, ifelse(d[k] <= 1,  -6*(1-d[k])^2, 0)),
+              #                   ifelse(d[k] >= -0.5, -12*d[k]-18*d[k]^2, ifelse(d[k] >= -1, -6*(1+d[k])^2, 0)))
+              drk_ddk <- sign(d[k]) * ifelse(dabs[k] <= 0.5,
+                                             -12*dabs[k]+18*dabs[k]^2,
+                                             ifelse(dabs[k] <= 1,  -6*(1-dabs[k])^2, 0))
+              # dC_dparams[k,i,j] <- s2 * log10 * theta[k] * (-h[k]/theta[k]^2) * drk_ddk * prod(r[-k])
+              dC_dparams[k,i,j] <- s2 * log10 * (-h[k]) /theta[k] * drk_ddk * prod(r[-k])
+              dC_dparams[k,j,i] <- dC_dparams[k,i,j]
             }
           }
         }
@@ -176,6 +186,7 @@ Matern52 <- R6::R6Class(
     #' @param beta log of theta
     #' @param s2 Variance parameter
     dC_dx = function(XX, X, theta, beta=self$beta, s2=self$s2) {#browser()
+      stop("cubic dC_dparams not implemented")
       if (missing(theta)) {theta <- 10^beta}
       if (!is.matrix(XX)) {stop()}
       d <- ncol(XX)
