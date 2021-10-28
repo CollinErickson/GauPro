@@ -69,7 +69,8 @@ GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
     #' @param s2_est Should s2 be estimated?
     initialize = function(beta, s2=1, D,
                           beta_lower=-8, beta_upper=6, beta_est=TRUE,
-                          s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE
+                          s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE,
+                          useC=TRUE
                           ) {
       # Check beta and D
       missing_beta <- missing(beta)
@@ -99,6 +100,8 @@ GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
       self$logs2_lower <- log(s2_lower, 10)
       self$logs2_upper <- log(s2_upper, 10)
       self$s2_est <- s2_est
+
+      self$useC <- useC
     },
     #' @description Calculate covariance between two points
     #' @param x vector.

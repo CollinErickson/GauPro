@@ -90,7 +90,8 @@ Initialize kernel object
   beta_est = TRUE,
   s2_lower = 1e-08,
   s2_upper = 1e+08,
-  s2_est = TRUE
+  s2_est = TRUE,
+  useC = TRUE
 )}\if{html}{\out{</div>}}
 }
 

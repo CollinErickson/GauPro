@@ -166,7 +166,7 @@ GauPro_kernel_model <- R6::R6Class(
       } else if(is.character(kernel) && length(kernel)==1) {
         kernel <- tolower(kernel)
         if (kernel %in% c("gaussian", "gauss")) {
-          kernel <- Gaussian$new(D=self$D)
+          kernel <- Gaussian$new(D=self$D, useC=useC)
         } else if (kernel %in% c("matern32", "m32", "matern3/2")) {
           kernel <- Matern32$new(D=self$D)
         } else if (kernel %in% c("matern52", "m52", "matern5/2")) {
@@ -1730,6 +1730,8 @@ GauPro_kernel_model <- R6::R6Class(
                              X=self$X,
                              nug=self$nug, nug.update, nuglog,
                              trend_params=NULL, trend_update=TRUE) {
+      if (self$verbose >= 20) {cat('in deviance_fngr', '\n')}
+      # browser()
       if (!missing(nuglog) && !is.null(nuglog)) {
         nug <- 10^nuglog
       }
@@ -1813,7 +1815,14 @@ GauPro_kernel_model <- R6::R6Class(
         # Using apply() is 5x faster than Cpp code I wrote to do same thing
         #  Speed up by saving Cinv above to reduce number of solves
         # kernel_gr <- apply(dC_dparams, 1, gradfunc) # 6x faster below
-        kernel_gr <- gradfuncarray(dC_dparams, Cinv, Cinv_yminusmu)
+        # browser()
+        if (self$useC) {
+          kernel_gr <- gradfuncarray(dC_dparams, Cinv, Cinv_yminusmu)
+        } else {
+          # Changing to R code so it works on my laptop
+          # browser()
+          kernel_gr <- gradfuncarrayR(dC_dparams, Cinv, Cinv_yminusmu)
+        }
         gr <- c(gr, kernel_gr)
       }
       if (nug.update) {

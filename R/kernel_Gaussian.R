@@ -158,8 +158,9 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
       lenparams_D <- self$beta_length*self$beta_est + self$s2_est
 
       # I wrote Rcpparmadillo function to speed this up a lot hopefully
-      useR <- FALSE
-      if (useR) {
+      # useR <- FALSE
+      # browser()
+      if (!self$useC) { # useR
         dC_dparams <- array(dim=c(lenparams_D, n, n), data=0)
         if (self$s2_est) {
           dC_dparams[lenparams_D,,] <- C * log10 #/ s2 * s2 *
@@ -226,8 +227,9 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
       lenparams_D <- self$beta_length*self$beta_est + self$s2_est
 
       # I wrote Rcpparmadillo function to speed this up a lot hopefully
-      useR <- FALSE
-      if (useR) {
+      # useR <- FALSE
+      # browser()
+      if (!self$useC) { # useR
         dC_dparams <- array(dim=c(lenparams_D, n, n), data=0)
         if (self$s2_est) {
           dC_dparams[lenparams_D,,] <- C * log10 #/ s2 * s2 *
