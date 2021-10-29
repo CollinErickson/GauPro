@@ -33,6 +33,9 @@ gradfuncarrayR <- function(dC_dparams, Cinv, Cinv_yminusmu) {
   d2 = dim(dC_dparams)[2]
   d3 = dim(dC_dparams)[3]
   out <- numeric(d1)
+  if (d1 == 0L) {
+    return(out)
+  }
   for (i in 1:d1) { #int i = 0; i < d1; i++) {
     t1 = 0;
     t2 = 0;
