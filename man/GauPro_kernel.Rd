@@ -22,6 +22,8 @@ Kernel R6 class
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
 \item{\code{D}}{Number of input dimensions of data}
+
+\item{\code{useC}}{Should C code be used when possible? Can be much faster.}
 }
 \if{html}{\out{</div>}}
 }

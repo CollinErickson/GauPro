@@ -28,6 +28,7 @@
 #' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
 #' @format \code{\link{R6Class}} object.
 #' @field D Number of input dimensions of data
+#' @field useC Should C code be used when possible? Can be much faster.
 #' @examples
 #' #k <- GauPro_kernel$new()
 GauPro_kernel <- R6::R6Class(classname = "GauPro_kernel",

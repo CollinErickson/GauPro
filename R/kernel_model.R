@@ -911,6 +911,7 @@ GauPro_kernel_model <- R6::R6Class(
         ggplot2::ylab("Predicted Z (95% interval)") +
         ggplot2::xlab("x along dimension i (other dims at random values)")
     },
+    #' @description Plot leave one out predictions for design points
     plotLOO = function() {
       ploo <- self$pred_LOO(se.fit = T)
       loodf <- cbind(ploo, Z=self$Z)

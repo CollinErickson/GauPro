@@ -673,6 +673,7 @@ Plot marginal prediction for random sample of inputs
 \if{html}{\out{<a id="method-plotLOO"></a>}}
 \if{latex}{\out{\hypertarget{method-plotLOO}{}}}
 \subsection{Method \code{plotLOO()}}{
+Plot leave one out predictions for design points
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$plotLOO()}\if{html}{\out{</div>}}
 }
