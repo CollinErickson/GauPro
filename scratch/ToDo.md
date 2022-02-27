@@ -90,3 +90,5 @@ at end for K/Kinv so predictions are good.
 
 * optim: start by checking n points, then optimizing from best?
 >>>>>>> d2951e7400515c1251711074af3243e4936893a7
+
+* discrete kernel embedded: choose dim, nlevels. First is stuck at 0, lengthscale at 1.

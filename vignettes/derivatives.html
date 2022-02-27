@@ -12,7 +12,7 @@
 
 <meta name="author" content="Collin Erickson" />
 
-<meta name="date" content="2021-04-03" />
+<meta name="date" content="2021-10-29" />
 
 <title>Derivatives for estimating Gaussian process parameters</title>
 
@@ -46,14 +46,14 @@
 
 <h1 class="title toc-ignore">Derivatives for estimating Gaussian process parameters</h1>
 <h4 class="author">Collin Erickson</h4>
-<h4 class="date">2021-04-03</h4>
+<h4 class="date">2021-10-29</h4>
 
 
 
 <p>Estimating the parameters is often done through maximum likelihood estimation. In this vignette, derivatives of parameters are calculated to give the parameter gradient. This can then be used in numerical optimization, such as with BFGS, and should be much faster than calculating without having the gradient.</p>
 <div id="deviance" class="section level2">
 <h2>Deviance</h2>
-<p>In this vignette, I follow the lead of the <a href="https://www.jstatsoft.org/article/view/v064i12">GPfit paper</a>. Instead of maximizing the likelihood, we find parameter estimates by minimizing the deviance. For correlation parameters <span class="math inline">\(\theta\)</span>, the deviance is shown below.</p>
+<p>In this vignette, I follow the lead of the <a href="https://doi.org/10.18637/jss.v064.i12">GPfit paper</a>. Instead of maximizing the likelihood, we find parameter estimates by minimizing the deviance. For correlation parameters <span class="math inline">\(\theta\)</span>, the deviance is shown below.</p>
 <p><span class="math display">\[ -2\log L_{\theta} \propto \log |R| + n\log[(Y-1_n \hat{\mu}(\theta))^T R^{-1} (Y-1_n \hat{\mu}(\theta))]  = \mathcal{D}\]</span></p>
 <p>For now I will assume that <span class="math inline">\(\hat{\mu}\)</span> does not depend on <span class="math inline">\(\theta\)</span>, and will replace <span class="math inline">\(Y-\hat{\mu}(\theta)\)</span> with <span class="math inline">\(Z\)</span>, as shown below.</p>
 <p><span class="math display">\[ \mathcal{D} = \log |R| + n\log[Z^T R^{-1} Z]\]</span></p>

@@ -18,7 +18,7 @@ In this vignette, derivatives of parameters are calculated to give the parameter
 
 ## Deviance
 
-In this vignette, I follow the lead of the [GPfit paper](https://www.jstatsoft.org/article/view/v064i12). Instead of maximizing the likelihood, we find parameter estimates by minimizing the deviance. For correlation parameters $\theta$, the deviance is shown below.
+In this vignette, I follow the lead of the [GPfit paper](https://doi.org/10.18637/jss.v064.i12). Instead of maximizing the likelihood, we find parameter estimates by minimizing the deviance. For correlation parameters $\theta$, the deviance is shown below.
 
 $$ -2\log L_{\theta} \propto \log |R| + n\log[(Y-1_n \hat{\mu}(\theta))^T R^{-1} (Y-1_n \hat{\mu}(\theta))]  = \mathcal{D}$$
 

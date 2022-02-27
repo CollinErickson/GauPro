@@ -16,11 +16,9 @@
 
 
 
-#' Factor Kernel R6 class
+#' Periodic Kernel R6 class
 #'
-#' For a factor that has been converted to its indices.
-#' Each factor will need a separate kernel.
-#'
+#' p is the period for each dimension, a is a single number for scaling
 #'
 #' @docType class
 #' @importFrom R6 R6Class
@@ -44,28 +42,28 @@
 #' @field xindex Index of the factor (which column of X)
 #' @field nlevels Number of levels for the factor
 #' @examples
-#' kk <- FactorKernel$new(D=1, nlevels=5, xindex=1)
+#' kk <- LatentFactorKernel$new(D=1, nlevels=5, xindex=1)
 #' kk$p <- (1:10)/100
 #' kmat <- outer(1:5, 1:5, Vectorize(kk$k))
 #' kmat
-#' kk$plot()
 #'
 #'
-#' # 2D, Gaussian on 1D, index on 2nd dim
+# 2D, Gaussian on 1D, OrderedFactor on 2nd dim
 #' library(dplyr)
 #' n <- 20
 #' X <- cbind(matrix(runif(n,2,6), ncol=1),
 #'            matrix(sample(1:2, size=n, replace=TRUE), ncol=1))
-#' X <- rbind(X, c(3.3,3))
+#' X <- rbind(X, c(3.3,3), c(3.7,3))
 #' n <- nrow(X)
-#' Z <- X[,1] - (X[,2]-1.8)^2 + rnorm(n,0,.1)
+#' Z <- X[,1] - (4-X[,2])^2 + rnorm(n,0,.1)
+#' plot(X[,1], Z, col=X[,2])
 #' tibble(X=X, Z) %>% arrange(X,Z)
 #' k2a <- IgnoreIndsKernel$new(k=Gaussian$new(D=1), ignoreinds = 2)
-#' k2b <- FactorKernel$new(D=2, nlevels=3, xind=2)
+#' k2b <- LatentFactorKernel$new(D=2, nlevels=3, xind=2)
 #' k2 <- k2a * k2b
 #' k2b$p_upper <- .65*k2b$p_upper
 #' gp <- GauPro_kernel_model$new(X=X, Z=Z, kernel = k2, verbose = 5,
-#'                               nug.min=1e-2, restarts=1)
+#'   nug.min=1e-2, restarts=1)
 #' gp$kernel$k1$kernel$beta
 #' gp$kernel$k2$p
 #' gp$kernel$k(x = gp$X)
@@ -81,14 +79,12 @@
 #' # See which points affect (5.5, 3 themost)
 #' data.frame(X, cov=gp$kernel$k(X, c(5.5,3))) %>% arrange(-cov)
 #' plot(k2b)
-#'
-#'
-# FactorKernel ----
-FactorKernel <- R6::R6Class(
-  classname = "GauPro_kernel_FactorKernel",
+# LatentFactorKernel ----
+LatentFactorKernel <- R6::R6Class(
+  classname = "GauPro_kernel_LatentFactorKernel",
   inherit = GauPro_kernel,
   public = list(
-    p = NULL, # vector of correlations
+    p = NULL, # vector
     p_est = NULL,
     # logp = NULL,
     p_lower = NULL,
@@ -100,6 +96,7 @@ FactorKernel <- R6::R6Class(
     logs2_lower = NULL,
     logs2_upper = NULL,
     nlevels = NULL,
+    latentdim = NULL,
     xindex = NULL,
     # alpha = NULL,
     # logalpha = NULL,
@@ -108,7 +105,6 @@ FactorKernel <- R6::R6Class(
     # alpha_est = NULL,
     #' @description Initialize kernel object
     #' @param p Periodic parameter
-    #' @param alpha Periodic parameter
     #' @param s2 Initial variance
     #' @param D Number of input dimensions of data
     #' @param p_lower Lower bound for p
@@ -117,9 +113,11 @@ FactorKernel <- R6::R6Class(
     #' @param s2_lower Lower bound for s2
     #' @param s2_upper Upper bound for s2
     #' @param s2_est Should s2 be estimated?
-    #' @param xindex Index of the factor (which column of X)
+    #' @param xindex Index of X to use the kernel on
     #' @param nlevels Number of levels for the factor
+    #' @param latentdim Dimension of embedding space
     initialize = function(s2=1, D, nlevels, xindex,
+                          latentdim,
                           p_lower=0, p_upper=1, p_est=TRUE,
                           s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE
     ) {
@@ -129,14 +127,17 @@ FactorKernel <- R6::R6Class(
       self$D <- D
       self$nlevels <- nlevels
       self$xindex <- xindex
+      self$latentdim <- latentdim
 
       # p <- rep(0, D * (D-1) / 2)
-      p <- rep(0, nlevels * (nlevels-1) / 2)
+      # p <- rep(1, nlevels - 1)
+      p <- rnorm(latentdim*nlevels)
       self$p <- p
       self$p_length <- length(p)
-      self$p_lower <-rep(0, self$p_length)
+      # Ensure separation between levels to avoid instability
+      self$p_lower <- rep(-25, self$p_length)
       # Don't give upper 1 since it will give optimization error
-      self$p_upper <-rep(.9, self$p_length)
+      self$p_upper <- rep(25, self$p_length)
       # self$logp <- log(p, 10)
 
       # Now set upper and lower so they have correct length
@@ -236,6 +237,7 @@ FactorKernel <- R6::R6Class(
     #' @param offdiagequal What should offdiagonal values be set to when the
     #' indices are the same? Use to avoid decomposition errors, similar to
     #' adding a nugget.
+    #' @references https://stackoverflow.com/questions/27086195/linear-index-upper-triangular-matrix
     kone = function(x, y, p, s2, isdiag=1, offdiagequal=1-1e-6) {
       # if (missing(p)) {p <- 10^logp}
       # out <- s2 * exp(-sum(alpha*sin(p * (x-y))^2))
@@ -254,11 +256,15 @@ FactorKernel <- R6::R6Class(
       } else {
         # i <- x-1
         # j <- y-1
-        i <- min(x-1, y-1)
-        j <- max(x-1, y-1)
-        n <- self$nlevels
-        ind <- (n*(n-1)/2) - (n-i)*((n-i)-1)/2 + j - i #- 1
-        out <- s2 * p[ind]
+        # i <- min(x,y) #min(x-1, y-1)
+        # j <- max(x,y) - 1 #max(x-1, y-1)
+        # n <- self$nlevels
+        # p_dist <- sum(p[i:j])
+        # browser()
+        latentx <- self$p[(x-1)*self$latentdim+1:self$latentdim]
+        latenty <- self$p[(y-1)*self$latentdim+1:self$latentdim]
+        p_dist2 <- sum((latentx - latenty)^2)
+        out <- s2 * exp(-p_dist2)
       }
       if (any(is.nan(out))) {browser()}
       out
@@ -328,14 +334,18 @@ FactorKernel <- R6::R6Class(
               if (xx == yy) {
                 # Corr is just 1, parameter has no effect
               } else {
-                ii <- min(xx-1, yy-1)
-                jj <- max(xx-1, yy-1)
-                nn <- self$nlevels
-                ind <- (nn*(nn-1)/2) - (nn-ii)*((nn-ii)-1)/2 + jj - ii #- 1
-                # print(c(k, i, j, xx, yy, ii, jj, ind, nn))
-                if (ind == k) { # Does correspond to the correct parameter
-                  dC_dparams[k,i,j] <- 1 * s2
+                # ii <- min(xx-1, yy-1)
+                # jj <- max(xx-1, yy-1)
+                # nn <- self$nlevels
+                # ind <- (nn*(nn-1)/2) - (nn-ii)*((nn-ii)-1)/2 + jj - ii #- 1
+                ii <- min(xx,yy)
+                jj <- max(xx,yy) - 1
+                if (ii <= k && k <= jj) { # Does correspond to the correct parameter
+                  p_dist <- sum(p[ii:jj])
+                  r <- exp(-p_dist^2)
+                  dC_dparams[k,i,j] <- -2 * p_dist * r * s2
                   dC_dparams[k,j,i] <- dC_dparams[k,i,j]
+
                 } else {
                   # Parameter has no effect
                 }
@@ -386,7 +396,7 @@ FactorKernel <- R6::R6Class(
     #' @param logalpha log of alpha
     #' @param s2 Variance parameter
     dC_dx = function(XX, X, logp=self$logp, logalpha=self$logalpha, s2=self$s2) {#browser()
-      stop("not implemented, kernel index, dC_dx")
+      stop("not implemented, ordered factor kernel, dC_dx")
       # if (missing(theta)) {theta <- 10^beta}
       p <- 10 ^ logp
       alpha <- 10 ^ logalpha
@@ -436,7 +446,8 @@ FactorKernel <- R6::R6Class(
                                   s2_est=self$s2_est) {
       # Use 0 for theta, partial MLE for s2
       # vec <- c(rep(0, length(self$theta)), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
-      if (p_est) {vec <- rep(0, self$p_length)} else {vec <- c()}
+      # if (p_est) {vec <- rep(0, self$p_length)} else {vec <- c()}
+      if (p_est) {vec <- rnorm(self$p_length)} else {vec <- c()}
       # if (alpha_est) {vec <- c(vec, 1)} else {}
       if (s2_est) {vec <- c(vec, 0)} else {}
       if (jitter && p_est) {
@@ -525,3 +536,4 @@ FactorKernel <- R6::R6Class(
     }
   )
 )
+
