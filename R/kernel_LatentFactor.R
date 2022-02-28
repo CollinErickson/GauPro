@@ -42,11 +42,12 @@
 #' @field xindex Index of the factor (which column of X)
 #' @field nlevels Number of levels for the factor
 #' @examples
-#' kk <- LatentFactorKernel$new(D=1, nlevels=5, xindex=1)
-#' kk$p <- (1:10)/100
+#' kk <- LatentFactorKernel$new(D=1, nlevels=5, xindex=1, latentdim=2)
+#' kk$p
 #' kmat <- outer(1:5, 1:5, Vectorize(kk$k))
 #' kmat
-#'
+#' kk$dC_dparams(X=matrix(1:5, ncol=1), nug=0)
+#' kk$C_dC_dparams(X=matrix(1:5, ncol=1), nug=0, params=c(kk$p, kk$s2))$C
 #'
 # 2D, Gaussian on 1D, OrderedFactor on 2nd dim
 #' library(dplyr)
@@ -59,7 +60,7 @@
 #' plot(X[,1], Z, col=X[,2])
 #' tibble(X=X, Z) %>% arrange(X,Z)
 #' k2a <- IgnoreIndsKernel$new(k=Gaussian$new(D=1), ignoreinds = 2)
-#' k2b <- LatentFactorKernel$new(D=2, nlevels=3, xind=2)
+#' k2b <- LatentFactorKernel$new(D=2, nlevels=3, xind=2, latentdim=2)
 #' k2 <- k2a * k2b
 #' k2b$p_upper <- .65*k2b$p_upper
 #' gp <- GauPro_kernel_model$new(X=X, Z=Z, kernel = k2, verbose = 5,
@@ -261,8 +262,8 @@ LatentFactorKernel <- R6::R6Class(
         # n <- self$nlevels
         # p_dist <- sum(p[i:j])
         # browser()
-        latentx <- self$p[(x-1)*self$latentdim+1:self$latentdim]
-        latenty <- self$p[(y-1)*self$latentdim+1:self$latentdim]
+        latentx <- p[(x-1)*self$latentdim+1:self$latentdim]
+        latenty <- p[(y-1)*self$latentdim+1:self$latentdim]
         p_dist2 <- sum((latentx - latenty)^2)
         out <- s2 * exp(-p_dist2)
       }
@@ -326,34 +327,32 @@ LatentFactorKernel <- R6::R6Class(
       # browser()
       # print(p)
       if (self$p_est) {
-        for (k in 1:length(p)) { # k is index of parameter
-          for (i in seq(1, n-1, 1)) {
-            for (j in seq(i+1, n, 1)) {
-              xx <- X[i, self$xindex]
-              yy <- X[j, self$xindex]
-              if (xx == yy) {
-                # Corr is just 1, parameter has no effect
+        # for (k in 1:length(p)) { # k is index of parameter
+        for (k in 1:self$latentdim) { # k is index of parameter
+          for (i in seq(1, n-1, 1)) { # Index of X
+            for (j in seq(i+1, n, 1)) { # Index of Y
+              xlev <- X[i, self$xindex]
+              ylev <- X[j, self$xindex]
+              if (xlev == k && ylev != k) {
+                latentx <- p[(xlev-1)*self$latentdim+1:self$latentdim]
+                latenty <- p[(ylev-1)*self$latentdim+1:self$latentdim]
+                p_dist2 <- sum((latentx - latenty)^2)
+                out <- s2 * exp(-p_dist2)
+                kinds <- (xlev-1)*self$latentdim+1:self$latentdim
+                dC_dparams[kinds,i,j] <- -2 * out * (latentx - latenty)
+                dC_dparams[kinds,j,i] <- dC_dparams[k,i,j]
+              } else if (xlev != k && ylev == k) {
+                latentx <- p[(xlev-1)*self$latentdim+1:self$latentdim]
+                latenty <- p[(ylev-1)*self$latentdim+1:self$latentdim]
+                p_dist2 <- sum((latentx - latenty)^2)
+                out <- s2 * exp(-p_dist2)
+                kinds <- (ylev-1)*self$latentdim+1:self$latentdim
+                dC_dparams[kinds,i,j] <- 2 * out * (latentx - latenty)
+                dC_dparams[kinds,j,i] <- dC_dparams[k,i,j]
               } else {
-                # ii <- min(xx-1, yy-1)
-                # jj <- max(xx-1, yy-1)
-                # nn <- self$nlevels
-                # ind <- (nn*(nn-1)/2) - (nn-ii)*((nn-ii)-1)/2 + jj - ii #- 1
-                ii <- min(xx,yy)
-                jj <- max(xx,yy) - 1
-                if (ii <= k && k <= jj) { # Does correspond to the correct parameter
-                  p_dist <- sum(p[ii:jj])
-                  r <- exp(-p_dist^2)
-                  dC_dparams[k,i,j] <- -2 * p_dist * r * s2
-                  dC_dparams[k,j,i] <- dC_dparams[k,i,j]
-
-                } else {
-                  # Parameter has no effect
-                }
+                # Derivative is when when level isn't used in either
+                #  or when used in both.
               }
-              #
-              # r2 <- sum(p * (X[i,]-X[j,])^2)
-              # dC_dparams[k,i,j] <- -C_nonug[i,j] * alpha * sin(2*p[k]*(X[i,k] - X[j,k])) * (X[i,k] - X[j,k]) * p[k] * log10
-              # dC_dparams[k,j,i] <- dC_dparams[k,i,j]
             }
           }
           for (i in seq(1, n, 1)) { # Get diagonal set to zero
