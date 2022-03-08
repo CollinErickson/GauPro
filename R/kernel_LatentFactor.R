@@ -41,6 +41,7 @@
 #' @field logs2_upper Upper bound of logs2
 #' @field xindex Index of the factor (which column of X)
 #' @field nlevels Number of levels for the factor
+#' @field latentdim Dimension of embedding space
 #' @examples
 #' kk <- LatentFactorKernel$new(D=1, nlevels=5, xindex=1, latentdim=2)
 #' kk$p

@@ -217,7 +217,7 @@ corr_matern52_matrixC <- function(x, y, theta) {
 #' @return Correlation matrix
 #' @export
 #' @examples
-#' corr_gauss_matrix_symC(matrix(c(1,0,0,1),2,2),c(1,1))
+#' corr_matern52_matrix_symC(matrix(c(1,0,0,1),2,2),c(1,1))
 corr_matern52_matrix_symC <- function(x, theta) {
     .Call(`_GauPro_corr_matern52_matrix_symC`, x, theta)
 }

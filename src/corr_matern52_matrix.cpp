@@ -42,7 +42,7 @@ NumericMatrix corr_matern52_matrixC(NumericMatrix x, NumericMatrix y, NumericVec
 //' @return Correlation matrix
 //' @export
 //' @examples
-//' corr_gauss_matrix_symC(matrix(c(1,0,0,1),2,2),c(1,1))
+//' corr_matern52_matrix_symC(matrix(c(1,0,0,1),2,2),c(1,1))
 // [[Rcpp::export]]
 NumericMatrix corr_matern52_matrix_symC(NumericMatrix x, NumericVector theta) {
   int nrow = x.nrow();

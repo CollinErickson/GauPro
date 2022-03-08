@@ -89,6 +89,8 @@ https://stackoverflow.com/questions/27086195/linear-index-upper-triangular-matri
 \item{\code{xindex}}{Index of the factor (which column of X)}
 
 \item{\code{nlevels}}{Number of levels for the factor}
+
+\item{\code{latentdim}}{Dimension of embedding space}
 }
 \if{html}{\out{</div>}}
 }
