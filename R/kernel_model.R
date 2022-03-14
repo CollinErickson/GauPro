@@ -167,11 +167,15 @@ GauPro_kernel_model <- R6::R6Class(
         kernel <- tolower(kernel)
         if (kernel %in% c("gaussian", "gauss")) {
           kernel <- Gaussian$new(D=self$D, useC=useC)
-        } else if (kernel %in% c("matern32", "m32", "matern3/2")) {
+        } else if (kernel %in% c("matern32", "m32", "matern3/2",
+                                 "matern3_2")) {
           kernel <- Matern32$new(D=self$D)
-        } else if (kernel %in% c("matern52", "m52", "matern5/2")) {
+        } else if (kernel %in% c("matern52", "m52", "matern5/2",
+                                 "matern5_2")) {
           kernel <- Matern52$new(D=self$D)
-        } else if (kernel %in% c("exp", "exponential", "m12", "matern12", "matern1/2")) {
+        } else if (kernel %in% c("exp", "exponential",
+                                 "m12", "matern12",
+                                 "matern1/2", "matern1_2")) {
           kernel <- Exponential$new(D=self$D)
         } else if (kernel %in% c("ratquad", "rationalquadratic", "rq")) {
           kernel <- RatQuad$new(D=self$D)

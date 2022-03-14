@@ -110,6 +110,7 @@ https://stackoverflow.com/questions/27086195/linear-index-upper-triangular-matri
 \item \href{#method-set_params_from_optim}{\code{LatentFactorKernel$set_params_from_optim()}}
 \item \href{#method-s2_from_params}{\code{LatentFactorKernel$s2_from_params()}}
 \item \href{#method-plot}{\code{LatentFactorKernel$plot()}}
+\item \href{#method-plotLatent}{\code{LatentFactorKernel$plotLatent()}}
 \item \href{#method-clone}{\code{LatentFactorKernel$clone()}}
 }
 }
@@ -466,6 +467,15 @@ Get s2 from params vector
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-plotLatent"></a>}}
+\if{latex}{\out{\hypertarget{method-plotLatent}{}}}
+\subsection{Method \code{plotLatent()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LatentFactorKernel$plotLatent()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
