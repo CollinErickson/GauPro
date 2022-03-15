@@ -24,7 +24,7 @@ Suggests: testthat,
     numDeriv,
     dplyr,
     ggplot2,
-    ggrepel
+    ggrepel,
     MASS
 VignetteBuilder: knitr
 URL: https://github.com/CollinErickson/GauPro
