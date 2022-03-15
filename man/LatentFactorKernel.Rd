@@ -472,6 +472,7 @@ Get s2 from params vector
 \if{html}{\out{<a id="method-plotLatent"></a>}}
 \if{latex}{\out{\hypertarget{method-plotLatent}{}}}
 \subsection{Method \code{plotLatent()}}{
+Plot the points in the latent space
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LatentFactorKernel$plotLatent()}\if{html}{\out{</div>}}
 }
