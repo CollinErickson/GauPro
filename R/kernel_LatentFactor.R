@@ -329,7 +329,7 @@ LatentFactorKernel <- R6::R6Class(
       # print(p)
       if (self$p_est) {
         # for (k in 1:length(p)) { # k is index of parameter
-        for (k in 1:self$latentdim) { # k is index of parameter
+        for (k in 1:self$nlevels) { # k is index of level
           for (i in seq(1, n-1, 1)) { # Index of X
             for (j in seq(i+1, n, 1)) { # Index of Y
               xlev <- X[i, self$xindex]
@@ -341,7 +341,7 @@ LatentFactorKernel <- R6::R6Class(
                 out <- s2 * exp(-p_dist2)
                 kinds <- (xlev-1)*self$latentdim+1:self$latentdim
                 dC_dparams[kinds,i,j] <- -2 * out * (latentx - latenty)
-                dC_dparams[kinds,j,i] <- dC_dparams[k,i,j]
+                dC_dparams[kinds,j,i] <- dC_dparams[kinds,i,j]
               } else if (xlev != k && ylev == k) {
                 latentx <- p[(xlev-1)*self$latentdim+1:self$latentdim]
                 latenty <- p[(ylev-1)*self$latentdim+1:self$latentdim]
@@ -349,7 +349,7 @@ LatentFactorKernel <- R6::R6Class(
                 out <- s2 * exp(-p_dist2)
                 kinds <- (ylev-1)*self$latentdim+1:self$latentdim
                 dC_dparams[kinds,i,j] <- 2 * out * (latentx - latenty)
-                dC_dparams[kinds,j,i] <- dC_dparams[k,i,j]
+                dC_dparams[kinds,j,i] <- dC_dparams[kinds,i,j]
               } else {
                 # Derivative is when when level isn't used in either
                 #  or when used in both.

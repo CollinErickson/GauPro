@@ -64,10 +64,11 @@ test_that("check factor kernels alone", {
   # f <- function(x) {abs(sin(x[1]^.8*6))^1.2 + log(1+x[2]) + x[1]*x[2]}
   f <- function(x) {x[1]^.7}
   y <- apply(x, 1, f) + rnorm(n,0,1e-4) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
-  kern_chars <- c('FactorKernel', 'OrderedFactorKernel', 'LatentFactorKernel')
+  kern_chars <- c('FactorKernel', 'OrderedFactorKernel', 'LatentFactorKernel', 'LatentFactorKernel')
   kern_list <- list(
     FactorKernel$new(D=1, nlevels=3, xindex=1),
     OrderedFactorKernel$new(D=1, nlevels=3, xindex=1),
+    LatentFactorKernel$new(D=1, nlevels=3, xindex=1, latentdim = 1),
     LatentFactorKernel$new(D=1, nlevels=3, xindex=1, latentdim = 2)
   )
   for (j in 1:length(kern_chars)) {
