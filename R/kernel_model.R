@@ -21,6 +21,14 @@
 #' gp$predict(.454)
 #' gp$plot1D()
 #' gp$cool1Dplot()
+#'
+#' n <- 200
+#' d <- 7
+#' x <- matrix(runif(n*d), ncol=d)
+#' f <- function(x) {x[1]*x[2] + cos(x[3]) + x[4]^2}
+#' y <- apply(x, 1, f)
+#' gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian,
+#'                               parallel=FALSE)
 #' @field X Design matrix
 #' @field Z Responses
 #' @field N Number of data points
@@ -128,7 +136,7 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param ... Not used
     initialize = function(X, Z,
                           kernel, trend,
-                          verbose=0, useC=F,useGrad=T,
+                          verbose=0, useC=TRUE, useGrad=TRUE,
                           parallel=FALSE, parallel_cores="detect",
                           nug=1e-6, nug.min=1e-8, nug.max=Inf, nug.est=TRUE,
                           param.est = TRUE, restarts = 5,
@@ -137,6 +145,10 @@ GauPro_kernel_model <- R6::R6Class(
       #self$initialize_GauPr(X=X,Z=Z,verbose=verbose,useC=useC,
       #                      useGrad=useGrad,
       #                      parallel=parallel, nug.est=nug.est)
+      if (is.data.frame(X)) {
+        X <- as.matrix(X)
+      }
+      stopifnot(is.numeric(X))
       self$X <- X
       self$Z <- matrix(Z, ncol=1)
       self$normalize <- normalize
@@ -279,8 +291,8 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param mean_dist Should the error be for the distribution of the mean?
     pred = function(XX, se.fit=F, covmat=F, split_speed=F, mean_dist=FALSE) {
       if (!is.matrix(XX)) {
-        if (self$D == 1) XX <- matrix(XX, ncol=1)
-        else if (length(XX) == self$D) XX <- matrix(XX, nrow=1)
+        if (self$D == 1) XX <- as.matrix(XX, ncol=1)
+        else if (length(XX) == self$D) XX <- as.matrix(XX, nrow=1)
         else stop('Predict input should be matrix')
       }
 
@@ -2175,7 +2187,8 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param n0 Number of points to evaluate in initial stage
     #' @param minimize Are you trying to minimize the output?
     #' @param eps Exploration parameter
-    maxEIwithfactors = function(lower=apply(self$X, 2, min), upper=apply(self$X, 2, max),
+    maxEIwithfactors = function(lower=apply(self$X, 2, min),
+                                upper=apply(self$X, 2, max),
                                 n0=100, minimize=FALSE, eps=.01) {
       stopifnot(all(lower < upper))
       stopifnot(length(n0)==1, is.numeric(n0), n0>=1)

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # GauPro to do
 
 * Factor kernel: example
@@ -14,7 +13,7 @@
 * EI should use mu instead of Z for noise. Should it be sd of mean, not pred?
 See http://krasserm.github.io/2018/03/21/bayesian-optimization/.
 
-* max_qEI: test, doc, exact solution
+* max_qEI: test, doc, exact solution. Change CL to CLpred
 
 * With many points, just estimate param from subset of data, but use all data
 at end for K/Kinv so predictions are good.
@@ -35,8 +34,6 @@ at end for K/Kinv so predictions are good.
 
 * Better handling of ignore input when using factors?
 
-* Add cubic correlation
-
 * Transform inputs
 
 * Change S3 plot to R6
@@ -47,36 +44,6 @@ at end for K/Kinv so predictions are good.
 
 * Fix crashing on laptop. Changed gradfuncarray from Rcpp to R, but something
 in optimRestart is now breaking instead.
-
-=======
-# GauPro to do
-
-* Take in data/formula input in addition to matrix
-
-* Calculate EI: nopt, test, doc
-
-* max_qEI: test, doc, exact solution. Change CL to CLpred
-
-* With many points, just estimate param from subset of data, but use all data
-at end for K/Kinv so predictions are good.
-
-* Improve kernel model plot
-
-* progress bar for restarts
-
-* Fewer restarts in high dim
-
-* Give kernel in as string. If missing, give better error or just use Mat52.
-
-* Reduce L-BFGS-B tolerance? Need to change tests too.
-
-* Add documentation for kernels, esp. factor ones
-
-* Better handling of ignore input when using factors?
-
-* Transform inputs
-
-* plot2D option to do se instead of mean, or side by side
 
 * optim NaN starting value (found on 1D doing EI)
 
@@ -89,6 +56,13 @@ at end for K/Kinv so predictions are good.
 * Add test with repeated X. Add test with big nugget and make sure deriv still matches.
 
 * optim: start by checking n points, then optimizing from best?
->>>>>>> d2951e7400515c1251711074af3243e4936893a7
 
 * discrete kernel embedded: choose dim, nlevels. First is stuck at 0, lengthscale at 1.
+
+* Track change in params while optimizing to see if it runs too long.
+
+* estimate_run_time()
+
+* test factor kernels, check grad
+
+* data frame input: everywhere, predict, etc. Convert to matrix.

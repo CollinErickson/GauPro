@@ -44,6 +44,14 @@ gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian$new(1),
 gp$predict(.454)
 gp$plot1D()
 gp$cool1Dplot()
+
+n <- 200
+d <- 7
+x <- matrix(runif(n*d), ncol=d)
+f <- function(x) {x[1]*x[2] + cos(x[3]) + x[4]^2}
+y <- apply(x, 1, f)
+gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian,
+                              parallel=FALSE)
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -178,8 +186,8 @@ Create kernel_model object
   kernel,
   trend,
   verbose = 0,
-  useC = F,
-  useGrad = T,
+  useC = TRUE,
+  useGrad = TRUE,
   parallel = FALSE,
   parallel_cores = "detect",
   nug = 1e-06,

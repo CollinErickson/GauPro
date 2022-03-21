@@ -22,7 +22,8 @@
 #' k2 <- Matern32$new(beta=2)
 #' k <- k1 * k2
 #' k$k(matrix(c(2,1), ncol=1))
-kernel_product <- R6::R6Class(classname = "GauPro_kernel_product",
+kernel_product <- R6::R6Class(
+  classname = "GauPro_kernel_product",
   inherit = GauPro_kernel,
   public = list(
     k1 = NULL,
@@ -104,9 +105,14 @@ kernel_product <- R6::R6Class(classname = "GauPro_kernel_product",
     #' @param C Covariance with nugget
     #' @param nug Value of nugget
     dC_dparams = function(params=NULL, C, X, C_nonug, nug) {#browser(text = "Make sure all in one list")
-      stopifnot(length(params) > 0)
-      params1 <- params[1:self$k1pl]
-      params2 <- params[(self$k1pl+1):(self$k1pl+self$k2pl)]
+      if (length(params) < .5) {
+        params1 <- NULL
+        params2 <- NULL
+      } else {
+        stopifnot(length(params) > 0)
+        params1 <- params[1:self$k1pl]
+        params2 <- params[(self$k1pl+1):(self$k1pl+self$k2pl)]
+      }
       s2_1 <- self$k1$s2_from_params(params1)
       s2_2 <- self$k2$s2_from_params(params2)
       # #
