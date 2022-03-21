@@ -396,7 +396,7 @@ LatentFactorKernel <- R6::R6Class(
     #' @param logalpha log of alpha
     #' @param s2 Variance parameter
     dC_dx = function(XX, X, logp=self$logp, logalpha=self$logalpha, s2=self$s2) {#browser()
-      stop("not implemented, ordered factor kernel, dC_dx")
+      stop("not implemented, latent factor kernel, dC_dx")
       # if (missing(theta)) {theta <- 10^beta}
       p <- 10 ^ logp
       alpha <- 10 ^ logalpha

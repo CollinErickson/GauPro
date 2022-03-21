@@ -22,6 +22,9 @@ Xtmp <- as.matrix(expand.grid(1:2, 1:2, 1:2))
 cbind(Xtmp, kig$k(Xtmp))
 cbind(Xtmp, kg$k(Xtmp))
 }
+\section{Super class}{
+\code{\link[GauPro:GauPro_kernel]{GauPro::GauPro_kernel}} -> \code{GauPro_kernel_IgnoreInds}
+}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
@@ -60,6 +63,13 @@ kernel, such as for factors.}
 \item \href{#method-s2_from_params}{\code{IgnoreIndsKernel$s2_from_params()}}
 \item \href{#method-clone}{\code{IgnoreIndsKernel$clone()}}
 }
+}
+\if{html}{
+\out{<details open ><summary>Inherited methods</summary>}
+\itemize{
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel" data-id="plot">}\href{../../GauPro/html/GauPro_kernel.html#method-plot}{\code{GauPro::GauPro_kernel$plot()}}\out{</span>}
+}
+\out{</details>}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}

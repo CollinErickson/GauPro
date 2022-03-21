@@ -27,8 +27,7 @@
 #' x <- matrix(runif(n*d), ncol=d)
 #' f <- function(x) {x[1]*x[2] + cos(x[3]) + x[4]^2}
 #' y <- apply(x, 1, f)
-#' gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian,
-#'                               parallel=FALSE)
+#' gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian)
 #' @field X Design matrix
 #' @field Z Responses
 #' @field N Number of data points
@@ -1032,6 +1031,9 @@ GauPro_kernel_model <- R6::R6Class(
                              trend_params=tparams, nug.update=nug.update)
         },
         fngr=function(params) {
+          # if (exists('logpar')) {
+          #   cat("Logging", params); logpar[[length(logpar)+1]] <<- params
+          # }
           tparams <- if (tl>0) {params[ti]} else {NULL}
           kparams <- if (kl>0) {params[ki]} else {NULL}
           nparams <- if (nl>0) {params[ni]} else {NULL}
@@ -1133,11 +1135,14 @@ GauPro_kernel_model <- R6::R6Class(
     },
     #' @description Optimize parameters
     #' @param restarts Number of restarts to do
+    #' @param n0 This many starting parameters are chosen and evaluated.
+    #' The best ones are used as the starting points for optimization.
     #' @param param_update Should parameters be updated?
     #' @param nug.update Should nugget be updated?
     #' @param parallel Should restarts be done in parallel?
     #' @param parallel_cores If running parallel, how many cores should be used?
-    optim = function (restarts = 5, param_update = T,
+    optim = function (restarts = 0, n0=5*self$D,
+                      param_update = T,
                       nug.update = self$nug.est, parallel=self$parallel,
                       parallel_cores=self$parallel_cores) {
       # Does parallel
@@ -1201,7 +1206,8 @@ GauPro_kernel_model <- R6::R6Class(
       # start.par <- self$param_optim_start(nug.update=nug.update)
       # start.par0 <- self$param_optim_start0(nug.update=nug.update)
       #
-      param_optim_start_mat <- self$param_optim_start_mat(restarts=restarts,
+      n0 <- min(n0, restarts+1)
+      param_optim_start_mat <- self$param_optim_start_mat(restarts=n0, #restarts,
                                                           nug.update=nug.update,
                                                           l=length(lower))
       if (!is.matrix(param_optim_start_mat)) {
@@ -1209,6 +1215,18 @@ GauPro_kernel_model <- R6::R6Class(
         #    over columns
         param_optim_start_mat <- matrix(param_optim_start_mat, nrow=1)
       }
+      if (n0 > restarts + 1.5) {
+        # Find best starting points
+        # browser()
+        devs <- rep(NA, ncol(param_optim_start_mat))
+        for (i in 1:ncol(param_optim_start_mat)) {
+          try(devs[i] <- optim.func(param_optim_start_mat[,i]), silent=T)
+        }
+        # Find best to start with
+        best_start_inds <- order(order(devs))
+        param_optim_start_mat <- param_optim_start_mat[, best_start_inds < restarts+1.5, drop=F]
+      }
+
 
       # This will make sure it at least can start
       # Run before it sets initial parameters

@@ -50,8 +50,7 @@ d <- 7
 x <- matrix(runif(n*d), ncol=d)
 f <- function(x) {x[1]*x[2] + cos(x[3]) + x[4]^2}
 y <- apply(x, 1, f)
-gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian,
-                              parallel=FALSE)
+gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian)
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -825,7 +824,8 @@ Get matrix for starting points of optimization
 Optimize parameters
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$optim(
-  restarts = 5,
+  restarts = 0,
+  n0 = 5 * self$D,
   param_update = T,
   nug.update = self$nug.est,
   parallel = self$parallel,
@@ -837,6 +837,9 @@ Optimize parameters
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{restarts}}{Number of restarts to do}
+
+\item{\code{n0}}{This many starting parameters are chosen and evaluated.
+The best ones are used as the starting points for optimization.}
 
 \item{\code{param_update}}{Should parameters be updated?}
 

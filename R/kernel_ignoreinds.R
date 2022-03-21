@@ -22,6 +22,7 @@
 #' cbind(Xtmp, kg$k(Xtmp))
 IgnoreIndsKernel <- R6::R6Class(
   classname = "GauPro_kernel_IgnoreInds",
+  inherit = GauPro_kernel,
   active = list(
     #' @field s2_est
     #' Is s2 being estimated?
