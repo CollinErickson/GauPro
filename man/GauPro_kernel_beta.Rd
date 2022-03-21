@@ -49,6 +49,8 @@ Kernels that inherit this only need to implement kone and dC_dparams.
 \item{\code{logs2_upper}}{Upper bound of logs2}
 
 \item{\code{s2_est}}{Should s2 be estimated?}
+
+\item{\code{useC}}{Should C code used? Much faster.}
 }
 \if{html}{\out{</div>}}
 }
@@ -115,6 +117,8 @@ Initialize kernel object
 \item{\code{s2_upper}}{Upper bound for s2}
 
 \item{\code{s2_est}}{Should s2 be estimated?}
+
+\item{\code{useC}}{Should C code used? Much faster.}
 }
 \if{html}{\out{</div>}}
 }

@@ -26,7 +26,7 @@ test_that("kernels work and have correct grads", {
     expect_equal(dg, dfg$gr, tolerance = 1e-4)
     # Now check numeric gradient
     # Nugget gradient
-    eps <- 1e-4 # 1e-8 was too small, caused errors
+    eps <- 1e-6 # 1e-8 was too small, caused errors
     kernpars <- gp$kernel$param_optim_start(jitter=T)
     nuglog <- -3.3
     gpd1 <- gp$deviance(nuglog = nuglog - eps/2, params = kernpars)

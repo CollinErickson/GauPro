@@ -42,6 +42,7 @@
 #' @field logs2_lower Lower bound of logs2
 #' @field logs2_upper Upper bound of logs2
 #' @field s2_est Should s2 be estimated?
+#' @field useC Should C code used? Much faster.
 #' @examples
 #' #k1 <- Matern52$new(beta=0)
 GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
@@ -57,6 +58,7 @@ GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
     logs2_lower = NULL,
     logs2_upper = NULL,
     s2_est = NULL, # Should s2 be estimated?
+    useC = NULL,
     #' @description Initialize kernel object
     #' @param beta Initial beta value
     #' @param s2 Initial variance
@@ -67,6 +69,7 @@ GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
     #' @param s2_lower Lower bound for s2
     #' @param s2_upper Upper bound for s2
     #' @param s2_est Should s2 be estimated?
+    #' @param useC Should C code used? Much faster.
     initialize = function(beta, s2=1, D,
                           beta_lower=-8, beta_upper=6, beta_est=TRUE,
                           s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE,

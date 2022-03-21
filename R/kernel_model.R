@@ -289,12 +289,22 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param split_speed Should the matrix be split for faster predictions?
     #' @param mean_dist Should the error be for the distribution of the mean?
     pred = function(XX, se.fit=F, covmat=F, split_speed=F, mean_dist=FALSE) {
-      if (!is.matrix(XX)) {
-        if (self$D == 1) XX <- as.matrix(XX, ncol=1)
-        else if (length(XX) == self$D) XX <- as.matrix(XX, nrow=1)
-        else stop('Predict input should be matrix')
+      if (is.data.frame(XX)) {
+        XX <- as.matrix(XX)
+      }
+      if (is.matrix(XX)) {
+        stopifnot(is.numeric(XX))
+      } else {
+        if (is.numeric(XX)) {
+          if (self$D == 1) XX <- matrix(XX, ncol=1)
+          else if (length(XX) == self$D) XX <- matrix(XX, nrow=1)
+          else stop('Predict input should be matrix')
+        } else {
+          stop(paste("Bad type of XX given to pred"))
+        }
       }
 
+      stopifnot(ncol(XX) == self$D)
       N <- nrow(XX)
       # Split speed makes predictions for groups of rows separately.
       # Fastest is for about 40.

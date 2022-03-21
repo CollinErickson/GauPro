@@ -1,10 +1,7 @@
 # Test to check that grad returns right length and
 # agrees with numerical grad.
 test_that("kernel grad works", { # kernel grad works----
-
-
-
-
+  # Kernels to test on
   kernels <- list(Gaussian$new(c(0,.3)),
                   Exponential$new(c(0,.3)),
                   Matern32$new(c(0,.3)),
@@ -19,7 +16,9 @@ test_that("kernel grad works", { # kernel grad works----
   y <- apply(x, 1, f) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
   x1 <- c(.34343, .65)
   x2 <- matrix(c(.2352,.4745,.34625,.97654,.16435,.457, .354, .976,.234, .623), ncol=2)
-  for (kernel in kernels) {
+  for (i in 1:length(kernels)) {
+    kernel <- kernels[[i]]
+    # cat("Checking grad", i, class(kernel), '\n')
     set.seed(0)
 
     # Fit GP using kernel
@@ -27,6 +26,7 @@ test_that("kernel grad works", { # kernel grad works----
     gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=kernel, parallel=FALSE,
                                   verbose=0, nug.est=T, restarts=0)
 
+    expect_equal(length(gp$pred(x1)), 1)
     grad1 <- gp$grad(x1)
     expect_is(object = grad1, class = 'matrix')
     expect_length(object = grad1, n = 2)
@@ -38,6 +38,17 @@ test_that("kernel grad works", { # kernel grad works----
     # Check grad with numerical grad
     if (requireNamespace("numDeriv", quietly = TRUE)) {
       expect_equal(c(gp$grad(x1)), c(numDeriv::grad(gp$predict, x1)), tol=.1)
+    } else {
+      # Check grad numerically
+      eps <- 1e-6
+      for (j in 1:ncol(x)) {
+      x1plus <- x1
+      x1plus[j] <- x1plus[j] + eps/2
+      x1minus <- x1
+      x1minus[j] <- x1minus[j] - eps/2
+      numgrad <- (gp$pred(x1plus) - gp$pred(x1minus)) / eps
+      expect_equal(numgrad, grad1[j])
+      }
     }
   }
 })
