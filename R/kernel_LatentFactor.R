@@ -45,6 +45,7 @@
 #' @examples
 #' kk <- LatentFactorKernel$new(D=1, nlevels=5, xindex=1, latentdim=2)
 #' kk$p
+#' kk$plotLatent()
 #' kmat <- outer(1:5, 1:5, Vectorize(kk$k))
 #' kmat
 #' kk$dC_dparams(X=matrix(1:5, ncol=1), nug=0)
@@ -538,9 +539,10 @@ LatentFactorKernel <- R6::R6Class(
     plotLatent = function() {
       pmat <- matrix(self$p, ncol=self$latentdim)
       pdf <- as.data.frame(pmat)
-      pdf$name <- paste0("D=",1:3)
+      pdf$name <- paste0("D=",1:nrow(pdf))
       if (self$latentdim == 1) {
-        ggplot2::ggplot(pdf, aes(V1, 0, label=name)) + geom_point() +
+        ggplot2::ggplot(pdf, ggplot2::aes(V1, 0, label=name)) +
+          ggplot2::geom_point() +
           ggrepel::geom_label_repel()
       } else if (self$latentdim == 2) {
         ggplot2::ggplot(pdf, ggplot2::aes(V1, V2, label=name)) +

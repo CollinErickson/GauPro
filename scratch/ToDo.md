@@ -55,10 +55,6 @@ in optimRestart is now breaking instead.
 
 * Add test with repeated X. Add test with big nugget and make sure deriv still matches.
 
-* optim: start by checking n points, then optimizing from best?
-
-* discrete kernel embedded: choose dim, nlevels. First is stuck at 0, lengthscale at 1.
-
 * Track change in params while optimizing to see if it runs too long.
 
 * estimate_run_time()
@@ -66,3 +62,5 @@ in optimRestart is now breaking instead.
 * test factor kernels, check grad
 
 * data frame input: everywhere, predict, etc. Convert to matrix.
+
+* 4 inputs, 2 latentfac, .1 noise. predictions have near zero s2

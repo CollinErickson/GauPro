@@ -1,5 +1,10 @@
 # GauPro 0.2.4.9000
 
+Added kernels for factors.
+
+Changed default number of restarts to zero, and added checking more starting
+points. Should make it faster.
+
 # GauPro 0.2.4
 
 Very minor change in Rcpp code to remove CRAN error.
