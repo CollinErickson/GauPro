@@ -3,10 +3,14 @@
 
 # GauPro
 
+<!-- badges: start -->
+
 [![Travis-CI Build
 Status](https://travis-ci.org/CollinErickson/GauPro.svg?branch=master)](https://travis-ci.org/CollinErickson/GauPro)
-[![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version/GauPro)](https://cran.r-project.org/package=GauPro)
+[![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/GauPro)](https://cran.r-project.org/package=GauPro)
 [![codecov](https://codecov.io/gh/CollinErickson/GauPro/branch/master/graph/badge.svg)](https://codecov.io/gh/CollinErickson/GauPro)
+[![R-CMD-check](https://github.com/CollinErickson/GauPro/workflows/R-CMD-check/badge.svg)](https://github.com/CollinErickson/GauPro/actions)
+<!-- badges: end -->
 
 ## Overview
 
@@ -49,8 +53,7 @@ curve(gp$pred(x)+2*gp$pred(x,T)$se,col=2,add=T);curve(gp$pred(x)-2*gp$pred(x,T)$
 ![](tools/README-plotsine-1.png)<!-- -->
 
 This is the likelihood as a function of the log of theta. It is not
-convex and is difficult to optimize in
-general.
+convex and is difficult to optimize in general.
 
 ``` r
 curve(sapply(x, gp$deviance_theta_log),-10,10, n = 300) # deviance profile
@@ -128,7 +131,7 @@ distribution. Currently the three options are to have a mean 0, a
 constant mean (default and recommended), or a linear model.
 
 With the exponential kernel above we see some regression to the mean.
-Between points the prediction reverts towards the mean of 0.4006891.
+Between points the prediction reverts towards the mean of 0.4007002.
 Also far away from any data the prediction will near this value.
 
 Below when we use a mean of 0 we do not see this same reversion.
