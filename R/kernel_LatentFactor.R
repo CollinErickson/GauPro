@@ -541,7 +541,7 @@ LatentFactorKernel <- R6::R6Class(
     },
     #' @description Plot the points in the latent space
     plotLatent = function() {
-      pmat <- matrix(self$p, ncol=self$latentdim)
+      pmat <- matrix(self$p, ncol=self$latentdim, byrow=TRUE)
       pdf <- as.data.frame(pmat)
       pdf$name <- paste0("D=",1:nrow(pdf))
       if (self$latentdim == 1) {
