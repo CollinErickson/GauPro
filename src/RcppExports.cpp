@@ -224,6 +224,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// corr_latentfactor_matrix_symC
+NumericMatrix corr_latentfactor_matrix_symC(NumericMatrix x, NumericVector theta, int xindex, int latentdim, double offdiagequal);
+RcppExport SEXP _GauPro_corr_latentfactor_matrix_symC(SEXP xSEXP, SEXP thetaSEXP, SEXP xindexSEXP, SEXP latentdimSEXP, SEXP offdiagequalSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type x(xSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< int >::type xindex(xindexSEXP);
+    Rcpp::traits::input_parameter< int >::type latentdim(latentdimSEXP);
+    Rcpp::traits::input_parameter< double >::type offdiagequal(offdiagequalSEXP);
+    rcpp_result_gen = Rcpp::wrap(corr_latentfactor_matrix_symC(x, theta, xindex, latentdim, offdiagequal));
+    return rcpp_result_gen;
+END_RCPP
+}
 // corr_matern32_matrixC
 NumericMatrix corr_matern32_matrixC(NumericMatrix x, NumericMatrix y, NumericVector theta);
 RcppExport SEXP _GauPro_corr_matern32_matrixC(SEXP xSEXP, SEXP ySEXP, SEXP thetaSEXP) {

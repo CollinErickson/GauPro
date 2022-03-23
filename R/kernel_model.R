@@ -298,7 +298,8 @@ GauPro_kernel_model <- R6::R6Class(
         if (is.numeric(XX)) {
           if (self$D == 1) XX <- matrix(XX, ncol=1)
           else if (length(XX) == self$D) XX <- matrix(XX, nrow=1)
-          else stop('Predict input should be matrix')
+          else stop(paste0('Predict input should be matrix with ', self$D,
+                           ' columns or vector of length ', self$D))
         } else {
           stop(paste("Bad type of XX given to pred"))
         }

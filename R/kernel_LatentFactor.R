@@ -211,10 +211,14 @@ LatentFactorKernel <- R6::R6Class(
           #              Vectorize(function(i,j){
           #                self$kone(x[i,],x[j,],p=p, s2=s2)
           #              }))
-          val <- outer(1:nrow(x), 1:nrow(x),
-                       Vectorize(function(i,j){
-                         self$kone(x[i,],x[j,],p=p, s2=s2, isdiag=i==j)
-                       }))
+          if (self$useC) {
+            val <- s2 * corr_latentfactor_matrix_symC((x), p, self$xindex, self$latentdim, 1-1e-6)
+          } else {
+            val <- outer(1:nrow(x), 1:nrow(x),
+                         Vectorize(function(i,j){
+                           self$kone(x[i,],x[j,],p=p, s2=s2, isdiag=i==j)
+                         }))
+          }
           # if (inherits(cgmtry,"try-error")) {browser()}
           return(val)
         } else {

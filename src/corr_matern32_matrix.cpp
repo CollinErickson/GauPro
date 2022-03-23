@@ -35,7 +35,7 @@ NumericMatrix corr_matern32_matrixC(NumericMatrix x, NumericMatrix y, NumericVec
   return out;
 }
 
-//' Correlation Gaussian matrix in C (symmetric)
+//' Correlation Matern 3/2 matrix in C (symmetric)
 //' @param x Matrix x
 //' @param theta Theta vector
 //' @return Correlation matrix

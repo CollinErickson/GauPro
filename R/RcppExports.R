@@ -188,11 +188,28 @@ kernel_gauss_dC <- function(x, theta, C_nonug, s2_est, beta_est, lenparams_D, s2
     .Call(`_GauPro_kernel_gauss_dC`, x, theta, C_nonug, s2_est, beta_est, lenparams_D, s2_nug)
 }
 
+#' Correlation Latent factor  matrix in C (symmetric)
+#' @param x Matrix x
+#' @param theta Theta vector
+#' @param xindex Index to use
+#' @param latentdim Number of latent dimensions
+#' @param offdiagequal What to set off-diagonal values with matching values to.
+#' @return Correlation matrix
+#' @export
+#' @examples
+#' corr_latentfactor_matrix_symC(matrix(c(1,.5, 2,1.6, 1,0),ncol=2,byrow=T), c(1.5,1.8), 1, 1, 1-1e-6)
+#' corr_latentfactor_matrix_symC(matrix(c(0,0,0,1,0,0,0,2,0,0,0,3,0,0,0,4), ncol=4, byrow=T),
+#'   c(0.101, -0.714, 0.114, -0.755, 0.117, -0.76, 0.116, -0.752),
+#'   4, 2, 1-1e-6) * 6.85
+corr_latentfactor_matrix_symC <- function(x, theta, xindex, latentdim, offdiagequal) {
+    .Call(`_GauPro_corr_latentfactor_matrix_symC`, x, theta, xindex, latentdim, offdiagequal)
+}
+
 corr_matern32_matrixC <- function(x, y, theta) {
     .Call(`_GauPro_corr_matern32_matrixC`, x, y, theta)
 }
 
-#' Correlation Gaussian matrix in C (symmetric)
+#' Correlation Matern 3/2 matrix in C (symmetric)
 #' @param x Matrix x
 #' @param theta Theta vector
 #' @return Correlation matrix

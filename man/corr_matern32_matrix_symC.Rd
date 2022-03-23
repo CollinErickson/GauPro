@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{corr_matern32_matrix_symC}
 \alias{corr_matern32_matrix_symC}
-\title{Correlation Gaussian matrix in C (symmetric)}
+\title{Correlation Matern 3/2 matrix in C (symmetric)}
 \usage{
 corr_matern32_matrix_symC(x, theta)
 }
@@ -15,7 +15,7 @@ corr_matern32_matrix_symC(x, theta)
 Correlation matrix
 }
 \description{
-Correlation Gaussian matrix in C (symmetric)
+Correlation Matern 3/2 matrix in C (symmetric)
 }
 \examples{
 corr_gauss_matrix_symC(matrix(c(1,0,0,1),2,2),c(1,1))

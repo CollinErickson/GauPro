@@ -64,3 +64,13 @@ in optimRestart is now breaking instead.
 * data frame input: everywhere, predict, etc. Convert to matrix.
 
 * 4 inputs, 2 latentfac, .1 noise. predictions have near zero s2
+
+* auto pick latentdim based on nlevels
+
+* speed up latentfactor
+
+* make sure num restarts actually is 0
+
+* remove hello world
+
+* fix plotLatent
