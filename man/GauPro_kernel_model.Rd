@@ -29,7 +29,7 @@ Allows for different kernel and trend functions to be used.
          class with \code{X} and \code{Z} as the data.}
 
   \item{\code{update(Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL,
-restarts = 5,
+restarts = 0,
 param_update = T, nug.update = self$nug.est)}}{This method updates the
 model, adding new data if given, then running optimization again.}
   }
@@ -194,7 +194,7 @@ Create kernel_model object
   nug.max = Inf,
   nug.est = TRUE,
   param.est = TRUE,
-  restarts = 5,
+  restarts = 0,
   normalize = FALSE,
   optimizer = "L-BFGS-B",
   ...
@@ -824,7 +824,7 @@ Get matrix for starting points of optimization
 Optimize parameters
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$optim(
-  restarts = 0,
+  restarts = self$restarts,
   n0 = 5 * self$D,
   param_update = T,
   nug.update = self$nug.est,

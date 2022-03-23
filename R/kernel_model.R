@@ -69,7 +69,7 @@
 #'          class with \code{X} and \code{Z} as the data.}
 #'
 #'   \item{\code{update(Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL,
-#' restarts = 5,
+#' restarts = 0,
 #' param_update = T, nug.update = self$nug.est)}}{This method updates the
 #' model, adding new data if given, then running optimization again.}
 #'   }
@@ -138,7 +138,7 @@ GauPro_kernel_model <- R6::R6Class(
                           verbose=0, useC=TRUE, useGrad=TRUE,
                           parallel=FALSE, parallel_cores="detect",
                           nug=1e-6, nug.min=1e-8, nug.max=Inf, nug.est=TRUE,
-                          param.est = TRUE, restarts = 5,
+                          param.est = TRUE, restarts = 0,
                           normalize = FALSE, optimizer="L-BFGS-B",
                           ...) {
       #self$initialize_GauPr(X=X,Z=Z,verbose=verbose,useC=useC,
@@ -1152,7 +1152,7 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param nug.update Should nugget be updated?
     #' @param parallel Should restarts be done in parallel?
     #' @param parallel_cores If running parallel, how many cores should be used?
-    optim = function (restarts = 0, n0=5*self$D,
+    optim = function (restarts = self$restarts, n0=5*self$D,
                       param_update = T,
                       nug.update = self$nug.est, parallel=self$parallel,
                       parallel_cores=self$parallel_cores) {

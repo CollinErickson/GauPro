@@ -69,8 +69,4 @@ in optimRestart is now breaking instead.
 
 * speed up latentfactor
 
-* make sure num restarts actually is 0
-
 * remove hello world
-
-* fix plotLatent
