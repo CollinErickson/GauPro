@@ -46,7 +46,6 @@ extern SEXP _GauPro_pred_meanC(SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _GauPro_pred_meanC_mumat(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _GauPro_pred_meanC_mumat_fast(SEXP, SEXP, SEXP, SEXP);
 extern SEXP _GauPro_pred_var(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _GauPro_rcpp_hello_world();
 extern SEXP _GauPro_solveC(SEXP, SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
@@ -86,7 +85,6 @@ static const R_CallMethodDef CallEntries[] = {
   {"_GauPro_pred_meanC_mumat",              (DL_FUNC) &_GauPro_pred_meanC_mumat,              6},
   {"_GauPro_pred_meanC_mumat_fast",         (DL_FUNC) &_GauPro_pred_meanC_mumat_fast,         4},
   {"_GauPro_pred_var",                      (DL_FUNC) &_GauPro_pred_var,                      6},
-  {"_GauPro_rcpp_hello_world",              (DL_FUNC) &_GauPro_rcpp_hello_world,              0},
   {"_GauPro_solveC",                        (DL_FUNC) &_GauPro_solveC,                        2},
   {NULL, NULL, 0}
 };

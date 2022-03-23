@@ -289,10 +289,6 @@ gradfuncarray <- function(dC_dparams, Cinv, Cinv_yminusmu) {
     .Call(`_GauPro_gradfuncarray`, dC_dparams, Cinv, Cinv_yminusmu)
 }
 
-rcpp_hello_world <- function() {
-    .Call(`_GauPro_rcpp_hello_world`)
-}
-
 pred_meanC <- function(XX, kx_xx, mu_hat, Kinv, Z) {
     .Call(`_GauPro_pred_meanC`, XX, kx_xx, mu_hat, Kinv, Z)
 }
