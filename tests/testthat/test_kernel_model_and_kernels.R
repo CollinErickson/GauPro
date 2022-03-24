@@ -68,7 +68,7 @@ test_that("check factor kernels alone", {
   kern_list <- list(
     FactorKernel$new(D=1, nlevels=3, xindex=1),
     OrderedFactorKernel$new(D=1, nlevels=3, xindex=1),
-    LatentFactorKernel$new(D=1, nlevels=3, xindex=1, latentdim = 1),
+    LatentFactorKernel$new(D=1, nlevels=3, xindex=1, latentdim = 1, s2_est = F),
     LatentFactorKernel$new(D=1, nlevels=3, xindex=1, latentdim = 2)
   )
   for (j in 1:length(kern_chars)) {
@@ -114,6 +114,7 @@ test_that("check factor kernels alone", {
       numgrad <- (-dp4 + 8*dp2 - 8*dp1 + dp3)/(12*eps/2)
       # cat(j, kern_char, i, numgrad, actgrad[i+1], abs((numgrad - actgrad[1+i])/numgrad), "\n")
       expect_equal(numgrad, actgrad[1+i], tolerance = 1e-2, label=paste(j,kern_char,i, 'numgrad'))
+      # debugonce(gp$kernel$dC_dparams)
     }
   }
 })

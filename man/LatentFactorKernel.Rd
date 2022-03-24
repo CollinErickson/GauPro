@@ -27,6 +27,17 @@ kmat
 kk$dC_dparams(X=matrix(1:5, ncol=1), nug=0)
 kk$C_dC_dparams(X=matrix(1:5, ncol=1), nug=0, params=c(kk$p, kk$s2))$C
 
+# 5 levels, 1/4 are similar and 2/4/5 are similar
+n <- 30
+x <- matrix(sample(1:5, n, TRUE))
+y <- c(ifelse(x == 1 | x == 4, 4, -3) + rnorm(n,0,.1))
+plot(c(x), y)
+m5 <- GauPro_kernel_model$new(
+  X=x, Z=y,
+  kernel=LatentFactorKernel$new(D=1, nlevels = 5, xindex = 1, latentdim = 2))
+m5$kernel$p
+m5$kernel$plotLatent()
+
 library(dplyr)
 n <- 20
 X <- cbind(matrix(runif(n,2,6), ncol=1),
@@ -204,7 +215,7 @@ of x with itself.}
 \subsection{Method \code{kone()}}{
 Find covariance of two points
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LatentFactorKernel$kone(x, y, p, s2, isdiag = 1, offdiagequal = 1 - 1e-06)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LatentFactorKernel$kone(x, y, pf, s2, isdiag = 1, offdiagequal = 1 - 1e-06)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -214,7 +225,8 @@ Find covariance of two points
 
 \item{\code{y}}{vector}
 
-\item{\code{p}}{correlation parameters on regular scale}
+\item{\code{pf}}{correlation parameters on regular scale, includes zeroes
+for first level.}
 
 \item{\code{s2}}{Variance parameter}
 

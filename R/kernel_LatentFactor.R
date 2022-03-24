@@ -51,7 +51,18 @@
 #' kk$dC_dparams(X=matrix(1:5, ncol=1), nug=0)
 #' kk$C_dC_dparams(X=matrix(1:5, ncol=1), nug=0, params=c(kk$p, kk$s2))$C
 #'
-# 2D, Gaussian on 1D, OrderedFactor on 2nd dim
+#' # 5 levels, 1/4 are similar and 2/4/5 are similar
+#' n <- 30
+#' x <- matrix(sample(1:5, n, TRUE))
+#' y <- c(ifelse(x == 1 | x == 4, 4, -3) + rnorm(n,0,.1))
+#' plot(c(x), y)
+#' m5 <- GauPro_kernel_model$new(
+#'   X=x, Z=y,
+#'   kernel=LatentFactorKernel$new(D=1, nlevels = 5, xindex = 1, latentdim = 2))
+#' m5$kernel$p
+#' m5$kernel$plotLatent()
+#'
+# 2D, Gaussian on 1D, LatentFactor on 2nd dim
 #' library(dplyr)
 #' n <- 20
 #' X <- cbind(matrix(runif(n,2,6), ncol=1),
@@ -127,6 +138,11 @@ LatentFactorKernel <- R6::R6Class(
       # Must give in D
       if (missing(D)) {stop("Must give Index kernel D")}
 
+      stopifnot(length(D) == 1, length(nlevels) == 1,
+                length(xindex) == 1, length(latentdim) == 1,
+                D>=1L, nlevels>=2L, xindex>=1L, latentdim>=1)
+      stopifnot(latentdim <= nlevels)
+
       self$D <- D
       self$nlevels <- nlevels
       self$xindex <- xindex
@@ -134,7 +150,8 @@ LatentFactorKernel <- R6::R6Class(
 
       # p <- rep(0, D * (D-1) / 2)
       # p <- rep(1, nlevels - 1)
-      p <- rnorm(latentdim*nlevels)
+      # Latent vars for first dim will be pinned to 0
+      p <- rnorm(latentdim*(nlevels - 1))
       self$p <- p
       self$p_length <- length(p)
       # Ensure separation between levels to avoid instability
@@ -203,6 +220,9 @@ LatentFactorKernel <- R6::R6Class(
         # if (is.null(logalpha)) {logalpha <- self$logalpha}
         if (is.null(s2)) {s2 <- self$s2}
       }
+
+      # pf = p full has zero for first dim, then p
+      pf <- c(rep(0, self$latentdim), p)
       # p <- 10^logp
       # alpha <- 10^logalpha
       if (is.null(y)) {
@@ -212,11 +232,11 @@ LatentFactorKernel <- R6::R6Class(
           #                self$kone(x[i,],x[j,],p=p, s2=s2)
           #              }))
           if (self$useC) {
-            val <- s2 * corr_latentfactor_matrix_symC((x), p, self$xindex, self$latentdim, 1-1e-6)
+            val <- s2 * corr_latentfactor_matrix_symC((x), pf, self$xindex, self$latentdim, 1-1e-6)
           } else {
             val <- outer(1:nrow(x), 1:nrow(x),
                          Vectorize(function(i,j){
-                           self$kone(x[i,],x[j,],p=p, s2=s2, isdiag=i==j)
+                           self$kone(x[i,],x[j,],pf=pf, s2=s2, isdiag=i==j)
                          }))
           }
           # if (inherits(cgmtry,"try-error")) {browser()}
@@ -226,11 +246,11 @@ LatentFactorKernel <- R6::R6Class(
         }
       }
       if (is.matrix(x) & is.matrix(y)) {
-        outer(1:nrow(x), 1:nrow(y), Vectorize(function(i,j){self$kone(x[i,],y[j,],p=p, s2=s2)}))
+        outer(1:nrow(x), 1:nrow(y), Vectorize(function(i,j){self$kone(x[i,],y[j,],pf=pf, s2=s2)}))
       } else if (is.matrix(x) & !is.matrix(y)) {
-        apply(x, 1, function(xx) {self$kone(xx, y, p=p, s2=s2)})
+        apply(x, 1, function(xx) {self$kone(xx, y, pf=pf, s2=s2)})
       } else if (is.matrix(y)) {
-        apply(y, 1, function(yy) {self$kone(yy, x, p=p, s2=s2)})
+        apply(y, 1, function(yy) {self$kone(yy, x, pf=pf, s2=s2)})
       } else {
         self$kone(x, y, p=p, s2=s2)
       }
@@ -238,19 +258,21 @@ LatentFactorKernel <- R6::R6Class(
     #' @description Find covariance of two points
     #' @param x vector
     #' @param y vector
-    #' @param p correlation parameters on regular scale
+    #' @param pf correlation parameters on regular scale, includes zeroes
+    #' for first level.
     #' @param s2 Variance parameter
     #' @param isdiag Is this on the diagonal of the covariance?
     #' @param offdiagequal What should offdiagonal values be set to when the
     #' indices are the same? Use to avoid decomposition errors, similar to
     #' adding a nugget.
     #' @references https://stackoverflow.com/questions/27086195/linear-index-upper-triangular-matrix
-    kone = function(x, y, p, s2, isdiag=1, offdiagequal=1-1e-6) {
+    kone = function(x, y, pf, s2, isdiag=1, offdiagequal=1-1e-6) {
       # if (missing(p)) {p <- 10^logp}
       # out <- s2 * exp(-sum(alpha*sin(p * (x-y))^2))
       x <- x[self$xindex]
       y <- y[self$xindex]
       stopifnot(x>=1, y>=1, x<=self$nlevels, y<=self$nlevels,
+                length(pf) == self$nlevels*self$latentdim,
                 abs(x-as.integer(x)) < 1e-8, abs(y-as.integer(y)) < 1e-8)
       if (x==y) {
         # out <- s2 * 1
@@ -268,8 +290,8 @@ LatentFactorKernel <- R6::R6Class(
         # n <- self$nlevels
         # p_dist <- sum(p[i:j])
         # browser()
-        latentx <- p[(x-1)*self$latentdim+1:self$latentdim]
-        latenty <- p[(y-1)*self$latentdim+1:self$latentdim]
+        latentx <- pf[(x-1)*self$latentdim+1:self$latentdim]
+        latenty <- pf[(y-1)*self$latentdim+1:self$latentdim]
         p_dist2 <- sum((latentx - latenty)^2)
         out <- s2 * exp(-p_dist2)
       }
@@ -330,29 +352,36 @@ LatentFactorKernel <- R6::R6Class(
       if (self$s2_est) {
         dC_dparams[lenparams_D,,] <- C * log10
       }
+
+      # pf = p full has zero for first dim, then p
+      pf <- c(rep(0, self$latentdim), p)
+
       # browser()
       # print(p)
       if (self$p_est) {
         # for (k in 1:length(p)) { # k is index of parameter
-        for (k in 1:self$nlevels) { # k is index of level
+        stopifnot(self$nlevels>=2L)
+        for (k in 2:self$nlevels) { # k is index of level
           for (i in seq(1, n-1, 1)) { # Index of X
             for (j in seq(i+1, n, 1)) { # Index of Y
               xlev <- X[i, self$xindex]
               ylev <- X[j, self$xindex]
-              if (xlev == k && ylev != k) {
-                latentx <- p[(xlev-1)*self$latentdim+1:self$latentdim]
-                latenty <- p[(ylev-1)*self$latentdim+1:self$latentdim]
+              if (xlev > 1.5 && xlev == k && ylev != k) {
+                latentx <- pf[(xlev-1)*self$latentdim+1:self$latentdim]
+                latenty <- pf[(ylev-1)*self$latentdim+1:self$latentdim]
                 p_dist2 <- sum((latentx - latenty)^2)
                 out <- s2 * exp(-p_dist2)
-                kinds <- (xlev-1)*self$latentdim+1:self$latentdim
+                kinds <- (xlev-1)*self$latentdim+1:self$latentdim - self$latentdim
                 dC_dparams[kinds,i,j] <- -2 * out * (latentx - latenty)
                 dC_dparams[kinds,j,i] <- dC_dparams[kinds,i,j]
-              } else if (xlev != k && ylev == k) {
-                latentx <- p[(xlev-1)*self$latentdim+1:self$latentdim]
-                latenty <- p[(ylev-1)*self$latentdim+1:self$latentdim]
+              } else if (ylev > 1.5 && xlev != k && ylev == k) {
+                latentx <- pf[(xlev-1)*self$latentdim+1:self$latentdim]
+                latenty <- pf[(ylev-1)*self$latentdim+1:self$latentdim]
                 p_dist2 <- sum((latentx - latenty)^2)
                 out <- s2 * exp(-p_dist2)
-                kinds <- (ylev-1)*self$latentdim+1:self$latentdim
+                kinds <- (ylev-1)*self$latentdim+1:self$latentdim - self$latentdim
+                # if (inherits(try({
+                #   dC_dparams[kinds,i,j] <- 2 * out * (latentx - latenty)}), 'try-error')) {browser()}
                 dC_dparams[kinds,i,j] <- 2 * out * (latentx - latenty)
                 dC_dparams[kinds,j,i] <- dC_dparams[kinds,i,j]
               } else {
@@ -362,7 +391,7 @@ LatentFactorKernel <- R6::R6Class(
             }
           }
           for (i in seq(1, n, 1)) { # Get diagonal set to zero
-            dC_dparams[k,i,i] <- 0
+            dC_dparams[k-1,i,i] <- 0
           }
         }
       }
@@ -410,6 +439,10 @@ LatentFactorKernel <- R6::R6Class(
       if (ncol(X) != d) {stop()}
       n <- nrow(X)
       nn <- nrow(XX)
+
+      # pf = p full has zero for first dim, then p
+      pf <- c(rep(0, self$latentdim), p)
+
       dC_dx <- array(NA, dim=c(nn, d, n))
       for (i in 1:nn) {
         for (j in 1:d) {
@@ -541,7 +574,10 @@ LatentFactorKernel <- R6::R6Class(
     },
     #' @description Plot the points in the latent space
     plotLatent = function() {
-      pmat <- matrix(self$p, ncol=self$latentdim, byrow=TRUE)
+      # pf = p full has zero for first dim, then p
+      pf <- c(rep(0, self$latentdim), self$p)
+
+      pmat <- matrix(pf, ncol=self$latentdim, byrow=TRUE)
       pdf <- as.data.frame(pmat)
       pdf$name <- paste0("D=",1:nrow(pdf))
       if (self$latentdim == 1) {

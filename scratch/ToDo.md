@@ -69,8 +69,6 @@ in optimRestart is now breaking instead.
 
 * speed up latentfactor (dC in Rcpp)
 
-* remove hello world
-
 * factor trend
 
 * diagnostics
@@ -78,9 +76,3 @@ in optimRestart is now breaking instead.
 * transform X, Z
 
 * penalties in optim, on trend/kernels
-
-* latent enforce latdim less than nlev
-
-* latent: enforce one level at 0
-
-* latent rcpp: int nsum not used

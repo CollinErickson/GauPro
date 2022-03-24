@@ -1156,6 +1156,7 @@ GauPro_kernel_model <- R6::R6Class(
                       param_update = T,
                       nug.update = self$nug.est, parallel=self$parallel,
                       parallel_cores=self$parallel_cores) {
+      # browser()
       # Does parallel
       # Joint MLE search with L-BFGS-B, with restarts
       #if (param_update & nug.update) {
@@ -1217,8 +1218,8 @@ GauPro_kernel_model <- R6::R6Class(
       # start.par <- self$param_optim_start(nug.update=nug.update)
       # start.par0 <- self$param_optim_start0(nug.update=nug.update)
       #
-      n0 <- min(n0, restarts+1)
-      param_optim_start_mat <- self$param_optim_start_mat(restarts=n0, #restarts,
+      n0 <- max(n0, restarts+1)
+      param_optim_start_mat <- self$param_optim_start_mat(restarts=n0-1, #restarts,
                                                           nug.update=nug.update,
                                                           l=length(lower))
       if (!is.matrix(param_optim_start_mat)) {
@@ -1239,13 +1240,22 @@ GauPro_kernel_model <- R6::R6Class(
       }
 
 
-      # This will make sure it at least can start
-      # Run before it sets initial parameters
-      # try.devlog <- try(devlog <- optim.func(start.par), silent = T)
-      try.devlog <- try(devlog <- optim.func(param_optim_start_mat[,1]),
-                        silent = T)
-      if (inherits(try.devlog, "try-error") || is.infinite(devlog)) {
-        warning("Current nugget doesn't work, increasing it #31973")
+      # # This will make sure it at least can start
+      # # Run before it sets initial parameters
+      # # try.devlog <- try(devlog <- optim.func(start.par), silent = T)
+      # try.devlog <- try(devlog <- optim.func(param_optim_start_mat[,1]),
+      #                   silent = T)
+      # if (inherits(try.devlog, "try-error") || is.infinite(devlog)) {
+      #   warning("Current nugget doesn't work, increasing it #31973")
+      #   # This will increase the nugget until cholesky works
+      #   self$update_K_and_estimates()
+      #   # devlog <- optim.func(start.par)
+      #   devlog <- optim.func(param_optim_start_mat[,1])
+      # }
+      devlog <- devs[best_start_inds[which.min(best_start_inds)]]
+      if (is.na(devlog) ||
+          is.nan(devlog)) {
+        warning("Current nugget doesn't work, increasing it #752983")
         # This will increase the nugget until cholesky works
         self$update_K_and_estimates()
         # devlog <- optim.func(start.par)
