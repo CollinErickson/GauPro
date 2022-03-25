@@ -104,26 +104,28 @@ trend_LM <- R6::R6Class(
     },
     #' @description Get parameter initial point for optimization
     #' @param jitter Not used
-    #' @param trend_est If the trend should be estimate.
-    param_optim_start = function(jitter, trend_est) {
-      c(self$b, self$m)
+    #' @param trend_est If the trend should be estimated.
+    param_optim_start = function(jitter=FALSE, trend_est) {
+      tr <- c(self$b, self$m)
+      if (jitter) {
+        tr <- tr + rnorm(length(tr), 0, 1)
+      }
+      tr
     },
     #' @description Get parameter initial point for optimization
     #' @param jitter Not used
-    #' @param trend_est If the trend should be estimate.
+    #' @param trend_est If the trend should be estimated.
     param_optim_start0 = function(jitter, trend_est) {
       c(self$b, self$m)
     },
     #' @description Get parameter lower bounds for optimization
-    #' @param jitter Not used
-    #' @param trend_est If the trend should be estimate.
-    param_optim_lower = function(jitter, trend_est) {
+    #' @param trend_est If the trend should be estimated.
+    param_optim_lower = function(trend_est) {
       c(self$b_lower, self$m_lower)
     },
     #' @description Get parameter upper bounds for optimization
-    #' @param jitter Not used
-    #' @param trend_est If the trend should be estimate.
-    param_optim_upper = function(jitter, trend_est) {
+    #' @param trend_est If the trend should be estimated.
+    param_optim_upper = function(trend_est) {
       c(self$b_upper, self$m_upper)
     },
     #' @description Set parameters after optimization

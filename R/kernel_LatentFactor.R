@@ -46,6 +46,7 @@
 #' kk <- LatentFactorKernel$new(D=1, nlevels=5, xindex=1, latentdim=2)
 #' kk$p
 #' kk$plotLatent()
+#' kk$plot()
 #' kmat <- outer(1:5, 1:5, Vectorize(kk$k))
 #' kmat
 #' kk$dC_dparams(X=matrix(1:5, ncol=1), nug=0)
@@ -252,7 +253,7 @@ LatentFactorKernel <- R6::R6Class(
       } else if (is.matrix(y)) {
         apply(y, 1, function(yy) {self$kone(yy, x, pf=pf, s2=s2)})
       } else {
-        self$kone(x, y, p=p, s2=s2)
+        self$kone(x, y, pf=pf, s2=s2)
       }
     },
     #' @description Find covariance of two points

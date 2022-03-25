@@ -1,5 +1,7 @@
 library(testthat)
 
+printkern <- FALSE
+
 # kernels work and have correct grads ----
 test_that("kernels work and have correct grads", {
   n <- 20
@@ -11,7 +13,7 @@ test_that("kernels work and have correct grads", {
                   'PowerExp', 'Periodic', "Exponential", "RatQuad")
   for (j in 1:length(kern_chars)) {
     kern_char <- kern_chars[j]
-    cat(j, kern_char, "\n")
+    if (exists('printkern') && printkern) cat(j, kern_char, "\n")
     kern <- eval(parse(text=kern_char))
     expect_is(kern, "R6ClassGenerator")
 
@@ -73,7 +75,7 @@ test_that("check factor kernels alone", {
   )
   for (j in 1:length(kern_chars)) {
     kern_char <- kern_chars[j]
-    cat(j, kern_char, "\n")
+    if (exists('printkern') && printkern) cat(j, kern_char, "\n")
     # kern <- eval(parse(text=kern_char))
     # expect_is(kern, "R6ClassGenerator")
     # kern1 <- IgnoreIndsKernel$new(Gaussian$new(D=1), ignoreinds = 2)
@@ -138,7 +140,7 @@ test_that("check factor kernels in product", {
   )
   for (j in 1:length(kern_chars)) {
     kern_char <- kern_chars[j]
-    cat(j, kern_char, "\n")
+    if (exists('printkern') && printkern) cat(j, kern_char, "\n")
     # kern <- eval(parse(text=kern_char))
     # expect_is(kern, "R6ClassGenerator")
     kern1 <- IgnoreIndsKernel$new(Matern32$new(D=1), ignoreinds = 2)

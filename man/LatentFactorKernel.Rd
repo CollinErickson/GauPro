@@ -22,6 +22,7 @@ p is the period for each dimension, a is a single number for scaling
 kk <- LatentFactorKernel$new(D=1, nlevels=5, xindex=1, latentdim=2)
 kk$p
 kk$plotLatent()
+kk$plot()
 kmat <- outer(1:5, 1:5, Vectorize(kk$k))
 kmat
 kk$dC_dparams(X=matrix(1:5, ncol=1), nug=0)

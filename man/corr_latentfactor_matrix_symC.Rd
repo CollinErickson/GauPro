@@ -24,8 +24,10 @@ Correlation matrix
 Correlation Latent factor  matrix in C (symmetric)
 }
 \examples{
-corr_latentfactor_matrix_symC(matrix(c(1,.5, 2,1.6, 1,0),ncol=2,byrow=TRUE), c(1.5,1.8), 1, 1, 1-1e-6)
-corr_latentfactor_matrix_symC(matrix(c(0,0,0,1,0,0,0,2,0,0,0,3,0,0,0,4), ncol=4, byrow=TRUE),
+corr_latentfactor_matrix_symC(matrix(c(1,.5, 2,1.6, 1,0),ncol=2,byrow=TRUE),
+                              c(1.5,1.8), 1, 1, 1-1e-6)
+corr_latentfactor_matrix_symC(matrix(c(0,0,0,1,0,0,0,2,0,0,0,3,0,0,0,4),
+                                     ncol=4, byrow=TRUE),
   c(0.101, -0.714, 0.114, -0.755, 0.117, -0.76, 0.116, -0.752),
   4, 2, 1-1e-6) * 6.85
 }

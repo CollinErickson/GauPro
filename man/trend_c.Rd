@@ -187,14 +187,12 @@ Get parameter initial point for optimization
 \subsection{Method \code{param_optim_lower()}}{
 Get parameter lower bounds for optimization
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{trend_c$param_optim_lower(jitter, trend_est = self$m_est)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{trend_c$param_optim_lower(trend_est = self$m_est)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{jitter}}{Not used}
-
 \item{\code{trend_est}}{If the trend should be estimate.}
 }
 \if{html}{\out{</div>}}
@@ -206,14 +204,12 @@ Get parameter lower bounds for optimization
 \subsection{Method \code{param_optim_upper()}}{
 Get parameter upper bounds for optimization
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{trend_c$param_optim_upper(jitter, trend_est = self$m_est)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{trend_c$param_optim_upper(trend_est = self$m_est)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{jitter}}{Not used}
-
 \item{\code{trend_est}}{If the trend should be estimate.}
 }
 \if{html}{\out{</div>}}

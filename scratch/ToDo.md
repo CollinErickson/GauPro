@@ -76,3 +76,5 @@ in optimRestart is now breaking instead.
 * transform X, Z
 
 * penalties in optim, on trend/kernels
+
+* Clean up trend. b_est/m_est, jitter, aren't used

@@ -101,9 +101,8 @@ trend_c <- R6::R6Class(
       }
     },
     #' @description Get parameter lower bounds for optimization
-    #' @param jitter Not used
     #' @param trend_est If the trend should be estimate.
-    param_optim_lower = function(jitter, trend_est=self$m_est) {
+    param_optim_lower = function(trend_est=self$m_est) {
       # -Inf
       if (trend_est) {
         -Inf
@@ -112,9 +111,8 @@ trend_c <- R6::R6Class(
       }
     },
     #' @description Get parameter upper bounds for optimization
-    #' @param jitter Not used
     #' @param trend_est If the trend should be estimate.
-    param_optim_upper = function(jitter, trend_est=self$m_est) {
+    param_optim_upper = function(trend_est=self$m_est) {
       # Inf
       if (trend_est) {
         Inf

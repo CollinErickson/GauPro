@@ -36,7 +36,7 @@ test_that("trend_c works", {
   expect_equal(gp$trend$m, -0.002844272, tolerance=.01)
   expect_equal(gp$kernel$beta, 0.4609827, tolerance=.01)
   expect_equal(gp$kernel$s2, 1.083443, tolerance=.01)
-  expect_equal(log(gp$nug,10), -11.37841, tolerance=.1)
+  # expect_equal(log(gp$nug,10), -11.37841, tolerance=.1)
   expect_equal(
     # numDeriv::grad(func = function(x) {gp$deviance(params=x[2:3], nuglog=x[4],trend_params=x[1])}, x=c(10.2,-.7,.227, -3.66)),
     c(14.26316, -864.14491, -811.75501,  -32.01259),
@@ -49,6 +49,11 @@ test_that("trend_c works", {
     gp$deviance_grad(params = c(2.5,-.2), nug.update=T, nuglog = -5, trend_params=-4.5, trend_update=TRUE),
     tol=.01
   )
+  # Check grad numerically
+  eps <- 1e-6
+  numgrad <- (gp$deviance(trend_params=10.2 + eps/2) - gp$deviance(trend_params=10.2 - eps/2)) / eps
+  actgrad <-   gp$deviance_grad(trend_params=10.2, nug.update = T)
+  expect_equal(numgrad, actgrad[1])
 })
 
 test_that("trend_LM works", {
@@ -77,4 +82,29 @@ test_that("trend_LM works", {
     gp$deviance_grad(params = c(2.5,-.2), nug.update=T, nuglog = -5, trend_params=c(-4.5,-3.2), trend_update=TRUE),
     tol=.01
   )
+
+  # Everything above could be deleted
+
+  n <- 20
+  d <- 2
+  x <- matrix(runif(n*d), ncol=d)
+  f <- function(x) {abs(sin(x[1]^.8*6))^1.2 + log(1+x[2]) + x[1]*x[2]}
+  y <- apply(x, 1, f) + rnorm(n,0,1e-4) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
+  gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Matern32$new(D=2), trend=trend_LM$new(D=2),
+                                parallel=FALSE, verbose=0, nug.est=T)
+
+  # Check grad numerically
+  eps <- 1e-6
+  trend_params <- gp$trend$param_optim_start(T,T) # c(.1,.2,.3)
+  actgrad <-   gp$deviance_grad(trend_params=trend_params, nug.update = T)
+  for (i in 1:length(trend_params)) {
+    trend_params_upper <- trend_params
+    trend_params_upper[i] <- trend_params_upper[i] + eps/2
+    trend_params_lower <- trend_params
+    trend_params_lower[i] <- trend_params_lower[i] - eps/2
+    dev_up <- gp$deviance(trend_params = trend_params_upper)
+    dev_low <- gp$deviance(trend_params = trend_params_lower)
+    numgrad <- (dev_up - dev_low) / eps
+    expect_equal(numgrad, actgrad[i])
+  }
 })

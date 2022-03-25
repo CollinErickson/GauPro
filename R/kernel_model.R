@@ -1227,7 +1227,9 @@ GauPro_kernel_model <- R6::R6Class(
         #    over columns
         param_optim_start_mat <- matrix(param_optim_start_mat, nrow=1)
       }
-      if (n0 > restarts + 1.5) {
+      # Below could just be run when condition is true,
+      #  but it needs devs below anayways.
+      if (TRUE || n0 > restarts + 1.5) {
         # Find best starting points
         # browser()
         devs <- rep(NA, ncol(param_optim_start_mat))
