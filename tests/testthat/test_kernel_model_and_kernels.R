@@ -187,3 +187,55 @@ test_that("check factor kernels in product", {
     }
   }
 })
+
+# Check product kernels behave properly ----
+test_that("check product kernels behave properly", {
+  gk1 <- Gaussian$new(D=1)
+  gk2 <- Gaussian$new(D=1)
+  expect_true(gk1$s2_est)
+  expect_true(gk2$s2_est)
+  gk12 <- gk1*gk2
+  expect_true(gk1$s2_est)
+  # gk2 gets flipped
+  expect_true(!gk2$s2_est)
+  expect_true(gk12$s2_est)
+
+  # Now turn off s2_est on gk12
+  gk12$s2_est <- F
+  expect_true(!gk1$s2_est)
+  expect_true(!gk2$s2_est)
+  expect_true(!gk12$s2_est)
+
+  # Turn back on
+  gk12$s2_est <- TRUE
+  expect_true(gk1$s2_est)
+  expect_true(!gk2$s2_est)
+  expect_true(gk12$s2_est)
+
+
+  h1 <- IgnoreIndsKernel$new(Gaussian$new(D=2), 1)
+  h2 <- Matern32$new(D=1)
+  h3 <- PowerExp$new(D=1)
+  expect_true(h1$s2_est)
+  expect_true(h2$s2_est)
+  expect_true(h3$s2_est)
+  h <- h1*h2*h3
+  expect_true(h1$s2_est)
+  expect_true(!h2$s2_est)
+  expect_true(!h3$s2_est)
+  expect_true(h$s2_est)
+
+  # Turn off
+  h$s2_est <- F
+  expect_true(!h1$s2_est)
+  expect_true(!h2$s2_est)
+  expect_true(!h3$s2_est)
+  expect_true(!h$s2_est)
+
+  # Turn on
+  h$s2_est <- T
+  expect_true(h1$s2_est)
+  expect_true(!h2$s2_est)
+  expect_true(!h3$s2_est)
+  expect_true(h$s2_est)
+})

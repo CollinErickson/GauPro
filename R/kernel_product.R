@@ -11,8 +11,8 @@
 #' @format \code{\link{R6Class}} object.
 #' @field k1 kernel 1
 #' @field k2 kernel 2
-#' @field k1_param_length param length of kernel 1
-#' @field k2_param_length param length of kernel 2
+# @field k1_param_length param length of kernel 1
+# @field k2_param_length param length of kernel 2
 #' @field k1pl param length of kernel 1
 #' @field k2pl param length of kernel 2
 #' @field s2 Variance
@@ -25,30 +25,67 @@
 kernel_product <- R6::R6Class(
   classname = "GauPro_kernel_product",
   inherit = GauPro_kernel,
+  active = list(
+    #' @description Is s2 being estimated?
+    s2_est = function(val) {
+      if (missing(val)) {
+        # Return TRUE/FALSE
+        return(self$k1$s2_est || self$k2$s2_est)
+      } else {
+        stopifnot(length(val) == 1, is.logical(val))
+        if (val) { # Turn on s2_est
+          self$k1$s2_est <- TRUE
+          self$k2$s2_est <- FALSE
+        } else { # Turn off s2_est
+          self$k1$s2_est <- FALSE
+          self$k2$s2_est <- FALSE
+        }
+      }
+    },
+    #' @description Length of the parameters of k1
+    k1pl = function(val) {
+      if (missing(val)) {
+        length(self$k1$param_optim_start())
+      } else {
+        stop("Can't assign k1pl")
+      }
+    },
+    #' @description Length of the parameters of k2
+    k2pl = function(val) {
+      if (missing(val)) {
+        length(self$k2$param_optim_start())
+      } else {
+        stop("Can't assign k2pl")
+      }
+    }
+  ),
   public = list(
     k1 = NULL,
     k2 = NULL,
-    k1_param_length = NULL,
-    k2_param_length = NULL,
-    k1pl = NULL,
-    k2pl = NULL,
+    # k1_param_length = NULL,
+    # k2_param_length = NULL,
+    # k1pl = NULL,
+    # k2pl = NULL,
     s2 = NULL,
-    s2_est = NULL,
+    # s2_est = NULL,
     #' @description Initialize kernel
     #' @param k1 Kernel 1
     #' @param k2 Kernel 2
     initialize = function(k1, k2) {
       self$k1 <- k1
       self$k2 <- k2
-      self$k1_param_length <- length(self$k1$param_optim_start())
-      self$k1pl <- self$k1_param_length
-      self$k2_param_length <- length(self$k2$param_optim_start())
-      self$k2pl <- self$k2_param_length
+      # self$k1_param_length <- length(self$k1$param_optim_start())
+      # self$k1pl <- self$k1_param_length
+      # self$k2_param_length <- length(self$k2$param_optim_start())
+      # self$k2pl <- self$k2_param_length
       self$s2 <- self$k1$s2 * self$k2$s2
 
       # if (self$k1$s2_est && )
       # browser()
-      self$s2_est <- (self$k1$s2_est || self$k2$s2_est)
+      # self$s2_est <- (self$k1$s2_est || self$k2$s2_est)
+      if (self$k1$s2_est & self$k2$s2_est) {
+        self$k2$s2_est <- FALSE
+      }
     },
     #' @description Calculate covariance between two points
     #' @param x vector.
@@ -105,6 +142,7 @@ kernel_product <- R6::R6Class(
     #' @param C Covariance with nugget
     #' @param nug Value of nugget
     dC_dparams = function(params=NULL, C, X, C_nonug, nug) {#browser(text = "Make sure all in one list")
+      browser()
       if (length(params) < .5) {
         params1 <- NULL
         params2 <- NULL

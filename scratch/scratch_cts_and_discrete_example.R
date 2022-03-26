@@ -1,7 +1,7 @@
 # 2 dicrete inputs, 2 cts inputs
 
 f <- function(a, b, c, d) {
-  -1e-3*a^2*b^2*a + ifelse(d==1,1,2) + rnorm(length(a),0,1e-1)
+  -1e-3*a^2*b^2*a + a*ifelse(c==1,1,0) + ifelse(d==1,1,2) + rnorm(length(a),0,1e-1)
 }
 n <- 33
 library(dplyr)
@@ -34,16 +34,39 @@ gp1$kernel$k(Xmat)
 system.time({
   gp2 <- GauPro_kernel_model$new(
     X=Xmat, Z=y,
+    restarts=0, track_optim = T, verbose=5,
+    kernel=IgnoreIndsKernel$new(ignoreinds = 3:4, Gaussian$new(D=2)) *
+      LatentFactorKernel$new(D=4, nlevels = 2, latentdim = 1, xindex = 3) *
+      LatentFactorKernel$new(D=4, nlevels = 4, latentdim = 2, xindex = 4)
+  )
+})
+gp2$plot_track_optim()
+gp2
+gp2$pred(c(7,-4, 1, 1), se.fit = T)
+gp2$pred(c(7,-4, 2, 1), se.fit = T)
+gp2$pred(c(7,-4, 1, 1), se.fit = T)
+gp2$pred(c(7,-4, 1, 2), se.fit = T)
+gp2$pred(c(7,-4, 1, 3), se.fit = T)
+gp2$pred(c(7,-4, 1, 4), se.fit = T)
+gp2$plotLOO()
+gp2$nug
+gp2$kernel$k(Xmat)
+
+debugonce(gp2$kernel$k2$k)
+gp2$kernel$k(Xmat)
+
+# With 0 restarts
+# 23.8,27.9,43.6,19.4 sec before Rcpp on latent
+# 8.1, 6.7,10.1 after adding Rcpp
+# With 5 restarts
+# 146.7,99.6 sec without Rcpp
+# 126,93 sec with Rcpp
+gp2m2 <- profvis::profvis(interval=.1, {
+  gp2 <- GauPro_kernel_model$new(
+    X=Xmat, Z=y,
     restarts=0,
     kernel=IgnoreIndsKernel$new(ignoreinds = 3:4, Gaussian$new(D=2)) *
       LatentFactorKernel$new(D=4, nlevels = 2, latentdim = 1, xindex = 3) *
       LatentFactorKernel$new(D=4, nlevels = 4, latentdim = 2, xindex = 4)
   )
 })
-gp2
-gp2$pred(c(7,-4, 1, 1), se.fit = T)
-gp2$nug
-gp2$kernel$k(Xmat)
-
-debugonce(gp2$kernel$k2$k)
-gp2$kernel$k(Xmat)

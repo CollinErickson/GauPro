@@ -60,6 +60,11 @@
 #' deviation of each column.
 #' @field optimizer What algorithm should be used to optimize the
 #' parameters.
+#' @field track_optim Should it track the parameters evaluated
+#' while optimizing?
+#' @field track_optim_inputs If track_optim is TRUE,
+#' this will keep a list of parameters evaluated.
+#' View them with plot_track_optim.
 #' @section Methods:
 #' \describe{
 #'   \item{\code{new(X, Z, corr="Gauss", verbose=0, separable=T, useC=F,
@@ -107,6 +112,8 @@ GauPro_kernel_model <- R6::R6Class(
     normalize_mean = NULL,
     normalize_sd = NULL,
     optimizer = NULL, # L-BFGS-B, BFGS
+    track_optim = NULL,
+    track_optim_inputs = list(),
     #deviance_out = NULL, #(theta, nug)
     #deviance_grad_out = NULL, #(theta, nug, overwhat)
     #deviance_fngr_out = NULL,
@@ -132,6 +139,8 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param normalize Should the data be normalized?
     #' @param optimizer What algorithm should be used to optimize the
     #' parameters.
+    #' @param track_optim Should it track the parameters evaluated
+    #' while optimizing?
     #' @param ... Not used
     initialize = function(X, Z,
                           kernel, trend,
@@ -140,6 +149,7 @@ GauPro_kernel_model <- R6::R6Class(
                           nug=1e-6, nug.min=1e-8, nug.max=Inf, nug.est=TRUE,
                           param.est = TRUE, restarts = 0,
                           normalize = FALSE, optimizer="L-BFGS-B",
+                          track_optim=FALSE,
                           ...) {
       #self$initialize_GauPr(X=X,Z=Z,verbose=verbose,useC=useC,
       #                      useGrad=useGrad,
@@ -235,6 +245,8 @@ GauPro_kernel_model <- R6::R6Class(
         stop(paste0('optimizer must be one of c("L-BFGS-B", "BFGS",',
                     ' "lbfgs, "genoud")'))
       }
+      stopifnot(length(track_optim) == 1, is.logical(track_optim))
+      self$track_optim <- track_optim
 
       self$update_K_and_estimates() # Need to get mu_hat before starting
       # self$mu_hat <- mean(Z)
@@ -967,6 +979,20 @@ GauPro_kernel_model <- R6::R6Class(
         ylab("Actual values (Z)") +
         ggtitle("Calibration of leave-one-out (LOO) predictions")
     },
+    #' @description If track_optim, this will plot the parameters
+    #' in the order they were evaluated.
+    plot_track_optim = function() {
+      if (length(self$track_optim_inputs) < 0.5) {
+        stop("Can't plot_track_optim if track_optim was FALSE")
+      }
+      toi <- as.data.frame(matrix(unlist(self$track_optim_inputs), byrow=T,
+                                  ncol=length(self$track_optim_inputs[[1]])))
+      toi$index <- 1:nrow(toi)
+      toi2 <- tidyr::pivot_longer(toi, cols = 1:(ncol(toi)-1))
+      ggplot2::ggplot(toi2, ggplot2::aes(index, value)) +
+        ggplot2::geom_line() +
+        ggplot2::facet_wrap(.~name, scales='free_y')
+    },
     #' @description Calculate loglikelihood of parameters
     #' @param mu Mean parameters
     #' @param s2 Variance parameter
@@ -1028,6 +1054,9 @@ GauPro_kernel_model <- R6::R6Class(
       ni <- if (nl>0) {tl+kl+1:nl} else {c()}
       list(
         fn=function(params) {
+          if (self$track_optim) {
+            self$track_optim_inputs[[length(self$track_optim_inputs)+1]] <<- params
+          }
           tparams <- if (tl>0) {params[ti]} else {NULL}
           kparams <- if (kl>0) {params[ki]} else {NULL}
           nparams <- if (nl>0) {params[ni]} else {NULL}
@@ -1035,6 +1064,9 @@ GauPro_kernel_model <- R6::R6Class(
                         trend_params=tparams)
         },
         gr=function(params) {
+          if (self$track_optim) {
+            self$track_optim_inputs[[length(self$track_optim_inputs)+1]] <<- params
+          }
           tparams <- if (tl>0) {params[ti]} else {NULL}
           kparams <- if (kl>0) {params[ki]} else {NULL}
           nparams <- if (nl>0) {params[ni]} else {NULL}
@@ -1042,9 +1074,9 @@ GauPro_kernel_model <- R6::R6Class(
                              trend_params=tparams, nug.update=nug.update)
         },
         fngr=function(params) {
-          # if (exists('logpar')) {
-          #   cat("Logging", params); logpar[[length(logpar)+1]] <<- params
-          # }
+          if (self$track_optim) {
+            self$track_optim_inputs[[length(self$track_optim_inputs)+1]] <<- params
+          }
           tparams <- if (tl>0) {params[ti]} else {NULL}
           kparams <- if (kl>0) {params[ki]} else {NULL}
           nparams <- if (nl>0) {params[ni]} else {NULL}

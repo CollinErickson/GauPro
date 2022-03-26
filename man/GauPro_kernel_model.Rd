@@ -111,6 +111,13 @@ deviation of each column.}
 
 \item{\code{optimizer}}{What algorithm should be used to optimize the
 parameters.}
+
+\item{\code{track_optim}}{Should it track the parameters evaluated
+while optimizing?}
+
+\item{\code{track_optim_inputs}}{If track_optim is TRUE,
+this will keep a list of parameters evaluated.
+View them with plot_track_optim.}
 }
 \if{html}{\out{</div>}}
 }
@@ -138,6 +145,7 @@ parameters.}
 \item \href{#method-plotmarginal}{\code{GauPro_kernel_model$plotmarginal()}}
 \item \href{#method-plotmarginalrandom}{\code{GauPro_kernel_model$plotmarginalrandom()}}
 \item \href{#method-plotLOO}{\code{GauPro_kernel_model$plotLOO()}}
+\item \href{#method-plot_track_optim}{\code{GauPro_kernel_model$plot_track_optim()}}
 \item \href{#method-loglikelihood}{\code{GauPro_kernel_model$loglikelihood()}}
 \item \href{#method-get_optim_functions}{\code{GauPro_kernel_model$get_optim_functions()}}
 \item \href{#method-param_optim_lower}{\code{GauPro_kernel_model$param_optim_lower()}}
@@ -197,6 +205,7 @@ Create kernel_model object
   restarts = 0,
   normalize = FALSE,
   optimizer = "L-BFGS-B",
+  track_optim = FALSE,
   ...
 )}\if{html}{\out{</div>}}
 }
@@ -241,6 +250,9 @@ estimating parameters?}
 
 \item{\code{optimizer}}{What algorithm should be used to optimize the
 parameters.}
+
+\item{\code{track_optim}}{Should it track the parameters evaluated
+while optimizing?}
 
 \item{\code{...}}{Not used}
 }
@@ -683,6 +695,17 @@ Plot marginal prediction for random sample of inputs
 Plot leave one out predictions for design points
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$plotLOO()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-plot_track_optim"></a>}}
+\if{latex}{\out{\hypertarget{method-plot_track_optim}{}}}
+\subsection{Method \code{plot_track_optim()}}{
+If track_optim, this will plot the parameters
+in the order they were evaluated.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$plot_track_optim()}\if{html}{\out{</div>}}
 }
 
 }

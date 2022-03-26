@@ -3,7 +3,7 @@
 \docType{class}
 \name{LatentFactorKernel}
 \alias{LatentFactorKernel}
-\title{Periodic Kernel R6 class}
+\title{Latent Factor Kernel R6 class}
 \format{
 \code{\link{R6Class}} object.
 }
@@ -11,24 +11,29 @@
 Object of \code{\link{R6Class}} with methods for fitting GP model.
 }
 \description{
-Periodic Kernel R6 class
+Latent Factor Kernel R6 class
 
-Periodic Kernel R6 class
+Latent Factor Kernel R6 class
 }
 \details{
-p is the period for each dimension, a is a single number for scaling
+Used for factor variables, a single dimension.
+Each level of the factor gets mapped into a latent space,
+then the distances in that space determine their correlations.
 }
 \examples{
+# Create a new kernel for a single factor with 5 levels,
+#  mapped into two latent dimensions.
 kk <- LatentFactorKernel$new(D=1, nlevels=5, xindex=1, latentdim=2)
+# Random initial parameter values
 kk$p
+# Plots to understand
 kk$plotLatent()
 kk$plot()
 kmat <- outer(1:5, 1:5, Vectorize(kk$k))
 kmat
-kk$dC_dparams(X=matrix(1:5, ncol=1), nug=0)
-kk$C_dC_dparams(X=matrix(1:5, ncol=1), nug=0, params=c(kk$p, kk$s2))$C
 
-# 5 levels, 1/4 are similar and 2/4/5 are similar
+
+# 5 levels, 1/4 are similar and 2/3/5 are similar
 n <- 30
 x <- matrix(sample(1:5, n, TRUE))
 y <- c(ifelse(x == 1 | x == 4, 4, -3) + rnorm(n,0,.1))
@@ -37,6 +42,7 @@ m5 <- GauPro_kernel_model$new(
   X=x, Z=y,
   kernel=LatentFactorKernel$new(D=1, nlevels = 5, xindex = 1, latentdim = 2))
 m5$kernel$p
+# We should see 1/4 and 2/3/4 in separate clusters
 m5$kernel$plotLatent()
 
 library(dplyr)

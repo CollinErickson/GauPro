@@ -26,8 +26,17 @@ IgnoreIndsKernel <- R6::R6Class(
   active = list(
     #' @field s2_est
     #' Is s2 being estimated?
-    s2_est = function(x) {
-      self$kernel$s2_est
+    s2_est = function(val) {
+      if (missing(val)) {
+        return(self$kernel$s2_est)
+      } else {
+        stopifnot(length(val) == 1, is.logical(val))
+        if (val) { # Turn on s2_est
+          self$kernel$s2_est <- TRUE
+        } else { # Turn off s2_est
+          self$kernel$s2_est <- FALSE
+        }
+      }
     },
     #' @field s2
     #' Value of s2 (variance)

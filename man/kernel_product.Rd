@@ -31,15 +31,16 @@ k$k(matrix(c(2,1), ncol=1))
 
 \item{\code{k2}}{kernel 2}
 
-\item{\code{k1_param_length}}{param length of kernel 1}
-
-\item{\code{k2_param_length}}{param length of kernel 2}
-
+\item{\code{s2}}{Variance}
+}
+\if{html}{\out{</div>}}
+}
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
 \item{\code{k1pl}}{param length of kernel 1}
 
 \item{\code{k2pl}}{param length of kernel 2}
-
-\item{\code{s2}}{Variance}
 
 \item{\code{s2_est}}{Is s2 being estimated?}
 }
@@ -73,6 +74,15 @@ k$k(matrix(c(2,1), ncol=1))
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
+Is s2 being estimated?
+
+
+Length of the parameters of k1
+
+
+Length of the parameters of k2
+
+
 Initialize kernel
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{kernel_product$new(k1, k2)}\if{html}{\out{</div>}}

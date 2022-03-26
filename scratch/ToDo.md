@@ -55,8 +55,6 @@ in optimRestart is now breaking instead.
 
 * Add test with repeated X. Add test with big nugget and make sure deriv still matches.
 
-* Track change in params while optimizing to see if it runs too long.
-
 * estimate_run_time()
 
 * test factor kernels, check grad
@@ -78,3 +76,6 @@ in optimRestart is now breaking instead.
 * penalties in optim, on trend/kernels
 
 * Clean up trend. b_est/m_est, jitter, aren't used
+
+* are kernel prod and sum and ignore being tested?
+

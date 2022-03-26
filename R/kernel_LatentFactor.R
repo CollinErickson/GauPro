@@ -1,24 +1,8 @@
-# Kernels should implement:
-# k kernel function for two vectors
-# update_params
-# get_optim_functions: return optim.func, optim.grad, optim.fngr
-# param_optim_lower - lower bound of params
-# param_optim_upper - upper
-# param_optim_start - current param values
-# param_optim_start0 - some central param values that can be used for optimization restarts
-# param_optim_jitter - how to jitter params in optimization
-
-# Suggested
-# deviance
-# deviance_grad
-# deviance_fngr
-# grad
-
-
-
-#' Periodic Kernel R6 class
+#' Latent Factor Kernel R6 class
 #'
-#' p is the period for each dimension, a is a single number for scaling
+#' Used for factor variables, a single dimension.
+#' Each level of the factor gets mapped into a latent space,
+#' then the distances in that space determine their correlations.
 #'
 #' @docType class
 #' @importFrom R6 R6Class
@@ -43,16 +27,21 @@
 #' @field nlevels Number of levels for the factor
 #' @field latentdim Dimension of embedding space
 #' @examples
+#' # Create a new kernel for a single factor with 5 levels,
+#' #  mapped into two latent dimensions.
 #' kk <- LatentFactorKernel$new(D=1, nlevels=5, xindex=1, latentdim=2)
+#' # Random initial parameter values
 #' kk$p
+#' # Plots to understand
 #' kk$plotLatent()
 #' kk$plot()
 #' kmat <- outer(1:5, 1:5, Vectorize(kk$k))
 #' kmat
-#' kk$dC_dparams(X=matrix(1:5, ncol=1), nug=0)
-#' kk$C_dC_dparams(X=matrix(1:5, ncol=1), nug=0, params=c(kk$p, kk$s2))$C
 #'
-#' # 5 levels, 1/4 are similar and 2/4/5 are similar
+# kk$dC_dparams(X=matrix(1:5, ncol=1), nug=0)
+# kk$C_dC_dparams(X=matrix(1:5, ncol=1), nug=0, params=c(kk$p, kk$s2))$C
+#'
+#' # 5 levels, 1/4 are similar and 2/3/5 are similar
 #' n <- 30
 #' x <- matrix(sample(1:5, n, TRUE))
 #' y <- c(ifelse(x == 1 | x == 4, 4, -3) + rnorm(n,0,.1))
@@ -61,6 +50,7 @@
 #'   X=x, Z=y,
 #'   kernel=LatentFactorKernel$new(D=1, nlevels = 5, xindex = 1, latentdim = 2))
 #' m5$kernel$p
+#' # We should see 1/4 and 2/3/4 in separate clusters
 #' m5$kernel$plotLatent()
 #'
 # 2D, Gaussian on 1D, LatentFactor on 2nd dim
@@ -138,6 +128,11 @@ LatentFactorKernel <- R6::R6Class(
     ) {
       # Must give in D
       if (missing(D)) {stop("Must give Index kernel D")}
+
+      # latentdim defaults to 1 for D<=3, 2 for D>=4
+      if (missing(latentdim)) {
+        latentdim <- ifelse(D>3.5, 2, 1)
+      }
 
       stopifnot(length(D) == 1, length(nlevels) == 1,
                 length(xindex) == 1, length(latentdim) == 1,
@@ -363,6 +358,7 @@ LatentFactorKernel <- R6::R6Class(
         # for (k in 1:length(p)) { # k is index of parameter
         stopifnot(self$nlevels>=2L)
         for (k in 2:self$nlevels) { # k is index of level
+          kinds <- (k-1)*self$latentdim+1:self$latentdim - self$latentdim
           for (i in seq(1, n-1, 1)) { # Index of X
             for (j in seq(i+1, n, 1)) { # Index of Y
               xlev <- X[i, self$xindex]
@@ -372,7 +368,7 @@ LatentFactorKernel <- R6::R6Class(
                 latenty <- pf[(ylev-1)*self$latentdim+1:self$latentdim]
                 p_dist2 <- sum((latentx - latenty)^2)
                 out <- s2 * exp(-p_dist2)
-                kinds <- (xlev-1)*self$latentdim+1:self$latentdim - self$latentdim
+                # kinds <- (xlev-1)*self$latentdim+1:self$latentdim - self$latentdim
                 dC_dparams[kinds,i,j] <- -2 * out * (latentx - latenty)
                 dC_dparams[kinds,j,i] <- dC_dparams[kinds,i,j]
               } else if (ylev > 1.5 && xlev != k && ylev == k) {
@@ -380,7 +376,7 @@ LatentFactorKernel <- R6::R6Class(
                 latenty <- pf[(ylev-1)*self$latentdim+1:self$latentdim]
                 p_dist2 <- sum((latentx - latenty)^2)
                 out <- s2 * exp(-p_dist2)
-                kinds <- (ylev-1)*self$latentdim+1:self$latentdim - self$latentdim
+                # kinds <- (ylev-1)*self$latentdim+1:self$latentdim - self$latentdim
                 # if (inherits(try({
                 #   dC_dparams[kinds,i,j] <- 2 * out * (latentx - latenty)}), 'try-error')) {browser()}
                 dC_dparams[kinds,i,j] <- 2 * out * (latentx - latenty)
@@ -469,10 +465,10 @@ LatentFactorKernel <- R6::R6Class(
       if (p_est) {vec <- c(self$p)} else {vec <- c()}
       # if (alpha_est) {vec <- c(vec, self$logalpha)} else {}
       if (s2_est) {vec <- c(vec, self$logs2)} else {}
-      # if (jitter && p_est) {
-      #   # vec <- vec + c(self$logp_optim_jitter,  0)
-      #   vec[1:length(self$p)] = vec[1:length(self$p)] + rnorm(length(self$p), 0, 1)
-      # }
+      if (jitter && p_est) {
+        # vec <- vec + c(self$logp_optim_jitter,  0)
+        vec[1:length(self$p)] = vec[1:length(self$p)] + rnorm(length(self$p), 0, 1)
+      }
       vec
     },
     #' @description Starting point for parameters for optimization
