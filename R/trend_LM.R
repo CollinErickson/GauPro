@@ -55,7 +55,8 @@ trend_LM <- R6::R6Class(
     #' @param b_lower trend lower bounds
     #' @param b_upper trend upper bounds
     #' @param b_est Should b be estimated?
-    initialize = function(D, m = rep(0,D), m_lower=rep(-Inf,D), m_upper=rep(Inf,D), m_est=rep(TRUE,D),
+    initialize = function(D, m = rep(0,D), m_lower=rep(-Inf,D),
+                          m_upper=rep(Inf,D), m_est=rep(TRUE,D),
                           b = 0, b_lower=-Inf, b_upper=Inf, b_est=TRUE) {
       self$D <- D
       self$m <- m

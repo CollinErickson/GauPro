@@ -5,6 +5,7 @@
 #'
 #' @docType class
 #' @importFrom R6 R6Class
+#' @importFrom stats model.frame
 #' @export
 #' @useDynLib GauPro
 #' @importFrom Rcpp evalCpp
@@ -69,6 +70,9 @@
 #' this will keep a vector of the deviance values calculated
 #' while optimizing parameters.
 #' View them with plot_track_optim.
+#' @field formula Formula
+#' @field convert_formula_data List for storing data to convert data
+#' using the formula
 #' @section Methods:
 #' \describe{
 #'   \item{\code{new(X, Z, corr="Gauss", verbose=0, separable=T, useC=F,
@@ -119,6 +123,8 @@ GauPro_kernel_model <- R6::R6Class(
     track_optim = NULL,
     track_optim_inputs = list(),
     track_optim_dev = numeric(0),
+    formula = NULL,
+    convert_formula_data = NULL,
     #deviance_out = NULL, #(theta, nug)
     #deviance_grad_out = NULL, #(theta, nug, overwhat)
     #deviance_fngr_out = NULL,
@@ -159,6 +165,58 @@ GauPro_kernel_model <- R6::R6Class(
       #self$initialize_GauPr(X=X,Z=Z,verbose=verbose,useC=useC,
       #                      useGrad=useGrad,
       #                      parallel=parallel, nug.est=nug.est)
+      if (missing(X)) {
+        stop("You must give X to GauPro_kernel_model")
+      }
+      if (missing(Z)) {
+        stop("You must give Z to GauPro_kernel_model")
+      }
+      if (is.formula(X) || is.formula(Z)) {
+        if (is.formula(X)) {
+          formula <- X
+          stopifnot(is.data.frame(Z))
+          data <- Z
+        }
+        if (is.formula(Z)) {
+          formula <- Z
+          stopifnot(is.data.frame(X))
+          data <- X
+        }
+        modfr <- model.frame(formula = formula, data = data)
+        Z <- modfr[,1]
+        Xdf <- modfr[,2:ncol(modfr)]
+        convert_formula_data <- list(factors=list(),
+                                     chars=list())
+        # Convert factor columns to integer
+        for (i in 1:ncol(Xdf)) {
+          if (is.factor(Xdf[, i])) {
+            convert_formula_data$factors[[
+              length(convert_formula_data$factors)+1
+            ]] <- list(index=i,
+                       levels=levels(Xdf[[i]]))
+            Xdf[[i]] <- as.integer(Xdf[[i]])
+          }
+        }
+        # Convert char columns to integer
+        for (i in 1:ncol(Xdf)) {
+          if (is.character(Xdf[, i])) {
+            convert_formula_data$chars[[
+              length(convert_formula_data$chars)+1
+            ]] <- list(index=i,
+                       vals=sort(unique(Xdf[[i]])))
+            Xdf[[i]] <- sapply(Xdf[[i]],
+                               function(x) {
+                                 which(x==convert_formula_data$chars[[
+                                   length(convert_formula_data$chars)
+                                 ]]$vals)
+                               })
+          }
+        }
+        self$formula <- formula
+        # self$data <- data
+        self$convert_formula_data <- convert_formula_data
+        X <- as.matrix(Xdf)
+      }
       if (is.data.frame(X)) {
         X <- as.matrix(X)
       }
@@ -306,6 +364,10 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param split_speed Should the matrix be split for faster predictions?
     #' @param mean_dist Should the error be for the distribution of the mean?
     pred = function(XX, se.fit=F, covmat=F, split_speed=F, mean_dist=FALSE) {
+      if (!is.null(self$formula)) {
+        XX <- convert_X_with_formula(XX, self$convert_formula_data,
+                                     self$formula)
+      }
       if (is.data.frame(XX)) {
         XX <- as.matrix(XX)
       }
@@ -986,7 +1048,8 @@ GauPro_kernel_model <- R6::R6Class(
     },
     #' @description If track_optim, this will plot the parameters
     #' in the order they were evaluated.
-    plot_track_optim = function() {
+    #' @param minindex Minimum index to plot.
+    plot_track_optim = function(minindex=NULL) {
       if (length(self$track_optim_inputs) < 0.5) {
         stop("Can't plot_track_optim if track_optim was FALSE")
       }
@@ -994,6 +1057,10 @@ GauPro_kernel_model <- R6::R6Class(
                                   ncol=length(self$track_optim_inputs[[1]])))
       toi$deviance <- self$track_optim_dev
       toi$index <- 1:nrow(toi)
+      if (!missing(minindex) && !is.null(minindex)) {
+        stopifnot(is.numeric(minindex) && length(minindex) == 1)
+        toi <- toi[toi$index >= minindex, ]
+      }
       toi2 <- tidyr::pivot_longer(toi, cols = 1:(ncol(toi)-1))
       ggplot2::ggplot(toi2, ggplot2::aes(index, value)) +
         ggplot2::geom_line() +
@@ -1067,7 +1134,7 @@ GauPro_kernel_model <- R6::R6Class(
           kparams <- if (kl>0) {params[ki]} else {NULL}
           nparams <- if (nl>0) {params[ni]} else {NULL}
           dev <- self$deviance(params=kparams, nuglog=nparams,
-                        trend_params=tparams)
+                               trend_params=tparams)
           if (self$track_optim) {
             self$track_optim_dev[[length(self$track_optim_dev)+1]] <- dev
           }
@@ -1081,7 +1148,7 @@ GauPro_kernel_model <- R6::R6Class(
           kparams <- if (kl>0) {params[ki]} else {NULL}
           nparams <- if (nl>0) {params[ni]} else {NULL}
           dev_grad <- self$deviance_grad(params=kparams, nuglog=nparams,
-                             trend_params=tparams, nug.update=nug.update)
+                                         trend_params=tparams, nug.update=nug.update)
           if (self$track_optim) { # Doesn't actually get value
             self$track_optim_dev[[length(self$track_optim_dev)+1]] <- NA
           }
@@ -1206,7 +1273,6 @@ GauPro_kernel_model <- R6::R6Class(
                       param_update = T,
                       nug.update = self$nug.est, parallel=self$parallel,
                       parallel_cores=self$parallel_cores) {
-      # browser()
       # Does parallel
       # Joint MLE search with L-BFGS-B, with restarts
       #if (param_update & nug.update) {
@@ -1281,7 +1347,6 @@ GauPro_kernel_model <- R6::R6Class(
       #  but it needs devs below anayways.
       if (TRUE || n0 > restarts + 1.5) {
         # Find best starting points
-        # browser()
         devs <- rep(NA, ncol(param_optim_start_mat))
         for (i in 1:ncol(param_optim_start_mat)) {
           try(devs[i] <- optim.func(param_optim_start_mat[,i]), silent=T)
@@ -1839,7 +1904,6 @@ GauPro_kernel_model <- R6::R6Class(
                              nug=self$nug, nug.update, nuglog,
                              trend_params=NULL, trend_update=TRUE) {
       if (self$verbose >= 20) {cat('in deviance_fngr', '\n')}
-      # browser()
       if (!missing(nuglog) && !is.null(nuglog)) {
         nug <- 10^nuglog
       }
@@ -1923,12 +1987,10 @@ GauPro_kernel_model <- R6::R6Class(
         # Using apply() is 5x faster than Cpp code I wrote to do same thing
         #  Speed up by saving Cinv above to reduce number of solves
         # kernel_gr <- apply(dC_dparams, 1, gradfunc) # 6x faster below
-        # browser()
         if (self$useC) {
           kernel_gr <- gradfuncarray(dC_dparams, Cinv, Cinv_yminusmu)
         } else {
           # Changing to R code so it works on my laptop
-          # browser()
           kernel_gr <- gradfuncarrayR(dC_dparams, Cinv, Cinv_yminusmu)
         }
         gr <- c(gr, kernel_gr)

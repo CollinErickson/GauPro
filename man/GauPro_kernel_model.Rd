@@ -123,6 +123,11 @@ View them with plot_track_optim.}
 this will keep a vector of the deviance values calculated
 while optimizing parameters.
 View them with plot_track_optim.}
+
+\item{\code{formula}}{Formula}
+
+\item{\code{convert_formula_data}}{List for storing data to convert data
+using the formula}
 }
 \if{html}{\out{</div>}}
 }
@@ -710,9 +715,16 @@ Plot leave one out predictions for design points
 If track_optim, this will plot the parameters
 in the order they were evaluated.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$plot_track_optim()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$plot_track_optim(minindex = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{minindex}}{Minimum index to plot.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-loglikelihood"></a>}}
