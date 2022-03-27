@@ -16,10 +16,12 @@ Xmat
 # y <- apply(Xmat, 1, f)
 y <- f(Xmat[,1],Xmat[,2],Xmat[,3],Xmat[,4])
 
-gp1 <- GauPro_kernel_model$new(
-  X=Xmat, Z=y,
-  kernel=IgnoreIndsKernel$new(ignoreinds = 3:4, Gaussian$new(D=2))
-)
+system.time({
+  gp1 <- GauPro_kernel_model$new(
+    X=Xmat, Z=y,
+    kernel=IgnoreIndsKernel$new(ignoreinds = 3:4, Gaussian$new(D=2))
+  )
+})
 gp1
 gp1$pred(c(7,-4, 1, 1), se.fit = T)
 gp1$nug
@@ -61,7 +63,7 @@ gp2$kernel$k(Xmat)
 # With 5 restarts
 # 146.7,99.6 sec without Rcpp
 # 126,93 sec with Rcpp
-gp2m2 <- profvis::profvis(interval=.1, {
+gp2m2 <- profvis::profvis(interval=.01, {
   gp2 <- GauPro_kernel_model$new(
     X=Xmat, Z=y,
     restarts=0,

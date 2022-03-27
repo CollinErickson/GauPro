@@ -65,6 +65,10 @@
 #' @field track_optim_inputs If track_optim is TRUE,
 #' this will keep a list of parameters evaluated.
 #' View them with plot_track_optim.
+#' @field track_optim_dev If track_optim is TRUE,
+#' this will keep a vector of the deviance values calculated
+#' while optimizing parameters.
+#' View them with plot_track_optim.
 #' @section Methods:
 #' \describe{
 #'   \item{\code{new(X, Z, corr="Gauss", verbose=0, separable=T, useC=F,
@@ -114,6 +118,7 @@ GauPro_kernel_model <- R6::R6Class(
     optimizer = NULL, # L-BFGS-B, BFGS
     track_optim = NULL,
     track_optim_inputs = list(),
+    track_optim_dev = numeric(0),
     #deviance_out = NULL, #(theta, nug)
     #deviance_grad_out = NULL, #(theta, nug, overwhat)
     #deviance_fngr_out = NULL,
@@ -987,6 +992,7 @@ GauPro_kernel_model <- R6::R6Class(
       }
       toi <- as.data.frame(matrix(unlist(self$track_optim_inputs), byrow=T,
                                   ncol=length(self$track_optim_inputs[[1]])))
+      toi$deviance <- self$track_optim_dev
       toi$index <- 1:nrow(toi)
       toi2 <- tidyr::pivot_longer(toi, cols = 1:(ncol(toi)-1))
       ggplot2::ggplot(toi2, ggplot2::aes(index, value)) +
@@ -1055,33 +1061,45 @@ GauPro_kernel_model <- R6::R6Class(
       list(
         fn=function(params) {
           if (self$track_optim) {
-            self$track_optim_inputs[[length(self$track_optim_inputs)+1]] <<- params
+            self$track_optim_inputs[[length(self$track_optim_inputs)+1]] <- params
           }
           tparams <- if (tl>0) {params[ti]} else {NULL}
           kparams <- if (kl>0) {params[ki]} else {NULL}
           nparams <- if (nl>0) {params[ni]} else {NULL}
-          self$deviance(params=kparams, nuglog=nparams,
+          dev <- self$deviance(params=kparams, nuglog=nparams,
                         trend_params=tparams)
+          if (self$track_optim) {
+            self$track_optim_dev[[length(self$track_optim_dev)+1]] <- dev
+          }
+          dev
         },
         gr=function(params) {
           if (self$track_optim) {
-            self$track_optim_inputs[[length(self$track_optim_inputs)+1]] <<- params
+            self$track_optim_inputs[[length(self$track_optim_inputs)+1]] <- params
           }
           tparams <- if (tl>0) {params[ti]} else {NULL}
           kparams <- if (kl>0) {params[ki]} else {NULL}
           nparams <- if (nl>0) {params[ni]} else {NULL}
-          self$deviance_grad(params=kparams, nuglog=nparams,
+          dev_grad <- self$deviance_grad(params=kparams, nuglog=nparams,
                              trend_params=tparams, nug.update=nug.update)
+          if (self$track_optim) { # Doesn't actually get value
+            self$track_optim_dev[[length(self$track_optim_dev)+1]] <- NA
+          }
+          dev_grad
         },
         fngr=function(params) {
           if (self$track_optim) {
-            self$track_optim_inputs[[length(self$track_optim_inputs)+1]] <<- params
+            self$track_optim_inputs[[length(self$track_optim_inputs)+1]] <- params
           }
           tparams <- if (tl>0) {params[ti]} else {NULL}
           kparams <- if (kl>0) {params[ki]} else {NULL}
           nparams <- if (nl>0) {params[ni]} else {NULL}
-          self$deviance_fngr(params=kparams, nuglog=nparams,
-                             trend_params=tparams, nug.update=nug.update)
+          dev_fngr <- self$deviance_fngr(params=kparams, nuglog=nparams,
+                                         trend_params=tparams, nug.update=nug.update)
+          if (self$track_optim) {
+            self$track_optim_dev[[length(self$track_optim_dev)+1]] <- dev_fngr$fn
+          }
+          dev_fngr
         }
       )
     },

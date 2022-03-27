@@ -118,6 +118,11 @@ while optimizing?}
 \item{\code{track_optim_inputs}}{If track_optim is TRUE,
 this will keep a list of parameters evaluated.
 View them with plot_track_optim.}
+
+\item{\code{track_optim_dev}}{If track_optim is TRUE,
+this will keep a vector of the deviance values calculated
+while optimizing parameters.
+View them with plot_track_optim.}
 }
 \if{html}{\out{</div>}}
 }

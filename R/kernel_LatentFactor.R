@@ -460,13 +460,9 @@ LatentFactorKernel <- R6::R6Class(
     #' @param s2_est Is s2 being estimated?
     param_optim_start = function(jitter=F, y, p_est=self$p_est,
                                  s2_est=self$s2_est) {
-      # Use current values for theta, partial MLE for s2
-      # vec <- c(log(self$theta, 10), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
       if (p_est) {vec <- c(self$p)} else {vec <- c()}
-      # if (alpha_est) {vec <- c(vec, self$logalpha)} else {}
       if (s2_est) {vec <- c(vec, self$logs2)} else {}
       if (jitter && p_est) {
-        # vec <- vec + c(self$logp_optim_jitter,  0)
         vec[1:length(self$p)] = vec[1:length(self$p)] + rnorm(length(self$p), 0, 1)
       }
       vec
@@ -479,11 +475,7 @@ LatentFactorKernel <- R6::R6Class(
     #' @param s2_est Is s2 being estimated?
     param_optim_start0 = function(jitter=F, y, p_est=self$p_est,
                                   s2_est=self$s2_est) {
-      # Use 0 for theta, partial MLE for s2
-      # vec <- c(rep(0, length(self$theta)), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
-      # if (p_est) {vec <- rep(0, self$p_length)} else {vec <- c()}
       if (p_est) {vec <- rnorm(self$p_length)} else {vec <- c()}
-      # if (alpha_est) {vec <- c(vec, 1)} else {}
       if (s2_est) {vec <- c(vec, 0)} else {}
       if (jitter && p_est) {
         vec[1:length(self$p)] = vec[1:length(self$logp)] + rnorm(length(self$p), 0, 1)
@@ -495,11 +487,8 @@ LatentFactorKernel <- R6::R6Class(
     #' @param alpha_est Is alpha being estimated?
     #' @param s2_est Is s2 being estimated?
     param_optim_lower = function(p_est=self$p_est,
-                                 # alpha_est=self$alpha_est,
                                  s2_est=self$s2_est) {
-      # c(self$logp_lower, self$logs2_lower)
       if (p_est) {vec <- c(self$p_lower)} else {vec <- c()}
-      # if (alpha_est) {vec <- c(vec, self$logalpha_lower)} else {}
       if (s2_est) {vec <- c(vec, self$logs2_lower)} else {}
       vec
     },
@@ -508,11 +497,8 @@ LatentFactorKernel <- R6::R6Class(
     #' @param alpha_est Is alpha being estimated?
     #' @param s2_est Is s2 being estimated?
     param_optim_upper = function(p_est=self$p_est,
-                                 # alpha_est=self$alpha_est,
                                  s2_est=self$s2_est) {
-      # c(self$logp_upper, self$logs2_upper)
       if (p_est) {vec <- c(self$p_upper)} else {vec <- c()}
-      # if (alpha_est) {vec <- c(vec, self$logalpha_upper)} else {}
       if (s2_est) {vec <- c(vec, self$logs2_upper)} else {}
       vec
     },
@@ -522,17 +508,11 @@ LatentFactorKernel <- R6::R6Class(
     #' @param alpha_est Is alpha being estimated?
     #' @param s2_est Is s2 being estimated?
     set_params_from_optim = function(optim_out, p_est=self$p_est,
-                                     # alpha_est=self$alpha_est,
                                      s2_est=self$s2_est) {
       loo <- length(optim_out)
       if (p_est) {
         self$p <- optim_out[1:(self$p_length)]
-        # self$p <- 10 ^ self$logp
       }
-      # if (alpha_est) {
-      #   self$logalpha <- optim_out[(1 + p_est * self$p_length)]
-      #   self$alpha <- 10 ^ self$logalpha
-      # }
       if (s2_est) {
         self$logs2 <- optim_out[loo]
         self$s2 <- 10 ^ self$logs2
@@ -542,7 +522,6 @@ LatentFactorKernel <- R6::R6Class(
     #' @param params parameter vector
     #' @param s2_est Is s2 being estimated?
     s2_from_params = function(params, s2_est=self$s2_est) {
-      # 10 ^ params[length(params)]
       if (s2_est && !is.null(params)) { # Is last if in params
         10 ^ params[length(params)]
       } else { # Else it is just using set value, not being estimated

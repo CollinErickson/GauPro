@@ -80,8 +80,6 @@ kernel_product <- R6::R6Class(
       # self$k2pl <- self$k2_param_length
       self$s2 <- self$k1$s2 * self$k2$s2
 
-      # if (self$k1$s2_est && )
-      # browser()
       # self$s2_est <- (self$k1$s2_est || self$k2$s2_est)
       if (self$k1$s2_est & self$k2$s2_est) {
         self$k2$s2_est <- FALSE
@@ -141,8 +139,7 @@ kernel_product <- R6::R6Class(
     #' @param C_nonug Covariance without nugget added to diagonal
     #' @param C Covariance with nugget
     #' @param nug Value of nugget
-    dC_dparams = function(params=NULL, C, X, C_nonug, nug) {#browser(text = "Make sure all in one list")
-      browser()
+    dC_dparams = function(params=NULL, C, X, C_nonug, nug) {
       if (length(params) < .5) {
         params1 <- NULL
         params2 <- NULL
@@ -165,7 +162,6 @@ kernel_product <- R6::R6Class(
 
       # Multiply beta params by opposite C_nonug
       n_beta1 <- length(params1) - self$k1$s2_est
-      # browser()
       if (n_beta1 > 0) { # At least 1 beta param
         # out1[[2]][[1:n_beta1]] <- lapply(out1[[2]][1:n_beta1], function(m) {m * C2_nonug})
         for (i in 1:n_beta1) {

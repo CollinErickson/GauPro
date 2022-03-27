@@ -22,10 +22,6 @@ at end for K/Kinv so predictions are good.
 
 * Improve kernel model plot
 
-* progress bar for restarts
-
-* Fewer restarts in high dim
-
 * Give kernel in as string. If missing, give better error or just use Mat52.
 
 * Reduce L-BFGS-B tolerance? Need to change tests too.
@@ -63,8 +59,6 @@ in optimRestart is now breaking instead.
 
 * 4 inputs, 2 latentfac, .1 noise. predictions have near zero s2
 
-* auto pick latentdim based on nlevels
-
 * speed up latentfactor (dC in Rcpp)
 
 * factor trend
@@ -77,5 +71,6 @@ in optimRestart is now breaking instead.
 
 * Clean up trend. b_est/m_est, jitter, aren't used
 
-* are kernel prod and sum and ignore being tested?
+* kernel print
 
+* track optim: track deviance

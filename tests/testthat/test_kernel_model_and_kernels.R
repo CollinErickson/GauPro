@@ -10,12 +10,23 @@ test_that("kernels work and have correct grads", {
   f <- function(x) {abs(sin(x[1]^.8*6))^1.2 + log(1+x[2]) + x[1]*x[2]}
   y <- apply(x, 1, f) + rnorm(n,0,1e-4) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
   kern_chars <- c('Gaussian', 'Matern32', 'Matern52', 'Triangle', 'Cubic', 'White',
-                  'PowerExp', 'Periodic', "Exponential", "RatQuad")
+                  'PowerExp', 'Periodic', "Exponential", "RatQuad",
+                  "Ignore", "Product", "Sum")
+  kern_list <- list(0,0,0,0,0,0,
+                    0,0,0,0,
+                    IgnoreIndsKernel$new(Gaussian$new(D=1), 2),
+                    Gaussian$new(D=2)*PowerExp$new(D=2),
+                    Cubic$new(D=2) * Triangle$new(D=2))
+  stopifnot(length(kern_chars) == length(kern_list))
   for (j in 1:length(kern_chars)) {
     kern_char <- kern_chars[j]
     if (exists('printkern') && printkern) cat(j, kern_char, "\n")
-    kern <- eval(parse(text=kern_char))
-    expect_is(kern, "R6ClassGenerator")
+    if (is.numeric(kern_list[[j]])) {
+      kern <- eval(parse(text=kern_char))
+      expect_is(kern, "R6ClassGenerator")
+    } else {
+      kern <- kern_list[[j]]
+    }
 
     gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=kern, parallel=FALSE,
                                   verbose=0, nug.est=T, restarts=0)
