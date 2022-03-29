@@ -1,6 +1,6 @@
 #' @importFrom stats model.frame
 convert_X_with_formula <- function(X, convert_formula_data, formula) {
-  browser()
+  # browser()
   stopifnot(is.data.frame(X))
   data <- X
   # X might not have response var

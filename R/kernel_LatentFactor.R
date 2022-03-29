@@ -35,8 +35,8 @@
 #' # Plots to understand
 #' kk$plotLatent()
 #' kk$plot()
-#' kmat <- outer(1:5, 1:5, Vectorize(kk$k))
-#' kmat
+# kmat <- outer(1:5, 1:5, Vectorize(kk$k))
+# kmat
 #'
 # kk$dC_dparams(X=matrix(1:5, ncol=1), nug=0)
 # kk$C_dC_dparams(X=matrix(1:5, ncol=1), nug=0, params=c(kk$p, kk$s2))$C
@@ -72,7 +72,7 @@
 #' gp$kernel$k1$kernel$beta
 #' gp$kernel$k2$p
 #' gp$kernel$k(x = gp$X)
-#' tibble(X=X, Z=Z, pred=gp$predict(X)[,1]) %>% arrange(X, Z)
+#' tibble(X=X, Z=Z, pred=gp$predict(X)) %>% arrange(X, Z)
 #' tibble(X=X[,2], Z) %>% group_by(X) %>% summarize(n=n(), mean(Z))
 #' curve(gp$pred(cbind(matrix(x,ncol=1),1)),2,6, ylim=c(min(Z), max(Z)))
 #' points(X[X[,2]==1,1], Z[X[,2]==1])
@@ -352,31 +352,36 @@ LatentFactorKernel <- R6::R6Class(
       # pf = p full has zero for first dim, then p
       pf <- c(rep(0, self$latentdim), p)
 
+      # Repeatedly calling self$ attributes is slow,
+      # it's faster to just store as new variable
+      latentdim <- self$latentdim
+      xindex <- self$xindex
+
       # browser()
       # print(p)
       if (self$p_est) {
         # for (k in 1:length(p)) { # k is index of parameter
         stopifnot(self$nlevels>=2L)
         for (k in 2:self$nlevels) { # k is index of level
-          kinds <- (k-1)*self$latentdim+1:self$latentdim - self$latentdim
+          kinds <- (k-1)*latentdim+1:latentdim - latentdim
           for (i in seq(1, n-1, 1)) { # Index of X
             for (j in seq(i+1, n, 1)) { # Index of Y
-              xlev <- X[i, self$xindex]
-              ylev <- X[j, self$xindex]
+              xlev <- X[i, xindex]
+              ylev <- X[j, xindex]
               if (xlev > 1.5 && xlev == k && ylev != k) {
-                latentx <- pf[(xlev-1)*self$latentdim+1:self$latentdim]
-                latenty <- pf[(ylev-1)*self$latentdim+1:self$latentdim]
+                latentx <- pf[(xlev-1)*latentdim+1:latentdim]
+                latenty <- pf[(ylev-1)*latentdim+1:latentdim]
                 p_dist2 <- sum((latentx - latenty)^2)
                 out <- s2 * exp(-p_dist2)
-                # kinds <- (xlev-1)*self$latentdim+1:self$latentdim - self$latentdim
+                # kinds <- (xlev-1)*latentdim+1:latentdim - latentdim
                 dC_dparams[kinds,i,j] <- -2 * out * (latentx - latenty)
                 dC_dparams[kinds,j,i] <- dC_dparams[kinds,i,j]
               } else if (ylev > 1.5 && xlev != k && ylev == k) {
-                latentx <- pf[(xlev-1)*self$latentdim+1:self$latentdim]
-                latenty <- pf[(ylev-1)*self$latentdim+1:self$latentdim]
+                latentx <- pf[(xlev-1)*latentdim+1:latentdim]
+                latenty <- pf[(ylev-1)*latentdim+1:latentdim]
                 p_dist2 <- sum((latentx - latenty)^2)
                 out <- s2 * exp(-p_dist2)
-                # kinds <- (ylev-1)*self$latentdim+1:self$latentdim - self$latentdim
+                # kinds <- (ylev-1)*latentdim+1:latentdim - latentdim
                 # if (inherits(try({
                 #   dC_dparams[kinds,i,j] <- 2 * out * (latentx - latenty)}), 'try-error')) {browser()}
                 dC_dparams[kinds,i,j] <- 2 * out * (latentx - latenty)

@@ -270,3 +270,15 @@ test_that("check product kernels behave properly", {
   expect_true(!h3$s2_est)
   expect_true(h$s2_est)
 })
+
+# Formula/data input ----
+test_that("Formula/data input", {
+  n <- 30
+  tdf <- data.frame(a=runif(n), b=runif(n), c=factor(sample(5:6,n,T)), d=runif(n), e=sample(letters[1:3], n,T))
+  tdf$z <- with(tdf, a+a*b+b^2)
+  gpf <- GauPro_kernel_model$new(X=tdf, Z=z ~ a + b + c + e, kernel='gauss')
+  expect_true("GauPro" %in% class(gpf))
+  expect_equal(ncol(gpf$X), 4)
+  expect_true(is.matrix(gpf$X))
+  expect_error(predict(gpf, tdf), NA)
+})

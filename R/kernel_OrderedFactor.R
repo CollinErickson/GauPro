@@ -67,7 +67,7 @@
 #' gp$kernel$k1$kernel$beta
 #' gp$kernel$k2$p
 #' gp$kernel$k(x = gp$X)
-#' tibble(X=X, Z=Z, pred=gp$predict(X)[,1]) %>% arrange(X, Z)
+#' tibble(X=X, Z=Z, pred=gp$predict(X)) %>% arrange(X, Z)
 #' tibble(X=X[,2], Z) %>% group_by(X) %>% summarize(n=n(), mean(Z))
 #' curve(gp$pred(cbind(matrix(x,ncol=1),1)),2,6, ylim=c(min(Z), max(Z)))
 #' points(X[X[,2]==1,1], Z[X[,2]==1])
