@@ -73,8 +73,8 @@ in optimRestart is now breaking instead.
 
 * kernel print
 
-* track optim: track deviance
-
 * Check which indices are non-factor. If any overlap, give warning.
 
 * why does predict return a matrix? Just make it a vector.
+
+* If give in data/formula, create kernel with factor cols as factors

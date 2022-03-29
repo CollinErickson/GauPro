@@ -466,6 +466,8 @@ GauPro_kernel_model <- R6::R6Class(
       # New way using _fast is O(n^2)
       mn <- pred_meanC_mumat_fast(XX, kx.xx, self$Kinv_Z_minus_mu_hatX,
                                   mu_hat_matXX)
+      # It's supposed to return a vector, but it's a matrix
+      mn <- mn[, 1]
 
       if (self$normalize) {
         mn <- mn * self$normalize_sd + self$normalize_mean

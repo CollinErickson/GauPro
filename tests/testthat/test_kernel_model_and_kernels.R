@@ -32,6 +32,26 @@ test_that("kernels work and have correct grads", {
                                   verbose=0, nug.est=T, restarts=0)
     expect_is(gp, "GauPro")
     expect_is(gp, "R6")
+
+    # Check predict
+    pred1 <- predict(gp, runif(2))
+    expect_true(is.numeric(pred1))
+    expect_true(!is.matrix(pred1))
+    expect_equal(length(pred1), 1)
+    pred2 <- predict(gp, runif(2), se.fit=T)
+    expect_true(is.data.frame(pred2))
+    expect_equal(dim(pred2), c(1,3))
+    expect_equal(colnames(pred2), c('mean', 's2', 'se'))
+    pred3 <- predict(gp, matrix(runif(12), ncol=2))
+    expect_true(is.numeric(pred3))
+    expect_true(!is.matrix(pred3))
+    expect_equal(length(pred3), 6)
+    pred4 <- predict(gp, matrix(runif(12), ncol=2), se.fit=T)
+    expect_true(is.data.frame(pred4))
+    expect_equal(dim(pred4), c(6,3))
+    expect_equal(colnames(pred4), c('mean', 's2', 'se'))
+
+
     df <- gp$deviance()
     dg <- gp$deviance_grad(nug.update = T)
     dfg <- gp$deviance_fngr(nug.update = T)
