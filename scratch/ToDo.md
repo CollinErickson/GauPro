@@ -59,9 +59,7 @@ in optimRestart is now breaking instead.
 
 * 4 inputs, 2 latentfac, .1 noise. predictions have near zero s2
 
-* speed up latentfactor (dC in Rcpp)
-
-* factor trend
+* factor trend, LM ignore inds
 
 * diagnostics
 
@@ -75,6 +73,8 @@ in optimRestart is now breaking instead.
 
 * Check which indices are non-factor. If any overlap, give warning.
 
-* why does predict return a matrix? Just make it a vector.
-
 * If give in data/formula, create kernel with factor cols as factors
+
+* LatentFactor dC_dparams: check lev <= nlevels?
+
+* Speed Matern52, Matern32, Exp

@@ -207,6 +207,25 @@ corr_latentfactor_matrix_symC <- function(x, theta, xindex, latentdim, offdiageq
     .Call(`_GauPro_corr_latentfactor_matrix_symC`, x, theta, xindex, latentdim, offdiagequal)
 }
 
+#' Derivative of covariance matrix of X with respect to kernel
+#' parameters for the Latent Factor Kernel
+#' @param x Matrix x
+#' @param pf pf vector
+#' @param C_nonug cov mat without nugget
+#' @param s2_est whether s2 is being estimated
+#' @param p_est Whether theta/beta is being estimated
+#' @param lenparams_D Number of parameters the derivative is being calculated for
+#' @param s2_nug s2 times the nug
+#' @param latentdim Number of latent dimensions
+#' @param xindex Which column of x is the indexing variable
+#' @param nlevels Number of levels
+#' @param s2 Value of s2
+#' @return Correlation matrix
+#' @export
+kernel_latentFactor_dC <- function(x, pf, C_nonug, s2_est, p_est, lenparams_D, s2_nug, latentdim, xindex, nlevels, s2) {
+    .Call(`_GauPro_kernel_latentFactor_dC`, x, pf, C_nonug, s2_est, p_est, lenparams_D, s2_nug, latentdim, xindex, nlevels, s2)
+}
+
 corr_matern32_matrixC <- function(x, y, theta) {
     .Call(`_GauPro_corr_matern32_matrixC`, x, y, theta)
 }

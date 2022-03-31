@@ -344,56 +344,67 @@ LatentFactorKernel <- R6::R6Class(
       }
 
       lenparams_D <- self$p_length*self$p_est + self$s2_est
-      dC_dparams <- array(dim=c(lenparams_D, n, n), data=0)
-      if (self$s2_est) {
-        dC_dparams[lenparams_D,,] <- C * log10
-      }
 
       # pf = p full has zero for first dim, then p
       pf <- c(rep(0, self$latentdim), p)
 
-      # Repeatedly calling self$ attributes is slow,
-      # it's faster to just store as new variable
-      latentdim <- self$latentdim
-      xindex <- self$xindex
+      if (self$useC) {
+        # browser()
+        dC_dparams <- kernel_latentFactor_dC(X, pf, C_nonug, self$s2_est,
+                                             self$p_est, lenparams_D, s2*nug,
+                                             self$latentdim, self$xindex-1,
+                                             self$nlevels, s2)
+      } else {
+        # browser()
+        dC_dparams <- array(dim=c(lenparams_D, n, n), data=0)
+        if (self$s2_est) {
+          dC_dparams[lenparams_D,,] <- C * log10
+        }
 
-      # browser()
-      # print(p)
-      if (self$p_est) {
-        # for (k in 1:length(p)) { # k is index of parameter
-        stopifnot(self$nlevels>=2L)
-        for (k in 2:self$nlevels) { # k is index of level
-          kinds <- (k-1)*latentdim+1:latentdim - latentdim
-          for (i in seq(1, n-1, 1)) { # Index of X
-            for (j in seq(i+1, n, 1)) { # Index of Y
-              xlev <- X[i, xindex]
-              ylev <- X[j, xindex]
-              if (xlev > 1.5 && xlev == k && ylev != k) {
-                latentx <- pf[(xlev-1)*latentdim+1:latentdim]
-                latenty <- pf[(ylev-1)*latentdim+1:latentdim]
-                p_dist2 <- sum((latentx - latenty)^2)
-                out <- s2 * exp(-p_dist2)
-                # kinds <- (xlev-1)*latentdim+1:latentdim - latentdim
-                dC_dparams[kinds,i,j] <- -2 * out * (latentx - latenty)
-                dC_dparams[kinds,j,i] <- dC_dparams[kinds,i,j]
-              } else if (ylev > 1.5 && xlev != k && ylev == k) {
-                latentx <- pf[(xlev-1)*latentdim+1:latentdim]
-                latenty <- pf[(ylev-1)*latentdim+1:latentdim]
-                p_dist2 <- sum((latentx - latenty)^2)
-                out <- s2 * exp(-p_dist2)
-                # kinds <- (ylev-1)*latentdim+1:latentdim - latentdim
-                # if (inherits(try({
-                #   dC_dparams[kinds,i,j] <- 2 * out * (latentx - latenty)}), 'try-error')) {browser()}
-                dC_dparams[kinds,i,j] <- 2 * out * (latentx - latenty)
-                dC_dparams[kinds,j,i] <- dC_dparams[kinds,i,j]
-              } else {
-                # Derivative is when when level isn't used in either
-                #  or when used in both.
+
+        # Repeatedly calling self$ attributes is slow,
+        # it's faster to just store as new variable
+        latentdim <- self$latentdim
+        xindex <- self$xindex
+
+        # browser()
+        # print(p)
+        if (self$p_est) {
+          # for (k in 1:length(p)) { # k is index of parameter
+          stopifnot(self$nlevels>=2L)
+          for (k in 2:self$nlevels) { # k is index of level
+            kinds <- (k-1)*latentdim+1:latentdim - latentdim
+            for (i in seq(1, n-1, 1)) { # Index of X
+              for (j in seq(i+1, n, 1)) { # Index of Y
+                xlev <- X[i, xindex]
+                ylev <- X[j, xindex]
+                if (xlev > 1.5 && xlev == k && ylev != k) {
+                  latentx <- pf[(xlev-1)*latentdim+1:latentdim]
+                  latenty <- pf[(ylev-1)*latentdim+1:latentdim]
+                  p_dist2 <- sum((latentx - latenty)^2)
+                  out <- s2 * exp(-p_dist2)
+                  # kinds <- (xlev-1)*latentdim+1:latentdim - latentdim
+                  dC_dparams[kinds,i,j] <- -2 * out * (latentx - latenty)
+                  dC_dparams[kinds,j,i] <- dC_dparams[kinds,i,j]
+                } else if (ylev > 1.5 && xlev != k && ylev == k) {
+                  latentx <- pf[(xlev-1)*latentdim+1:latentdim]
+                  latenty <- pf[(ylev-1)*latentdim+1:latentdim]
+                  p_dist2 <- sum((latentx - latenty)^2)
+                  out <- s2 * exp(-p_dist2)
+                  # kinds <- (ylev-1)*latentdim+1:latentdim - latentdim
+                  # if (inherits(try({
+                  #   dC_dparams[kinds,i,j] <- 2 * out * (latentx - latenty)}), 'try-error')) {browser()}
+                  dC_dparams[kinds,i,j] <- 2 * out * (latentx - latenty)
+                  dC_dparams[kinds,j,i] <- dC_dparams[kinds,i,j]
+                } else {
+                  # Derivative is when when level isn't used in either
+                  #  or when used in both.
+                }
               }
             }
-          }
-          for (i in seq(1, n, 1)) { # Get diagonal set to zero
-            dC_dparams[k-1,i,i] <- 0
+            for (i in seq(1, n, 1)) { # Get diagonal set to zero
+              dC_dparams[k-1,i,i] <- 0
+            }
           }
         }
       }
@@ -411,6 +422,12 @@ LatentFactorKernel <- R6::R6Class(
       #     dC_dparams[alph_ind, i,i] <- 0
       #   }
       # }
+      # cout <- kernel_latentFactor_dC(X, pf, C_nonug, self$s2_est,
+      #                                self$p_est, lenparams_D, s2*nug,
+      #                                self$latentdim, self$xindex-1,
+      #                                self$nlevels, s2)
+      # browser()
+      # 1
       return(dC_dparams)
     },
     #' @description Calculate covariance matrix and its derivative
