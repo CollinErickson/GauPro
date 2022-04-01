@@ -1,6 +1,7 @@
 library(testthat)
 
-printkern <- FALSE
+printkern <- interactive()
+# cat('printkern is', printkern, '\n')
 
 # kernels work and have correct grads ----
 test_that("kernels work and have correct grads", {
@@ -50,6 +51,15 @@ test_that("kernels work and have correct grads", {
     expect_true(is.data.frame(pred4))
     expect_equal(dim(pred4), c(6,3))
     expect_equal(colnames(pred4), c('mean', 's2', 'se'))
+
+    # Check basics, but not for all kernels
+    if (j<2.5) {
+      expect_error(gp$plotLOO(), NA)
+      expect_error(gp$plotmarginal(), NA)
+      expect_error(gp$plotmarginalrandom(), NA)
+      expect_error(gp$plot2D(), NA)
+      expect_error(plot(gp), NA)
+    }
 
 
     df <- gp$deviance()

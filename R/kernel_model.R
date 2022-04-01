@@ -936,7 +936,8 @@ GauPro_kernel_model <- R6::R6Class(
       ContourFunctions::cf_func(self$predict, batchmax=Inf,
                                 xlim=c(xmin, xmax),
                                 ylim=c(ymin, ymax),
-                                pts=self$X)
+                                pts=self$X,
+                                gg=TRUE)
     },
     #' @description Plot marginal. For each input, hold all others at a constant
     #' value and adjust it along it's range to see how the prediction changes.
@@ -1019,6 +1020,8 @@ GauPro_kernel_model <- R6::R6Class(
         ggplot2::xlab("x along dimension i (other dims at random values)")
     },
     #' @description Plot leave one out predictions for design points
+    # @importFrom ggplot2 ggplot aes stat_smooth geom_abline geom_segment
+    # @importFrom ggplot2 geom_point geom_text xlab ylab ggtitle
     plotLOO = function() {
       ploo <- self$pred_LOO(se.fit = T)
       loodf <- cbind(ploo, Z=self$Z)
@@ -1031,22 +1034,22 @@ GauPro_kernel_model <- R6::R6Class(
       coverage
       rsq <- with(loodf, 1 - (sum((fit-Z)^2)) / (sum((mean(Z)-Z)^2)))
       rsq
-      ggplot(loodf, aes(fit, Z)) +
-        stat_smooth(method="loess", formula="y~x") +
-        geom_abline(slope=1, intercept=0, color="red") +
-        geom_segment(aes(x=lower, xend=upper, yend=Z), color="green") +
-        geom_point() +
+      ggplot2::ggplot(loodf, ggplot2::aes(fit, Z)) +
+        ggplot2::stat_smooth(method="loess", formula="y~x") +
+        ggplot2::geom_abline(slope=1, intercept=0, color="red") +
+        ggplot2::geom_segment(ggplot2::aes(x=lower, xend=upper, yend=Z), color="green") +
+        ggplot2::geom_point() +
         # geom_text(x=min(loodf$fit), y=max(loodf$Z), label="abc") +
-        geom_text(x=-Inf, y=Inf,
-                  label=paste("Coverage:", signif(coverage,5)),
-                  hjust=0, vjust=1) +
-        geom_text(x=-Inf, y=Inf,
-                  label=paste("R-sq:        ", signif(rsq,5)),
-                  hjust=0, vjust=2.2) +
+        ggplot2::geom_text(x=-Inf, y=Inf,
+                           label=paste("Coverage:", signif(coverage,5)),
+                           hjust=0, vjust=1) +
+        ggplot2::geom_text(x=-Inf, y=Inf,
+                           label=paste("R-sq:        ", signif(rsq,5)),
+                           hjust=0, vjust=2.2) +
         # geom_text(x=Inf, y=-Inf, label="def", hjust=1, vjust=0)
-        xlab("Predicted values (fit)") +
-        ylab("Actual values (Z)") +
-        ggtitle("Calibration of leave-one-out (LOO) predictions")
+        ggplot2::xlab("Predicted values (fit)") +
+        ggplot2::ylab("Actual values (Z)") +
+        ggplot2::ggtitle("Calibration of leave-one-out (LOO) predictions")
     },
     #' @description If track_optim, this will plot the parameters
     #' in the order they were evaluated.
