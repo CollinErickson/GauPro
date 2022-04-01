@@ -146,21 +146,21 @@ arma::cube kernel_matern32_dC(arma::mat x, arma::vec theta, arma::mat C_nonug,
   double sqrt3 = sqrt(3);
 
   if (s2_est) {
-    // dC_dparams(lenparams_D,,) = C * log(10.0);
+    // dC_dparams(lenparams_D,,) = C * log10;
     for (int i = 0; i < nrow - 1; i++) {
       for (int j = i + 1; j < nrow; j++) {
-        dC_dparams(lenparams_D - 1,i,j) = C_nonug(i,j) * log(10.0);
+        dC_dparams(lenparams_D - 1,i,j) = C_nonug(i,j) * log10;
         dC_dparams(lenparams_D - 1,j,i) = dC_dparams(lenparams_D - 1,i,j);
       }
-      dC_dparams(lenparams_D - 1, i, i) = (C_nonug(i,i) + s2_nug) * log(10.0);
+      dC_dparams(lenparams_D - 1, i, i) = (C_nonug(i,i) + s2_nug) * log10;
     }
-    dC_dparams(lenparams_D - 1, nrow - 1, nrow - 1) = (C_nonug(nrow - 1, nrow - 1) + s2_nug) * log(10.0);
+    dC_dparams(lenparams_D - 1, nrow - 1, nrow - 1) = (C_nonug(nrow - 1, nrow - 1) + s2_nug) * log10;
   }
   if (beta_est) {
-    double tx2, t1, t3, half_over_sqrttx2, dt1dbk;
+    double tx2, t1, t3, half_over_sqrttx2, dt1dbk, sqrttx2;
     for (int i = 0; i < nrow - 1; i++) {
       for (int j = i + 1; j < nrow; j++) {
-        //dC_dparams(k,i,j) = - C_nonug(i,j) * std::pow(x(i,k) - x(j,k), 2) * theta(k) * log(10.0);
+        //dC_dparams(k,i,j) = - C_nonug(i,j) * std::pow(x(i,k) - x(j,k), 2) * theta(k) * log10;
         tx2 = 0;
         for (int l=0; l<nsum; l++) {
           tx2 += theta[l] * std::pow(x(i,l) - x(j,l), 2);
@@ -171,9 +171,10 @@ arma::cube kernel_matern32_dC(arma::mat x, arma::vec theta, arma::mat C_nonug,
             dC_dparams(k,j,i) = dC_dparams(k,i,j);
           }
         } else {
-          t1 = sqrt(3 * tx2);
+          sqrttx2 = sqrt(tx2);
+          t1 = sqrt3 * sqrttx2;
           t3 = C_nonug(i,j) * (1/(1+t1) - 1) * sqrt3 * log10;
-          half_over_sqrttx2 = .5 / sqrt(tx2);
+          half_over_sqrttx2 = .5 / sqrttx2;
           for (int k = 0; k < nsum; k++) {
             dt1dbk = half_over_sqrttx2 * std::pow(x(i,k) - x(j,k), 2);
             dC_dparams(k,i,j) = t3 * dt1dbk * theta[k];

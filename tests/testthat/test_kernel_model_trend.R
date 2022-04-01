@@ -105,6 +105,6 @@ test_that("trend_LM works", {
     dev_up <- gp$deviance(trend_params = trend_params_upper)
     dev_low <- gp$deviance(trend_params = trend_params_lower)
     numgrad <- (dev_up - dev_low) / eps
-    expect_equal(numgrad, actgrad[i])
+    expect_equal(numgrad, actgrad[i], tolerance = 1e-6)
   }
 })

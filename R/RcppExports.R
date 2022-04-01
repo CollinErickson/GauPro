@@ -87,6 +87,21 @@ corr_exponential_matrixvecC <- function(x, y, theta) {
     .Call(`_GauPro_corr_exponential_matrixvecC`, x, y, theta)
 }
 
+#' Derivative of Matern 5/2 kernel covariance matrix in C
+#' @param x Matrix x
+#' @param theta Theta vector
+#' @param C_nonug cov mat without nugget
+#' @param s2_est whether s2 is being estimated
+#' @param beta_est Whether theta/beta is being estimated
+#' @param lenparams_D Number of parameters the derivative is being calculated for
+#' @param s2_nug s2 times the nug
+#' @param s2 s2 parameter
+#' @return Correlation matrix
+#' @export
+kernel_exponential_dC <- function(x, theta, C_nonug, s2_est, beta_est, lenparams_D, s2_nug, s2) {
+    .Call(`_GauPro_kernel_exponential_dC`, x, theta, C_nonug, s2_est, beta_est, lenparams_D, s2_nug, s2)
+}
+
 #' Correlation Gaussian matrix gradient in C using Armadillo
 #' @param XX Matrix XX to get gradient for
 #' @param X Matrix X GP was fit to

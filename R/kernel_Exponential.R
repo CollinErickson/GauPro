@@ -118,33 +118,39 @@ Exponential <- R6::R6Class(
       }
 
       lenparams_D <- self$beta_length*self$beta_est + self$s2_est
-      dC_dparams <- array(dim=c(lenparams_D, n, n), data=0)
-      if (self$s2_est) {
-        dC_dparams[lenparams_D,,] <- C * log10 # Deriv for logs2
-      }
 
-      # Derivs for beta
-      if (self$beta_est) {
-        for (i in seq(1, n-1, 1)) {
-          for (j in seq(i+1, n, 1)) {
-            t1 <- -1 * C_nonug[i,j] * log10 * .5 / (-log(C[i,j]/s2))
-            for (k in 1:length(beta)) {
-              if (X[i,k] == X[j,k]) {
-                dC_dparams[k,i,j] <- 0
-              } else {
-                dC_dparams[k,i,j] <- t1 * (X[i,k] - X[j,k])^2 * theta[k]
+      if (self$useC) {
+        dC_dparams <- kernel_exponential_dC(X, theta, C_nonug, self$s2_est,
+                                            self$beta_est, lenparams_D,
+                                            s2*nug, s2)
+      } else {
+        dC_dparams <- array(dim=c(lenparams_D, n, n), data=0)
+        if (self$s2_est) {
+          dC_dparams[lenparams_D,,] <- C * log10 # Deriv for logs2
+        }
+
+        # Derivs for beta
+        if (self$beta_est) {
+          for (i in seq(1, n-1, 1)) {
+            for (j in seq(i+1, n, 1)) {
+              t1 <- -1 * C_nonug[i,j] * log10 * .5 / (-log(C[i,j]/s2))
+              for (k in 1:length(beta)) {
+                if (X[i,k] == X[j,k]) {
+                  dC_dparams[k,i,j] <- 0
+                } else {
+                  dC_dparams[k,i,j] <- t1 * (X[i,k] - X[j,k])^2 * theta[k]
+                }
+                dC_dparams[k,j,i] <- dC_dparams[k,i,j]
               }
-              dC_dparams[k,j,i] <- dC_dparams[k,i,j]
+            }
+          }
+          for (i in seq(1, n, 1)) { # Get diagonal set to zero
+            for (k in 1:length(beta)) {
+              dC_dparams[k,i,i] <- 0
             }
           }
         }
-        for (i in seq(1, n, 1)) { # Get diagonal set to zero
-          for (k in 1:length(beta)) {
-            dC_dparams[k,i,i] <- 0
-          }
-        }
       }
-
       return(dC_dparams)
     },
     #' @description Derivative of covariance with respect to X

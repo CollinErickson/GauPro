@@ -40,6 +40,7 @@ extern SEXP _GauPro_Gaussian_deviance_part(SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _GauPro_Gaussian_devianceC(SEXP, SEXP, SEXP, SEXP);
 extern SEXP _GauPro_Gaussian_hessianCC(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _GauPro_gradfuncarray(SEXP, SEXP, SEXP);
+extern SEXP _GauPro_kernel_exponential_dC(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _GauPro_kernel_gauss_dC(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _GauPro_kernel_latentFactor_dC(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _GauPro_kernel_matern32_dC(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
@@ -82,6 +83,7 @@ static const R_CallMethodDef CallEntries[] = {
   {"_GauPro_Gaussian_devianceC",            (DL_FUNC) &_GauPro_Gaussian_devianceC,             4},
   {"_GauPro_Gaussian_hessianCC",            (DL_FUNC) &_GauPro_Gaussian_hessianCC,             6},
   {"_GauPro_gradfuncarray",                 (DL_FUNC) &_GauPro_gradfuncarray,                  3},
+  {"_GauPro_kernel_exponential_dC",         (DL_FUNC) &_GauPro_kernel_exponential_dC,          8},
   {"_GauPro_kernel_gauss_dC",               (DL_FUNC) &_GauPro_kernel_gauss_dC,                7},
   {"_GauPro_kernel_latentFactor_dC",        (DL_FUNC) &_GauPro_kernel_latentFactor_dC,        11},
   {"_GauPro_kernel_matern32_dC",            (DL_FUNC) &_GauPro_kernel_matern32_dC,             7},
