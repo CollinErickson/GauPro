@@ -172,7 +172,7 @@ corr_gauss_matrix_armaC <- function(x, y, theta, s2 = 1.0) {
     .Call(`_GauPro_corr_gauss_matrix_armaC`, x, y, theta, s2)
 }
 
-#' Correlation Gaussian matrix in C (symmetric)
+#' Derivative of Gaussian kernel covariance matrix in C
 #' @param x Matrix x
 #' @param theta Theta vector
 #' @param C_nonug cov mat without nugget
@@ -182,8 +182,6 @@ corr_gauss_matrix_armaC <- function(x, y, theta, s2 = 1.0) {
 #' @param s2_nug s2 times the nug
 #' @return Correlation matrix
 #' @export
-#' @examples
-#' corr_gauss_matrix_symC(matrix(c(1,0,0,1),2,2),c(1,1))
 kernel_gauss_dC <- function(x, theta, C_nonug, s2_est, beta_est, lenparams_D, s2_nug) {
     .Call(`_GauPro_kernel_gauss_dC`, x, theta, C_nonug, s2_est, beta_est, lenparams_D, s2_nug)
 }
@@ -262,6 +260,20 @@ corr_matern52_matrix_symC <- function(x, theta) {
 
 corr_matern52_matrixvecC <- function(x, y, theta) {
     .Call(`_GauPro_corr_matern52_matrixvecC`, x, y, theta)
+}
+
+#' Derivative of Matern 5/2 kernel covariance matrix in C
+#' @param x Matrix x
+#' @param theta Theta vector
+#' @param C_nonug cov mat without nugget
+#' @param s2_est whether s2 is being estimated
+#' @param beta_est Whether theta/beta is being estimated
+#' @param lenparams_D Number of parameters the derivative is being calculated for
+#' @param s2_nug s2 times the nug
+#' @return Correlation matrix
+#' @export
+kernel_matern52_dC <- function(x, theta, C_nonug, s2_est, beta_est, lenparams_D, s2_nug) {
+    .Call(`_GauPro_kernel_matern52_dC`, x, theta, C_nonug, s2_est, beta_est, lenparams_D, s2_nug)
 }
 
 deviance_part <- function(theta, nug, X, Z, Kinv) {

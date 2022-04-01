@@ -135,34 +135,40 @@ Matern52 <- R6::R6Class(
       }
 
       lenparams_D <- self$beta_length*self$beta_est + self$s2_est
-      dC_dparams <- array(dim=c(lenparams_D, n, n), data = 0)
-      if (self$s2_est) {
-        dC_dparams[lenparams_D,,] <- C * log10 # Deriv for logs2
-      }
 
-      # Deriv for beta
-      if (self$beta_est) {
-        for (i in seq(1, n-1, 1)) {
-          for (j in seq(i+1, n, 1)) {
-            tx2 <- sum(theta * (X[i,]-X[j,])^2)
-            if (tx2 == 0) { # Avoid divide by 0 error
-              # When x are equal, changing param has no effect on correlation
-              dC_dparams[1:length(beta),i,j] <- dC_dparams[1:length(beta),j,i] <- 0
-            } else {
-              t1 <- sqrt(5 * tx2)
-              t3 <- C[i,j] * ((1+2*t1/3)/(1+t1+t1^2/3) - 1) * self$sqrt5 * log10
-              half_over_sqrttx2 <- .5 / sqrt(tx2)
-              for (k in 1:length(beta)) {
-                dt1dbk <- half_over_sqrttx2 * (X[i,k] - X[j,k])^2
-                dC_dparams[k,i,j] <- t3 * dt1dbk * theta[k]
-                dC_dparams[k,j,i] <- dC_dparams[k,i,j]
+      if (self$useC) {
+        dC_dparams <- kernel_matern52_dC(X, theta, C_nonug, self$s2_est,
+                                         self$beta_est, lenparams_D, s2*nug)
+      } else {
+        dC_dparams <- array(dim=c(lenparams_D, n, n), data = 0)
+        if (self$s2_est) {
+          dC_dparams[lenparams_D,,] <- C * log10 # Deriv for logs2
+        }
+
+        # Deriv for beta
+        if (self$beta_est) {
+          for (i in seq(1, n-1, 1)) {
+            for (j in seq(i+1, n, 1)) {
+              tx2 <- sum(theta * (X[i,]-X[j,])^2)
+              if (tx2 == 0) { # Avoid divide by 0 error
+                # When x are equal, changing param has no effect on correlation
+                dC_dparams[1:length(beta),i,j] <- dC_dparams[1:length(beta),j,i] <- 0
+              } else {
+                t1 <- sqrt(5 * tx2)
+                t3 <- C[i,j] * ((1+2*t1/3)/(1+t1+t1^2/3) - 1) * self$sqrt5 * log10
+                half_over_sqrttx2 <- .5 / sqrt(tx2)
+                for (k in 1:length(beta)) {
+                  dt1dbk <- half_over_sqrttx2 * (X[i,k] - X[j,k])^2
+                  dC_dparams[k,i,j] <- t3 * dt1dbk * theta[k]
+                  dC_dparams[k,j,i] <- dC_dparams[k,i,j]
+                }
               }
             }
           }
-        }
-        for (i in seq(1, n, 1)) { # Get diagonal set to zero
-          for (k in 1:length(beta)) {
-            dC_dparams[k,i,i] <- 0
+          for (i in seq(1, n, 1)) { # Get diagonal set to zero
+            for (k in 1:length(beta)) {
+              dC_dparams[k,i,i] <- 0
+            }
           }
         }
       }
@@ -187,7 +193,10 @@ Matern52 <- R6::R6Class(
         for (j in 1:d) {
           for (k in 1:n) {
             r <- sqrt(sum(theta * (XX[i,] - X[k,]) ^ 2))
-            dC_dx[i, j, k] <- (-5*r/3 - 5/3*self$sqrt5*r^2) * s2 * exp(-self$sqrt5 * r) * theta[j] * (XX[i, j] - X[k, j]) / r
+            dC_dx[i, j, k] <- (
+              (-5*r/3 - 5/3*self$sqrt5*r^2) * s2 * exp(-self$sqrt5 * r) *
+                theta[j] * (XX[i, j] - X[k, j]) / r
+            )
           }
         }
       }

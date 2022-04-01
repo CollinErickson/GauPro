@@ -78,3 +78,6 @@ in optimRestart is now breaking instead.
 * LatentFactor dC_dparams: check lev <= nlevels?
 
 * Speed Matern52, Matern32, Exp
+
+* All restarts had error: doesn't say what error is, so sometimes it's
+an error the user should know. Like when I test useCM.

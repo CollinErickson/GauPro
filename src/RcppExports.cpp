@@ -336,6 +336,23 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// kernel_matern52_dC
+arma::cube kernel_matern52_dC(arma::mat x, arma::vec theta, arma::mat C_nonug, bool s2_est, bool beta_est, int lenparams_D, double s2_nug);
+RcppExport SEXP _GauPro_kernel_matern52_dC(SEXP xSEXP, SEXP thetaSEXP, SEXP C_nonugSEXP, SEXP s2_estSEXP, SEXP beta_estSEXP, SEXP lenparams_DSEXP, SEXP s2_nugSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type x(xSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type C_nonug(C_nonugSEXP);
+    Rcpp::traits::input_parameter< bool >::type s2_est(s2_estSEXP);
+    Rcpp::traits::input_parameter< bool >::type beta_est(beta_estSEXP);
+    Rcpp::traits::input_parameter< int >::type lenparams_D(lenparams_DSEXP);
+    Rcpp::traits::input_parameter< double >::type s2_nug(s2_nugSEXP);
+    rcpp_result_gen = Rcpp::wrap(kernel_matern52_dC(x, theta, C_nonug, s2_est, beta_est, lenparams_D, s2_nug));
+    return rcpp_result_gen;
+END_RCPP
+}
 // deviance_part
 double deviance_part(arma::vec theta, double nug, arma::mat X, arma::mat Z, arma::mat Kinv);
 RcppExport SEXP _GauPro_deviance_part(SEXP thetaSEXP, SEXP nugSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP KinvSEXP) {
