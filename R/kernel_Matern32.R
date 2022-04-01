@@ -53,7 +53,7 @@ Matern32 <- R6::R6Class(
         }
 
         s2 <- 10^logs2
-      } else {#browser()
+      } else {
         if (is.null(beta)) {beta <- self$beta}
         if (is.null(s2)) {s2 <- self$s2}
       }
@@ -132,38 +132,43 @@ Matern32 <- R6::R6Class(
       }
 
       lenparams_D <- self$beta_length*self$beta_est + self$s2_est
-      dC_dparams <- array(dim=c(lenparams_D, n, n)) # Return as array
-      if (self$s2_est) {
-        dC_dparams[lenparams_D, , ] <- C * log10 # Deriv for logs2
-      }
 
-      # Loop to set beta derivatives
-      if (self$beta_est) {
-        for (i in seq(1, n-1, 1)) {
-          for (j in seq(i+1, n, 1)) {
-            tx2 <- sum(theta * (X[i,]-X[j,])^2)
-            if (tx2 == 0) { # Avoid divide by 0 error
-              # When x are equal, changing param has no effect on correlation
-              dC_dparams[1:length(beta),i,j] <- dC_dparams[1:length(beta),j,i] <- 0
-            } else {
-              t1 <- sqrt(3 * tx2)
-              t3 <- C[i,j] * (1/(1+t1) - 1) * self$sqrt3 * log10
-              sqrttx2 <- sqrt(tx2)
-              for (k in 1:length(beta)) {
-                dt1dbk <- .5 * (X[i,k] - X[j,k])^2 / sqrttx2
-                dC_dparams[k,i,j] <- t3 * dt1dbk * theta[k]   #s2 * (1+t1) * exp(-t1) *-dt1dbk + s2 * dt1dbk * exp(-t1)
-                dC_dparams[k,j,i] <- dC_dparams[k,i,j]
+      if (self$useC) {
+        dC_dparams <- kernel_matern32_dC(X, theta, C_nonug, self$s2_est,
+                                         self$beta_est, lenparams_D, s2*nug)
+      } else {
+        dC_dparams <- array(dim=c(lenparams_D, n, n)) # Return as array
+        if (self$s2_est) {
+          dC_dparams[lenparams_D, , ] <- C * log10 # Deriv for logs2
+        }
+
+        # Loop to set beta derivatives
+        if (self$beta_est) {
+          for (i in seq(1, n-1, 1)) {
+            for (j in seq(i+1, n, 1)) {
+              tx2 <- sum(theta * (X[i,]-X[j,])^2)
+              if (tx2 == 0) { # Avoid divide by 0 error
+                # When x are equal, changing param has no effect on correlation
+                dC_dparams[1:length(beta),i,j] <- dC_dparams[1:length(beta),j,i] <- 0
+              } else {
+                t1 <- sqrt(3 * tx2)
+                t3 <- C[i,j] * (1/(1+t1) - 1) * self$sqrt3 * log10
+                sqrttx2 <- sqrt(tx2)
+                for (k in 1:length(beta)) {
+                  dt1dbk <- .5 * (X[i,k] - X[j,k])^2 / sqrttx2
+                  dC_dparams[k,i,j] <- t3 * dt1dbk * theta[k]   #s2 * (1+t1) * exp(-t1) *-dt1dbk + s2 * dt1dbk * exp(-t1)
+                  dC_dparams[k,j,i] <- dC_dparams[k,i,j]
+                }
               }
             }
           }
-        }
-        for (i in seq(1, n, 1)) { # Get diagonal set to zero
-          for (k in 1:length(beta)) {
-            dC_dparams[k,i,i] <- 0
+          for (i in seq(1, n, 1)) { # Get diagonal set to zero
+            for (k in 1:length(beta)) {
+              dC_dparams[k,i,i] <- 0
+            }
           }
         }
       }
-
       return(dC_dparams=dC_dparams)
     },
     #' @description Derivative of covariance with respect to X

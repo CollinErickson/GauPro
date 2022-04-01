@@ -42,6 +42,7 @@ extern SEXP _GauPro_Gaussian_hessianCC(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _GauPro_gradfuncarray(SEXP, SEXP, SEXP);
 extern SEXP _GauPro_kernel_gauss_dC(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _GauPro_kernel_latentFactor_dC(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP _GauPro_kernel_matern32_dC(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _GauPro_kernel_matern52_dC(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _GauPro_pred_cov(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _GauPro_pred_meanC(SEXP, SEXP, SEXP, SEXP, SEXP);
@@ -83,6 +84,7 @@ static const R_CallMethodDef CallEntries[] = {
   {"_GauPro_gradfuncarray",                 (DL_FUNC) &_GauPro_gradfuncarray,                  3},
   {"_GauPro_kernel_gauss_dC",               (DL_FUNC) &_GauPro_kernel_gauss_dC,                7},
   {"_GauPro_kernel_latentFactor_dC",        (DL_FUNC) &_GauPro_kernel_latentFactor_dC,        11},
+  {"_GauPro_kernel_matern32_dC",            (DL_FUNC) &_GauPro_kernel_matern32_dC,             7},
   {"_GauPro_kernel_matern52_dC",            (DL_FUNC) &_GauPro_kernel_matern52_dC,             7},
   {"_GauPro_pred_cov",                      (DL_FUNC) &_GauPro_pred_cov,                       6},
   {"_GauPro_pred_meanC",                    (DL_FUNC) &_GauPro_pred_meanC,                     5},

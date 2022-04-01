@@ -125,11 +125,71 @@ NumericVector corr_matern32_matrixvecC(NumericMatrix x, NumericVector y, Numeric
 // }
 
 
-// You can include R code blocks in C++ files processed with sourceCpp
-// (useful for testing and development). The R code will be automatically
-// run after the compilation.
-//
+//' Derivative of Matern 5/2 kernel covariance matrix in C
+//' @param x Matrix x
+//' @param theta Theta vector
+//' @param C_nonug cov mat without nugget
+//' @param s2_est whether s2 is being estimated
+//' @param beta_est Whether theta/beta is being estimated
+//' @param lenparams_D Number of parameters the derivative is being calculated for
+//' @param s2_nug s2 times the nug
+//' @return Correlation matrix
+//' @export
+// [[Rcpp::export]]
+arma::cube kernel_matern32_dC(arma::mat x, arma::vec theta, arma::mat C_nonug,
+                              bool s2_est, bool beta_est, int lenparams_D,
+                              double s2_nug) {
+  int nrow = x.n_rows;
+  int nsum = x.n_cols;
+  arma::cube dC_dparams(lenparams_D, nrow, nrow);
+  double log10 = log(10.0);
+  double sqrt3 = sqrt(3);
 
-/*** R
-#timesTwo(42)
-*/
+  if (s2_est) {
+    // dC_dparams(lenparams_D,,) = C * log(10.0);
+    for (int i = 0; i < nrow - 1; i++) {
+      for (int j = i + 1; j < nrow; j++) {
+        dC_dparams(lenparams_D - 1,i,j) = C_nonug(i,j) * log(10.0);
+        dC_dparams(lenparams_D - 1,j,i) = dC_dparams(lenparams_D - 1,i,j);
+      }
+      dC_dparams(lenparams_D - 1, i, i) = (C_nonug(i,i) + s2_nug) * log(10.0);
+    }
+    dC_dparams(lenparams_D - 1, nrow - 1, nrow - 1) = (C_nonug(nrow - 1, nrow - 1) + s2_nug) * log(10.0);
+  }
+  if (beta_est) {
+    double tx2, t1, t3, half_over_sqrttx2, dt1dbk;
+    for (int i = 0; i < nrow - 1; i++) {
+      for (int j = i + 1; j < nrow; j++) {
+        //dC_dparams(k,i,j) = - C_nonug(i,j) * std::pow(x(i,k) - x(j,k), 2) * theta(k) * log(10.0);
+        tx2 = 0;
+        for (int l=0; l<nsum; l++) {
+          tx2 += theta[l] * std::pow(x(i,l) - x(j,l), 2);
+        }
+        if (tx2 == 0) {
+          for (int k = 0; k < nsum; k++) {
+            dC_dparams(k,i,j) = 0;
+            dC_dparams(k,j,i) = dC_dparams(k,i,j);
+          }
+        } else {
+          t1 = sqrt(3 * tx2);
+          t3 = C_nonug(i,j) * (1/(1+t1) - 1) * sqrt3 * log10;
+          half_over_sqrttx2 = .5 / sqrt(tx2);
+          for (int k = 0; k < nsum; k++) {
+            dt1dbk = half_over_sqrttx2 * std::pow(x(i,k) - x(j,k), 2);
+            dC_dparams(k,i,j) = t3 * dt1dbk * theta[k];
+            dC_dparams(k,j,i) = dC_dparams(k,i,j);
+          }
+        }
+      }
+    }
+
+    for (int k=0; k < nsum; k++) {
+      for (int i = 0; i < nrow; i++) { //# Get diagonal set to zero
+        dC_dparams(k,i,i) = 0;
+      }
+    }
+  }
+
+  return dC_dparams;
+}
+

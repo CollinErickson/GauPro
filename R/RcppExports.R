@@ -243,6 +243,20 @@ corr_matern32_matrixvecC <- function(x, y, theta) {
     .Call(`_GauPro_corr_matern32_matrixvecC`, x, y, theta)
 }
 
+#' Derivative of Matern 5/2 kernel covariance matrix in C
+#' @param x Matrix x
+#' @param theta Theta vector
+#' @param C_nonug cov mat without nugget
+#' @param s2_est whether s2 is being estimated
+#' @param beta_est Whether theta/beta is being estimated
+#' @param lenparams_D Number of parameters the derivative is being calculated for
+#' @param s2_nug s2 times the nug
+#' @return Correlation matrix
+#' @export
+kernel_matern32_dC <- function(x, theta, C_nonug, s2_est, beta_est, lenparams_D, s2_nug) {
+    .Call(`_GauPro_kernel_matern32_dC`, x, theta, C_nonug, s2_est, beta_est, lenparams_D, s2_nug)
+}
+
 corr_matern52_matrixC <- function(x, y, theta) {
     .Call(`_GauPro_corr_matern52_matrixC`, x, y, theta)
 }

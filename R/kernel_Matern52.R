@@ -34,7 +34,7 @@ Matern52 <- R6::R6Class(
     #' @param beta Correlation parameters.
     #' @param s2 Variance parameter.
     #' @param params parameters to use instead of beta and s2.
-    k = function(x, y=NULL, beta=self$beta, s2=self$s2, params=NULL) {#browser()
+    k = function(x, y=NULL, beta=self$beta, s2=self$s2, params=NULL) {
       if (!is.null(params)) {
         # lenpar <- length(params)
         # beta <- params[1:(lenpar-1)]
@@ -101,7 +101,7 @@ Matern52 <- R6::R6Class(
     #' @param C_nonug Covariance without nugget added to diagonal
     #' @param C Covariance with nugget
     #' @param nug Value of nugget
-    dC_dparams = function(params=NULL, X, C_nonug, C, nug) {#browser(text = "Make sure all in one list")
+    dC_dparams = function(params=NULL, X, C_nonug, C, nug) {
       n <- nrow(X)
 
       lenparams <- length(params)
@@ -181,7 +181,7 @@ Matern52 <- R6::R6Class(
     #' @param theta Correlation parameters
     #' @param beta log of theta
     #' @param s2 Variance parameter
-    dC_dx = function(XX, X, theta, beta=self$beta, s2=self$s2) {#browser()
+    dC_dx = function(XX, X, theta, beta=self$beta, s2=self$s2) {
       if (missing(theta)) {theta <- 10^beta}
       if (!is.matrix(XX)) {stop()}
       d <- ncol(XX)
