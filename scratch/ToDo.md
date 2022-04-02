@@ -69,15 +69,11 @@ in optimRestart is now breaking instead.
 
 * Clean up trend. b_est/m_est, jitter, aren't used
 
-* kernel print
-
 * Check which indices are non-factor. If any overlap, give warning.
 
 * If give in data/formula, create kernel with factor cols as factors
 
 * LatentFactor dC_dparams: check lev <= nlevels?
-
-* Speed Matern52, Matern32, Exp
 
 * All restarts had error: doesn't say what error is, so sometimes it's
 an error the user should know. Like when I test useCM.

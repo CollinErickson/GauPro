@@ -355,6 +355,14 @@ PowerExp <- R6::R6Class(
         self$logs2 <- optim_out[loo]
         self$s2 <- 10 ^ self$logs2
       }
+    },
+    #' @description Print this object
+    print = function() {
+      cat('GauPro kernel: Power exponential\n')
+      cat('\tD     =', self$D, '\n')
+      cat('\talpha =', signif(self$alpha, 3), '\n')
+      cat('\tbeta  =', signif(self$beta, 3), '\n')
+      cat('\ts2    =', self$s2, '\n')
     }
   )
 )

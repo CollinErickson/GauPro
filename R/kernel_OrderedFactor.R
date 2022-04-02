@@ -523,6 +523,13 @@ OrderedFactorKernel <- R6::R6Class(
         ggplot2::geom_tile() +
         ggplot2::scale_fill_gradient(low='white', high='red', limits=c(0, NA)) +
         ggplot2::scale_y_reverse()
+    },
+    #' @description Print this object
+    print = function() {
+      cat('GauPro kernel: Ordered factor\n')
+      cat('\tD  =', self$D, '\n')
+      cat('\ts2 =', self$s2, '\n')
+      cat('\ton x-index', self$xindex, 'with', self$nlevels, 'levels\n')
     }
   )
 )

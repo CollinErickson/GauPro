@@ -61,6 +61,9 @@ test_that("kernels work and have correct grads", {
       expect_error(plot(gp), NA)
     }
 
+    # Check kernel
+    expect_error({kernprint <- capture_output(print(gp$kernel))}, NA)
+    expect_is(kernprint, 'character')
 
     df <- gp$deviance()
     dg <- gp$deviance_grad(nug.update = T)
@@ -126,6 +129,11 @@ test_that("check factor kernels alone", {
                                   verbose=0, nug.est=T, restarts=0)
     expect_is(gp, "GauPro")
     expect_is(gp, "R6")
+
+    # Check kernel
+    expect_error({kernprint <- capture_output(print(gp$kernel))}, NA)
+    expect_is(kernprint, 'character')
+
     df <- gp$deviance()
     dg <- gp$deviance_grad(nug.update = T)
     dfg <- gp$deviance_fngr(nug.update = T)
@@ -192,6 +200,11 @@ test_that("check factor kernels in product", {
                                   verbose=0, nug.est=T, restarts=0)
     expect_is(gp, "GauPro")
     expect_is(gp, "R6")
+
+    # Check kernel
+    expect_error({kernprint <- capture_output(print(gp$kernel))}, NA)
+    expect_is(kernprint, 'character')
+
     df <- gp$deviance()
     dg <- gp$deviance_grad(nug.update = T)
     dfg <- gp$deviance_fngr(nug.update = T)

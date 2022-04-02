@@ -61,6 +61,11 @@ GauPro_kernel <- R6::R6Class(classname = "GauPro_kernel",
       }
       ggplot2::ggplot(df, ggplot2::aes(x2, k)) + ggplot2::geom_line() +
         ggplot2::facet_wrap(.~i)
+    },
+    #' @description Print this object
+    print = function() {
+      cat('GauPro kernel: (type unknown)\n')
+      cat('\tD =', self$D, '\n')
     }
   ),
   private = list(

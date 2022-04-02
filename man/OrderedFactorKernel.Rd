@@ -107,6 +107,7 @@ https://stackoverflow.com/questions/27086195/linear-index-upper-triangular-matri
 \item \href{#method-set_params_from_optim}{\code{OrderedFactorKernel$set_params_from_optim()}}
 \item \href{#method-s2_from_params}{\code{OrderedFactorKernel$s2_from_params()}}
 \item \href{#method-plot}{\code{OrderedFactorKernel$plot()}}
+\item \href{#method-print}{\code{OrderedFactorKernel$print()}}
 \item \href{#method-clone}{\code{OrderedFactorKernel$clone()}}
 }
 }
@@ -460,6 +461,16 @@ Get s2 from params vector
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
+\subsection{Method \code{print()}}{
+Print this object
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{OrderedFactorKernel$print()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

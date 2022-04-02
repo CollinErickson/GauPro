@@ -266,6 +266,18 @@ kernel_product <- R6::R6Class(
       params1 <- params[1:self$k1pl]
       params2 <- params[(self$k1pl+1):(self$k1pl+self$k2pl)]
       self$k1$s2_from_params(params=params1) * self$k2$s2_from_params(params=params2)
+    },
+    #' @description Print this object
+    print = function() {
+      p1 <- capture.output(self$k1)
+      p1b <- paste0('\t', p1)
+      p1c <- paste0(p1b, collapse = '\n')
+      p2 <- capture.output(self$k2)
+      p2b <- paste0('\t', p2)
+      p2c <- paste0(p2b, collapse = '\n')
+      cat('GauPro kernel: Product of two kernels\n')
+      cat(p1c, "\n")
+      cat(p2c, "\n")
     }
   )
 )

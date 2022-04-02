@@ -49,6 +49,7 @@ k1 <- RatQuad$new(beta=0, alpha=0)
 \item \href{#method-param_optim_lower}{\code{RatQuad$param_optim_lower()}}
 \item \href{#method-param_optim_upper}{\code{RatQuad$param_optim_upper()}}
 \item \href{#method-set_params_from_optim}{\code{RatQuad$set_params_from_optim()}}
+\item \href{#method-print}{\code{RatQuad$print()}}
 \item \href{#method-clone}{\code{RatQuad$clone()}}
 }
 }
@@ -369,6 +370,16 @@ Set parameters from optimization output
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
+\subsection{Method \code{print()}}{
+Print this object
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{RatQuad$print()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

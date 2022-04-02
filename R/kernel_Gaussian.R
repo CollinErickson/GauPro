@@ -387,6 +387,13 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
         d2C_dx2[, j, j] <- 2 * theta[j] * s2
       }
       d2C_dx2
+    },
+    #' @description Print this object
+    print = function() {
+      cat('GauPro kernel: Gaussian\n')
+      cat('\tD    =', self$D, '\n')
+      cat('\tbeta =', signif(self$beta, 3), '\n')
+      cat('\ts2   =', self$s2, '\n')
     }
   )
 )

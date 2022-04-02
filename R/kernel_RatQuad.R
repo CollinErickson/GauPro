@@ -70,7 +70,8 @@ RatQuad <- R6::R6Class(
     #' @param logalpha A correlation parameter
     #' @param s2 Variance parameter.
     #' @param params parameters to use instead of beta and s2.
-    k = function(x, y=NULL, beta=self$beta, logalpha=self$logalpha, s2=self$s2, params=NULL) {#browser()
+    k = function(x, y=NULL, beta=self$beta, logalpha=self$logalpha,
+                 s2=self$s2, params=NULL) {#browser()
       if (!is.null(params)) {
         lenparams <- length(params)
         # beta <- params[1:(lenpar-2)]
@@ -335,6 +336,14 @@ RatQuad <- R6::R6Class(
         self$logs2 <- optim_out[loo]
         self$s2 <- 10 ^ self$logs2
       }
+    },
+    #' @description Print this object
+    print = function() {
+      cat('GauPro kernel: Rational quadratic\n')
+      cat('\tD        =', self$D, '\n')
+      cat('\tlogalpha =', signif(self$logalpha, 3), '\n')
+      cat('\tbeta     =', signif(self$beta, 3), '\n')
+      cat('\ts2       =', self$s2, '\n')
     }
   )
 )

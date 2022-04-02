@@ -61,6 +61,7 @@ kernel, such as for factors.}
 \item \href{#method-param_optim_upper}{\code{IgnoreIndsKernel$param_optim_upper()}}
 \item \href{#method-set_params_from_optim}{\code{IgnoreIndsKernel$set_params_from_optim()}}
 \item \href{#method-s2_from_params}{\code{IgnoreIndsKernel$s2_from_params()}}
+\item \href{#method-print}{\code{IgnoreIndsKernel$print()}}
 \item \href{#method-clone}{\code{IgnoreIndsKernel$clone()}}
 }
 }
@@ -277,6 +278,16 @@ Get s2 from params vector
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
+\subsection{Method \code{print()}}{
+Print this object
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{IgnoreIndsKernel$print()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

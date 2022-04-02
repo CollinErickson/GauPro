@@ -87,6 +87,7 @@ plot(gp$kernel)
 \item \href{#method-param_optim_upper}{\code{Periodic$param_optim_upper()}}
 \item \href{#method-set_params_from_optim}{\code{Periodic$set_params_from_optim()}}
 \item \href{#method-s2_from_params}{\code{Periodic$s2_from_params()}}
+\item \href{#method-print}{\code{Periodic$print()}}
 \item \href{#method-clone}{\code{Periodic$clone()}}
 }
 }
@@ -444,6 +445,16 @@ Get s2 from params vector
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
+\subsection{Method \code{print()}}{
+Print this object
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Periodic$print()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

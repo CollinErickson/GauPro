@@ -59,6 +59,7 @@ k$k(matrix(c(2,1), ncol=1))
 \item \href{#method-C_dC_dparams}{\code{kernel_sum$C_dC_dparams()}}
 \item \href{#method-dC_dx}{\code{kernel_sum$dC_dx()}}
 \item \href{#method-s2_from_params}{\code{kernel_sum$s2_from_params()}}
+\item \href{#method-print}{\code{kernel_sum$print()}}
 \item \href{#method-clone}{\code{kernel_sum$clone()}}
 }
 }
@@ -271,6 +272,16 @@ Get s2 from params vector
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
+\subsection{Method \code{print()}}{
+Print this object
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{kernel_sum$print()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

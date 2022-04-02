@@ -219,6 +219,12 @@ White <- R6::R6Class(
       } else { # Else it is just using set value, not being estimated
         self$s2
       }
+    },
+    #' @description Print this object
+    print = function() {
+      cat('GauPro kernel: White\n')
+      cat('\tD  =', self$D, '\n')
+      cat('\ts2 =', self$s2, '\n')
     }
   )
 )

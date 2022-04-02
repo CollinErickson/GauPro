@@ -44,6 +44,7 @@ gp$cool1Dplot()
 \item \href{#method-d2C_dx2}{\code{Gaussian$d2C_dx2()}}
 \item \href{#method-d2C_dudv}{\code{Gaussian$d2C_dudv()}}
 \item \href{#method-d2C_dudv_ueqvrows}{\code{Gaussian$d2C_dudv_ueqvrows()}}
+\item \href{#method-print}{\code{Gaussian$print()}}
 \item \href{#method-clone}{\code{Gaussian$clone()}}
 }
 }
@@ -234,6 +235,16 @@ when they equal the same value
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
+\subsection{Method \code{print()}}{
+Print this object
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Gaussian$print()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

@@ -74,6 +74,7 @@ Kernels that inherit this only need to implement kone and dC_dparams.
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel" data-id="plot">}\href{../../GauPro/html/GauPro_kernel.html#method-plot}{\code{GauPro::GauPro_kernel$plot()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel" data-id="print">}\href{../../GauPro/html/GauPro_kernel.html#method-print}{\code{GauPro::GauPro_kernel$print()}}\out{</span>}
 }
 \out{</details>}
 }

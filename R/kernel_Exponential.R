@@ -176,6 +176,13 @@ Exponential <- R6::R6Class(
         }
       }
       dC_dx
+    },
+    #' @description Print this object
+    print = function() {
+      cat('GauPro kernel: Exponential\n')
+      cat('\tD    =', self$D, '\n')
+      cat('\tbeta =', signif(self$beta, 3), '\n')
+      cat('\ts2   =', self$s2, '\n')
     }
   )
 )

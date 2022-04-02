@@ -38,6 +38,7 @@ gp$cool1Dplot()
 \item \href{#method-kone}{\code{Triangle$kone()}}
 \item \href{#method-dC_dparams}{\code{Triangle$dC_dparams()}}
 \item \href{#method-dC_dx}{\code{Triangle$dC_dx()}}
+\item \href{#method-print}{\code{Triangle$print()}}
 \item \href{#method-clone}{\code{Triangle$clone()}}
 }
 }
@@ -156,6 +157,16 @@ Derivative of covariance with respect to X
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
+\subsection{Method \code{print()}}{
+Print this object
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Triangle$print()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

@@ -31,6 +31,7 @@ Kernel R6 class
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-plot}{\code{GauPro_kernel$plot()}}
+\item \href{#method-print}{\code{GauPro_kernel$print()}}
 \item \href{#method-clone}{\code{GauPro_kernel$clone()}}
 }
 }
@@ -41,6 +42,16 @@ Kernel R6 class
 Plot kernel decay.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel$plot()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
+\subsection{Method \code{print()}}{
+Print this object
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel$print()}\if{html}{\out{</div>}}
 }
 
 }

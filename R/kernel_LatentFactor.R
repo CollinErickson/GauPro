@@ -588,6 +588,14 @@ LatentFactorKernel <- R6::R6Class(
       } else {
         stop("Can't plotLatent for latentdim > 2")
       }
+    },
+    #' @description Print this object
+    print = function() {
+      cat('GauPro kernel: Latent factor\n')
+      cat('\tD  =', self$D, '\n')
+      cat('\ts2 =', self$s2, '\n')
+      cat('\ton x-index', self$xindex, 'with', self$nlevels, 'levels\n')
+      cat('\t in', self$latentdim, 'latent dimensions\n')
     }
   )
 )

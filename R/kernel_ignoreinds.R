@@ -136,8 +136,16 @@ IgnoreIndsKernel <- R6::R6Class(
     #' @param ... Passed to kernel
     s2_from_params = function(...) {
       self$kernel$s2_from_params(...)
+    },
+    #' @description Print this object
+    print = function() {
+      p1 <- capture.output(self$kernel)
+      p1b <- paste0('\t', p1)
+      p1c <- paste0(p1b, collapse = '\n')
+      cat('GauPro kernel: Ignore indices\n')
+      cat('\tignore inds = ', self$ignoreinds, '\n')
+      cat(p1c, "\n")
     }
-
   ),
   private = list(
 

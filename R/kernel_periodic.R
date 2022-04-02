@@ -433,6 +433,14 @@ Periodic <- R6::R6Class(
       } else { # Else it is just using set value, not being estimated
         self$s2
       }
+    },
+    #' @description Print this object
+    print = function() {
+      cat('GauPro kernel: Periodic\n')
+      cat('\tD     =', self$D, '\n')
+      cat('\talpha =', signif(self$alpha, 3), '\n')
+      cat('\tp     =', signif(self$p, 3), '\n')
+      cat('\ts2    =', self$s2, '\n')
     }
   )
 )

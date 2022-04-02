@@ -51,6 +51,7 @@ k1 <- White$new(s2=1e-8)
 \item \href{#method-param_optim_upper}{\code{White$param_optim_upper()}}
 \item \href{#method-set_params_from_optim}{\code{White$set_params_from_optim()}}
 \item \href{#method-s2_from_params}{\code{White$s2_from_params()}}
+\item \href{#method-print}{\code{White$print()}}
 \item \href{#method-clone}{\code{White$clone()}}
 }
 }
@@ -316,6 +317,16 @@ Get s2 from params vector
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
+\subsection{Method \code{print()}}{
+Print this object
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{White$print()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
