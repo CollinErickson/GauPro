@@ -45,8 +45,6 @@ in optimRestart is now breaking instead.
 
 * Speed up m52 grad, Cubic k/grad
 
-* 3 kernel product. prod/sum need to get s2_est from children
-
 * no param est gave error, dC_dparam can't be calculated
 
 * Add test with repeated X. Add test with big nugget and make sure deriv still matches.
@@ -73,7 +71,15 @@ in optimRestart is now breaking instead.
 
 * If give in data/formula, create kernel with factor cols as factors
 
-* LatentFactor dC_dparams: check lev <= nlevels?
-
 * All restarts had error: doesn't say what error is, so sometimes it's
 an error the user should know. Like when I test useCM.
+
+* dEI_dx
+
+* maxEI prob doesn't work because the differences are tiny. Log scale?
+
+* EI return list like DKEI
+
+* maxEI: when all EI0=0, give warning
+
+* maxqEI doesn't spread out much

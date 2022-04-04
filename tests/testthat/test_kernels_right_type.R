@@ -186,3 +186,17 @@ test_that("OrderedFactorKernel has correct grad", {
   }
 })
 
+# Doesn't work since find_kfd isn't exported
+if (F) {
+  test_that('ignore inds', {
+    k <- IgnoreIndsKernel$new(ignoreinds = c(1,3,5),
+                              k = Gaussian$new(D=2) *
+                                OrderedFactorKernel$new(D=2, xindex = 2, nlevels = 4)) *
+      FactorKernel$new(nlevels=11, xindex=1, D=5) *
+      OrderedFactorKernel$new(nlevels=3, xindex=3, D=5) *
+      LatentFactorKernel$new(nlevels=5, xindex=5, D=5)
+    k
+    fk <- find_kernel_factor_dims(k)
+    expect_equal(fk, c(4,4,1,11,3,3,5,5))
+  })
+}

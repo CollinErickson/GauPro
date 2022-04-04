@@ -165,26 +165,35 @@ GauPro_kernel_model <- R6::R6Class(
       #self$initialize_GauPr(X=X,Z=Z,verbose=verbose,useC=useC,
       #                      useGrad=useGrad,
       #                      parallel=parallel, nug.est=nug.est)
-      if (missing(X)) {
-        stop("You must give X to GauPro_kernel_model")
-      }
-      if (missing(Z)) {
-        stop("You must give Z to GauPro_kernel_model")
-      }
-      if (is.formula(X) || is.formula(Z)) {
-        if (is.formula(X)) {
+      # if (missing(X)) {
+      #   stop("You must give X to GauPro_kernel_model")
+      # }
+      # if (missing(Z)) {
+      #   stop("You must give Z to GauPro_kernel_model")
+      # }
+      if ((!missing(X) && is.formula(X)) || (!missing(Z) && is.formula(Z))) {
+        # browser()
+        if (!missing(X) && is.formula(X)) {
           formula <- X
-          stopifnot(is.data.frame(Z))
-          data <- Z
+          # stopifnot(is.data.frame(Z))
+          if (!missing(Z) && is.data.frame(Z)) {
+            data <- Z
+          } else {
+            data <- NULL
+          }
         }
-        if (is.formula(Z)) {
+        if (!missing(Z) && is.formula(Z)) {
           formula <- Z
-          stopifnot(is.data.frame(X))
-          data <- X
+          # stopifnot(is.data.frame(X))
+          if (!missing(X) && is.data.frame(X)) {
+            data <- X
+          } else {
+            data <- NULL
+          }
         }
         modfr <- model.frame(formula = formula, data = data)
         Z <- modfr[,1]
-        Xdf <- modfr[,2:ncol(modfr)]
+        Xdf <- modfr[,2:ncol(modfr), drop=FALSE]
         convert_formula_data <- list(factors=list(),
                                      chars=list())
         # Convert factor columns to integer
@@ -217,6 +226,14 @@ GauPro_kernel_model <- R6::R6Class(
         self$convert_formula_data <- convert_formula_data
         X <- as.matrix(Xdf)
       }
+
+      if (missing(X) || is.null(X)) {
+        stop("You must give X to GauPro_kernel_model")
+      }
+      if (missing(Z) || is.null(Z)) {
+        stop("You must give Z to GauPro_kernel_model")
+      }
+
       if (is.data.frame(X)) {
         X <- as.matrix(X)
       }
@@ -480,6 +497,7 @@ GauPro_kernel_model <- R6::R6Class(
         # new for kernel
         # kxx <- self$kernel$k(XX) + diag(self$nug * self$s2_hat, nrow(XX))
         kxx <- self$kernel$k(XX)
+        # The mean doesn't get the nugget added
         if (!mean_dist) {
           kxx <- kxx + diag(self$nug * self$s2_hat, nrow(XX))
         }
@@ -2432,9 +2450,9 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param eps Exploration parameter
     maxqEI = function(npoints, method="CL",
                       lower=apply(self$X, 2, min), upper=apply(self$X, 2, max),
-                      n0=100, minimize=FALSE, eps=.01) {
+                      n0=100, minimize=FALSE, eps=0) {
       stopifnot(is.numeric(npoints), length(npoints)==1, npoints >= 1)
-      stopifnot(method=="CL")
+      stopifnot(method %in% c("CL", "pred"))
       # Clone object since we will add fake data
       gpclone <- self$clone(deep=TRUE)
       # Track points selected
@@ -2447,6 +2465,10 @@ GauPro_kernel_model <- R6::R6Class(
         # Find and store point that maximizes EI
         xi <- gpclone$maxEI(lower=lower, upper=upper, n0=n0, eps=eps, minimize=minimize)
         selectedX[i, ] <- xi
+        if (method == "pred") {
+          # browser()
+          Zimpute <- self$predict(xi)
+        }
         # Update clone with new data, don't update parameters since it's fake data
         if (i < npoints) {
           gpclone$update(Xnew=xi, Znew=Zimpute, no_update=TRUE)

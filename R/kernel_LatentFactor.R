@@ -304,6 +304,8 @@ LatentFactorKernel <- R6::R6Class(
       # stop("not implemented, kernel index, dC_dp")
       n <- nrow(X)
 
+      stopifnot(X[, self$xindex] >= 1, X[, self$xindex] <= self$nlevels)
+
       lenparams <- length(params)
 
       if (lenparams > 0) {

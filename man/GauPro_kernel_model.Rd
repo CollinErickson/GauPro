@@ -1462,7 +1462,7 @@ improvement. Currently only implements the constant liar method.
   upper = apply(self$X, 2, max),
   n0 = 100,
   minimize = FALSE,
-  eps = 0.01
+  eps = 0
 )}\if{html}{\out{</div>}}
 }
 

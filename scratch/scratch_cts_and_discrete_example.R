@@ -3,7 +3,7 @@
 f <- function(a, b, c, d) {
   -1e-3*a^2*b^2*a + a*ifelse(c==1,1,0) + ifelse(d==1,1,2) + rnorm(length(a),0,1e-1)
 }
-n <- 133*2
+n <- 133
 library(dplyr)
 Xdf <- bind_cols(
   a=runif(n,6,8),
