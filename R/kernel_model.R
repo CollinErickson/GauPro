@@ -2347,6 +2347,9 @@ GauPro_kernel_model <- R6::R6Class(
                        lower))
       # Calculate EI at these points
       EI0 <- self$EI(x=X0, minimize=minimize, eps=eps)
+      if (all(EI0 <= 0)) {
+        warning("maxEI couldn't find any inputs with nonzero EI")
+      }
       ind <- which.max(EI0)
       # Optimize starting from that point to find input that maximizes EI
       optim_out <- optim(par=X0[ind,],

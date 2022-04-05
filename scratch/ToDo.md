@@ -80,6 +80,6 @@ an error the user should know. Like when I test useCM.
 
 * EI return list like DKEI
 
-* maxEI: when all EI0=0, give warning
-
 * maxqEI doesn't spread out much
+
+* Knowledge gradient
