@@ -50,6 +50,7 @@ gp <- GauPro_kernel_model_LOO$new(X=x, Z=y, kernel=Matern52)
 \out{<details ><summary>Inherited methods</summary>}
 \itemize{
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="EI">}\href{../../GauPro/html/GauPro.html#method-EI}{\code{GauPro::GauPro$EI()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="KG">}\href{../../GauPro/html/GauPro.html#method-KG}{\code{GauPro::GauPro$KG()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="cool1Dplot">}\href{../../GauPro/html/GauPro.html#method-cool1Dplot}{\code{GauPro::GauPro$cool1Dplot()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="deviance">}\href{../../GauPro/html/GauPro.html#method-deviance}{\code{GauPro::GauPro$deviance()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="deviance_fngr">}\href{../../GauPro/html/GauPro.html#method-deviance_fngr}{\code{GauPro::GauPro$deviance_fngr()}}\out{</span>}

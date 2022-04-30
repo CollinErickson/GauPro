@@ -11,6 +11,9 @@ find_kernel_factor_dims <- function (kern) {
   if (("GauPro_kernel_IgnoreInds" %in% class(kern))) {
     # browser()
     t1 <- find_kernel_factor_dims(kern$kernel)
+    if (is.null(t1)) {
+      return(NULL)
+    }
     for (i in 1:(length(t1)/2)) {
       # t1[2*i-1] <- t1[2*i-1] + sum(t1[2*i-1] <= kern$ignoreinds)
       t1[2*i-1] <- setdiff((1:(t1[1]+max(kern$ignoreinds))), kern$ignoreinds)[t1[2*i-1]]

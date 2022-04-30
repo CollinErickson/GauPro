@@ -82,4 +82,15 @@ an error the user should know. Like when I test useCM.
 
 * maxqEI doesn't spread out much
 
-* Knowledge gradient
+* Knowledge gradient: multiple starts for optim
+
+* maxEI: integer inputs
+
+* maxEIwithfactors: don't optim for all. Alternate optim with
+checking all factor combos.
+
+* kernel_LatentFactor: K with matrix/matrix, do faster than outer. Needed to make EI faster.
+
+* EI, maxEI, maxqEI: add to test for each kernel, just check no error, right output
+
+* test for kernels: mat/mat, mat/vec, vec/mat, vec/vec all match using outer

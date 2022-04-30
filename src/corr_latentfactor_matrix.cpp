@@ -66,6 +66,62 @@ NumericMatrix corr_latentfactor_matrix_symC(NumericMatrix x, NumericVector theta
 */
 
 
+//' Correlation Latent factor  matrix in C (symmetric)
+//' @param x Matrix x
+//' @param y Matrix y
+//' @param theta Theta vector
+//' @param xindex Index to use
+//' @param latentdim Number of latent dimensions
+//' @param offdiagequal What to set off-diagonal values with matching values to.
+//' @return Correlation matrix
+//' @export
+//' @examples
+//' corr_latentfactor_matrixmatrixC(matrix(c(1,.5, 2,1.6, 1,0),ncol=2,byrow=TRUE),
+//'                                 matrix(c(2,1.6, 1,0),ncol=2,byrow=TRUE),
+//'                                 c(1.5,1.8), 1, 1, 1-1e-6)
+//' corr_latentfactor_matrixmatrixC(matrix(c(0,0,0,1,0,0,0,2,0,0,0,3,0,0,0,4),
+//'                                   ncol=4, byrow=TRUE),
+//'                                 matrix(c(0,0,0,2,0,0,0,4,0,0,0,1),
+//'                                   ncol=4, byrow=TRUE),
+//'   c(0.101, -0.714, 0.114, -0.755, 0.117, -0.76, 0.116, -0.752),
+//'   4, 2, 1-1e-6) * 6.85
+// [[Rcpp::export]]
+NumericMatrix corr_latentfactor_matrixmatrixC(NumericMatrix x, NumericMatrix y,
+                                               NumericVector theta,
+                                               int xindex, int latentdim,
+                                               double offdiagequal) {
+  int nrow = x.nrow();
+  int ncol = y.nrow();
+  //int nsum = x.ncol();
+  NumericMatrix out(nrow, ncol);
+  int xindoffset, yindoffset;
+  int xlev;
+  int ylev;
+  double total;
+  for (int i = 0; i < nrow; i++) {
+    for (int j = 0; j < ncol; j++) {
+      xlev = x(i, xindex - 1);
+      ylev = y(j, xindex - 1);
+      if (xlev == ylev) {
+        total = offdiagequal;
+      } else {
+        xindoffset = (xlev - 1) * latentdim;
+        yindoffset = (ylev - 1) * latentdim;
+        total = 0;
+        double latx, laty;
+        for(int k = 0; k < latentdim; ++k) {
+          latx = theta[xindoffset + k];
+          laty = theta[yindoffset + k];
+          total += pow(latx - laty, 2);
+        }
+        total = exp(-total);
+      }
+      out(i, j) = total;
+    }
+  }
+  return out;
+}
+
 
 // Trying to get C_dC for Gaussian kernel
 //' Derivative of covariance matrix of X with respect to kernel
@@ -89,7 +145,7 @@ arma::cube kernel_latentFactor_dC(
     bool s2_est, bool p_est, int lenparams_D, double s2_nug,
     int latentdim, int xindex, int nlevels, double s2) {
   int nrow = x.n_rows;
-  int nsum = x.n_cols;
+  //int nsum = x.n_cols;
   arma::cube dC_dparams(lenparams_D, nrow, nrow);
 
   if (s2_est) {

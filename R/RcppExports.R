@@ -220,6 +220,29 @@ corr_latentfactor_matrix_symC <- function(x, theta, xindex, latentdim, offdiageq
     .Call(`_GauPro_corr_latentfactor_matrix_symC`, x, theta, xindex, latentdim, offdiagequal)
 }
 
+#' Correlation Latent factor  matrix in C (symmetric)
+#' @param x Matrix x
+#' @param y Matrix y
+#' @param theta Theta vector
+#' @param xindex Index to use
+#' @param latentdim Number of latent dimensions
+#' @param offdiagequal What to set off-diagonal values with matching values to.
+#' @return Correlation matrix
+#' @export
+#' @examples
+#' corr_latentfactor_matrixmatrixC(matrix(c(1,.5, 2,1.6, 1,0),ncol=2,byrow=TRUE),
+#'                                 matrix(c(2,1.6, 1,0),ncol=2,byrow=TRUE),
+#'                                 c(1.5,1.8), 1, 1, 1-1e-6)
+#' corr_latentfactor_matrixmatrixC(matrix(c(0,0,0,1,0,0,0,2,0,0,0,3,0,0,0,4),
+#'                                   ncol=4, byrow=TRUE),
+#'                                 matrix(c(0,0,0,2,0,0,0,4,0,0,0,1),
+#'                                   ncol=4, byrow=TRUE),
+#'   c(0.101, -0.714, 0.114, -0.755, 0.117, -0.76, 0.116, -0.752),
+#'   4, 2, 1-1e-6) * 6.85
+corr_latentfactor_matrixmatrixC <- function(x, y, theta, xindex, latentdim, offdiagequal) {
+    .Call(`_GauPro_corr_latentfactor_matrixmatrixC`, x, y, theta, xindex, latentdim, offdiagequal)
+}
+
 #' Derivative of covariance matrix of X with respect to kernel
 #' parameters for the Latent Factor Kernel
 #' @param x Matrix x

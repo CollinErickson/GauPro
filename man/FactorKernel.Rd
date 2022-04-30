@@ -200,7 +200,7 @@ of x with itself.}
 \subsection{Method \code{kone()}}{
 Find covariance of two points
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FactorKernel$kone(x, y, p, s2, isdiag = 1, offdiagequal = 1 - 1e-06)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{FactorKernel$kone(x, y, p, s2, isdiag = TRUE, offdiagequal = 1 - 1e-06)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

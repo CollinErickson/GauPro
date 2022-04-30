@@ -187,6 +187,7 @@ using the formula}
 \item \href{#method-maxEI}{\code{GauPro_kernel_model$maxEI()}}
 \item \href{#method-maxEIwithfactors}{\code{GauPro_kernel_model$maxEIwithfactors()}}
 \item \href{#method-maxqEI}{\code{GauPro_kernel_model$maxqEI()}}
+\item \href{#method-KG}{\code{GauPro_kernel_model$KG()}}
 \item \href{#method-print}{\code{GauPro_kernel_model$print()}}
 \item \href{#method-clone}{\code{GauPro_kernel_model$clone()}}
 }
@@ -1428,7 +1429,7 @@ Used whenever one of the inputs is a factor (can only take values 1:n).
   upper = apply(self$X, 2, max),
   n0 = 100,
   minimize = FALSE,
-  eps = 0.01
+  eps = 0
 )}\if{html}{\out{</div>}}
 }
 
@@ -1485,6 +1486,15 @@ improvement. Currently only implements the constant liar method.
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-KG"></a>}}
+\if{latex}{\out{\hypertarget{method-KG}{}}}
+\subsection{Method \code{KG()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$KG(x, minimize = FALSE, eps = 0, current_extreme = NULL)}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-print"></a>}}

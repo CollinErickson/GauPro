@@ -233,7 +233,7 @@ OrderedFactorKernel <- R6::R6Class(
     #' indices are the same? Use to avoid decomposition errors, similar to
     #' adding a nugget.
     #' @references https://stackoverflow.com/questions/27086195/linear-index-upper-triangular-matrix
-    kone = function(x, y, p, s2, isdiag=1, offdiagequal=1-1e-6) {
+    kone = function(x, y, p, s2, isdiag=TRUE, offdiagequal=1-1e-6) {
       # if (missing(p)) {p <- 10^logp}
       # out <- s2 * exp(-sum(alpha*sin(p * (x-y))^2))
       x <- x[self$xindex]

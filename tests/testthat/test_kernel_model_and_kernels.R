@@ -205,6 +205,9 @@ test_that("check factor kernels in product", {
     expect_error({kernprint <- capture_output(print(gp$kernel))}, NA)
     expect_is(kernprint, 'character')
 
+    # Check EI
+    expect_error(gp$maxEI(), NA)
+
     df <- gp$deviance()
     dg <- gp$deviance_grad(nug.update = T)
     dfg <- gp$deviance_fngr(nug.update = T)

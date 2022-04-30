@@ -242,7 +242,14 @@ LatentFactorKernel <- R6::R6Class(
         }
       }
       if (is.matrix(x) & is.matrix(y)) {
-        outer(1:nrow(x), 1:nrow(y), Vectorize(function(i,j){self$kone(x[i,],y[j,],pf=pf, s2=s2)}))
+        # C took 0.000 sec, R took 1.793 sec
+        if (self$useC) {
+          corr_latentfactor_matrixmatrixC(x=x, y=y, theta=pf, xindex=self$xindex,
+                                          latentdim = self$latentdim, offdiagequal=1-1e-6)
+        } else {
+          outer(1:nrow(x), 1:nrow(y),
+                Vectorize(function(i,j){self$kone(x[i,],y[j,],pf=pf, s2=s2, isdiag=FALSE)}))
+        }
       } else if (is.matrix(x) & !is.matrix(y)) {
         apply(x, 1, function(xx) {self$kone(xx, y, pf=pf, s2=s2)})
       } else if (is.matrix(y)) {
@@ -262,7 +269,7 @@ LatentFactorKernel <- R6::R6Class(
     #' indices are the same? Use to avoid decomposition errors, similar to
     #' adding a nugget.
     #' @references https://stackoverflow.com/questions/27086195/linear-index-upper-triangular-matrix
-    kone = function(x, y, pf, s2, isdiag=1, offdiagequal=1-1e-6) {
+    kone = function(x, y, pf, s2, isdiag=TRUE, offdiagequal=1-1e-6) {
       # if (missing(p)) {p <- 10^logp}
       # out <- s2 * exp(-sum(alpha*sin(p * (x-y))^2))
       x <- x[self$xindex]

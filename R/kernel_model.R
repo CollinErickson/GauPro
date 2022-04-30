@@ -931,7 +931,7 @@ GauPro_kernel_model <- R6::R6Class(
            ylim=c(miny,maxy),
            xlab=xlab, ylab=ylab,
            main=paste0("Predicted output (95% interval for mean is green,",
-                       " 95% interval for sample is red"))
+                       " 95% interval for sample is red)"))
       points(x, px$mean-2*px$se, type='l', col=col2, lwd=2)
       points(x, pxmean$mean+2*pxmean$se, type='l', col=col3, lwd=2)
       points(x, pxmean$mean-2*pxmean$se, type='l', col=col3, lwd=2)
@@ -2368,7 +2368,7 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param eps Exploration parameter
     maxEIwithfactors = function(lower=apply(self$X, 2, min),
                                 upper=apply(self$X, 2, max),
-                                n0=100, minimize=FALSE, eps=.01) {
+                                n0=100, minimize=FALSE, eps=0) {
       stopifnot(all(lower < upper))
       stopifnot(length(n0)==1, is.numeric(n0), n0>=1)
       # Get factor info
@@ -2479,6 +2479,51 @@ GauPro_kernel_model <- R6::R6Class(
       }
       # Return matrix of points
       selectedX
+    },
+    KG = function(x, minimize=FALSE, eps=0, current_extreme=NULL) {
+      if (exists('kgbrow') && kgbrow) {browser()}
+      xkg <- x
+      if (!is.matrix(xkg)) {
+        stopifnot(length(xkg) == self$D)
+        xkg <- matrix(xkg, nrow=1)
+      }
+      if (missing(current_extreme) || is.null(current_extreme)) {
+        # Find current max/min
+        # Find current max
+        gpkgmax <- optim(par=self$X[which.max(self$Z)[1],],
+                         fn=function(xx) {-self$pred(xx)},
+                         method='Brent', lower=0, upper=1)
+        current_extreme <- -gpkgmax$value
+      } else {
+        stopifnot(is.numeric(current_extreme), length(current_extreme) == 1)
+      }
+      # Sample at xkg
+      xkgpred <- gpkg$pred(xkg, se.fit = T)
+      xkgpred
+      nsamps <- 5
+      xkgsamps <- qnorm(((1:nsamps)-.5)/nsamps, xkgpred$mean, xkgpred$se)
+      kgs <- rep(NA, nsamps)
+      gpkgclone <- gpkg$clone(deep=TRUE)
+      for (i in 1:nsamps) {
+        xkgsamp <- xkgsamps[i]
+        # xkgsamp <- rnorm(1, xkgpred$mean, xkgpred$se)
+        # Add samp to mod
+        # gpkgclone <- gpkg$clone(deep=TRUE)
+        # gpkgclone$update(Xnew=xkg, Znew=xkgsamp, no_update = TRUE)
+        gpkgclone$update(Xall=rbind(self$X, xkg),
+                         Zall=rbind(self$Z, xkgsamp),
+                         no_update = TRUE)
+        # gpkgclone$plot1D()
+        # Find clone max after adding sample
+        gpkgmaxclone <- optim(par=gpkgclone$X[which.max(gpkgclone$Z)[1],],
+                              fn=function(xx) {-gpkgclone$pred(xx)},
+                              method='Brent', lower=0, upper=1)
+        gpkgmaxclone
+        # gpkgmaxclone$value - gpkgmax$value
+        kgs[i] <- (-gpkgmaxclone$value) - current_extreme #gpkgmax$value
+      }
+      kgs
+      mean(kgs)
     },
     #' @description Print this object
     print = function() {

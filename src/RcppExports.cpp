@@ -257,6 +257,22 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// corr_latentfactor_matrixmatrixC
+NumericMatrix corr_latentfactor_matrixmatrixC(NumericMatrix x, NumericMatrix y, NumericVector theta, int xindex, int latentdim, double offdiagequal);
+RcppExport SEXP _GauPro_corr_latentfactor_matrixmatrixC(SEXP xSEXP, SEXP ySEXP, SEXP thetaSEXP, SEXP xindexSEXP, SEXP latentdimSEXP, SEXP offdiagequalSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type x(xSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type y(ySEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< int >::type xindex(xindexSEXP);
+    Rcpp::traits::input_parameter< int >::type latentdim(latentdimSEXP);
+    Rcpp::traits::input_parameter< double >::type offdiagequal(offdiagequalSEXP);
+    rcpp_result_gen = Rcpp::wrap(corr_latentfactor_matrixmatrixC(x, y, theta, xindex, latentdim, offdiagequal));
+    return rcpp_result_gen;
+END_RCPP
+}
 // kernel_latentFactor_dC
 arma::cube kernel_latentFactor_dC(arma::mat x, arma::vec pf, arma::mat C_nonug, bool s2_est, bool p_est, int lenparams_D, double s2_nug, int latentdim, int xindex, int nlevels, double s2);
 RcppExport SEXP _GauPro_kernel_latentFactor_dC(SEXP xSEXP, SEXP pfSEXP, SEXP C_nonugSEXP, SEXP s2_estSEXP, SEXP p_estSEXP, SEXP lenparams_DSEXP, SEXP s2_nugSEXP, SEXP latentdimSEXP, SEXP xindexSEXP, SEXP nlevelsSEXP, SEXP s2SEXP) {
