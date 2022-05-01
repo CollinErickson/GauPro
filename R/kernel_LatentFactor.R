@@ -243,7 +243,7 @@ LatentFactorKernel <- R6::R6Class(
       }
       if (is.matrix(x) & is.matrix(y)) {
         # C took 0.000 sec, R took 1.793 sec
-        if (self$useC) {
+        if (self$useC) { # Way faster
           corr_latentfactor_matrixmatrixC(x=x, y=y, theta=pf, xindex=self$xindex,
                                           latentdim = self$latentdim, offdiagequal=1-1e-6)
         } else {

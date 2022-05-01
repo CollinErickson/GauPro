@@ -72,3 +72,15 @@ gp2m2 <- profvis::profvis(interval=.01, {
       LatentFactorKernel$new(D=4, nlevels = 4, latentdim = 2, xindex = 4)
   )
 })
+
+
+# Only factors
+system.time({
+  gp3 <- GauPro_kernel_model$new(
+    X=Xmat[,3:4], Z=y,
+    restarts=0, track_optim = T, verbose=5,
+    kernel=LatentFactorKernel$new(D=2, nlevels = 2, latentdim = 1, xindex = 1) *
+      LatentFactorKernel$new(D=2, nlevels = 4, latentdim = 2, xindex = 2)
+  )
+})
+gp3$maxEI()

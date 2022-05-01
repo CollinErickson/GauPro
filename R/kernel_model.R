@@ -2385,6 +2385,104 @@ GauPro_kernel_model <- R6::R6Class(
       bestval <- Inf
       bestpar <- c()
       factorxindex <- factorinfo[(1:(length(factorinfo)/2))*2-1] #factorinfo[[1]]
+      factornlevels <- factorinfo[(1:(length(factorinfo)/2))*2]
+
+      # If no non-factor levels, just predict EI at all and return best
+      if (length(factorxindex) == self$D) {
+        # browser()
+        Xmat <- as.matrix(factordf)
+        EI_Xmat <- self$EI(Xmat, minimize = minimize)
+        bestind <- which.max(EI_Xmat)[1]
+        bestval <- EI_Xmat[bestind]
+        bestpar <- Xmat[bestind, ]
+        return(unname(bestpar))
+      } else {
+        # Has continuous and factor indices
+        # Alternate optimizing over cts and factors
+        # browser()
+        #
+        X0 <- lhs::randomLHS(n=n0, k=self$D)
+        X0 <- sweep(X0, 2, upper-lower, "*")
+        X0 <- sweep(X0, 2, lower, "+")
+        for (j in 1:length(factorxindex)) {
+          X0[, factorxindex[j]] <- sample(1:factornlevels[j], n0, replace=TRUE)
+        }
+        # Calculate EI at these points, use best as starting point for optim
+        EI0 <- self$EI(x=X0, minimize=minimize, eps=eps)
+        ind <- which.max(EI0)
+
+        # Continuous indexes
+        ctsinds <- setdiff(1:self$D, factorxindex)
+        Xstart <- X0[ind, ]
+        Xstartfactors <- Xstart[factorxindex]
+        bestEIsofar <- EI0[ind]
+        notdone <- TRUE
+        # browser()
+        i_while <- 0
+        while(notdone) {
+          cat('in while loop', i_while, bestEIsofar, "\n")
+          i_while <- i_while + 1
+          # Optimize over cts variables
+          # Optimize starting from that point to find input that maximizes EI
+          optim_out_i_indcomb <- optim(par=Xstart[-factorxindex], #X0[ind, -factorxindex],
+                                       lower=lower[-factorxindex],
+                                       upper=upper[-factorxindex],
+                                       # fn=function(xx){ei <- -self$EI(xx); cat(xx, ei, "\n"); ei},
+                                       fn=function(xx){
+                                         xx2 <- numeric(self$D)
+                                         xx2[ctsinds] <- xx
+                                         xx2[factorxindex] <- Xstartfactors
+                                         # xx2 <- c(xx[xxinds1], factorxlevel, xx[xxinds2])
+                                         # cat(xx, xx2, "\n")
+                                         -self$EI(xx2, minimize = minimize)
+                                       },
+                                       method="L-BFGS-B")
+          Xstart2 <- Xstart
+          Xstart2[-factorxindex] <- optim_out_i_indcomb$par
+          # Optimize over factors
+          Xmat <- matrix(Xstart2, byrow=TRUE, nrow=nrow(factordf), ncol=self$D)
+          Xmat[, factorxindex] <- as.matrix(factordf)
+          EI_Xmat <- self$EI(Xmat, minimize = minimize)
+          # for (i in 1:nrow(Xmat)) {
+          #   Xmat[i, -factorxindex] <-
+          # }
+          newbestEI <- max(EI_Xmat)
+          newbestX <- Xmat[which.min(EI_Xmat)[1],]
+          # If no improvement, end it
+          if (newbestEI < bestEIsofar + 1e-16) {
+            return(newbestX)
+          }
+          # browser()
+          # Or break if enough iterations
+          if (i_while > 10) {
+            return(newbestX)
+          }
+          bestEIsofar <- newbestEI
+        }
+
+      }
+      # stopifnot(length(bestpar) == self$D)
+      # return(bestpar)
+    },
+    maxEIwithfactorsorig = function(lower=apply(self$X, 2, min),
+                                upper=apply(self$X, 2, max),
+                                n0=100, minimize=FALSE, eps=0) {
+      stopifnot(all(lower < upper))
+      stopifnot(length(n0)==1, is.numeric(n0), n0>=1)
+      # Get factor info
+      factorinfo <- find_kernel_factor_dims(self$kernel)
+      # Run inner EI over all factor combinations
+      stopifnot(length(factorinfo)>0)
+      # factordf <- data.frame(index=factorinfo[1]
+      factorlist <- list()
+      for (i_f in 1:(length(factorinfo)/2)) {
+        factorlist[[as.character(factorinfo[i_f*2-1])]] <- 1:factorinfo[i_f*2]
+      }
+      factordf <- do.call(expand.grid, factorlist)
+      # Track best seen in optimizing EI
+      bestval <- Inf
+      bestpar <- c()
+      factorxindex <- factorinfo[(1:(length(factorinfo)/2))*2-1] #factorinfo[[1]]
       for (i_indcomb in 1:prod(factorinfo[(1:(length(factorinfo)/2))*2])) {
         factorxlevel <- unname(unlist(factordf[i_indcomb,])) #i_indcomb #factorinfo[[2]]
         # cat(factorxindex, factorxlevel, "\n")
