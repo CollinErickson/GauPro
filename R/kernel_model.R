@@ -172,7 +172,6 @@ GauPro_kernel_model <- R6::R6Class(
       #   stop("You must give Z to GauPro_kernel_model")
       # }
       if ((!missing(X) && is.formula(X)) || (!missing(Z) && is.formula(Z))) {
-        # browser()
         if (!missing(X) && is.formula(X)) {
           formula <- X
           # stopifnot(is.data.frame(Z))
@@ -2326,13 +2325,18 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param minimize Are you trying to minimize the output?
     #' @param eps Exploration parameter
     maxEI = function(lower=apply(self$X, 2, min), upper=apply(self$X, 2, max),
-                     n0=100, minimize=FALSE, eps=0) {
+                     n0=100, minimize=FALSE, eps=0,
+                     discreteinputs=NULL) {
       stopifnot(all(lower < upper))
       stopifnot(length(n0)==1, is.numeric(n0), n0>=1)
       # Check if any kernels have factors
-      if (length(find_kernel_factor_dims(self$kernel)) > 0) {
+      if (!is.null(discreteinputs) || length(find_kernel_factor_dims(self$kernel)) > 0) {
         # Has at least one factor
-        return(self$maxEIwithfactors(lower=lower, upper=upper, n0=n0, minimize=minimize, eps=eps))
+        # return(self$maxEIwithfactors(lower=lower, upper=upper, n0=n0,
+        #                              minimize=minimize, eps=eps))
+        return(self$maxEIwithfactorsordiscrete(lower=lower, upper=upper, n0=n0,
+                                               minimize=minimize, eps=eps,
+                                               discreteinputs=discreteinputs))
       }
       # Random points to evaluate to find best starting point
       X0 <- lhs::randomLHS(n=n0, k=ncol(self$X))
@@ -2389,7 +2393,6 @@ GauPro_kernel_model <- R6::R6Class(
 
       # If no non-factor levels, just predict EI at all and return best
       if (length(factorxindex) == self$D) {
-        # browser()
         Xmat <- as.matrix(factordf)
         EI_Xmat <- self$EI(Xmat, minimize = minimize)
         bestind <- which.max(EI_Xmat)[1]
@@ -2399,8 +2402,6 @@ GauPro_kernel_model <- R6::R6Class(
       } else {
         # Has continuous and factor indices
         # Alternate optimizing over cts and factors
-        # browser()
-        #
         X0 <- lhs::randomLHS(n=n0, k=self$D)
         X0 <- sweep(X0, 2, upper-lower, "*")
         X0 <- sweep(X0, 2, lower, "+")
@@ -2417,7 +2418,6 @@ GauPro_kernel_model <- R6::R6Class(
         Xstartfactors <- Xstart[factorxindex]
         bestEIsofar <- EI0[ind]
         notdone <- TRUE
-        # browser()
         i_while <- 0
         while(notdone) {
           cat('in while loop', i_while, bestEIsofar, "\n")
@@ -2449,10 +2449,9 @@ GauPro_kernel_model <- R6::R6Class(
           newbestEI <- max(EI_Xmat)
           newbestX <- Xmat[which.min(EI_Xmat)[1],]
           # If no improvement, end it
-          if (newbestEI < bestEIsofar + 1e-16) {
+          if (newbestEI - bestEIsofar <=  1e-16) {
             return(newbestX)
           }
-          # browser()
           # Or break if enough iterations
           if (i_while > 10) {
             return(newbestX)
@@ -2464,9 +2463,160 @@ GauPro_kernel_model <- R6::R6Class(
       # stopifnot(length(bestpar) == self$D)
       # return(bestpar)
     },
+    maxEIwithfactorsordiscrete = function(lower=apply(self$X, 2, min),
+                                          upper=apply(self$X, 2, max),
+                                          n0=100, minimize=FALSE, eps=0,
+                                          discreteinputs=NULL) {
+      stopifnot(all(lower < upper))
+      stopifnot(length(n0)==1, is.numeric(n0), n0>=1)
+      # Make sure discreteinputs is okay
+      if (!is.null(discreteinputs)) {
+        stopifnot(is.list(discreteinputs), length(discreteinputs)>0)
+        stopifnot(!is.null(names(discreteinputs)),
+                  all(names(discreteinputs) != ""))
+        discreteinds <- as.integer(names(discreteinputs))
+        stopifnot(!is.na(discreteinds))
+      } else {
+        discreteinds <- c()
+      }
+      # Get factor info
+      factorinfo <- find_kernel_factor_dims(self$kernel)
+      if (!is.null(factorinfo)) {
+        # Run inner EI over all factor combinations
+        stopifnot(length(factorinfo)>0)
+        # factordf <- data.frame(index=factorinfo[1]
+        factorlist <- list()
+        for (i_f in 1:(length(factorinfo)/2)) {
+          factorlist[[as.character(factorinfo[i_f*2-1])]] <- 1:factorinfo[i_f*2]
+        }
+        factordf <- do.call(expand.grid, factorlist)
+        # Track best seen in optimizing EI
+        bestval <- Inf
+        bestpar <- c()
+        factorxindex <- factorinfo[(1:(length(factorinfo)/2))*2-1] #factorinfo[[1]]
+        factornlevels <- factorinfo[(1:(length(factorinfo)/2))*2]
+      } else {
+        # Indices of factor columns
+        factorxindex <- c()
+      }
+
+      ctsinds <- setdiff(1:self$D, c(discreteinds, factorxindex))
+
+      # browser("do coordinate descent here?")
+
+      # If no non-factor levels, just predict EI at all and return best
+      if (length(factorxindex) == self$D) {
+        # browser()
+        Xmat <- as.matrix(factordf)
+        EI_Xmat <- self$EI(Xmat, minimize = minimize)
+        bestind <- which.max(EI_Xmat)[1]
+        bestval <- EI_Xmat[bestind]
+        bestpar <- Xmat[bestind, ]
+        return(unname(bestpar))
+      } else {
+        # Has continuous/factor/discrete indices
+        # Alternate optimizing over cts and factors an discrete
+        # browser()
+        #
+        X0 <- lhs::randomLHS(n=n0, k=self$D)
+        X0 <- sweep(X0, 2, upper-lower, "*")
+        X0 <- sweep(X0, 2, lower, "+")
+        for (j in seq_along(factorxindex)) {
+          X0[, factorxindex[j]] <- sample(1:factornlevels[j], n0, replace=TRUE)
+        }
+        for (j in seq_along(discreteinds)) {
+          X0[, discreteinds[j]] <- sample(discreteinputs[[j]], n0, replace=TRUE)
+        }
+        # Calculate EI at these points, use best as starting point for optim
+        EI0 <- self$EI(x=X0, minimize=minimize, eps=eps)
+        ind <- which.max(EI0)
+
+        # Continuous indexes
+        # ctsinds <- setdiff(1:self$D, factorxindex)
+        Xstart <- X0[ind, ]
+        # Xstartfactors <- Xstart[factorxindex]
+        bestEIsofar <- EI0[ind]
+        notdone <- TRUE
+        # browser()
+        i_while <- 0
+        while(notdone) {
+          cat('in while loop', i_while, bestEIsofar, "\n")
+          i_while <- i_while + 1
+          # Optimize over cts variables
+          if (length(ctsinds) > 0) {
+            # Optimize starting from that point to find input that maximizes EI
+            optim_out_i_indcomb <- optim(par=Xstart[ctsinds], #X0[ind, -factorxindex],
+                                         lower=lower[ctsinds],
+                                         upper=upper[ctsinds],
+                                         # fn=function(xx){ei <- -self$EI(xx); cat(xx, ei, "\n"); ei},
+                                         fn=function(xx){
+                                           xx2 <- numeric(self$D)
+                                           xx2[ctsinds] <- xx
+                                           xx2[-ctsinds] <- Xstart[-ctsinds]
+                                           # xx2 <- c(xx[xxinds1], factorxlevel, xx[xxinds2])
+                                           # cat(xx, xx2, "\n")
+                                           -self$EI(xx2, minimize = minimize)
+                                         },
+                                         method="L-BFGS-B")
+            # Xstart2 <- Xstart
+            # Xstart2[-factorxindex] <- optim_out_i_indcomb$par
+            Xstart[ctsinds] <- optim_out_i_indcomb$par
+            newbestEI <- -optim_out_i_indcomb$value
+          }
+          # Optimize over factors
+          if (length(factorxindex) > 0) {
+            Xmat <- matrix(Xstart, byrow=TRUE, nrow=nrow(factordf), ncol=self$D)
+            Xmat[, factorxindex] <- as.matrix(factordf)
+            EI_Xmat <- self$EI(Xmat, minimize = minimize)
+            # for (i in 1:nrow(Xmat)) {
+            #   Xmat[i, -factorxindex] <-
+            # }
+            bestfactorind <- which.max(EI_Xmat)[1]
+            Xstart[factorxindex] <- Xmat[bestfactorind, factorxindex]
+            newbestEI <- max(EI_Xmat)
+          }
+          # Optimize over discrete
+          if (length(discreteinds) > 0) {
+            for (i in seq_along(discreteinds)) {
+              # ndiscrete <- length(discreteinputs)
+              discretevals_i <- discreteinputs[[i]]
+              # If too many, sample plus keep current best
+              if (length(discretevals_i) > 1100) {
+                discretevals_i <- c(Xstart[discreteinds[i]],
+                                    sample(discretevals_i, 1000, replace=FALSE))
+              }
+              Xmat <- matrix(Xstart, byrow=TRUE,
+                             nrow=length(discretevals_i),
+                             ncol=self$D)
+              Xmat[, discreteinds[i]] <- discretevals_i
+              EI_Xmat <- self$EI(Xmat, minimize = minimize)
+              bestdiscreteind <- which.max(EI_Xmat)[1]
+              Xstart[discreteinds] <- Xmat[bestdiscreteind, discreteinds]
+              newbestEI <- max(EI_Xmat)
+            }
+          }
+
+          # newbestEI <- max(EI_Xmat)
+          # newbestX <- Xmat[which.min(EI_Xmat)[1],]
+          # If no improvement, end it
+          if (newbestEI - bestEIsofar <= 1e-16) {
+            return(Xstart)
+          }
+          # browser()
+          # Or break if enough iterations
+          if (i_while > 10) {
+            return(Xstart)
+          }
+          bestEIsofar <- newbestEI
+        }
+
+      }
+      # stopifnot(length(bestpar) == self$D)
+      # return(bestpar)
+    },
     maxEIwithfactorsorig = function(lower=apply(self$X, 2, min),
-                                upper=apply(self$X, 2, max),
-                                n0=100, minimize=FALSE, eps=0) {
+                                    upper=apply(self$X, 2, max),
+                                    n0=100, minimize=FALSE, eps=0) {
       stopifnot(all(lower < upper))
       stopifnot(length(n0)==1, is.numeric(n0), n0>=1)
       # Get factor info

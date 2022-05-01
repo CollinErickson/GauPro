@@ -68,6 +68,7 @@ gp <- GauPro_kernel_model_LOO$new(X=x, Z=y, kernel=Matern52)
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="loglikelihood">}\href{../../GauPro/html/GauPro.html#method-loglikelihood}{\code{GauPro::GauPro$loglikelihood()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="maxEI">}\href{../../GauPro/html/GauPro.html#method-maxEI}{\code{GauPro::GauPro$maxEI()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="maxEIwithfactors">}\href{../../GauPro/html/GauPro.html#method-maxEIwithfactors}{\code{GauPro::GauPro$maxEIwithfactors()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="maxEIwithfactorsordiscrete">}\href{../../GauPro/html/GauPro.html#method-maxEIwithfactorsordiscrete}{\code{GauPro::GauPro$maxEIwithfactorsordiscrete()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="maxEIwithfactorsorig">}\href{../../GauPro/html/GauPro.html#method-maxEIwithfactorsorig}{\code{GauPro::GauPro$maxEIwithfactorsorig()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="maxqEI">}\href{../../GauPro/html/GauPro.html#method-maxqEI}{\code{GauPro::GauPro$maxqEI()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="optim">}\href{../../GauPro/html/GauPro.html#method-optim}{\code{GauPro::GauPro$optim()}}\out{</span>}

@@ -84,8 +84,6 @@ an error the user should know. Like when I test useCM.
 
 * Knowledge gradient: multiple starts for optim
 
-* maxEI: integer inputs
-
 * EI, maxEI, maxqEI: add to test for each kernel, just check no error, right output
 
 * test for kernels: mat/mat, mat/vec, vec/mat, vec/vec all match using outer
@@ -93,3 +91,7 @@ an error the user should know. Like when I test useCM.
 * Change plot for factor inputs
 
 * If give in formula/data, fix EI, etc.
+
+* maxqEI: work with factor, discrete. Or give error.
+
+* Change OrderedFactor/Factor from gaussian to m52

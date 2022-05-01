@@ -84,3 +84,45 @@ system.time({
   )
 })
 gp3$maxEI()
+
+
+
+
+
+
+
+
+# 2 dicrete inputs, 2 cts inputs, 2 integer
+f <- function(a, b, c, d, e, f) {
+  -1e-3*a^2*b^2*a + a*ifelse(c==1,1,0) + ifelse(d==1,1,2) + rnorm(length(a),0,1e-1) +
+    a*e/1e3 + .3*f + sin(f)*e/1e3
+}
+n <- 133
+library(dplyr)
+Xdf <- bind_cols(
+  a=runif(n,6,8),
+  b=runif(n,-8,-2),
+  c=sample(1:2,n,T),
+  d=sample(1:4,n,T),
+  e=sample(1:10000, n, T),
+  f=sample(c(1,3,5,7,9),n,T)
+)
+Xmat <- as.matrix(Xdf)
+Xmat
+# y <- apply(Xmat, 1, f)
+y <- f(Xmat[,1],Xmat[,2],Xmat[,3],Xmat[,4],Xmat[,5],Xmat[,6])
+
+system.time({
+  gp4 <- GauPro_kernel_model$new(
+    X=Xmat, Z=y,
+    kernel=IgnoreIndsKernel$new(ignoreinds = 3:4, Gaussian$new(D=4)) *
+      LatentFactorKernel$new(D=4, nlevels = 2, latentdim = 1, xindex = 3) *
+      LatentFactorKernel$new(D=4, nlevels = 4, latentdim = 2, xindex = 4),
+    nug.max=.1
+  )
+})
+gp4
+plot(gp4$pred(Xmat), y); abline(a=0,b=1, col=2)
+gp4$maxEI()
+gp4$maxEI(discreteinputs = list('5'=1:1e4, '6'=c(1,3,5,7,9)))
+
