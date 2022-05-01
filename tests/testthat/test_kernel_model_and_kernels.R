@@ -52,6 +52,35 @@ test_that("kernels work and have correct grads", {
     expect_equal(dim(pred4), c(6,3))
     expect_equal(colnames(pred4), c('mean', 's2', 'se'))
 
+    # Check kernel$k matches when giving in as matrix or vector
+    kn1 <- 5
+    kn2 <- 7
+    k_mat1 <- matrix(runif(kn1*n), nrow=kn1, ncol=d)
+    k_mat2 <- matrix(runif(kn2*n), nrow=kn2, ncol=d)
+    k_vec1 <- runif(d)
+    k_vec2 <- runif(d)
+    expect_equal(
+      outer(1:kn1, 1:kn2, Vectorize(function(ii,jj) {gp$kernel$k(k_mat1[ii,], k_mat2[jj,])})),
+      gp$kernel$k(k_mat1, k_mat2)
+    )
+    expect_equal(
+      c(outer(1, 1:kn2, Vectorize(function(ii,jj) {gp$kernel$k(k_vec1, k_mat2[jj,])}))),
+      c(gp$kernel$k(k_vec1, k_mat2))
+    )
+    expect_equal(
+      c(outer(1:kn1, 1, Vectorize(function(ii,jj) {gp$kernel$k(k_mat1[ii,], k_vec2)}))),
+      gp$kernel$k(k_mat1, k_vec2)
+    )
+    expect_equal(
+      t(gp$kernel$k(k_mat2, k_mat1)),
+      gp$kernel$k(k_mat1, k_mat2)
+    )
+    expect_equal(
+      gp$kernel$k(k_vec2, k_mat1),
+      gp$kernel$k(k_mat1, k_vec2)
+    )
+
+
     # Check basics, but not for all kernels
     if (j<2.5) {
       expect_error(gp$plotLOO(), NA)

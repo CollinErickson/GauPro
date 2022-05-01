@@ -116,6 +116,16 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
         s2 * exp(-sum(theta * (x-y)^2))
       }
     },
+    #' @description Find covariance of two points
+    #' @param x vector
+    #' @param y vector
+    #' @param beta correlation parameters on log scale
+    #' @param theta correlation parameters on regular scale
+    #' @param s2 Variance parameter
+    kone = function(x, y, beta, theta, s2) {
+      if (missing(theta)) {theta <- 10^beta}
+      s2 * exp(-sum(theta * (x-y)^2))
+    },
     #' @description Derivative of covariance with respect to parameters
     #' @param params Kernel parameters
     #' @param X matrix of points in rows

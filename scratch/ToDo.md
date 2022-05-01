@@ -86,11 +86,10 @@ an error the user should know. Like when I test useCM.
 
 * maxEI: integer inputs
 
-* maxEIwithfactors: don't optim for all. Alternate optim with
-checking all factor combos.
-
-* kernel_LatentFactor: K with matrix/matrix, do faster than outer. Needed to make EI faster.
-
 * EI, maxEI, maxqEI: add to test for each kernel, just check no error, right output
 
 * test for kernels: mat/mat, mat/vec, vec/mat, vec/vec all match using outer
+
+* Change plot for factor inputs
+
+* If give in formula/data, fix EI, etc.

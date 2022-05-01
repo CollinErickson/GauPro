@@ -70,11 +70,13 @@ White <- R6::R6Class(
       } else if (is.matrix(x) & !is.matrix(y)) {
         # s2 * corr_gauss_matrixvecC(x, y, theta)
         # apply(x, 1, function(xx) {self$kone(xx, y, theta=theta, alpha=alpha, s2=s2)})
-        matrix(0, nrow(x), 1)
+        # matrix(0, nrow(x), 1)
+        rep(0, nrow(x))
       } else if (is.matrix(y)) {
         # s2 * corr_gauss_matrixvecC(y, x, theta)
         # apply(y, 1, function(yy) {self$kone(yy, x, theta=theta, alpha=alpha, s2=s2)})
-        matrix(0, 1, nrow(y))
+        # matrix(0, 1, nrow(y))
+        rep(0, nrow(y))
       } else {
         # self$kone(x, y, theta=theta, alpha=alpha, s2=s2)
         0

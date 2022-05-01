@@ -38,6 +38,7 @@ gp$cool1Dplot()
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-k}{\code{Gaussian$k()}}
+\item \href{#method-kone}{\code{Gaussian$kone()}}
 \item \href{#method-dC_dparams}{\code{Gaussian$dC_dparams()}}
 \item \href{#method-C_dC_dparams}{\code{Gaussian$C_dC_dparams()}}
 \item \href{#method-dC_dx}{\code{Gaussian$dC_dx()}}
@@ -53,7 +54,6 @@ gp$cool1Dplot()
 \itemize{
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel" data-id="plot">}\href{../../GauPro/html/GauPro_kernel.html#method-plot}{\code{GauPro::GauPro_kernel$plot()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="initialize">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-initialize}{\code{GauPro::GauPro_kernel_beta$initialize()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="kone">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-kone}{\code{GauPro::GauPro_kernel_beta$kone()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="param_optim_lower">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-param_optim_lower}{\code{GauPro::GauPro_kernel_beta$param_optim_lower()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="param_optim_start">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-param_optim_start}{\code{GauPro::GauPro_kernel_beta$param_optim_start()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="param_optim_start0">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-param_optim_start0}{\code{GauPro::GauPro_kernel_beta$param_optim_start0()}}\out{</span>}
@@ -85,6 +85,31 @@ of x with itself.}
 \item{\code{s2}}{Variance parameter.}
 
 \item{\code{params}}{parameters to use instead of beta and s2.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-kone"></a>}}
+\if{latex}{\out{\hypertarget{method-kone}{}}}
+\subsection{Method \code{kone()}}{
+Find covariance of two points
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Gaussian$kone(x, y, beta, theta, s2)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x}}{vector}
+
+\item{\code{y}}{vector}
+
+\item{\code{beta}}{correlation parameters on log scale}
+
+\item{\code{theta}}{correlation parameters on regular scale}
+
+\item{\code{s2}}{Variance parameter}
 }
 \if{html}{\out{</div>}}
 }
