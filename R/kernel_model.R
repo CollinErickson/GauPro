@@ -2362,6 +2362,11 @@ GauPro_kernel_model <- R6::R6Class(
                          fn=function(xx){-self$EI(xx, minimize = minimize)},
                          method="L-BFGS-B")
       optim_out$par
+      # Return list, same format as DiceOptim::max_EI
+      list(
+        par=optim_out$par,
+        value=-optim_out$val
+      )
     },
     #' @description Find the point that maximizes the expected improvement.
     #' Used whenever one of the inputs is a factor (can only take values 1:n).
@@ -2420,7 +2425,7 @@ GauPro_kernel_model <- R6::R6Class(
         notdone <- TRUE
         i_while <- 0
         while(notdone) {
-          cat('in while loop', i_while, bestEIsofar, "\n")
+          # cat('in while loop', i_while, bestEIsofar, "\n")
           i_while <- i_while + 1
           # Optimize over cts variables
           # Optimize starting from that point to find input that maximizes EI
@@ -2450,11 +2455,25 @@ GauPro_kernel_model <- R6::R6Class(
           newbestX <- Xmat[which.min(EI_Xmat)[1],]
           # If no improvement, end it
           if (newbestEI - bestEIsofar <=  1e-16) {
-            return(newbestX)
+            # return(newbestX)
+            # Return list, same format as DiceOptim::max_EI
+            return(
+              list(
+                par=newbestX,
+                value=newbestEI
+              )
+            )
           }
           # Or break if enough iterations
           if (i_while > 10) {
-            return(newbestX)
+            # return(newbestX)
+            # Return list, same format as DiceOptim::max_EI
+            return(
+              list(
+                par=newbestX,
+                value=newbestEI
+              )
+            )
           }
           bestEIsofar <- newbestEI
         }
@@ -2462,6 +2481,7 @@ GauPro_kernel_model <- R6::R6Class(
       }
       # stopifnot(length(bestpar) == self$D)
       # return(bestpar)
+      stop("maxEIwithfactors failed #320198471")
     },
     maxEIwithfactorsordiscrete = function(lower=apply(self$X, 2, min),
                                           upper=apply(self$X, 2, max),
@@ -2540,7 +2560,7 @@ GauPro_kernel_model <- R6::R6Class(
         # browser()
         i_while <- 0
         while(notdone) {
-          cat('in while loop', i_while, bestEIsofar, "\n")
+          # cat('in while loop', i_while, bestEIsofar, "\n")
           i_while <- i_while + 1
           # Optimize over cts variables
           if (length(ctsinds) > 0) {
@@ -2600,12 +2620,26 @@ GauPro_kernel_model <- R6::R6Class(
           # newbestX <- Xmat[which.min(EI_Xmat)[1],]
           # If no improvement, end it
           if (newbestEI - bestEIsofar <= 1e-16) {
-            return(Xstart)
+            # return(Xstart)
+            # Return list, same format as DiceOptim::max_EI
+            return(
+              list(
+                par=Xstart,
+                value=newbestEI
+              )
+            )
           }
           # browser()
           # Or break if enough iterations
           if (i_while > 10) {
-            return(Xstart)
+            # return(Xstart)
+            # Return list, same format as DiceOptim::max_EI
+            return(
+              list(
+                par=Xstart,
+                value=newbestEI
+              )
+            )
           }
           bestEIsofar <- newbestEI
         }
@@ -2613,82 +2647,7 @@ GauPro_kernel_model <- R6::R6Class(
       }
       # stopifnot(length(bestpar) == self$D)
       # return(bestpar)
-    },
-    maxEIwithfactorsorig = function(lower=apply(self$X, 2, min),
-                                    upper=apply(self$X, 2, max),
-                                    n0=100, minimize=FALSE, eps=0) {
-      stopifnot(all(lower < upper))
-      stopifnot(length(n0)==1, is.numeric(n0), n0>=1)
-      # Get factor info
-      factorinfo <- find_kernel_factor_dims(self$kernel)
-      # Run inner EI over all factor combinations
-      stopifnot(length(factorinfo)>0)
-      # factordf <- data.frame(index=factorinfo[1]
-      factorlist <- list()
-      for (i_f in 1:(length(factorinfo)/2)) {
-        factorlist[[as.character(factorinfo[i_f*2-1])]] <- 1:factorinfo[i_f*2]
-      }
-      factordf <- do.call(expand.grid, factorlist)
-      # Track best seen in optimizing EI
-      bestval <- Inf
-      bestpar <- c()
-      factorxindex <- factorinfo[(1:(length(factorinfo)/2))*2-1] #factorinfo[[1]]
-      for (i_indcomb in 1:prod(factorinfo[(1:(length(factorinfo)/2))*2])) {
-        factorxlevel <- unname(unlist(factordf[i_indcomb,])) #i_indcomb #factorinfo[[2]]
-        # cat(factorxindex, factorxlevel, "\n")
-
-        # If no non-factor levels, just calculate and compare
-        if (length(factorxindex) == self$D) {
-          # stop()
-          xxinds1 <- c()
-          xxinds2 <- c()
-          xx <- rep(NA, self$D)
-          xx[factorxindex] <- factorxlevel
-          optim_out_i_indcomb <- list(par=xx)
-          optim_out_i_indcomb$value <- -self$EI(xx, minimize = minimize)
-        } else {
-
-          # Otherwise optimize over continuous values
-          X0 <- lhs::randomLHS(n=n0, k=self$D)
-          X0 <- sweep(X0, 2, upper-lower, "*")
-          X0 <- sweep(X0, 2, lower, "+")
-          for (j in 1:length(factorxindex)) {
-            X0[, factorxindex[j]] <- factorxlevel[j]
-          }
-
-          # Calculate EI at these points, use best as starting point for optim
-          EI0 <- self$EI(x=X0, minimize=minimize, eps=eps)
-          ind <- which.max(EI0)
-
-          # Continuous indexes
-          ctsinds <- setdiff(1:self$D, factorxindex)
-
-          # Optimize starting from that point to find input that maximizes EI
-          optim_out_i_indcomb <- optim(par=X0[ind, -factorxindex],
-                                       lower=lower[-factorxindex], upper=upper[-factorxindex],
-                                       # fn=function(xx){ei <- -self$EI(xx); cat(xx, ei, "\n"); ei},
-                                       fn=function(xx){
-                                         xx2 <- numeric(self$D)
-                                         xx2[ctsinds] <- xx
-                                         xx2[factorxindex] <- factorxlevel
-                                         # xx2 <- c(xx[xxinds1], factorxlevel, xx[xxinds2])
-                                         # cat(xx, xx2, "\n")
-                                         -self$EI(xx2, minimize = minimize)
-                                       },
-                                       method="L-BFGS-B")
-        }
-        if (optim_out_i_indcomb$value < bestval) {
-          # cat("new best val", optim_out_i_indcomb$value, bestval, i_indcomb, "\n")
-          bestval <- optim_out_i_indcomb$value
-
-          bestpar <- numeric(self$D)
-          bestpar[ctsinds] <- optim_out_i_indcomb$par #[xxinds1]
-          bestpar[factorxindex] <- factorxlevel
-          # bestpar <- c(optim_out_i_indcomb$par[xxinds1], factorxlevel, optim_out_i_indcomb$par[xxinds2])
-        }
-      }
-      stopifnot(length(bestpar) == self$D)
-      return(bestpar)
+      stop("maxEIwithfactorsordiscrete failed #259287")
     },
     #' @description Find the multiple points that maximize the expected
     #' improvement. Currently only implements the constant liar method.
@@ -2714,7 +2673,8 @@ GauPro_kernel_model <- R6::R6Class(
       Zimpute <- if (minimize) {min(Xmeanpred$mean)} else {max(Xmeanpred$mean)}
       for (i in 1:npoints) {
         # Find and store point that maximizes EI
-        xi <- gpclone$maxEI(lower=lower, upper=upper, n0=n0, eps=eps, minimize=minimize)
+        maxEI_i <- gpclone$maxEI(lower=lower, upper=upper, n0=n0, eps=eps, minimize=minimize)
+        xi <- maxEI_i$par
         selectedX[i, ] <- xi
         if (method == "pred") {
           # browser()
@@ -2726,7 +2686,15 @@ GauPro_kernel_model <- R6::R6Class(
         }
       }
       # Return matrix of points
-      selectedX
+      # selectedX
+
+      # Return list, same format as DiceOptim::max_EI
+      return(
+        list(
+          par=selectedX,
+          value=NA
+        )
+      )
     },
     KG = function(x, minimize=FALSE, eps=0, current_extreme=NULL) {
       if (exists('kgbrow') && kgbrow) {browser()}

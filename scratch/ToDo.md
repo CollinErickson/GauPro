@@ -38,9 +38,6 @@ at end for K/Kinv so predictions are good.
 
 * use self$kernel$k on x instead of assuming it is 1
 
-* Fix crashing on laptop. Changed gradfuncarray from Rcpp to R, but something
-in optimRestart is now breaking instead.
-
 * optim NaN starting value (found on 1D doing EI)
 
 * Speed up m52 grad, Cubic k/grad
@@ -95,3 +92,7 @@ an error the user should know. Like when I test useCM.
 * maxqEI: work with factor, discrete. Or give error.
 
 * Change OrderedFactor/Factor from gaussian to m52
+
+* maxqEI with n=1: what happens?
+
+* maxqEI needs a test

@@ -1,5 +1,7 @@
 library(testthat)
 
+set.seed(Sys.time())
+
 printkern <- interactive()
 # cat('printkern is', printkern, '\n')
 
@@ -55,8 +57,8 @@ test_that("kernels work and have correct grads", {
     # Check kernel$k matches when giving in as matrix or vector
     kn1 <- 5
     kn2 <- 7
-    k_mat1 <- matrix(runif(kn1*n), nrow=kn1, ncol=d)
-    k_mat2 <- matrix(runif(kn2*n), nrow=kn2, ncol=d)
+    k_mat1 <- matrix(runif(kn1*d), nrow=kn1, ncol=d)
+    k_mat2 <- matrix(runif(kn2*d), nrow=kn2, ncol=d)
     k_vec1 <- runif(d)
     k_vec2 <- runif(d)
     expect_equal(
@@ -236,6 +238,7 @@ test_that("check factor kernels in product", {
 
     # Check EI
     expect_error(gp$maxEI(), NA)
+    expect_error(gp$maxqEI(npoints=2), NA)
 
     df <- gp$deviance()
     dg <- gp$deviance_grad(nug.update = T)

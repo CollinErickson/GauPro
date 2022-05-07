@@ -187,7 +187,6 @@ using the formula}
 \item \href{#method-maxEI}{\code{GauPro_kernel_model$maxEI()}}
 \item \href{#method-maxEIwithfactors}{\code{GauPro_kernel_model$maxEIwithfactors()}}
 \item \href{#method-maxEIwithfactorsordiscrete}{\code{GauPro_kernel_model$maxEIwithfactorsordiscrete()}}
-\item \href{#method-maxEIwithfactorsorig}{\code{GauPro_kernel_model$maxEIwithfactorsorig()}}
 \item \href{#method-maxqEI}{\code{GauPro_kernel_model$maxqEI()}}
 \item \href{#method-KG}{\code{GauPro_kernel_model$KG()}}
 \item \href{#method-print}{\code{GauPro_kernel_model$print()}}
@@ -1464,21 +1463,6 @@ Used whenever one of the inputs is a factor (can only take values 1:n).
   minimize = FALSE,
   eps = 0,
   discreteinputs = NULL
-)}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-maxEIwithfactorsorig"></a>}}
-\if{latex}{\out{\hypertarget{method-maxEIwithfactorsorig}{}}}
-\subsection{Method \code{maxEIwithfactorsorig()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$maxEIwithfactorsorig(
-  lower = apply(self$X, 2, min),
-  upper = apply(self$X, 2, max),
-  n0 = 100,
-  minimize = FALSE,
-  eps = 0
 )}\if{html}{\out{</div>}}
 }
 
