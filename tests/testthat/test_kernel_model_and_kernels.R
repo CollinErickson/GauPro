@@ -92,6 +92,22 @@ test_that("kernels work and have correct grads", {
       expect_error(plot(gp), NA)
     }
 
+    # Check EI for some kernels
+    if (j<2.5) {
+      expect_error(mei1 <- gp$maxEI(), NA)
+      expect_is(mei1, "list")
+      expect_equal(length(mei1), 2)
+      expect_equal(length(mei1$par), 2)
+      expect_equal(length(mei1$val), 1)
+      expect_error(gp$maxqEI(npoints=1), NA)
+      expect_error(mei2 <- gp$maxqEI(npoints=2), NA)
+      expect_is(mei2, "list")
+      expect_equal(length(mei2), 2)
+      expect_is(mei2$par, "matrix")
+      expect_equal(dim(mei2$par), c(2,2))
+      expect_equal(length(mei2$val), 1)
+    }
+
     # Check kernel
     expect_error({kernprint <- capture_output(print(gp$kernel))}, NA)
     expect_is(kernprint, 'character')
@@ -114,6 +130,10 @@ test_that("kernels work and have correct grads", {
     # kernel params
     # Use a random value since it's not exact enough to work at minimum
     kernpars <- gp$kernel$param_optim_start(jitter=T)
+    if (kern_char=="RatQuad") {
+      # Make sure kernpars are reasonable to avoid error: logalpha not too big
+      cat('ratquad kernpars are', kernpars, "\n")
+    }
     actgrad <- gp$deviance_grad(params = kernpars, nug.update = F)
     for (i in 1:length(kernpars)) {
       epsvec <- rep(0, length(kernpars))
@@ -237,8 +257,10 @@ test_that("check factor kernels in product", {
     expect_is(kernprint, 'character')
 
     # Check EI
-    expect_error(gp$maxEI(), NA)
-    expect_error(gp$maxqEI(npoints=2), NA)
+    expect_error(mei1 <- gp$maxEI(), NA)
+    # qEI just adds more time
+    # expect_error(gp$maxqEI(npoints=1), NA)
+    # expect_error(gp$maxqEI(npoints=2), NA)
 
     df <- gp$deviance()
     dg <- gp$deviance_grad(nug.update = T)

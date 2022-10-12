@@ -2662,6 +2662,11 @@ GauPro_kernel_model <- R6::R6Class(
                       lower=apply(self$X, 2, min), upper=apply(self$X, 2, max),
                       n0=100, minimize=FALSE, eps=0) {
       stopifnot(is.numeric(npoints), length(npoints)==1, npoints >= 1)
+      if (npoints==1) {
+        # For single point, use proper function
+        return(self$maxEI(lower=lower, upper=upper, n0=n0,
+                          minimize=minimize, eps=eps))
+      }
       stopifnot(method %in% c("CL", "pred"))
       # Clone object since we will add fake data
       gpclone <- self$clone(deep=TRUE)

@@ -75,24 +75,18 @@ an error the user should know. Like when I test useCM.
 
 * maxEI prob doesn't work because the differences are tiny. Log scale?
 
-* EI return list like DKEI
-
 * maxqEI doesn't spread out much
 
 * Knowledge gradient: multiple starts for optim
 
 * EI, maxEI, maxqEI: add to test for each kernel, just check no error, right output
 
-* test for kernels: mat/mat, mat/vec, vec/mat, vec/vec all match using outer
-
 * Change plot for factor inputs
 
-* If give in formula/data, fix EI, etc.
+* If give in formula/data, fix EI, plot, etc.
 
 * maxqEI: work with factor, discrete. Or give error.
 
-* Change OrderedFactor/Factor from gaussian to m52
+* Optimize any function with cts/factor/discrete: use in EI, qEI, max.
 
-* maxqEI with n=1: what happens?
-
-* maxqEI needs a test
+* FactorKernel and OrderedFK: change correlation, maybe just 1.95 instead of 2
