@@ -75,32 +75,32 @@ plot(gp$kernel)
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{Periodic$new()}}
-\item \href{#method-k}{\code{Periodic$k()}}
-\item \href{#method-kone}{\code{Periodic$kone()}}
-\item \href{#method-dC_dparams}{\code{Periodic$dC_dparams()}}
-\item \href{#method-C_dC_dparams}{\code{Periodic$C_dC_dparams()}}
-\item \href{#method-dC_dx}{\code{Periodic$dC_dx()}}
-\item \href{#method-param_optim_start}{\code{Periodic$param_optim_start()}}
-\item \href{#method-param_optim_start0}{\code{Periodic$param_optim_start0()}}
-\item \href{#method-param_optim_lower}{\code{Periodic$param_optim_lower()}}
-\item \href{#method-param_optim_upper}{\code{Periodic$param_optim_upper()}}
-\item \href{#method-set_params_from_optim}{\code{Periodic$set_params_from_optim()}}
-\item \href{#method-s2_from_params}{\code{Periodic$s2_from_params()}}
-\item \href{#method-print}{\code{Periodic$print()}}
-\item \href{#method-clone}{\code{Periodic$clone()}}
+\item \href{#method-GauPro_kernel_Periodic-new}{\code{Periodic$new()}}
+\item \href{#method-GauPro_kernel_Periodic-k}{\code{Periodic$k()}}
+\item \href{#method-GauPro_kernel_Periodic-kone}{\code{Periodic$kone()}}
+\item \href{#method-GauPro_kernel_Periodic-dC_dparams}{\code{Periodic$dC_dparams()}}
+\item \href{#method-GauPro_kernel_Periodic-C_dC_dparams}{\code{Periodic$C_dC_dparams()}}
+\item \href{#method-GauPro_kernel_Periodic-dC_dx}{\code{Periodic$dC_dx()}}
+\item \href{#method-GauPro_kernel_Periodic-param_optim_start}{\code{Periodic$param_optim_start()}}
+\item \href{#method-GauPro_kernel_Periodic-param_optim_start0}{\code{Periodic$param_optim_start0()}}
+\item \href{#method-GauPro_kernel_Periodic-param_optim_lower}{\code{Periodic$param_optim_lower()}}
+\item \href{#method-GauPro_kernel_Periodic-param_optim_upper}{\code{Periodic$param_optim_upper()}}
+\item \href{#method-GauPro_kernel_Periodic-set_params_from_optim}{\code{Periodic$set_params_from_optim()}}
+\item \href{#method-GauPro_kernel_Periodic-s2_from_params}{\code{Periodic$s2_from_params()}}
+\item \href{#method-GauPro_kernel_Periodic-print}{\code{Periodic$print()}}
+\item \href{#method-GauPro_kernel_Periodic-clone}{\code{Periodic$clone()}}
 }
 }
-\if{html}{
-\out{<details open ><summary>Inherited methods</summary>}
-\itemize{
-\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel" data-id="plot">}\href{../../GauPro/html/GauPro_kernel.html#method-plot}{\code{GauPro::GauPro_kernel$plot()}}\out{</span>}
-}
-\out{</details>}
-}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel" data-id="plot"><a href='../../GauPro/html/GauPro_kernel.html#method-GauPro_kernel-plot'><code>GauPro::GauPro_kernel$plot()</code></a></span></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_Periodic-new"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_Periodic-new}{}}}
 \subsection{Method \code{new()}}{
 Initialize kernel object
 \subsection{Usage}{
@@ -154,8 +154,8 @@ Initialize kernel object
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-k"></a>}}
-\if{latex}{\out{\hypertarget{method-k}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_Periodic-k"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_Periodic-k}{}}}
 \subsection{Method \code{k()}}{
 Calculate covariance between two points
 \subsection{Usage}{
@@ -189,8 +189,8 @@ of x with itself.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-kone"></a>}}
-\if{latex}{\out{\hypertarget{method-kone}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_Periodic-kone"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_Periodic-kone}{}}}
 \subsection{Method \code{kone()}}{
 Find covariance of two points
 \subsection{Usage}{
@@ -216,8 +216,8 @@ Find covariance of two points
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-dC_dparams"></a>}}
-\if{latex}{\out{\hypertarget{method-dC_dparams}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_Periodic-dC_dparams"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_Periodic-dC_dparams}{}}}
 \subsection{Method \code{dC_dparams()}}{
 Derivative of covariance with respect to parameters
 \subsection{Usage}{
@@ -241,8 +241,8 @@ Derivative of covariance with respect to parameters
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-C_dC_dparams"></a>}}
-\if{latex}{\out{\hypertarget{method-C_dC_dparams}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_Periodic-C_dC_dparams"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_Periodic-C_dC_dparams}{}}}
 \subsection{Method \code{C_dC_dparams()}}{
 Calculate covariance matrix and its derivative
  with respect to parameters
@@ -263,8 +263,8 @@ Calculate covariance matrix and its derivative
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-dC_dx"></a>}}
-\if{latex}{\out{\hypertarget{method-dC_dx}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_Periodic-dC_dx"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_Periodic-dC_dx}{}}}
 \subsection{Method \code{dC_dx()}}{
 Derivative of covariance with respect to X
 \subsection{Usage}{
@@ -288,8 +288,8 @@ Derivative of covariance with respect to X
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-param_optim_start"></a>}}
-\if{latex}{\out{\hypertarget{method-param_optim_start}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_Periodic-param_optim_start"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_Periodic-param_optim_start}{}}}
 \subsection{Method \code{param_optim_start()}}{
 Starting point for parameters for optimization
 \subsection{Usage}{
@@ -319,8 +319,8 @@ Starting point for parameters for optimization
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-param_optim_start0"></a>}}
-\if{latex}{\out{\hypertarget{method-param_optim_start0}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_Periodic-param_optim_start0"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_Periodic-param_optim_start0}{}}}
 \subsection{Method \code{param_optim_start0()}}{
 Starting point for parameters for optimization
 \subsection{Usage}{
@@ -350,8 +350,8 @@ Starting point for parameters for optimization
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-param_optim_lower"></a>}}
-\if{latex}{\out{\hypertarget{method-param_optim_lower}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_Periodic-param_optim_lower"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_Periodic-param_optim_lower}{}}}
 \subsection{Method \code{param_optim_lower()}}{
 Lower bounds of parameters for optimization
 \subsection{Usage}{
@@ -375,8 +375,8 @@ Lower bounds of parameters for optimization
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-param_optim_upper"></a>}}
-\if{latex}{\out{\hypertarget{method-param_optim_upper}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_Periodic-param_optim_upper"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_Periodic-param_optim_upper}{}}}
 \subsection{Method \code{param_optim_upper()}}{
 Upper bounds of parameters for optimization
 \subsection{Usage}{
@@ -400,8 +400,8 @@ Upper bounds of parameters for optimization
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-set_params_from_optim"></a>}}
-\if{latex}{\out{\hypertarget{method-set_params_from_optim}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_Periodic-set_params_from_optim"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_Periodic-set_params_from_optim}{}}}
 \subsection{Method \code{set_params_from_optim()}}{
 Set parameters from optimization output
 \subsection{Usage}{
@@ -428,8 +428,8 @@ Set parameters from optimization output
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-s2_from_params"></a>}}
-\if{latex}{\out{\hypertarget{method-s2_from_params}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_Periodic-s2_from_params"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_Periodic-s2_from_params}{}}}
 \subsection{Method \code{s2_from_params()}}{
 Get s2 from params vector
 \subsection{Usage}{
@@ -447,8 +447,8 @@ Get s2 from params vector
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-print"></a>}}
-\if{latex}{\out{\hypertarget{method-print}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_Periodic-print"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_Periodic-print}{}}}
 \subsection{Method \code{print()}}{
 Print this object
 \subsection{Usage}{
@@ -457,8 +457,8 @@ Print this object
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_Periodic-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_Periodic-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

@@ -37,27 +37,21 @@ t1 <- trend_0$new()
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{trend_0$new()}}
-\item \href{#method-Z}{\code{trend_0$Z()}}
-\item \href{#method-dZ_dparams}{\code{trend_0$dZ_dparams()}}
-\item \href{#method-dZ_dx}{\code{trend_0$dZ_dx()}}
-\item \href{#method-param_optim_start}{\code{trend_0$param_optim_start()}}
-\item \href{#method-param_optim_start0}{\code{trend_0$param_optim_start0()}}
-\item \href{#method-param_optim_lower}{\code{trend_0$param_optim_lower()}}
-\item \href{#method-param_optim_upper}{\code{trend_0$param_optim_upper()}}
-\item \href{#method-set_params_from_optim}{\code{trend_0$set_params_from_optim()}}
-\item \href{#method-clone}{\code{trend_0$clone()}}
+\item \href{#method-GauPro_trend_0-new}{\code{trend_0$new()}}
+\item \href{#method-GauPro_trend_0-Z}{\code{trend_0$Z()}}
+\item \href{#method-GauPro_trend_0-dZ_dparams}{\code{trend_0$dZ_dparams()}}
+\item \href{#method-GauPro_trend_0-dZ_dx}{\code{trend_0$dZ_dx()}}
+\item \href{#method-GauPro_trend_0-param_optim_start}{\code{trend_0$param_optim_start()}}
+\item \href{#method-GauPro_trend_0-param_optim_start0}{\code{trend_0$param_optim_start0()}}
+\item \href{#method-GauPro_trend_0-param_optim_lower}{\code{trend_0$param_optim_lower()}}
+\item \href{#method-GauPro_trend_0-param_optim_upper}{\code{trend_0$param_optim_upper()}}
+\item \href{#method-GauPro_trend_0-set_params_from_optim}{\code{trend_0$set_params_from_optim()}}
+\item \href{#method-GauPro_trend_0-clone}{\code{trend_0$clone()}}
 }
-}
-\if{html}{
-\out{<details open ><summary>Inherited methods</summary>}
-\itemize{
-}
-\out{</details>}
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-GauPro_trend_0-new"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_trend_0-new}{}}}
 \subsection{Method \code{new()}}{
 Initialize trend object
 \subsection{Usage}{
@@ -81,8 +75,8 @@ Initialize trend object
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Z"></a>}}
-\if{latex}{\out{\hypertarget{method-Z}{}}}
+\if{html}{\out{<a id="method-GauPro_trend_0-Z"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_trend_0-Z}{}}}
 \subsection{Method \code{Z()}}{
 Get trend value for given matrix X
 \subsection{Usage}{
@@ -102,8 +96,8 @@ Get trend value for given matrix X
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-dZ_dparams"></a>}}
-\if{latex}{\out{\hypertarget{method-dZ_dparams}{}}}
+\if{html}{\out{<a id="method-GauPro_trend_0-dZ_dparams"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_trend_0-dZ_dparams}{}}}
 \subsection{Method \code{dZ_dparams()}}{
 Derivative of trend with respect to trend parameters
 \subsection{Usage}{
@@ -123,8 +117,8 @@ Derivative of trend with respect to trend parameters
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-dZ_dx"></a>}}
-\if{latex}{\out{\hypertarget{method-dZ_dx}{}}}
+\if{html}{\out{<a id="method-GauPro_trend_0-dZ_dx"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_trend_0-dZ_dx}{}}}
 \subsection{Method \code{dZ_dx()}}{
 Derivative of trend with respect to X
 \subsection{Usage}{
@@ -144,8 +138,8 @@ Derivative of trend with respect to X
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-param_optim_start"></a>}}
-\if{latex}{\out{\hypertarget{method-param_optim_start}{}}}
+\if{html}{\out{<a id="method-GauPro_trend_0-param_optim_start"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_trend_0-param_optim_start}{}}}
 \subsection{Method \code{param_optim_start()}}{
 Get parameter initial point for optimization
 \subsection{Usage}{
@@ -163,8 +157,8 @@ Get parameter initial point for optimization
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-param_optim_start0"></a>}}
-\if{latex}{\out{\hypertarget{method-param_optim_start0}{}}}
+\if{html}{\out{<a id="method-GauPro_trend_0-param_optim_start0"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_trend_0-param_optim_start0}{}}}
 \subsection{Method \code{param_optim_start0()}}{
 Get parameter initial point for optimization
 \subsection{Usage}{
@@ -182,8 +176,8 @@ Get parameter initial point for optimization
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-param_optim_lower"></a>}}
-\if{latex}{\out{\hypertarget{method-param_optim_lower}{}}}
+\if{html}{\out{<a id="method-GauPro_trend_0-param_optim_lower"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_trend_0-param_optim_lower}{}}}
 \subsection{Method \code{param_optim_lower()}}{
 Get parameter lower bounds for optimization
 \subsection{Usage}{
@@ -201,8 +195,8 @@ Get parameter lower bounds for optimization
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-param_optim_upper"></a>}}
-\if{latex}{\out{\hypertarget{method-param_optim_upper}{}}}
+\if{html}{\out{<a id="method-GauPro_trend_0-param_optim_upper"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_trend_0-param_optim_upper}{}}}
 \subsection{Method \code{param_optim_upper()}}{
 Get parameter upper bounds for optimization
 \subsection{Usage}{
@@ -220,8 +214,8 @@ Get parameter upper bounds for optimization
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-set_params_from_optim"></a>}}
-\if{latex}{\out{\hypertarget{method-set_params_from_optim}{}}}
+\if{html}{\out{<a id="method-GauPro_trend_0-set_params_from_optim"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_trend_0-set_params_from_optim}{}}}
 \subsection{Method \code{set_params_from_optim()}}{
 Set parameters after optimization
 \subsection{Usage}{
@@ -237,8 +231,8 @@ Set parameters after optimization
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-GauPro_trend_0-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_trend_0-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

@@ -28,12 +28,12 @@ Trend R6 class
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-clone}{\code{GauPro_trend$clone()}}
+\item \href{#method-GauPro_trend-clone}{\code{GauPro_trend$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-GauPro_trend-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_trend-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

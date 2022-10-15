@@ -37,32 +37,32 @@ k1 <- PowerExp$new(beta=0, alpha=0)
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{PowerExp$new()}}
-\item \href{#method-k}{\code{PowerExp$k()}}
-\item \href{#method-kone}{\code{PowerExp$kone()}}
-\item \href{#method-dC_dparams}{\code{PowerExp$dC_dparams()}}
-\item \href{#method-dC_dx}{\code{PowerExp$dC_dx()}}
-\item \href{#method-param_optim_start}{\code{PowerExp$param_optim_start()}}
-\item \href{#method-param_optim_start0}{\code{PowerExp$param_optim_start0()}}
-\item \href{#method-param_optim_lower}{\code{PowerExp$param_optim_lower()}}
-\item \href{#method-param_optim_upper}{\code{PowerExp$param_optim_upper()}}
-\item \href{#method-set_params_from_optim}{\code{PowerExp$set_params_from_optim()}}
-\item \href{#method-print}{\code{PowerExp$print()}}
-\item \href{#method-clone}{\code{PowerExp$clone()}}
+\item \href{#method-GauPro_kernel_PowerExp-new}{\code{PowerExp$new()}}
+\item \href{#method-GauPro_kernel_PowerExp-k}{\code{PowerExp$k()}}
+\item \href{#method-GauPro_kernel_PowerExp-kone}{\code{PowerExp$kone()}}
+\item \href{#method-GauPro_kernel_PowerExp-dC_dparams}{\code{PowerExp$dC_dparams()}}
+\item \href{#method-GauPro_kernel_PowerExp-dC_dx}{\code{PowerExp$dC_dx()}}
+\item \href{#method-GauPro_kernel_PowerExp-param_optim_start}{\code{PowerExp$param_optim_start()}}
+\item \href{#method-GauPro_kernel_PowerExp-param_optim_start0}{\code{PowerExp$param_optim_start0()}}
+\item \href{#method-GauPro_kernel_PowerExp-param_optim_lower}{\code{PowerExp$param_optim_lower()}}
+\item \href{#method-GauPro_kernel_PowerExp-param_optim_upper}{\code{PowerExp$param_optim_upper()}}
+\item \href{#method-GauPro_kernel_PowerExp-set_params_from_optim}{\code{PowerExp$set_params_from_optim()}}
+\item \href{#method-GauPro_kernel_PowerExp-print}{\code{PowerExp$print()}}
+\item \href{#method-GauPro_kernel_PowerExp-clone}{\code{PowerExp$clone()}}
 }
 }
-\if{html}{
-\out{<details open ><summary>Inherited methods</summary>}
-\itemize{
-\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel" data-id="plot">}\href{../../GauPro/html/GauPro_kernel.html#method-plot}{\code{GauPro::GauPro_kernel$plot()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="C_dC_dparams">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-C_dC_dparams}{\code{GauPro::GauPro_kernel_beta$C_dC_dparams()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="s2_from_params">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-s2_from_params}{\code{GauPro::GauPro_kernel_beta$s2_from_params()}}\out{</span>}
-}
-\out{</details>}
-}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel" data-id="plot"><a href='../../GauPro/html/GauPro_kernel.html#method-GauPro_kernel-plot'><code>GauPro::GauPro_kernel$plot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="C_dC_dparams"><a href='../../GauPro/html/GauPro_kernel_beta.html#method-GauPro_kernel_beta-C_dC_dparams'><code>GauPro::GauPro_kernel_beta$C_dC_dparams()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="s2_from_params"><a href='../../GauPro/html/GauPro_kernel_beta.html#method-GauPro_kernel_beta-s2_from_params'><code>GauPro::GauPro_kernel_beta$s2_from_params()</code></a></span></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_PowerExp-new"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_PowerExp-new}{}}}
 \subsection{Method \code{new()}}{
 Initialize kernel object
 \subsection{Usage}{
@@ -116,8 +116,8 @@ Initialize kernel object
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-k"></a>}}
-\if{latex}{\out{\hypertarget{method-k}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_PowerExp-k"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_PowerExp-k}{}}}
 \subsection{Method \code{k()}}{
 Calculate covariance between two points
 \subsection{Usage}{
@@ -151,8 +151,8 @@ of x with itself.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-kone"></a>}}
-\if{latex}{\out{\hypertarget{method-kone}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_PowerExp-kone"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_PowerExp-kone}{}}}
 \subsection{Method \code{kone()}}{
 Find covariance of two points
 \subsection{Usage}{
@@ -178,8 +178,8 @@ Find covariance of two points
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-dC_dparams"></a>}}
-\if{latex}{\out{\hypertarget{method-dC_dparams}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_PowerExp-dC_dparams"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_PowerExp-dC_dparams}{}}}
 \subsection{Method \code{dC_dparams()}}{
 Derivative of covariance with respect to parameters
 \subsection{Usage}{
@@ -203,8 +203,8 @@ Derivative of covariance with respect to parameters
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-dC_dx"></a>}}
-\if{latex}{\out{\hypertarget{method-dC_dx}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_PowerExp-dC_dx"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_PowerExp-dC_dx}{}}}
 \subsection{Method \code{dC_dx()}}{
 Derivative of covariance with respect to X
 \subsection{Usage}{
@@ -237,8 +237,8 @@ Derivative of covariance with respect to X
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-param_optim_start"></a>}}
-\if{latex}{\out{\hypertarget{method-param_optim_start}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_PowerExp-param_optim_start"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_PowerExp-param_optim_start}{}}}
 \subsection{Method \code{param_optim_start()}}{
 Starting point for parameters for optimization
 \subsection{Usage}{
@@ -268,8 +268,8 @@ Starting point for parameters for optimization
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-param_optim_start0"></a>}}
-\if{latex}{\out{\hypertarget{method-param_optim_start0}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_PowerExp-param_optim_start0"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_PowerExp-param_optim_start0}{}}}
 \subsection{Method \code{param_optim_start0()}}{
 Starting point for parameters for optimization
 \subsection{Usage}{
@@ -299,8 +299,8 @@ Starting point for parameters for optimization
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-param_optim_lower"></a>}}
-\if{latex}{\out{\hypertarget{method-param_optim_lower}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_PowerExp-param_optim_lower"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_PowerExp-param_optim_lower}{}}}
 \subsection{Method \code{param_optim_lower()}}{
 Lower bounds of parameters for optimization
 \subsection{Usage}{
@@ -324,8 +324,8 @@ Lower bounds of parameters for optimization
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-param_optim_upper"></a>}}
-\if{latex}{\out{\hypertarget{method-param_optim_upper}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_PowerExp-param_optim_upper"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_PowerExp-param_optim_upper}{}}}
 \subsection{Method \code{param_optim_upper()}}{
 Upper bounds of parameters for optimization
 \subsection{Usage}{
@@ -349,8 +349,8 @@ Upper bounds of parameters for optimization
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-set_params_from_optim"></a>}}
-\if{latex}{\out{\hypertarget{method-set_params_from_optim}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_PowerExp-set_params_from_optim"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_PowerExp-set_params_from_optim}{}}}
 \subsection{Method \code{set_params_from_optim()}}{
 Set parameters from optimization output
 \subsection{Usage}{
@@ -377,8 +377,8 @@ Set parameters from optimization output
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-print"></a>}}
-\if{latex}{\out{\hypertarget{method-print}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_PowerExp-print"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_PowerExp-print}{}}}
 \subsection{Method \code{print()}}{
 Print this object
 \subsection{Usage}{
@@ -387,8 +387,8 @@ Print this object
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_PowerExp-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_PowerExp-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

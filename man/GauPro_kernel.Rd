@@ -30,14 +30,14 @@ Kernel R6 class
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-plot}{\code{GauPro_kernel$plot()}}
-\item \href{#method-print}{\code{GauPro_kernel$print()}}
-\item \href{#method-clone}{\code{GauPro_kernel$clone()}}
+\item \href{#method-GauPro_kernel-plot}{\code{GauPro_kernel$plot()}}
+\item \href{#method-GauPro_kernel-print}{\code{GauPro_kernel$print()}}
+\item \href{#method-GauPro_kernel-clone}{\code{GauPro_kernel$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-plot"></a>}}
-\if{latex}{\out{\hypertarget{method-plot}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel-plot"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel-plot}{}}}
 \subsection{Method \code{plot()}}{
 Plot kernel decay.
 \subsection{Usage}{
@@ -46,8 +46,8 @@ Plot kernel decay.
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-print"></a>}}
-\if{latex}{\out{\hypertarget{method-print}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel-print"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel-print}{}}}
 \subsection{Method \code{print()}}{
 Print this object
 \subsection{Usage}{
@@ -56,8 +56,8 @@ Print this object
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

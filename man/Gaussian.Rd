@@ -37,35 +37,35 @@ gp$cool1Dplot()
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-k}{\code{Gaussian$k()}}
-\item \href{#method-kone}{\code{Gaussian$kone()}}
-\item \href{#method-dC_dparams}{\code{Gaussian$dC_dparams()}}
-\item \href{#method-C_dC_dparams}{\code{Gaussian$C_dC_dparams()}}
-\item \href{#method-dC_dx}{\code{Gaussian$dC_dx()}}
-\item \href{#method-d2C_dx2}{\code{Gaussian$d2C_dx2()}}
-\item \href{#method-d2C_dudv}{\code{Gaussian$d2C_dudv()}}
-\item \href{#method-d2C_dudv_ueqvrows}{\code{Gaussian$d2C_dudv_ueqvrows()}}
-\item \href{#method-print}{\code{Gaussian$print()}}
-\item \href{#method-clone}{\code{Gaussian$clone()}}
+\item \href{#method-GauPro_kernel_Gaussian-k}{\code{Gaussian$k()}}
+\item \href{#method-GauPro_kernel_Gaussian-kone}{\code{Gaussian$kone()}}
+\item \href{#method-GauPro_kernel_Gaussian-dC_dparams}{\code{Gaussian$dC_dparams()}}
+\item \href{#method-GauPro_kernel_Gaussian-C_dC_dparams}{\code{Gaussian$C_dC_dparams()}}
+\item \href{#method-GauPro_kernel_Gaussian-dC_dx}{\code{Gaussian$dC_dx()}}
+\item \href{#method-GauPro_kernel_Gaussian-d2C_dx2}{\code{Gaussian$d2C_dx2()}}
+\item \href{#method-GauPro_kernel_Gaussian-d2C_dudv}{\code{Gaussian$d2C_dudv()}}
+\item \href{#method-GauPro_kernel_Gaussian-d2C_dudv_ueqvrows}{\code{Gaussian$d2C_dudv_ueqvrows()}}
+\item \href{#method-GauPro_kernel_Gaussian-print}{\code{Gaussian$print()}}
+\item \href{#method-GauPro_kernel_Gaussian-clone}{\code{Gaussian$clone()}}
 }
 }
-\if{html}{
-\out{<details ><summary>Inherited methods</summary>}
-\itemize{
-\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel" data-id="plot">}\href{../../GauPro/html/GauPro_kernel.html#method-plot}{\code{GauPro::GauPro_kernel$plot()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="initialize">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-initialize}{\code{GauPro::GauPro_kernel_beta$initialize()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="param_optim_lower">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-param_optim_lower}{\code{GauPro::GauPro_kernel_beta$param_optim_lower()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="param_optim_start">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-param_optim_start}{\code{GauPro::GauPro_kernel_beta$param_optim_start()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="param_optim_start0">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-param_optim_start0}{\code{GauPro::GauPro_kernel_beta$param_optim_start0()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="param_optim_upper">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-param_optim_upper}{\code{GauPro::GauPro_kernel_beta$param_optim_upper()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="s2_from_params">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-s2_from_params}{\code{GauPro::GauPro_kernel_beta$s2_from_params()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="set_params_from_optim">}\href{../../GauPro/html/GauPro_kernel_beta.html#method-set_params_from_optim}{\code{GauPro::GauPro_kernel_beta$set_params_from_optim()}}\out{</span>}
-}
-\out{</details>}
-}
+\if{html}{\out{
+<details><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel" data-id="plot"><a href='../../GauPro/html/GauPro_kernel.html#method-GauPro_kernel-plot'><code>GauPro::GauPro_kernel$plot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="initialize"><a href='../../GauPro/html/GauPro_kernel_beta.html#method-GauPro_kernel_beta-initialize'><code>GauPro::GauPro_kernel_beta$initialize()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="param_optim_lower"><a href='../../GauPro/html/GauPro_kernel_beta.html#method-GauPro_kernel_beta-param_optim_lower'><code>GauPro::GauPro_kernel_beta$param_optim_lower()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="param_optim_start"><a href='../../GauPro/html/GauPro_kernel_beta.html#method-GauPro_kernel_beta-param_optim_start'><code>GauPro::GauPro_kernel_beta$param_optim_start()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="param_optim_start0"><a href='../../GauPro/html/GauPro_kernel_beta.html#method-GauPro_kernel_beta-param_optim_start0'><code>GauPro::GauPro_kernel_beta$param_optim_start0()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="param_optim_upper"><a href='../../GauPro/html/GauPro_kernel_beta.html#method-GauPro_kernel_beta-param_optim_upper'><code>GauPro::GauPro_kernel_beta$param_optim_upper()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="s2_from_params"><a href='../../GauPro/html/GauPro_kernel_beta.html#method-GauPro_kernel_beta-s2_from_params'><code>GauPro::GauPro_kernel_beta$s2_from_params()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel_beta" data-id="set_params_from_optim"><a href='../../GauPro/html/GauPro_kernel_beta.html#method-GauPro_kernel_beta-set_params_from_optim'><code>GauPro::GauPro_kernel_beta$set_params_from_optim()</code></a></span></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-k"></a>}}
-\if{latex}{\out{\hypertarget{method-k}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_Gaussian-k"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_Gaussian-k}{}}}
 \subsection{Method \code{k()}}{
 Calculate covariance between two points
 \subsection{Usage}{
@@ -90,8 +90,8 @@ of x with itself.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-kone"></a>}}
-\if{latex}{\out{\hypertarget{method-kone}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_Gaussian-kone"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_Gaussian-kone}{}}}
 \subsection{Method \code{kone()}}{
 Find covariance of two points
 \subsection{Usage}{
@@ -115,8 +115,8 @@ Find covariance of two points
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-dC_dparams"></a>}}
-\if{latex}{\out{\hypertarget{method-dC_dparams}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_Gaussian-dC_dparams"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_Gaussian-dC_dparams}{}}}
 \subsection{Method \code{dC_dparams()}}{
 Derivative of covariance with respect to parameters
 \subsection{Usage}{
@@ -140,8 +140,8 @@ Derivative of covariance with respect to parameters
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-C_dC_dparams"></a>}}
-\if{latex}{\out{\hypertarget{method-C_dC_dparams}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_Gaussian-C_dC_dparams"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_Gaussian-C_dC_dparams}{}}}
 \subsection{Method \code{C_dC_dparams()}}{
 Calculate covariance matrix and its derivative
  with respect to parameters
@@ -162,8 +162,8 @@ Calculate covariance matrix and its derivative
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-dC_dx"></a>}}
-\if{latex}{\out{\hypertarget{method-dC_dx}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_Gaussian-dC_dx"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_Gaussian-dC_dx}{}}}
 \subsection{Method \code{dC_dx()}}{
 Derivative of covariance with respect to X
 \subsection{Usage}{
@@ -187,8 +187,8 @@ Derivative of covariance with respect to X
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-d2C_dx2"></a>}}
-\if{latex}{\out{\hypertarget{method-d2C_dx2}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_Gaussian-d2C_dx2"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_Gaussian-d2C_dx2}{}}}
 \subsection{Method \code{d2C_dx2()}}{
 Second derivative of covariance with respect to X
 \subsection{Usage}{
@@ -212,8 +212,8 @@ Second derivative of covariance with respect to X
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-d2C_dudv"></a>}}
-\if{latex}{\out{\hypertarget{method-d2C_dudv}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_Gaussian-d2C_dudv"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_Gaussian-d2C_dudv}{}}}
 \subsection{Method \code{d2C_dudv()}}{
 Second derivative of covariance with respect to
 X and XX each once.
@@ -238,8 +238,8 @@ X and XX each once.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-d2C_dudv_ueqvrows"></a>}}
-\if{latex}{\out{\hypertarget{method-d2C_dudv_ueqvrows}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_Gaussian-d2C_dudv_ueqvrows"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_Gaussian-d2C_dudv_ueqvrows}{}}}
 \subsection{Method \code{d2C_dudv_ueqvrows()}}{
 Second derivative of covariance with respect to X and XX
 when they equal the same value
@@ -262,8 +262,8 @@ when they equal the same value
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-print"></a>}}
-\if{latex}{\out{\hypertarget{method-print}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_Gaussian-print"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_Gaussian-print}{}}}
 \subsection{Method \code{print()}}{
 Print this object
 \subsection{Usage}{
@@ -272,8 +272,8 @@ Print this object
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_Gaussian-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_Gaussian-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

@@ -94,32 +94,26 @@ https://stackoverflow.com/questions/27086195/linear-index-upper-triangular-matri
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{OrderedFactorKernel$new()}}
-\item \href{#method-k}{\code{OrderedFactorKernel$k()}}
-\item \href{#method-kone}{\code{OrderedFactorKernel$kone()}}
-\item \href{#method-dC_dparams}{\code{OrderedFactorKernel$dC_dparams()}}
-\item \href{#method-C_dC_dparams}{\code{OrderedFactorKernel$C_dC_dparams()}}
-\item \href{#method-dC_dx}{\code{OrderedFactorKernel$dC_dx()}}
-\item \href{#method-param_optim_start}{\code{OrderedFactorKernel$param_optim_start()}}
-\item \href{#method-param_optim_start0}{\code{OrderedFactorKernel$param_optim_start0()}}
-\item \href{#method-param_optim_lower}{\code{OrderedFactorKernel$param_optim_lower()}}
-\item \href{#method-param_optim_upper}{\code{OrderedFactorKernel$param_optim_upper()}}
-\item \href{#method-set_params_from_optim}{\code{OrderedFactorKernel$set_params_from_optim()}}
-\item \href{#method-s2_from_params}{\code{OrderedFactorKernel$s2_from_params()}}
-\item \href{#method-plot}{\code{OrderedFactorKernel$plot()}}
-\item \href{#method-print}{\code{OrderedFactorKernel$print()}}
-\item \href{#method-clone}{\code{OrderedFactorKernel$clone()}}
+\item \href{#method-GauPro_kernel_OrderedFactorKernel-new}{\code{OrderedFactorKernel$new()}}
+\item \href{#method-GauPro_kernel_OrderedFactorKernel-k}{\code{OrderedFactorKernel$k()}}
+\item \href{#method-GauPro_kernel_OrderedFactorKernel-kone}{\code{OrderedFactorKernel$kone()}}
+\item \href{#method-GauPro_kernel_OrderedFactorKernel-dC_dparams}{\code{OrderedFactorKernel$dC_dparams()}}
+\item \href{#method-GauPro_kernel_OrderedFactorKernel-C_dC_dparams}{\code{OrderedFactorKernel$C_dC_dparams()}}
+\item \href{#method-GauPro_kernel_OrderedFactorKernel-dC_dx}{\code{OrderedFactorKernel$dC_dx()}}
+\item \href{#method-GauPro_kernel_OrderedFactorKernel-param_optim_start}{\code{OrderedFactorKernel$param_optim_start()}}
+\item \href{#method-GauPro_kernel_OrderedFactorKernel-param_optim_start0}{\code{OrderedFactorKernel$param_optim_start0()}}
+\item \href{#method-GauPro_kernel_OrderedFactorKernel-param_optim_lower}{\code{OrderedFactorKernel$param_optim_lower()}}
+\item \href{#method-GauPro_kernel_OrderedFactorKernel-param_optim_upper}{\code{OrderedFactorKernel$param_optim_upper()}}
+\item \href{#method-GauPro_kernel_OrderedFactorKernel-set_params_from_optim}{\code{OrderedFactorKernel$set_params_from_optim()}}
+\item \href{#method-GauPro_kernel_OrderedFactorKernel-s2_from_params}{\code{OrderedFactorKernel$s2_from_params()}}
+\item \href{#method-GauPro_kernel_OrderedFactorKernel-plot}{\code{OrderedFactorKernel$plot()}}
+\item \href{#method-GauPro_kernel_OrderedFactorKernel-print}{\code{OrderedFactorKernel$print()}}
+\item \href{#method-GauPro_kernel_OrderedFactorKernel-clone}{\code{OrderedFactorKernel$clone()}}
 }
-}
-\if{html}{
-\out{<details open ><summary>Inherited methods</summary>}
-\itemize{
-}
-\out{</details>}
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_OrderedFactorKernel-new"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_OrderedFactorKernel-new}{}}}
 \subsection{Method \code{new()}}{
 Initialize kernel object
 \subsection{Usage}{
@@ -166,8 +160,8 @@ Initialize kernel object
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-k"></a>}}
-\if{latex}{\out{\hypertarget{method-k}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_OrderedFactorKernel-k"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_OrderedFactorKernel-k}{}}}
 \subsection{Method \code{k()}}{
 Calculate covariance between two points
 \subsection{Usage}{
@@ -192,8 +186,8 @@ of x with itself.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-kone"></a>}}
-\if{latex}{\out{\hypertarget{method-kone}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_OrderedFactorKernel-kone"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_OrderedFactorKernel-kone}{}}}
 \subsection{Method \code{kone()}}{
 Find covariance of two points
 \subsection{Usage}{
@@ -221,8 +215,8 @@ adding a nugget.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-dC_dparams"></a>}}
-\if{latex}{\out{\hypertarget{method-dC_dparams}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_OrderedFactorKernel-dC_dparams"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_OrderedFactorKernel-dC_dparams}{}}}
 \subsection{Method \code{dC_dparams()}}{
 Derivative of covariance with respect to parameters
 \subsection{Usage}{
@@ -246,8 +240,8 @@ Derivative of covariance with respect to parameters
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-C_dC_dparams"></a>}}
-\if{latex}{\out{\hypertarget{method-C_dC_dparams}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_OrderedFactorKernel-C_dC_dparams"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_OrderedFactorKernel-C_dC_dparams}{}}}
 \subsection{Method \code{C_dC_dparams()}}{
 Calculate covariance matrix and its derivative
  with respect to parameters
@@ -268,8 +262,8 @@ Calculate covariance matrix and its derivative
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-dC_dx"></a>}}
-\if{latex}{\out{\hypertarget{method-dC_dx}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_OrderedFactorKernel-dC_dx"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_OrderedFactorKernel-dC_dx}{}}}
 \subsection{Method \code{dC_dx()}}{
 Derivative of covariance with respect to X
 \subsection{Usage}{
@@ -299,8 +293,8 @@ Derivative of covariance with respect to X
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-param_optim_start"></a>}}
-\if{latex}{\out{\hypertarget{method-param_optim_start}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_OrderedFactorKernel-param_optim_start"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_OrderedFactorKernel-param_optim_start}{}}}
 \subsection{Method \code{param_optim_start()}}{
 Starting point for parameters for optimization
 \subsection{Usage}{
@@ -329,8 +323,8 @@ Starting point for parameters for optimization
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-param_optim_start0"></a>}}
-\if{latex}{\out{\hypertarget{method-param_optim_start0}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_OrderedFactorKernel-param_optim_start0"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_OrderedFactorKernel-param_optim_start0}{}}}
 \subsection{Method \code{param_optim_start0()}}{
 Starting point for parameters for optimization
 \subsection{Usage}{
@@ -359,8 +353,8 @@ Starting point for parameters for optimization
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-param_optim_lower"></a>}}
-\if{latex}{\out{\hypertarget{method-param_optim_lower}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_OrderedFactorKernel-param_optim_lower"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_OrderedFactorKernel-param_optim_lower}{}}}
 \subsection{Method \code{param_optim_lower()}}{
 Lower bounds of parameters for optimization
 \subsection{Usage}{
@@ -380,8 +374,8 @@ Lower bounds of parameters for optimization
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-param_optim_upper"></a>}}
-\if{latex}{\out{\hypertarget{method-param_optim_upper}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_OrderedFactorKernel-param_optim_upper"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_OrderedFactorKernel-param_optim_upper}{}}}
 \subsection{Method \code{param_optim_upper()}}{
 Upper bounds of parameters for optimization
 \subsection{Usage}{
@@ -401,8 +395,8 @@ Upper bounds of parameters for optimization
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-set_params_from_optim"></a>}}
-\if{latex}{\out{\hypertarget{method-set_params_from_optim}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_OrderedFactorKernel-set_params_from_optim"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_OrderedFactorKernel-set_params_from_optim}{}}}
 \subsection{Method \code{set_params_from_optim()}}{
 Set parameters from optimization output
 \subsection{Usage}{
@@ -428,8 +422,8 @@ Set parameters from optimization output
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-s2_from_params"></a>}}
-\if{latex}{\out{\hypertarget{method-s2_from_params}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_OrderedFactorKernel-s2_from_params"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_OrderedFactorKernel-s2_from_params}{}}}
 \subsection{Method \code{s2_from_params()}}{
 Get s2 from params vector
 \subsection{Usage}{
@@ -447,8 +441,8 @@ Get s2 from params vector
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-plot"></a>}}
-\if{latex}{\out{\hypertarget{method-plot}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_OrderedFactorKernel-plot"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_OrderedFactorKernel-plot}{}}}
 \subsection{Method \code{plot()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{OrderedFactorKernel$plot(...)}\if{html}{\out{</div>}}
@@ -463,8 +457,8 @@ Get s2 from params vector
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-print"></a>}}
-\if{latex}{\out{\hypertarget{method-print}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_OrderedFactorKernel-print"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_OrderedFactorKernel-print}{}}}
 \subsection{Method \code{print()}}{
 Print this object
 \subsection{Usage}{
@@ -473,8 +467,8 @@ Print this object
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-GauPro_kernel_OrderedFactorKernel-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_OrderedFactorKernel-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

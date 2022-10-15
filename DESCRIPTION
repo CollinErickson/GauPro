@@ -16,7 +16,7 @@ Imports:
     Rcpp,
     R6,
     lbfgs
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.1
 Suggests: testthat,
     knitr,
     rmarkdown,
