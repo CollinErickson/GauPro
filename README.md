@@ -10,6 +10,7 @@ Status](https://travis-ci.org/CollinErickson/GauPro.svg?branch=master)](https://
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/GauPro)](https://cran.r-project.org/package=GauPro)
 [![codecov](https://codecov.io/gh/CollinErickson/GauPro/branch/master/graph/badge.svg)](https://codecov.io/gh/CollinErickson/GauPro)
 [![R-CMD-check](https://github.com/CollinErickson/GauPro/workflows/R-CMD-check/badge.svg)](https://github.com/CollinErickson/GauPro/actions)
+[![R-CMD-check](https://github.com/CollinErickson/GauPro/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/CollinErickson/GauPro/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 ## Overview
@@ -131,7 +132,7 @@ distribution. Currently the three options are to have a mean 0, a
 constant mean (default and recommended), or a linear model.
 
 With the exponential kernel above we see some regression to the mean.
-Between points the prediction reverts towards the mean of 0.4007002.
+Between points the prediction reverts towards the mean of 0.4006961.
 Also far away from any data the prediction will near this value.
 
 Below when we use a mean of 0 we do not see this same reversion.
