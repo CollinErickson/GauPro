@@ -167,7 +167,7 @@ FactorKernel <- R6::R6Class(
     #' @param p Correlation parameters.
     #' @param s2 Variance parameter.
     #' @param params parameters to use instead of beta and s2.
-    k = function(x, y=NULL, p=self$p, s2=self$s2, params=NULL) {#browser()
+    k = function(x, y=NULL, p=self$p, s2=self$s2, params=NULL) {
       if (!is.null(params)) {
         lenparams <- length(params)
         # logp <- params[1:(lenpar-2)]
@@ -194,7 +194,7 @@ FactorKernel <- R6::R6Class(
 
 
         s2 <- 10^logs2
-      } else {#browser()
+      } else {
         if (is.null(p)) {p <- self$p}
         # if (is.null(logalpha)) {logalpha <- self$logalpha}
         if (is.null(s2)) {s2 <- self$s2}
@@ -202,7 +202,7 @@ FactorKernel <- R6::R6Class(
       # p <- 10^logp
       # alpha <- 10^logalpha
       if (is.null(y)) {
-        if (is.matrix(x)) {#browser()
+        if (is.matrix(x)) {
           # val <- outer(1:nrow(x), 1:nrow(x),
           #              Vectorize(function(i,j){
           #                self$kone(x[i,],x[j,],p=p, s2=s2)
@@ -211,7 +211,6 @@ FactorKernel <- R6::R6Class(
                        Vectorize(function(i,j){
                          self$kone(x[i,],x[j,],p=p, s2=s2, isdiag=i==j)
                        }))
-          # if (inherits(cgmtry,"try-error")) {browser()}
           return(val)
         } else {
           return(s2 * 1)
@@ -260,7 +259,7 @@ FactorKernel <- R6::R6Class(
         ind <- (n*(n-1)/2) - (n-i)*((n-i)-1)/2 + j - i #- 1
         out <- s2 * p[ind]
       }
-      if (any(is.nan(out))) {browser()}
+      if (any(is.nan(out))) {stop("Error #928341")}
       out
     },
     #' @description Derivative of covariance with respect to parameters
@@ -317,8 +316,6 @@ FactorKernel <- R6::R6Class(
       if (self$s2_est) {
         dC_dparams[lenparams_D,,] <- C * log10
       }
-      # browser()
-      # print(p)
       if (self$p_est) {
         for (k in 1:length(p)) { # k is index of parameter
           for (i in seq(1, n-1, 1)) {
@@ -385,7 +382,7 @@ FactorKernel <- R6::R6Class(
     #' @param logp log of p
     #' @param logalpha log of alpha
     #' @param s2 Variance parameter
-    dC_dx = function(XX, X, logp=self$logp, logalpha=self$logalpha, s2=self$s2) {#browser()
+    dC_dx = function(XX, X, logp=self$logp, logalpha=self$logalpha, s2=self$s2) {
       stop("not implemented, kernel index, dC_dx")
       # if (missing(theta)) {theta <- 10^beta}
       p <- 10 ^ logp

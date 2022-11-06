@@ -1,5 +1,5 @@
 
-Gaussian_devianceR = function (theta, nug, X, Z) { browser()# joint deviance
+Gaussian_devianceR = function (theta, nug, X, Z) { # joint deviance
   N <- nrow(X)
   K <- corr_gauss_matrix_sym_armaC(X, theta=theta) + diag(nug, N)
   Kchol <- try(chol(K), silent = T)
@@ -9,7 +9,7 @@ Gaussian_devianceR = function (theta, nug, X, Z) { browser()# joint deviance
   logdetK <- 2 * sum(log(diag(Kchol)))
   logdetK + N * log(t(Z - mu_hat) %*% (Kinv %*% (Z - mu_hat)))
 }
-Gaussian_deviance_partC = function (theta, nug, X, Z) {browser()
+Gaussian_deviance_partC = function (theta, nug, X, Z) {
   # Not faster than devianceC or even deviance
   N <- nrow(X)
   K <- corr_gauss_matrix_sym_armaC(X, theta=theta) + diag(nug, N)
@@ -28,7 +28,7 @@ Gaussian_deviance_partC = function (theta, nug, X, Z) {browser()
 #}
 
 
-Gaussian_deviance_gradR = function (theta, nug, X, Z) {browser()
+Gaussian_deviance_gradR = function (theta, nug, X, Z) {
   # Works but DONT USE since deviance_gradC is 10x faster, and only does theta grad so no good
   N <- nrow(X)
   D <- ncol(X)
@@ -89,7 +89,7 @@ Gaussian_deviance_grad_fixR = function (theta, nug, X, Z) {
   }
   dD
 }
-Gaussian_deviance_gradC = function (theta, nug, X, Z, overwhat) {browser()
+Gaussian_deviance_gradC = function (theta, nug, X, Z, overwhat) {
   N <- nrow(X)
   K <- corr_gauss_matrix_sym_armaC(X, theta=theta) + diag(nug, N)
   Kchol <- try(chol(K), silent = T)

@@ -48,7 +48,7 @@ Triangle <- R6::R6Class(
         }
 
         s2 <- 10^logs2
-      } else {#browser()
+      } else {
         if (is.null(beta)) {beta <- self$beta}
         if (is.null(s2)) {s2 <- self$s2}
       }
@@ -142,7 +142,6 @@ Triangle <- R6::R6Class(
               # t1 <- sqrt(3 * tx2)
               # t3 <- C[i,j] * (1/(1+t1) - 1) * self$sqrt3 * log10
               r <- sqrt(r2)
-              # browser()
               C <- max(1 - r, 0)
               for (k in 1:length(beta)) {
                 if (C > 0) {

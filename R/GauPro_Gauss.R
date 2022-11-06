@@ -124,10 +124,10 @@ GauPro_Gauss <- R6::R6Class(classname = "GauPro_Gauss",
          gr
        },
        #deviance_grad_out = function(...){Gaussian_deviance_gradC(...)},
-       deviance_fngr = function (theta=NULL, nug=NULL, overwhat=if (self$nug.est) "joint" else "theta") {#browser()
+       deviance_fngr = function (theta=NULL, nug=NULL, overwhat=if (self$nug.est) "joint" else "theta") {
          if (length(theta) < self$D) {theta = theta[self$theta_map]} # if not fully separable, map out to full theta
          fngr <- Gaussian_deviance_fngrC(theta=theta, nug=nug, X=self$X, Z=self$Z, overwhat=overwhat)
-         if (!self$separable & overwhat!="nug") {#browser() # Map down if theta not full dimensional
+         if (!self$separable & overwhat!="nug") { # Map down if theta not full dimensional
            gr <- fngr$gr
            tgr <- sapply(1:self$theta_length, function(ii){sum(gr[which(self$theta_map == ii)])})
            if (overwhat == "joint") { # If joint, add nugget to end and return
@@ -218,7 +218,6 @@ GauPro_Gauss <- R6::R6Class(classname = "GauPro_Gauss",
          tmp <- self$deviance_fngr(theta=theta, nug=nug, overwhat=overwhat)
 
          # Need to scale gradient, chain rule to get derivatives on log scale
-         #if (length(tmp[[2]]) != length(joint)) {browser()}
          if (overwhat == "joint") {
            tmp[[2]] <- tmp[[2]] * 10^joint * log(10) # scale gradient only
          } else if (overwhat == "theta") {
@@ -340,7 +339,6 @@ GauPro_Gauss <- R6::R6Class(classname = "GauPro_Gauss",
          }
          kx.xx <- self$corr_func(self$X, XX, theta=self$theta)
 
-         # browser()
          xx <- as.numeric(XX)
          dkxx.x_dxx <- vapply(1:nrow(XX),
                               Vectorize(
@@ -369,8 +367,7 @@ GauPro_Gauss <- R6::R6Class(classname = "GauPro_Gauss",
                          )
          list(mean=mean_vec, cov=cov_mat)
        },
-      hessian = function(XX, useC=self$useC) {#browser()
-
+      hessian = function(XX, useC=self$useC) {
         if (!is.matrix(XX)) {
           if (self$D == 1) XX <- matrix(XX, ncol=1)
           else if (length(XX) == self$D) XX <- matrix(XX, nrow=1)
@@ -378,7 +375,6 @@ GauPro_Gauss <- R6::R6Class(classname = "GauPro_Gauss",
         } else {
           if (ncol(XX) != self$D) {stop("Wrong dimension input")}
         }
-        #browser()
         hessian_func <- if (useC) {Gaussian_hessianC} else {Gaussian_hessianR}
         if (nrow(XX) == 1) {
           hess1 <- hessian_func(XX=XX, X=self$X, Z=self$Z, Kinv=self$Kinv, self$mu_hat, self$theta)

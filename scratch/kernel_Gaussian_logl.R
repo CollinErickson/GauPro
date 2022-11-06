@@ -61,16 +61,16 @@ Gaussian_logl <- R6::R6Class(classname = "GauPro_kernel_Gaussian_logl",
         logl <- params[1:(lenpar-1)]
         logs2 <- params[lenpar]
         s2 <- 10^logs2
-      } else {#browser()
+      } else {
         if (is.null(beta)) {beta <- self$beta}
         if (is.null(s2)) {s2 <- self$s2}
       }
       l <- 10 ^ logl
       theta <- .5 / l^2
       if (is.null(y)) {
-        if (is.matrix(x)) {#browser()
+        if (is.matrix(x)) {
           cgmtry <- try(val <- s2 * corr_gauss_matrix_symC(x, theta))
-          if (inherits(cgmtry,"try-error")) {browser()}
+          if (inherits(cgmtry,"try-error")) {stop("Error #24109124")}
           return(val)
         } else {
           return(s2 * 1)

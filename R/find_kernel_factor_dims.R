@@ -10,7 +10,6 @@ find_kernel_factor_dims <- function (kern) {
     return((c(kern$xindex, kern$nlevels)))
   }
   if (("GauPro_kernel_IgnoreInds" %in% class(kern))) {
-    # browser()
     t1 <- find_kernel_factor_dims(kern$kernel)
     if (is.null(t1)) {
       return(NULL)

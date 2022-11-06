@@ -16,7 +16,7 @@ times <- rep(0, length(n))
 
 # Create prediction data
 XX <- matrix(runif(N*d), ncol=d)
-for (i in seq_along(n)) {#browser()
+for (i in seq_along(n)) {
   st <- system.time({
   ni <- n[i]
   Nni <- ceiling(N/ni)-1

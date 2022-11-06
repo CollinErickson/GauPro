@@ -73,7 +73,7 @@ trend_LM <- R6::R6Class(
     #' @param m trend parameters
     #' @param b trend parameters (slopes)
     #' @param params trend parameters
-    Z = function(X, m=self$m, b=self$b, params=NULL) {#browser()
+    Z = function(X, m=self$m, b=self$b, params=NULL) {
       if (!is.null(params)) {m <- params[2:(self$D+1)]; b <- params[1]}
       if (is.matrix(X)) {
         b + X %*% m

@@ -1,8 +1,8 @@
-corr_gauss_noC <- function(a, b, theta) {#browser()
+corr_gauss_noC <- function(a, b, theta) {
   exp(-sum(theta * (a-b)^2))
 }
 
-corr_gauss_matrix_noC <- function(x, x2=x, theta) {#browser()
+corr_gauss_matrix_noC <- function(x, x2=x, theta) {
   #outer(x,x2, gauss_cor)
   outer(1:nrow(x),1:nrow(x2), Vectorize(function(i,j) corr_gauss_noC(x[i,], x2[j,], theta=theta)))
 }

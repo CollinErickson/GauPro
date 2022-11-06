@@ -57,12 +57,12 @@ Gaussian_bad <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
       if (!is.null(params)) {
         theta <- params[1:(length(params)-1)]
         s2 <- params[length(params)]
-      } else {#browser()
+      } else {
         if (is.null(theta)) {theta <- self$theta}
         if (is.null(s2)) {s2 <- self$s2}
       }
       if (is.null(y)) {
-        if (is.matrix(x)) {#browser()
+        if (is.matrix(x)) {
           cgmtry <- try(val <- s2 * corr_gauss_matrix_symC(x, theta))
           if (inherits(cgmtry,"try-error")) {browser()}
           return(val)

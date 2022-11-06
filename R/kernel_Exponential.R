@@ -159,7 +159,7 @@ Exponential <- R6::R6Class(
     #' @param theta Correlation parameters
     #' @param beta log of theta
     #' @param s2 Variance parameter
-    dC_dx = function(XX, X, theta, beta=self$beta, s2=self$s2) {#browser()
+    dC_dx = function(XX, X, theta, beta=self$beta, s2=self$s2) {
       if (missing(theta)) {theta <- 10^beta}
       if (!is.matrix(XX)) {stop()}
       d <- ncol(XX)

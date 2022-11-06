@@ -37,7 +37,7 @@ microbenchmark::microbenchmark(solve(gp$K[-n, -n]),
                                times = 100)
 
 
-yhati <- function(i, gp) {#browser()
+yhati <- function(i, gp) {
   #n <- nrow(gp$X)
   Kinvi <- gp$Kinv[-i, -i]+ gp$Kinv[-i, -i] %*% gp$K[i, -i] %*% gp$Kinv[i, -i] / (1 - sum(gp$K[i, -i]*gp$Kinv[i, -i]))
   mn <- gp$mu_hat + sum(gp$K[i, -i] %*% Kinvi * (gp$Z[-i] - gp$mu_hat))
@@ -53,7 +53,7 @@ gpz <- GauPro(X, abszhats, nug.est = F, nug = 1e-8)#, theta = gp$theta, param.es
 if (d==1) {gpz$cool1Dplot()}
 if (d==2) {ContourFunctions::cf(gpz$predict, batchmax=Inf)}
 
-predse <- function(XX) {#browser()
+predse <- function(XX) {
   pr <- gp$pred(XX, se.fit = T)
   pr_z <- pmax(1e-4, gpz$pred(XX))
   pr_se <- pr$se * pr_z

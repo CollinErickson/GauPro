@@ -113,19 +113,19 @@ GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
     #' @param beta Correlation parameters. Log of theta.
     #' @param s2 Variance parameter.
     #' @param params parameters to use instead of beta and s2.
-    k = function(x, y=NULL, beta=self$beta, s2=self$s2, params=NULL) {#browser()
+    k = function(x, y=NULL, beta=self$beta, s2=self$s2, params=NULL) {
       if (!is.null(params)) {
         lenpar <- length(params)
         beta <- params[1:(lenpar-1)]
         logs2 <- params[lenpar]
         s2 <- 10^logs2
-      } else {#browser()
+      } else {
         if (is.null(beta)) {beta <- self$beta}
         if (is.null(s2)) {s2 <- self$s2}
       }
       theta <- 10^beta
       if (is.null(y)) {
-        if (is.matrix(x)) {#browser()
+        if (is.matrix(x)) {
           # cgmtry <- try(val <- s2 * corr_gauss_matrix_symC(x, theta))
           val <- outer(1:nrow(x), 1:nrow(x), Vectorize(function(i,j){self$kone(x[i,],x[j,],theta=theta, s2=s2)}))
           # if (inherits(cgmtry,"try-error")) {browser()}

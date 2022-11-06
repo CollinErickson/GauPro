@@ -18,7 +18,6 @@ optim_share2 <- function(par, fngr, ...) {
   env <- grad_share(fngr)
   bestx <- 0
   besty <- Inf
-  # browser()
   # iter <- 0
   neval <- 0
   f1 <- function(x) {
@@ -40,7 +39,6 @@ optim_share2 <- function(par, fngr, ...) {
   if (inherits(optim_out, "try-error")) {
     # print('try-error')
     if (is.infinite(besty)) {
-      # browser()
       stop(paste0("optim_share2 error on starting params: ",
                   attr(optim_out, 'condition')$message))
     } else {

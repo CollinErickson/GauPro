@@ -2541,7 +2541,6 @@ GauPro_kernel_model <- R6::R6Class(
 
       # If no non-factor levels, just predict EI at all and return best
       if (length(factorxindex) == self$D) {
-        # browser()
         Xmat <- as.matrix(factordf)
         EI_Xmat <- self$EI(Xmat, minimize = minimize)
         bestind <- which.max(EI_Xmat)[1]
@@ -2551,7 +2550,6 @@ GauPro_kernel_model <- R6::R6Class(
       } else {
         # Has continuous/factor/discrete indices
         # Alternate optimizing over cts and factors an discrete
-        # browser()
         #
         X0 <- lhs::randomLHS(n=n0, k=self$D)
         X0 <- sweep(X0, 2, upper-lower, "*")
@@ -2572,7 +2570,6 @@ GauPro_kernel_model <- R6::R6Class(
         # Xstartfactors <- Xstart[factorxindex]
         bestEIsofar <- EI0[ind]
         notdone <- TRUE
-        # browser()
         i_while <- 0
         while(notdone) {
           # cat('in while loop', i_while, bestEIsofar, "\n")
@@ -2644,7 +2641,6 @@ GauPro_kernel_model <- R6::R6Class(
               )
             )
           }
-          # browser()
           # Or break if enough iterations
           if (i_while > 10) {
             # return(Xstart)
@@ -2668,9 +2664,6 @@ GauPro_kernel_model <- R6::R6Class(
     #                         n0=100,
     #                         minimize=FALSE,
     #                         eps=0) {
-    #   browser()
-    #   1
-    #   2
     #   out <- mixop
     # },
     # maxEIwithfactorsordiscrete2 = function(lower=apply(self$X, 2, min),
@@ -2713,7 +2706,6 @@ GauPro_kernel_model <- R6::R6Class(
     #
     #   ctsinds <- setdiff(1:self$D, c(discreteinds, factorxindex))
     #
-    #   browser()
     #   mopar <- list()
     #   for (i in 1:self$D) {
     #     if (i %in% ctsinds) {
@@ -2766,7 +2758,6 @@ GauPro_kernel_model <- R6::R6Class(
         xi <- maxEI_i$par
         selectedX[i, ] <- xi
         if (method == "pred") {
-          # browser()
           Zimpute <- self$predict(xi)
         }
         # Update clone with new data, don't update parameters since it's fake data
@@ -2786,7 +2777,7 @@ GauPro_kernel_model <- R6::R6Class(
       )
     },
     KG = function(x, minimize=FALSE, eps=0, current_extreme=NULL) {
-      if (exists('kgbrow') && kgbrow) {browser()}
+      # if (exists('kgbrow') && kgbrow) {browser()}
       xkg <- x
       if (!is.matrix(xkg)) {
         stopifnot(length(xkg) == self$D)

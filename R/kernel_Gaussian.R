@@ -47,7 +47,7 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
   inherit = GauPro_kernel_beta,
   public = list(
     # initialize = function(beta, s2=1, beta_lower=-8, beta_upper=6,
-    #                       s2_lower=1e-8, s2_upper=1e8) {browser()
+    #                       s2_lower=1e-8, s2_upper=1e8) {
     #   self$beta <- beta
     #   self$beta_length <- length(beta)
     #   # if (length(theta) == 1) {
@@ -82,7 +82,7 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
           logs2 <- self$logs2
         }
         s2 <- 10 ^ logs2
-      } else {#browser()
+      } else {
         if (is.null(beta)) {beta <- self$beta}
         if (is.null(s2)) {s2 <- self$s2}
       }
@@ -169,7 +169,6 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
 
       # I wrote Rcpparmadillo function to speed this up a lot hopefully
       # useR <- FALSE
-      # browser()
       if (!self$useC) { # useR
         dC_dparams <- array(dim=c(lenparams_D, n, n), data=0)
         if (self$s2_est) {
@@ -238,7 +237,6 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
 
       # I wrote Rcpparmadillo function to speed this up a lot hopefully
       # useR <- FALSE
-      # browser()
       if (!self$useC) { # useR
         dC_dparams <- array(dim=c(lenparams_D, n, n), data=0)
         if (self$s2_est) {
@@ -269,7 +267,7 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
       # mats <- c(dC_dbetas, list(dC_dlogs2))
       return(list(C = C, dC_dparams = dC_dparams))
     },
-    # dC_dx = function(XX, X, theta, beta=self$beta, s2=self$s2) {#browser()
+    # dC_dx = function(XX, X, theta, beta=self$beta, s2=self$s2) {
     #   if (missing(theta)) {theta <- 10^beta}
     #   if (!is.matrix(XX)) {stop("XX must be matrix")}
     #   d <- ncol(XX)

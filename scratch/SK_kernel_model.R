@@ -1322,7 +1322,7 @@ GauProSK_kernel_model <- R6::R6Class(
     deviance_fngr = function(params=NULL, kernel_update=TRUE,
                              X=self$X,
                              nug=self$nug, nug.update, nuglog,
-                             trend_params=NULL, trend_update=TRUE) {#browser()
+                             trend_params=NULL, trend_update=TRUE) {
       if (!missing(nuglog) && !is.null(nuglog)) {
         nug <- 10^nuglog
       }
@@ -1592,7 +1592,7 @@ GauProSK_kernel_model <- R6::R6Class(
     #  if (!is.matrix(grad1)) return(abs(grad1))
     #  apply(grad1,1, function(xx) {sqrt(sum(xx^2))})
     #},
-    hessian = function(XX, as_array=FALSE) {#browser()
+    hessian = function(XX, as_array=FALSE) {
       if (!is.matrix(XX)) {
         if (self$D == 1) XX <- matrix(XX, ncol=1)
         else if (length(XX) == self$D) XX <- matrix(XX, nrow=1)

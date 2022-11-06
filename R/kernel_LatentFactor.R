@@ -184,7 +184,7 @@ LatentFactorKernel <- R6::R6Class(
     #' @param p Correlation parameters.
     #' @param s2 Variance parameter.
     #' @param params parameters to use instead of beta and s2.
-    k = function(x, y=NULL, p=self$p, s2=self$s2, params=NULL) {#browser()
+    k = function(x, y=NULL, p=self$p, s2=self$s2, params=NULL) {
       if (!is.null(params)) {
         lenparams <- length(params)
         # logp <- params[1:(lenpar-2)]
@@ -211,7 +211,7 @@ LatentFactorKernel <- R6::R6Class(
 
 
         s2 <- 10^logs2
-      } else {#browser()
+      } else {
         if (is.null(p)) {p <- self$p}
         # if (is.null(logalpha)) {logalpha <- self$logalpha}
         if (is.null(s2)) {s2 <- self$s2}
@@ -222,7 +222,7 @@ LatentFactorKernel <- R6::R6Class(
       # p <- 10^logp
       # alpha <- 10^logalpha
       if (is.null(y)) {
-        if (is.matrix(x)) {#browser()
+        if (is.matrix(x)) {
           # val <- outer(1:nrow(x), 1:nrow(x),
           #              Vectorize(function(i,j){
           #                self$kone(x[i,],x[j,],p=p, s2=s2)
@@ -292,13 +292,12 @@ LatentFactorKernel <- R6::R6Class(
         # j <- max(x,y) - 1 #max(x-1, y-1)
         # n <- self$nlevels
         # p_dist <- sum(p[i:j])
-        # browser()
         latentx <- pf[(x-1)*self$latentdim+1:self$latentdim]
         latenty <- pf[(y-1)*self$latentdim+1:self$latentdim]
         p_dist2 <- sum((latentx - latenty)^2)
         out <- s2 * exp(-p_dist2)
       }
-      if (any(is.nan(out))) {browser()}
+      if (any(is.nan(out))) {stop("Error #1341982")}
       out
     },
     #' @description Derivative of covariance with respect to parameters
@@ -358,13 +357,11 @@ LatentFactorKernel <- R6::R6Class(
       pf <- c(rep(0, self$latentdim), p)
 
       if (self$useC) {
-        # browser()
         dC_dparams <- kernel_latentFactor_dC(X, pf, C_nonug, self$s2_est,
                                              self$p_est, lenparams_D, s2*nug,
                                              self$latentdim, self$xindex-1,
                                              self$nlevels, s2)
       } else {
-        # browser()
         dC_dparams <- array(dim=c(lenparams_D, n, n), data=0)
         if (self$s2_est) {
           dC_dparams[lenparams_D,,] <- C * log10
@@ -376,8 +373,6 @@ LatentFactorKernel <- R6::R6Class(
         latentdim <- self$latentdim
         xindex <- self$xindex
 
-        # browser()
-        # print(p)
         if (self$p_est) {
           # for (k in 1:length(p)) { # k is index of parameter
           stopifnot(self$nlevels>=2L)
@@ -435,8 +430,6 @@ LatentFactorKernel <- R6::R6Class(
       #                                self$p_est, lenparams_D, s2*nug,
       #                                self$latentdim, self$xindex-1,
       #                                self$nlevels, s2)
-      # browser()
-      # 1
       return(dC_dparams)
     },
     #' @description Calculate covariance matrix and its derivative
@@ -457,7 +450,7 @@ LatentFactorKernel <- R6::R6Class(
     #' @param logp log of p
     #' @param logalpha log of alpha
     #' @param s2 Variance parameter
-    dC_dx = function(XX, X, logp=self$logp, logalpha=self$logalpha, s2=self$s2) {#browser()
+    dC_dx = function(XX, X, logp=self$logp, logalpha=self$logalpha, s2=self$s2) {
       stop("not implemented, latent factor kernel, dC_dx")
       # if (missing(theta)) {theta <- 10^beta}
       p <- 10 ^ logp

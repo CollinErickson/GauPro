@@ -33,7 +33,6 @@ GauPro_Gauss_LOO <- R6::R6Class(
 
 
       # Do LOO stuff
-      # browser()
       # Should I put this in an if use_LOO?
       # I don't want this not fit, then have user set use_LOO=T and have an error
       #   when it tries to predict with LOO.
@@ -73,7 +72,6 @@ GauPro_Gauss_LOO <- R6::R6Class(
       se <- rep(0, length(mn)) # NEG VARS will be 0 for se, NOT SURE I WANT THIS
       se[s2>=0] <- sqrt(s2[s2>=0])
 
-      # browser()
       # Do LOO stuff here
       if (self$use_LOO) {
         loo.p <- self$tmod$predict(XX)

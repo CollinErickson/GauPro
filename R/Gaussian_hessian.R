@@ -18,7 +18,7 @@
 #' y <- apply(x,1,f1) + rnorm(n,0,.01)
 #' gp <- GauPro(x,y, verbose=2, parallel=FALSE);gp$theta
 #' gp$hessian(c(.2,.75), useC=FALSE) # Should be -38.3, -5.96, -5.96, -389.4 as 2x2 matrix
-Gaussian_hessianR <- function(XX, X, Z, Kinv, mu_hat, theta) {#browser()
+Gaussian_hessianR <- function(XX, X, Z, Kinv, mu_hat, theta) {
   n <- nrow(X) # number of points already in design
   d <- length(XX) # input dimensions
   Kinv_Zmu <- Kinv %*% (Z - mu_hat) #solve(R, Z - mu_hat)
@@ -83,8 +83,7 @@ Gaussian_hessianR <- function(XX, X, Z, Kinv, mu_hat, theta) {#browser()
 #' y <- apply(x,1,f1) + rnorm(n,0,.01)
 #' gp <- GauPro(x,y, verbose=2, parallel=FALSE);gp$theta
 #' gp$hessian(c(.2,.75), useC=TRUE) # Should be -38.3, -5.96, -5.96, -389.4 as 2x2 matrix
-Gaussian_hessianC <- function(XX, X, Z, Kinv, mu_hat, theta) {#browser()
+Gaussian_hessianC <- function(XX, X, Z, Kinv, mu_hat, theta) {
   print("Using C version")
-  #browser()
   Gaussian_hessianCC(XX, X, Z, Kinv, mu_hat, theta)
 }

@@ -5,7 +5,7 @@
 #   self
 # }
 
-RBFfit <- function(X, Y) {#browser()
+RBFfit <- function(X, Y) {
   self <- list()
   centers <- X
   n <- nrow(X)
@@ -27,7 +27,7 @@ RBFfit <- function(X, Y) {#browser()
   self
 }
 
-RBFpred <- function(self, xp) {#browser()
+RBFpred <- function(self, xp) {
   n <- nrow(self$X)
   np <- nrow(xp)
   phi <- outer(1:n, 1:np, function(i, ip) {
@@ -69,7 +69,7 @@ points(x, y)
 
 
 
-AugRBFfit <- function(X, Y) {#browser()
+AugRBFfit <- function(X, Y) {
   self <- list()
   # centers <- X
   n <- nrow(X)
@@ -86,7 +86,6 @@ AugRBFfit <- function(X, Y) {#browser()
   k <- 2
   P <- matrix(0, n, k*d+1)
   P[,1] <- 1
-  # browser()
   for (ki in 1:k) {
     P[,1+ki*d - d + 1:d] <- X ^ ki
   }
@@ -105,16 +104,15 @@ AugRBFfit <- function(X, Y) {#browser()
   self
 }
 
-AugRBFpred <- function(self, xp) {#browser()
+AugRBFpred <- function(self, xp) {
   print("using augmented")
   n <- nrow(self$X)
   d <- ncol(self$X)
   np <- nrow(xp)
-  phi <- outer(1:n, 1:np, Vectorize(function(i, ip) {#browser()
+  phi <- outer(1:n, 1:np, Vectorize(function(i, ip) {
     # sqrt(abs((self$X[i,] - xp[ip,])^2))
     self$BasisFunc(self$X[i,], xp[ip,])
   }))
-  # browser()
   Ypredmean <- t(phi) %*% self$theta + rowSums(matrix(self$mu, nrow(xp), d*self$k+1, byrow=T) * do.call(cbind, lapply(0:self$k, function(ki) {if (ki==0) {matrix(1,nrow(xp),1)} else {xp^ki}})))
 
   # Get var

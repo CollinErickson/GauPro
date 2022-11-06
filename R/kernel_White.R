@@ -48,7 +48,7 @@ White <- R6::R6Class(
     #' of x with itself.
     #' @param s2 Variance parameter.
     #' @param params parameters to use instead of beta and s2.
-    k = function(x, y=NULL, s2=self$s2, params=NULL) {#browser()
+    k = function(x, y=NULL, s2=self$s2, params=NULL) {
       if (!is.null(params)) {
         logs2 <- params #[lenpar]
         s2 <- 10^logs2
@@ -140,7 +140,7 @@ White <- R6::R6Class(
     #' @param theta Correlation parameters
     #' @param beta log of theta
     #' @param s2 Variance parameter
-    dC_dx = function(XX, X, s2=self$s2) {#browser()
+    dC_dx = function(XX, X, s2=self$s2) {
       if (!is.matrix(XX)) {stop()}
       d <- ncol(XX)
       if (ncol(X) != d) {stop()}

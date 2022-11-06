@@ -148,7 +148,8 @@ Periodic <- R6::R6Class(
     #' @param logalpha Correlation parameters.
     #' @param s2 Variance parameter.
     #' @param params parameters to use instead of beta and s2.
-    k = function(x, y=NULL, logp=self$logp, logalpha=self$logalpha, s2=self$s2, params=NULL) {#browser()
+    k = function(x, y=NULL, logp=self$logp, logalpha=self$logalpha, s2=self$s2,
+                 params=NULL) {
       if (!is.null(params)) {
         lenparams <- length(params)
         # logp <- params[1:(lenpar-2)]
@@ -175,7 +176,7 @@ Periodic <- R6::R6Class(
 
 
         s2 <- 10^logs2
-      } else {#browser()
+      } else {
         if (is.null(logp)) {logp <- self$logp}
         if (is.null(logalpha)) {logalpha <- self$logalpha}
         if (is.null(s2)) {s2 <- self$s2}
@@ -183,7 +184,7 @@ Periodic <- R6::R6Class(
       p <- 10^logp
       alpha <- 10^logalpha
       if (is.null(y)) {
-        if (is.matrix(x)) {#browser()
+        if (is.matrix(x)) {
           val <- outer(1:nrow(x), 1:nrow(x),
                        Vectorize(function(i,j){
                          self$kone(x[i,],x[j,],p=p, alpha=alpha, s2=s2)
@@ -318,7 +319,7 @@ Periodic <- R6::R6Class(
     #' @param logp log of p
     #' @param logalpha log of alpha
     #' @param s2 Variance parameter
-    dC_dx = function(XX, X, logp=self$logp, logalpha=self$logalpha, s2=self$s2) {#browser()
+    dC_dx = function(XX, X, logp=self$logp, logalpha=self$logalpha, s2=self$s2) {
       # if (missing(theta)) {theta <- 10^beta}
       p <- 10 ^ logp
       alpha <- 10 ^ logalpha

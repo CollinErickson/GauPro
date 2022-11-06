@@ -48,7 +48,6 @@ GauPro_kernel <- R6::R6Class(classname = "GauPro_kernel",
       xseq <- seq(0,1,l=n)
       x0 <- rep(0, self$D)
       df <- NULL
-      # browser()
       for (i in 1:self$D) {
         X <- matrix(0, ncol=self$D, nrow=n)
         X[, i] <- xseq

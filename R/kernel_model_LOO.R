@@ -144,7 +144,6 @@ GauPro_kernel_model_LOO <- R6::R6Class(
       se <- rep(0, length(mn)) # NEG VARS will be 0 for se, NOT SURE I WANT THIS
       se[s2>=0] <- sqrt(s2[s2>=0])
 
-      # browser()
       # Do LOO stuff here
       if (self$use_LOO) {
         loo.p <- self$tmod$predict(XX)
