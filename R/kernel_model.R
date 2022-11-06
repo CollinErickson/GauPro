@@ -157,7 +157,7 @@ GauPro_kernel_model <- R6::R6Class(
                           kernel, trend,
                           verbose=0, useC=TRUE, useGrad=TRUE,
                           parallel=FALSE, parallel_cores="detect",
-                          nug=1e-6, nug.min=1e-8, nug.max=Inf, nug.est=TRUE,
+                          nug=1e-6, nug.min=1e-8, nug.max=1e2, nug.est=TRUE,
                           param.est = TRUE, restarts = 0,
                           normalize = FALSE, optimizer="L-BFGS-B",
                           track_optim=FALSE,
@@ -257,6 +257,21 @@ GauPro_kernel_model <- R6::R6Class(
       self$D <- ncol(self$X)
 
       # Set kernel
+      if (missing(kernel)) {
+        # # Stop and give message
+        # stop(paste0(
+        #   "Argument 'kernel' is missing. ",
+        #   "Try using 'gauss' or 'matern52'.",
+        #   " See documentation for more details."
+        # ))
+        # Set to matern52 by default
+        kernel <- "matern52"
+        warning(paste0(
+          "Argument 'kernel' is missing. ",
+          "It has been set to 'matern52'.",
+          " See documentation for more details."
+        ))
+      }
       if ("R6ClassGenerator" %in% class(kernel)) {
         # Let generator be given so D can be set auto
         self$kernel <- kernel$new(D=self$D)
@@ -2649,6 +2664,75 @@ GauPro_kernel_model <- R6::R6Class(
       # return(bestpar)
       stop("maxEIwithfactorsordiscrete failed #259287")
     },
+    # maxEI_mixopt = function(mopar_list,
+    #                         n0=100,
+    #                         minimize=FALSE,
+    #                         eps=0) {
+    #   browser()
+    #   1
+    #   2
+    #   out <- mixop
+    # },
+    # maxEIwithfactorsordiscrete2 = function(lower=apply(self$X, 2, min),
+    #                                        upper=apply(self$X, 2, max),
+    #                                        n0=100, minimize=FALSE, eps=0,
+    #                                        discreteinputs=NULL
+    # ) {
+    #   stopifnot(all(lower < upper))
+    #   stopifnot(length(n0)==1, is.numeric(n0), n0>=1)
+    #   # Make sure discreteinputs is okay
+    #   if (!is.null(discreteinputs)) {
+    #     stopifnot(is.list(discreteinputs), length(discreteinputs)>0)
+    #     stopifnot(!is.null(names(discreteinputs)),
+    #               all(names(discreteinputs) != ""))
+    #     discreteinds <- as.integer(names(discreteinputs))
+    #     stopifnot(!is.na(discreteinds))
+    #   } else {
+    #     discreteinds <- c()
+    #   }
+    #   # Get factor info
+    #   factorinfo <- find_kernel_factor_dims(self$kernel)
+    #   if (!is.null(factorinfo)) {
+    #     # Run inner EI over all factor combinations
+    #     stopifnot(length(factorinfo)>0)
+    #     # factordf <- data.frame(index=factorinfo[1]
+    #     factorlist <- list()
+    #     for (i_f in 1:(length(factorinfo)/2)) {
+    #       factorlist[[as.character(factorinfo[i_f*2-1])]] <- 1:factorinfo[i_f*2]
+    #     }
+    #     factordf <- do.call(expand.grid, factorlist)
+    #     # Track best seen in optimizing EI
+    #     bestval <- Inf
+    #     bestpar <- c()
+    #     factorxindex <- factorinfo[(1:(length(factorinfo)/2))*2-1] #factorinfo[[1]]
+    #     factornlevels <- factorinfo[(1:(length(factorinfo)/2))*2]
+    #   } else {
+    #     # Indices of factor columns
+    #     factorxindex <- c()
+    #   }
+    #
+    #   ctsinds <- setdiff(1:self$D, c(discreteinds, factorxindex))
+    #
+    #   browser()
+    #   mopar <- list()
+    #   for (i in 1:self$D) {
+    #     if (i %in% ctsinds) {
+    #       mopar[[i]] <- mixopt::mopar_cts(0,1)
+    #     } else if (i %in% discreteinds) {
+    #       mopar[[i]] <- mixopt::mopar_ordered(0:1)
+    #     } else if (i %in% factorxindex) {
+    #       mopar[[i]] <- mixopt::mopar_ordered(0:1)
+    #     } else {
+    #       stop("Error #093842348 not a par")
+    #     }
+    #   }
+    #   mixopt::mixopt_multistart(
+    #     par=mopar,
+    #     fn=mofn,
+    #     n0=n0
+    #   )
+    #
+    # },
     #' @description Find the multiple points that maximize the expected
     #' improvement. Currently only implements the constant liar method.
     #' @param npoints Number of points to add

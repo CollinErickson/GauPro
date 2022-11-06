@@ -90,3 +90,5 @@ an error the user should know. Like when I test useCM.
 * Optimize any function with cts/factor/discrete: use in EI, qEI, max.
 
 * FactorKernel and OrderedFK: change correlation, maybe just 1.95 instead of 2
+
+* find_kernel_factor_dims should separate ordered from unordered

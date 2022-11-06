@@ -92,7 +92,7 @@ gp3$maxEI()
 
 
 
-# 2 dicrete inputs, 2 cts inputs, 2 integer
+# 2 discrete, 2 cts, 2 integer ----
 f <- function(a, b, c, d, e, f) {
   -1e-3*a^2*b^2*a + a*ifelse(c==1,1,0) + ifelse(d==1,1,2) + rnorm(length(a),0,1e-1) +
     a*e/1e3 + .3*f + sin(f)*e/1e3
@@ -125,4 +125,5 @@ gp4
 plot(gp4$pred(Xmat), y); abline(a=0,b=1, col=2)
 gp4$maxEI()
 gp4$maxEI(discreteinputs = list('5'=1:1e4, '6'=c(1,3,5,7,9)))
+gp4$maxEIwithfactorsordiscrete2(discreteinputs = list('5'=1:1e4, '6'=c(1,3,5,7,9)))
 
