@@ -11,3 +11,4 @@ cran-comments.md
 \.so$
 \.dll$
 ^\.github$
+^revdep$
