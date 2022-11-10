@@ -21,6 +21,9 @@ on other attempts.
 * GitHub Actions: Also the 1 NOTE for large sub-directories, but no
 warnings/errors.
 
+* R-hub Ubuntu: NOTE for sub-directory size, NOTE for slow examples,
+NOTE for new submission.
+
 ## Downstream dependencies
 
 None.
