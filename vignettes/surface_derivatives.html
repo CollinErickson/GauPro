@@ -1,27 +1,256 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <meta name="author" content="Collin Erickson" />
 
-<meta name="date" content="2017-10-31" />
+<meta name="date" content="2022-11-09" />
 
 <title>Spatial derivatives of Gaussian process models</title>
 
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
 
 
 
 
 
-<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+<style type="text/css">
+
+div.csl-bib-body { }
+div.csl-entry {
+clear: both;
+}
+.hanging div.csl-entry {
+margin-left:2em;
+text-indent:-2em;
+}
+div.csl-left-margin {
+min-width:2em;
+float:left;
+}
+div.csl-right-inline {
+margin-left:2em;
+padding-left:1em;
+}
+div.csl-indent {
+margin-left: 2em;
+}
+</style>
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
 
 </head>
 
@@ -30,75 +259,152 @@
 
 
 
-<h1 class="title toc-ignore">Spatial derivatives of Gaussian process models</h1>
-<h4 class="author"><em>Collin Erickson</em></h4>
-<h4 class="date"><em>2017-10-31</em></h4>
+<h1 class="title toc-ignore">Spatial derivatives of Gaussian process
+models</h1>
+<h4 class="author">Collin Erickson</h4>
+<h4 class="date">2022-11-09</h4>
 
 
 
-<p>This vignette covers the derivatives of the surface created by a Gaussian process model with respect to the spatial dimensions. The other vignette, <strong>Derivatives for estimating Gaussian process parameters</strong>, has derivatives of the deviance (likelihood) with respect to the parameters. For an explanation of notation and basic equations, see the vignette <strong>Introduction to Gaussian Processes</strong>.</p>
-<p>Here we assume that we have <span class="math inline">\(n\)</span> data points <span class="math inline">\(Y_X\)</span> that are the function values corresponding to the rows of the <span class="math inline">\(n\)</span> by <span class="math inline">\(d\)</span> design matrix <span class="math inline">\(X\)</span>. We have a mean function <span class="math inline">\(\mu\)</span> and covariance function <span class="math inline">\(\Sigma\)</span>.</p>
-<p><span class="math inline">\(y(x)\)</span> is the random variable representing the output <span class="math inline">\(Y_x\)</span> corresponding to input point <span class="math inline">\(x\)</span> conditional on the data <span class="math inline">\(Y_X\)</span>. Thus <span class="math inline">\(y(x) = Y_x | Y_X\)</span>, and <span class="math inline">\(y(x)\)</span> is a random variable with distribution</p>
-<p><span class="math display">\[ y(x) \sim N \left( \mu_x + \Sigma_{xX} \Sigma_x^{-1}(Y_X - \mu_X) , ~\Sigma_x + \Sigma_{xX} \Sigma_X^{-1} \Sigma_{Xx}\right)\]</span></p>
+<p>This vignette covers the derivatives of the surface created by a
+Gaussian process model with respect to the spatial dimensions. The other
+vignette, <strong>Derivatives for estimating Gaussian process
+parameters</strong>, has derivatives of the deviance (likelihood) with
+respect to the parameters. For an explanation of notation and basic
+equations, see the vignette <strong>Introduction to Gaussian
+Processes</strong>.</p>
+<p>Here we assume that we have <span class="math inline">\(n\)</span>
+data points <span class="math inline">\(Y_X\)</span> that are the
+function values corresponding to the rows of the <span class="math inline">\(n\)</span> by <span class="math inline">\(d\)</span> design matrix <span class="math inline">\(X\)</span>. We have a mean function <span class="math inline">\(\mu\)</span> and covariance function <span class="math inline">\(\Sigma\)</span>.</p>
+<p><span class="math inline">\(y(x)\)</span> is the random variable
+representing the output <span class="math inline">\(Y_x\)</span>
+corresponding to input point <span class="math inline">\(x\)</span>
+conditional on the data <span class="math inline">\(Y_X\)</span>. Thus
+<span class="math inline">\(y(x) = Y_x | Y_X\)</span>, and <span class="math inline">\(y(x)\)</span> is a random variable with
+distribution</p>
+<p><span class="math display">\[ y(x) \sim N \left( \mu_x + \Sigma_{xX}
+\Sigma_x^{-1}(Y_X - \mu_X) , ~\Sigma_x + \Sigma_{xX} \Sigma_X^{-1}
+\Sigma_{Xx}\right)\]</span></p>
 <div id="gradient-of-mean-function" class="section level1">
 <h1>Gradient of mean function</h1>
-<p>The mean function is <span class="math display">\[ \hat{y}(x) = \mu(x) + \Sigma_{xX} \Sigma_X^{-1}(Y_X - \mu_X). \]</span> <span class="math inline">\(\mu(x)\)</span> and <span class="math inline">\(\Sigma_{xX}\)</span> are the only parts that depends on <span class="math inline">\(x\)</span>.</p>
-<p>We can find the gradient of <span class="math inline">\(\hat{y}(x)\)</span> by taking the partial derivatives</p>
-<p><span class="math display">\[\frac{\partial \hat{y}(x)}{\partial x_i}= \frac{\partial \mu(x)}{\partial x_i} +  \frac{\partial \Sigma_{x,X}}{\partial x_i} \Sigma_X^{-1}(Y_X - \mu_X)\]</span> Remember that <span class="math inline">\(\Sigma\)</span> is overloaded and the second derivative on the right hand side is: <span class="math display">\[\frac{\partial \Sigma_{x,X}}{\partial x_i} = \frac{\partial \Sigma (x,X)}{\partial x_i} \]</span> The calculation above is for a single partial derivative. The vector of these gives the gradient <span class="math inline">\(\frac{\partial \hat{y}(x)}{\partial x} = \nabla_x \hat{y}(x)\)</span>. Note that the partial derivative of a scalar with respect to a vector is another way of writing the gradient.</p>
-<p>We usually use <span class="math inline">\(\mu(x)\)</span> equal to zero, a constant, or a linear model, meaning that its derivative is usually zero or a constant.</p>
+<p>The mean function is <span class="math display">\[ \hat{y}(x) =
+\mu(x) + \Sigma_{xX} \Sigma_X^{-1}(Y_X - \mu_X). \]</span> <span class="math inline">\(\mu(x)\)</span> and <span class="math inline">\(\Sigma_{xX}\)</span> are the only parts that
+depends on <span class="math inline">\(x\)</span>.</p>
+<p>We can find the gradient of <span class="math inline">\(\hat{y}(x)\)</span> by taking the partial
+derivatives</p>
+<p><span class="math display">\[\frac{\partial \hat{y}(x)}{\partial
+x_i}= \frac{\partial \mu(x)}{\partial x_i} +  \frac{\partial
+\Sigma_{x,X}}{\partial x_i} \Sigma_X^{-1}(Y_X - \mu_X)\]</span> Remember
+that <span class="math inline">\(\Sigma\)</span> is overloaded and the
+second derivative on the right hand side is: <span class="math display">\[\frac{\partial \Sigma_{x,X}}{\partial x_i} =
+\frac{\partial \Sigma (x,X)}{\partial x_i} \]</span> The calculation
+above is for a single partial derivative. The vector of these gives the
+gradient <span class="math inline">\(\frac{\partial \hat{y}(x)}{\partial
+x} = \nabla_x \hat{y}(x)\)</span>. Note that the partial derivative of a
+scalar with respect to a vector is another way of writing the
+gradient.</p>
+<p>We usually use <span class="math inline">\(\mu(x)\)</span> equal to
+zero, a constant, or a linear model, meaning that its derivative is
+usually zero or a constant.</p>
 <div id="hessian-of-mean-function" class="section level2">
 <h2>Hessian of mean function</h2>
-<p>The second derivatives can be calculated similarly <span class="math display">\[\frac{\partial^2 \hat{y}(x)}{\partial x_i \partial x_k} = \frac{\partial^2 \mu(x)}{\partial x_i \partial x_k} +\frac{\partial^2 \Sigma_{xX}}{\partial x_i \partial x_k} \Sigma_X^{-1}(Y_X - \mu_X)\]</span> For the typical choices of <span class="math inline">\(\mu\)</span> its second order derivatives are zero, meaning that we usually only have the second term to worry about.</p>
+<p>The second derivatives can be calculated similarly <span class="math display">\[\frac{\partial^2 \hat{y}(x)}{\partial x_i
+\partial x_k} = \frac{\partial^2 \mu(x)}{\partial x_i \partial x_k}
++\frac{\partial^2 \Sigma_{xX}}{\partial x_i \partial x_k}
+\Sigma_X^{-1}(Y_X - \mu_X)\]</span> For the typical choices of <span class="math inline">\(\mu\)</span> its second order derivatives are
+zero, meaning that we usually only have the second term to worry
+about.</p>
 </div>
 <div id="gaussian-correlation-derivative" class="section level2">
 <h2>Gaussian correlation derivative</h2>
-<p>The equations above work for any covariance function, but then we need to have the derivatives of the covariance function with respect to the spatial variables. Here we calculate these derivatives for the Gaussian, or squared exponential, correlation function <span class="math inline">\(R\)</span>.</p>
-<p><span class="math display">\[R(x, u) = \exp \left(-\sum_{\ell =1}^d \theta_\ell (x_\ell - u_{\ell})^2 \right) \]</span></p>
-<p><span class="math display">\[\frac{\partial R(x, u)}{\partial x_i}  = -2\theta_i (x_i - u_{i}) \exp \left(-\sum_{\ell =1}^d \theta_\ell (x_\ell - u_{\ell})^2 \right)  \]</span> The second derivative with respect to the same dimension is</p>
+<p>The equations above work for any covariance function, but then we
+need to have the derivatives of the covariance function with respect to
+the spatial variables. Here we calculate these derivatives for the
+Gaussian, or squared exponential, correlation function <span class="math inline">\(R\)</span>.</p>
+<p><span class="math display">\[R(x, u) = \exp \left(-\sum_{\ell =1}^d
+\theta_\ell (x_\ell - u_{\ell})^2 \right) \]</span></p>
+<p><span class="math display">\[\frac{\partial R(x, u)}{\partial x_i}  =
+-2\theta_i (x_i - u_{i}) \exp \left(-\sum_{\ell =1}^d \theta_\ell
+(x_\ell - u_{\ell})^2 \right)  \]</span> The second derivative with
+respect to the same dimension is</p>
 <p><span class="math display">\[
 \begin{align}
-  \frac{\partial^2 R(x, u)}{\partial x_i^2}  &amp;= \left(-2\theta_i  + 4\theta_i^2 (x_i - u_{i})^2 \right) \exp \left(-\sum_{\ell =1}^d \theta_\ell (x_\ell - u_{\ell})^2 \right) \\
+  \frac{\partial^2 R(x, u)}{\partial x_i^2}  &amp;= \left(-2\theta_i  +
+4\theta_i^2 (x_i - u_{i})^2 \right) \exp \left(-\sum_{\ell =1}^d
+\theta_\ell (x_\ell - u_{\ell})^2 \right) \\
   &amp;= \left(-2\theta_i  + 4\theta_i^2 (x_i - u_{i})^2 \right) R(x, u)
 \end{align}
 \]</span></p>
-<p>The cross derivative for <span class="math inline">\(i \neq k\)</span> is <span class="math display">\[
+<p>The cross derivative for <span class="math inline">\(i \neq
+k\)</span> is <span class="math display">\[
 \begin{align}
-  \frac{\partial^2 R(x, u)}{\partial x_i \partial x_k}  &amp;= 4\theta_i \theta_k (x_i - u_{i}) (x_k - u_{k}) \exp \left(-\sum_{\ell =1}^d \theta_\ell (x_\ell - u_{\ell})^2 \right)  \\
+  \frac{\partial^2 R(x, u)}{\partial x_i \partial x_k}  &amp;= 4\theta_i
+\theta_k (x_i - u_{i}) (x_k - u_{k}) \exp \left(-\sum_{\ell =1}^d
+\theta_\ell (x_\ell - u_{\ell})^2 \right)  \\
   &amp;= 4\theta_i \theta_k (x_i - u_{i}) (x_k - u_{k}) R(x, u)
 \end{align}
 \]</span></p>
-<p>The second derivative with respect to each component, which is needed for the gradient distribution below, is the following for the same dimension <span class="math inline">\(i\)</span>:</p>
+<p>The second derivative with respect to each component, which is needed
+for the gradient distribution below, is the following for the same
+dimension <span class="math inline">\(i\)</span>:</p>
 <p><span class="math display">\[
 \begin{align}
-  \frac{\partial^2 R(x, u)}{\partial x_i \partial u_i}  &amp;= \left(2\theta_i  - 4\theta_i^2 (x_i - u_{i})^2 \right) \exp \left(-\sum_{\ell =1}^d \theta_\ell (x_\ell - u_{\ell})^2 \right) \\
+  \frac{\partial^2 R(x, u)}{\partial x_i \partial u_i}  &amp;=
+\left(2\theta_i  - 4\theta_i^2 (x_i - u_{i})^2 \right) \exp
+\left(-\sum_{\ell =1}^d \theta_\ell (x_\ell - u_{\ell})^2 \right) \\
   &amp;= \left(2\theta_i  - 4\theta_i^2 (x_i - u_{i})^2 \right) R(x, u)
 \end{align}
 \]</span></p>
-<p>And the following for <span class="math inline">\(i \neq k\)</span>:</p>
+<p>And the following for <span class="math inline">\(i \neq
+k\)</span>:</p>
 <p><span class="math display">\[
 \begin{align}
-  \frac{\partial^2 R(x, u)}{\partial x_i \partial u_k}  &amp;= -4\theta_i \theta_k (x_i - u_{i}) (x_k - u_{k}) \exp \left(-\sum_{\ell =1}^d \theta_\ell (x_\ell - u_{\ell})^2 \right)  \\
+  \frac{\partial^2 R(x, u)}{\partial x_i \partial u_k}  &amp;=
+-4\theta_i \theta_k (x_i - u_{i}) (x_k - u_{k}) \exp \left(-\sum_{\ell
+=1}^d \theta_\ell (x_\ell - u_{\ell})^2 \right)  \\
   &amp;= -4\theta_i \theta_k (x_i - u_{i}) (x_k - u_{k}) R(x, u)
 \end{align}
 \]</span></p>
 </div>
 <div id="gradient-distribution" class="section level2">
 <h2>Gradient distribution</h2>
-<p>A big problem with using the gradient of the mean function of a GP is that it doesn’t give an idea of its distribution/randomness. The mean of the gradient could be predicted to be zero in a region where the surface is not flat simply because it has no information in that region yet.</p>
-<p>First we want to know what type of distribution the gradient follows. Since the derivative is a linear operator, and a linear operator applied to a normal r.v. is also normal, the gradient must be a multivariate random variable. For a more intuitive explanation, consider a <span class="math inline">\(\delta\)</span> approximation to the gradient.</p>
-<p><span class="math display">\[ \frac{\partial y(x)}{\partial x} = \lim_{\delta \rightarrow 0} \frac{1}{\delta} \left( \begin{bmatrix} y(x+\delta e_1) \\ \vdots \\ y(x+\delta e_d) \end{bmatrix} - \begin{bmatrix} y(x) \\ \vdots \\ y(x) \end{bmatrix} \right)\]</span></p>
-<p>For any finite <span class="math inline">\(\delta\)</span>, this vector’s components are a linear combination of normal random variables, and thus the vector has a multivariate distribution. We still need to show that in the limit as <span class="math inline">\(\delta \rightarrow 0\)</span>, it retains a multivariate distribution, but I won’t do that here.</p>
-<p>Thus the gradient follows a multivariate distribution, and now we will find its mean and covariance.</p>
+<p>A big problem with using the gradient of the mean function of a GP is
+that it doesn’t give an idea of its distribution/randomness. The mean of
+the gradient could be predicted to be zero in a region where the surface
+is not flat simply because it has no information in that region yet.</p>
+<p>First we want to know what type of distribution the gradient follows.
+Since the derivative is a linear operator, and a linear operator applied
+to a normal r.v. is also normal, the gradient must be a multivariate
+random variable. For a more intuitive explanation, consider a <span class="math inline">\(\delta\)</span> approximation to the gradient.</p>
+<p><span class="math display">\[ \frac{\partial y(x)}{\partial x} =
+\lim_{\delta \rightarrow 0} \frac{1}{\delta} \left( \begin{bmatrix}
+y(x+\delta e_1) \\ \vdots \\ y(x+\delta e_d) \end{bmatrix} -
+\begin{bmatrix} y(x) \\ \vdots \\ y(x) \end{bmatrix}
+\right)\]</span></p>
+<p>For any finite <span class="math inline">\(\delta\)</span>, this
+vector’s components are a linear combination of normal random variables,
+and thus the vector has a multivariate distribution. We still need to
+show that in the limit as <span class="math inline">\(\delta \rightarrow
+0\)</span>, it retains a multivariate distribution, but I won’t do that
+here.</p>
+<p>Thus the gradient follows a multivariate distribution, and now we
+will find its mean and covariance.</p>
 <div id="gradient-expected-value" class="section level3">
 <h3>Gradient expected value</h3>
-<p>The expected value of the gradient is easily found since it equals the gradient of the expected value. This is true because both gradients and expected value and linear operators and thus can be exchanged.</p>
-<p><span class="math display">\[ E \left[\frac{\partial y(x)}{\partial x} \right] =  \frac{\partial E[y(x)]}{\partial x}  \\
-   = \frac{\partial \Sigma(x,X)}{\partial x_i} \Sigma_X^{-1}(Y_X - \mu_X)
+<p>The expected value of the gradient is easily found since it equals
+the gradient of the expected value. This is true because both gradients
+and expected value and linear operators and thus can be exchanged.</p>
+<p><span class="math display">\[ E \left[\frac{\partial y(x)}{\partial
+x} \right] =  \frac{\partial E[y(x)]}{\partial x}  \\
+   = \frac{\partial \Sigma(x,X)}{\partial x_i} \Sigma_X^{-1}(Y_X -
+\mu_X)
 \]</span></p>
 </div>
 <div id="variance-of-the-gradient" class="section level3">
 <h3>Variance of the gradient</h3>
-<p>The variance is harder to calculate. I used <a href="http://mlg.eng.cam.ac.uk/mchutchon/DifferentiatingGPs.pdf">this reference</a> <span class="citation">(McHutchon, n.d.)</span> to get started, but the derivation presented here is much simpler.</p>
+<p>The variance is harder to calculate. I used <a href="https://mlg.eng.cam.ac.uk/pub/pdf/Mch14.pdf">this reference</a>
+<span class="citation">(McHutchon, n.d.)</span> to get started, but the
+derivation presented here is much simpler.</p>
 <!-- #### Starting over here -->
 <!-- Let $U$ and $X$ be design matrices, so their rows are input points. Let the vector of outputs at $U$ be $Y_U$ and at $X$ be $Y_X$. -->
 <!-- Their joint distribution is  -->
@@ -125,56 +431,127 @@
 <!--     \Sigma_{ba}       & \Sigma_{b} \\ -->
 <!-- \end{bmatrix}  -->
 <!-- $$ -->
-<p>We need to find the covariance of the gradient vector of <span class="math inline">\(y\)</span> at a point <span class="math inline">\(x\)</span>. <span class="math display">\[ \text{Cov}(\nabla_x y(x))\]</span> The <span class="math inline">\((i,j)\)</span> entry of this matrix is <span class="math display">\[ \text{Cov}(\frac{\partial y(x)}{\partial x_i},\frac{\partial y(x)}{\partial x_j})\]</span> We can write this as a limit.</p>
-<p><span class="math display">\[ \lim_{\delta \rightarrow 0} \text{Cov}\left(\frac{y(x+\delta e_i) - y(x)}{\delta}, \frac{y(x+\delta e_j) - y(x)}{\delta}\right)\]</span> The covariance function is bilinear, so we can split it into four terms.</p>
+<p>We need to find the covariance of the gradient vector of <span class="math inline">\(y\)</span> at a point <span class="math inline">\(x\)</span>. <span class="math display">\[
+\text{Cov}(\nabla_x y(x))\]</span> The <span class="math inline">\((i,j)\)</span> entry of this matrix is <span class="math display">\[ \text{Cov}(\frac{\partial y(x)}{\partial
+x_i},\frac{\partial y(x)}{\partial x_j})\]</span> We can write this as a
+limit.</p>
+<p><span class="math display">\[ \lim_{\delta \rightarrow 0}
+\text{Cov}\left(\frac{y(x+\delta e_i) - y(x)}{\delta}, \frac{y(x+\delta
+e_j) - y(x)}{\delta}\right)\]</span> The covariance function is
+bilinear, so we can split it into four terms.</p>
 <p><span class="math display">\[
 \begin{align}
-  \lim_{\delta \rightarrow 0} \frac{1}{\delta^2} \left(   \text{Cov}\left[y(x+\delta e_i), y(x+\delta e_j)\right] - \text{Cov}\left[y(x+\delta e_i), y(x)\right] \\
-  - \text{Cov}\left[y(x), y(x+\delta e_j)\right] + \text{Cov}\left[y(x), y(x)\right] \right)
+  \lim_{\delta \rightarrow 0} \frac{1}{\delta^2}
+\left(   \text{Cov}\left[y(x+\delta e_i), y(x+\delta e_j)\right] -
+\text{Cov}\left[y(x+\delta e_i), y(x)\right] \\
+  - \text{Cov}\left[y(x), y(x+\delta e_j)\right] + \text{Cov}\left[y(x),
+y(x)\right] \right)
 \end{align}
 \]</span></p>
-<p>This can be recognized as the second order derivative of <span class="math inline">\(\text{Cov}(y(u), y(v))\)</span> with respect to <span class="math inline">\(u_i\)</span> and <span class="math inline">\(v_j\)</span> evaluated at <span class="math inline">\(u=v=x\)</span>. See finite difference differentiation for more details. We have to use <span class="math inline">\(u\)</span> and <span class="math inline">\(v\)</span> instead of a single <span class="math inline">\(x\)</span> to be clear which component of the covariance function is being differentiated.</p>
-<p>Thus we have the following. It looks obvious, so I’m not sure I even needed the previous step. <span class="math display">\[ \text{Cov}(\frac{\partial y(x)}{\partial x_i},\frac{\partial y(x)}{\partial x_j}) = \frac{\partial \text{Cov}(y(u), y(v))}{\partial u \partial v} |_{u=x, v=x}\]</span> Let <span class="math inline">\(U\)</span> be the matrix with rows <span class="math inline">\(u\)</span> and <span class="math inline">\(v\)</span>. Recall that <span class="math display">\[ \text{Cov}\left( \begin{bmatrix} y(u) \\ y(v) \end{bmatrix} \right) = \Sigma_{U} - \Sigma_{UX} \Sigma_{X}^{-1} \Sigma_{XU}\]</span> The <span class="math inline">\((1,2)\)</span> element of this is the covariance we are looking for. <span class="math display">\[ \text{Cov}(y(u), y(v)) = \Sigma_{u,v} - \Sigma_{u,X} \Sigma_X^{-1} \Sigma_{X,v}\]</span> Now we need to differentiate this with respect to <span class="math inline">\(u_i\)</span> and <span class="math inline">\(v_j\)</span>.</p>
-<p><span class="math display">\[ \text{Cov} \left( \frac{\partial y(x)}{\partial x_i},\frac{\partial y(x)}{\partial x_j} \right) =   \frac{\partial^2 \Sigma_{u,v}}{\partial u_i \partial v_j} - \frac{\partial \Sigma_{u,X}}{\partial u_i} \Sigma_X^{-1} \frac{\partial \Sigma_{X,v}}{\partial v_j} |_{u=x,v=x}\]</span> Therefore we have found the distribution of the gradient.</p>
+<p>This can be recognized as the second order derivative of <span class="math inline">\(\text{Cov}(y(u), y(v))\)</span> with respect to
+<span class="math inline">\(u_i\)</span> and <span class="math inline">\(v_j\)</span> evaluated at <span class="math inline">\(u=v=x\)</span>. See finite difference
+differentiation for more details. We have to use <span class="math inline">\(u\)</span> and <span class="math inline">\(v\)</span> instead of a single <span class="math inline">\(x\)</span> to be clear which component of the
+covariance function is being differentiated.</p>
+<p>Thus we have the following. It looks obvious, so I’m not sure I even
+needed the previous step. <span class="math display">\[
+\text{Cov}(\frac{\partial y(x)}{\partial x_i},\frac{\partial
+y(x)}{\partial x_j}) = \frac{\partial \text{Cov}(y(u), y(v))}{\partial u
+\partial v} |_{u=x, v=x}\]</span> Let <span class="math inline">\(U\)</span> be the matrix with rows <span class="math inline">\(u\)</span> and <span class="math inline">\(v\)</span>. Recall that <span class="math display">\[ \text{Cov}\left( \begin{bmatrix} y(u) \\ y(v)
+\end{bmatrix} \right) = \Sigma_{U} - \Sigma_{UX} \Sigma_{X}^{-1}
+\Sigma_{XU}\]</span> The <span class="math inline">\((1,2)\)</span>
+element of this is the covariance we are looking for. <span class="math display">\[ \text{Cov}(y(u), y(v)) = \Sigma_{u,v} -
+\Sigma_{u,X} \Sigma_X^{-1} \Sigma_{X,v}\]</span> Now we need to
+differentiate this with respect to <span class="math inline">\(u_i\)</span> and <span class="math inline">\(v_j\)</span>.</p>
+<p><span class="math display">\[ \text{Cov} \left( \frac{\partial
+y(x)}{\partial x_i},\frac{\partial y(x)}{\partial x_j} \right)
+=   \frac{\partial^2 \Sigma_{u,v}}{\partial u_i \partial v_j} -
+\frac{\partial \Sigma_{u,X}}{\partial u_i} \Sigma_X^{-1} \frac{\partial
+\Sigma_{X,v}}{\partial v_j} |_{u=x,v=x}\]</span> Therefore we have found
+the distribution of the gradient.</p>
 <p><span class="math display">\[
-\frac{\partial y(x)}{\partial x} | Y_X 
-\sim 
+\frac{\partial y(x)}{\partial x} | Y_X
+\sim
 N(\frac{\partial \Sigma(x,X)}{\partial x}^T \Sigma_X^{-1} (Y_X - \mu_X),
-\frac{\partial^2 \Sigma(x_1, x_2)}{\partial x_1 \partial x_2}  + 
-\frac{\partial \Sigma(x_1, X)}{\partial x_1} \Sigma_x^{-1} \frac{\partial \Sigma(X, x_2)}{\partial x_2} |_{x_1=x,x_2=x})
+\frac{\partial^2 \Sigma(x_1, x_2)}{\partial x_1 \partial x_2}  +
+\frac{\partial \Sigma(x_1, X)}{\partial x_1} \Sigma_x^{-1}
+\frac{\partial \Sigma(X, x_2)}{\partial x_2} |_{x_1=x,x_2=x})
 \]</span></p>
 </div>
 <div id="distribution-of-the-gradient-norm-squared" class="section level3">
 <h3>Distribution of the gradient norm squared</h3>
-<p>Let <span class="math display">\[g(x) = \frac{\partial y(x)}{\partial x} | Y_X \]</span> <span class="math display">\[g(x) = \nabla_x y(x) | Y_X \]</span> This is a vector. We are often interested in the gradient norm, or its square, <span class="math inline">\(g(x)^T g(x) = ||g(x)||^2\)</span>. This is the sum of correlated squared normal variables, i.e. the sum of correlated chi-squared variables. Since <span class="math inline">\(g(x)\)</span> has a multivariate normal distribution, the square of its norm is probably distributed according to some kind of chi-squared distribution. We can first try to find its expectation using.</p>
+<p>Let <span class="math display">\[g(x) = \frac{\partial y(x)}{\partial
+x} | Y_X \]</span> <span class="math display">\[g(x) = \nabla_x y(x) |
+Y_X \]</span> This is a vector. We are often interested in the gradient
+norm, or its square, <span class="math inline">\(g(x)^T g(x) =
+||g(x)||^2\)</span>. This is the sum of correlated squared normal
+variables, i.e. the sum of correlated chi-squared variables. Since <span class="math inline">\(g(x)\)</span> has a multivariate normal
+distribution, the square of its norm is probably distributed according
+to some kind of chi-squared distribution. We can first try to find its
+expectation using.</p>
 </div>
 <div id="mean-of-gradient-norm-squared" class="section level3">
 <h3>Mean of gradient norm squared</h3>
 <p><span class="math inline">\(||g(x)||^2\)</span></p>
-<p><span class="math display">\[ E \left[ ||g(x)||^2 \right] = E \left[ \sum_{i=1}^d g_i(x)^2 \right] = \sum_{i=1}^d E \left[g_i(x)^2 \right]\]</span></p>
-<p><span class="math display">\[ E \left[ g_i(x)^2 \right] = \text{Var} \left[g_i(x) \right] + E \left[g_i(x) \right]^2\]</span> We just found these variances and expectations, so this is a closed form equation.</p>
+<p><span class="math display">\[ E \left[ ||g(x)||^2 \right] = E \left[
+\sum_{i=1}^d g_i(x)^2 \right] = \sum_{i=1}^d E \left[g_i(x)^2
+\right]\]</span></p>
+<p><span class="math display">\[ E \left[ g_i(x)^2 \right] = \text{Var}
+\left[g_i(x) \right] + E \left[g_i(x) \right]^2\]</span> We just found
+these variances and expectations, so this is a closed form equation.</p>
 </div>
 <div id="full-distribution-of-gradient-norm-squared" class="section level3">
 <h3>Full distribution of gradient norm squared</h3>
-<p>In this section we will derive the full distribution of <span class="math inline">\(||g(x)||^2\)</span> following the fantastic answer from <a href="https://math.stackexchange.com/questions/442472/sum-of-squares-of-dependent-gaussian-random-variables">this Math Stack Exchange answer</a> <span class="citation">(halvorsen 2015)</span>, all credit for this section goes there.</p>
-<p>The general idea is that if we could decorrelate the chi-squared variables, then it would be a sum of chi-squared variables, which is a known distribution that is easy to work with.</p>
+<p>In this section we will derive the full distribution of <span class="math inline">\(||g(x)||^2\)</span> following the fantastic answer
+from <a href="https://math.stackexchange.com/questions/442472/sum-of-squares-of-dependent-gaussian-random-variables">this
+Math Stack Exchange answer</a> <span class="citation">(halvorsen
+2015)</span>, all credit for this section goes there.</p>
+<p>The general idea is that if we could decorrelate the chi-squared
+variables, then it would be a sum of chi-squared variables, which is a
+known distribution that is easy to work with.</p>
 <div id="general-derivation" class="section level4">
 <h4>General derivation</h4>
-<p>Let <span class="math inline">\(X\)</span> be a random vector with multivariate distribution with mean <span class="math inline">\(\mu\)</span> and covariance matrix <span class="math inline">\(\Sigma\)</span>. <span class="math display">\[ X \sim N(\mu, \Sigma)\]</span> Let <span class="math inline">\(Q(X)\)</span> be a quadratic form of <span class="math inline">\(X\)</span> defined by the matrix <span class="math inline">\(A\)</span>. <span class="math display">\[Q(X) = X^TAX\]</span> Let <span class="math inline">\(Y = \Sigma^{-1/2}X\)</span>. <span class="math inline">\(Y\)</span> is a decorrelated version of <span class="math inline">\(X\)</span>, so <span class="math inline">\(Y \sim N(\Sigma^{-1/2} \mu, I)\)</span>.</p>
-<p>Let <span class="math inline">\(Z = Y - \Sigma^{-1/2}\mu\)</span>. <span class="math inline">\(Z\)</span> is a version of <span class="math inline">\(Y\)</span> with mean zero, so <span class="math inline">\(Z \sim N(0, I)\)</span>.</p>
+<p>Let <span class="math inline">\(X\)</span> be a random vector with
+multivariate distribution with mean <span class="math inline">\(\mu\)</span> and covariance matrix <span class="math inline">\(\Sigma\)</span>. <span class="math display">\[ X
+\sim N(\mu, \Sigma)\]</span> Let <span class="math inline">\(Q(X)\)</span> be a quadratic form of <span class="math inline">\(X\)</span> defined by the matrix <span class="math inline">\(A\)</span>. <span class="math display">\[Q(X) =
+X^TAX\]</span> Let <span class="math inline">\(Y =
+\Sigma^{-1/2}X\)</span>. <span class="math inline">\(Y\)</span> is a
+decorrelated version of <span class="math inline">\(X\)</span>, so <span class="math inline">\(Y \sim N(\Sigma^{-1/2} \mu, I)\)</span>.</p>
+<p>Let <span class="math inline">\(Z = Y - \Sigma^{-1/2}\mu\)</span>.
+<span class="math inline">\(Z\)</span> is a version of <span class="math inline">\(Y\)</span> with mean zero, so <span class="math inline">\(Z \sim N(0, I)\)</span>.</p>
 <p>Now we have</p>
-<p><span class="math display">\[Q(X) = X^TAX = (Z + \Sigma^{-1/2} \mu)^T \Sigma^{1/2} A \Sigma^{1/2} (Z + \Sigma^{-1/2} \mu)\]</span></p>
-<p>The spectral theorem allows the middle term to be decomposed as below, where P is the orthogonal matrix of eigenvectors and <span class="math inline">\(\Lambda\)</span> is the diagonal matrix with positive diagonal elements <span class="math inline">\(\lambda_1, \ldots, \lambda_n\)</span>.</p>
-<p><span class="math display">\[\Sigma^{1/2} A \Sigma^{1/2} = P^T \Lambda P \]</span> Let <span class="math inline">\(U=PZ\)</span>. Since <span class="math inline">\(P\)</span> is orthogonal and using the distribution of <span class="math inline">\(Z\)</span>, we also have that <span class="math inline">\(U \sim N(0, I)\)</span>.</p>
+<p><span class="math display">\[Q(X) = X^TAX = (Z + \Sigma^{-1/2} \mu)^T
+\Sigma^{1/2} A \Sigma^{1/2} (Z + \Sigma^{-1/2} \mu)\]</span></p>
+<p>The spectral theorem allows the middle term to be decomposed as
+below, where P is the orthogonal matrix of eigenvectors and <span class="math inline">\(\Lambda\)</span> is the diagonal matrix with
+positive diagonal elements <span class="math inline">\(\lambda_1,
+\ldots, \lambda_n\)</span>.</p>
+<p><span class="math display">\[\Sigma^{1/2} A \Sigma^{1/2} = P^T
+\Lambda P \]</span> Let <span class="math inline">\(U=PZ\)</span>. Since
+<span class="math inline">\(P\)</span> is orthogonal and using the
+distribution of <span class="math inline">\(Z\)</span>, we also have
+that <span class="math inline">\(U \sim N(0, I)\)</span>.</p>
 <p>Putting these together, we can change <span class="math inline">\(Q(X)\)</span> as follows.</p>
-<p><span class="math display">\[ Q(X) = X^TAX = (Z + \Sigma^{-1/2} \mu)^T \Sigma^{1/2} A \Sigma^{1/2} (Z + \Sigma^{-1/2} \mu) \\
- = (Z + \Sigma^{-1/2} \mu)^T P^T \Lambda P (Z + \Sigma^{-1/2} \mu) \\
- = (PZ + P\Sigma^{-1/2} \mu)^T \Lambda (PZ + P\Sigma^{-1/2} \mu) \\
- = (U + b)^T \Lambda (U + b) \\
-\]</span> Here we defined <span class="math inline">\(b= P \Sigma^{-1/2} \mu\)</span>.</p>
-<p>Since <span class="math inline">\(\Lambda\)</span> is diagonal, we have <span class="math display">\[Q(X) = X^TAX = \sum_{j=1}^n \lambda_j (U_j + b_j)^2\]</span></p>
-<p>The <span class="math inline">\(U_j\)</span> have standard normal distribution and are independent of each other. <span class="math inline">\((U_j + b_j)^2\)</span> is thus the square of normal variable with mean <span class="math inline">\(b_j\)</span> and variance 1, meaning it has a noncentral chi-squared distribution with mean <span class="math inline">\(b_j^2 +1\)</span> and variance <span class="math inline">\(4b_j^2 + 2\)</span>. Thus <span class="math inline">\(Q(X)\)</span> is distributed as a linear combination of <span class="math inline">\(n\)</span> noncentral chi-squared variables. Since <span class="math inline">\(\lambda_j\)</span> is different for each, <span class="math inline">\(Q(X)\)</span> does not have a noncentral chi-squared distribution. However, we can easily find its mean, variance, sample from it, etc.</p>
-<p>The mean and variance of <span class="math inline">\(Q(X)\)</span> are <span class="math display">\[ 
+<p><span class="math display">\[ Q(X) = X^TAX = (Z + \Sigma^{-1/2}
+\mu)^T \Sigma^{1/2} A \Sigma^{1/2} (Z + \Sigma^{-1/2} \mu) \\
+= (Z + \Sigma^{-1/2} \mu)^T P^T \Lambda P (Z + \Sigma^{-1/2} \mu) \\
+= (PZ + P\Sigma^{-1/2} \mu)^T \Lambda (PZ + P\Sigma^{-1/2} \mu) \\
+= (U + b)^T \Lambda (U + b) \\
+\]</span> Here we defined <span class="math inline">\(b= P \Sigma^{-1/2}
+\mu\)</span>.</p>
+<p>Since <span class="math inline">\(\Lambda\)</span> is diagonal, we
+have <span class="math display">\[Q(X) = X^TAX = \sum_{j=1}^n \lambda_j
+(U_j + b_j)^2\]</span></p>
+<p>The <span class="math inline">\(U_j\)</span> have standard normal
+distribution and are independent of each other. <span class="math inline">\((U_j + b_j)^2\)</span> is thus the square of
+normal variable with mean <span class="math inline">\(b_j\)</span> and
+variance 1, meaning it has a noncentral chi-squared distribution with
+mean <span class="math inline">\(b_j^2 +1\)</span> and variance <span class="math inline">\(4b_j^2 + 2\)</span>. Thus <span class="math inline">\(Q(X)\)</span> is distributed as a linear
+combination of <span class="math inline">\(n\)</span> noncentral
+chi-squared variables. Since <span class="math inline">\(\lambda_j\)</span> is different for each, <span class="math inline">\(Q(X)\)</span> does not have a noncentral
+chi-squared distribution. However, we can easily find its mean,
+variance, sample from it, etc.</p>
+<p>The mean and variance of <span class="math inline">\(Q(X)\)</span>
+are <span class="math display">\[
 \begin{align}
   E[Q(X)] &amp;= \sum_{j=1}^n \lambda_j E[(U_j + b_j)^2] \\
           &amp;= \sum_{j=1}^n \lambda_j (b_j^2 + 1) \\
@@ -182,7 +559,8 @@ N(\frac{\partial \Sigma(x,X)}{\partial x}^T \Sigma_X^{-1} (Y_X - \mu_X),
 \]</span></p>
 <p><span class="math display">\[
 \begin{align}
-  \text{Var}[Q(X)] &amp;= \sum_{j=1}^n \lambda_j^2 \text{Var} \left[ (U_j + b_j)^2 \right] \\
+  \text{Var}[Q(X)] &amp;= \sum_{j=1}^n \lambda_j^2 \text{Var} \left[
+(U_j + b_j)^2 \right] \\
                    &amp;= \sum_{j=1}^n \lambda_j^2 (4b_j^2 + 2) \\
 \end{align}
 \]</span></p>
@@ -190,25 +568,44 @@ N(\frac{\partial \Sigma(x,X)}{\partial x}^T \Sigma_X^{-1} (Y_X - \mu_X),
 </div>
 <div id="relating-this-back-to-g2" class="section level3">
 <h3>Relating this back to <span class="math inline">\(||g||^2\)</span></h3>
-<p>For <span class="math inline">\(||g||^2\)</span> we had <span class="math inline">\(A=I\)</span>, <span class="math inline">\(\mu=\frac{\partial \Sigma_{x,X}}{\partial x}^T \Sigma_X^{-1} (Y_X - \mu_X)\)</span>, and <span class="math inline">\(\Sigma=\frac{\partial^2 \Sigma(x_1, x_2)}{\partial x_1 \partial x_2} + \frac{\partial \Sigma(x_1, X)}{\partial x_1} \Sigma_x^{-1} \frac{\partial \Sigma(X, x_2)}{\partial x_2}\)</span></p>
+<p>For <span class="math inline">\(||g||^2\)</span> we had <span class="math inline">\(A=I\)</span>, <span class="math inline">\(\mu=\frac{\partial \Sigma_{x,X}}{\partial x}^T
+\Sigma_X^{-1} (Y_X - \mu_X)\)</span>, and <span class="math inline">\(\Sigma=\frac{\partial^2 \Sigma(x_1, x_2)}{\partial
+x_1 \partial x_2} + \frac{\partial \Sigma(x_1, X)}{\partial x_1}
+\Sigma_x^{-1} \frac{\partial \Sigma(X, x_2)}{\partial x_2}\)</span></p>
 <p>Thus we need <span class="math inline">\(P\)</span> and <span class="math inline">\(\Lambda\)</span> from the eigendecomposition <span class="math inline">\(\Sigma = P^T \Lambda P\)</span>. <span class="math inline">\(\Lambda\)</span> will give the <span class="math inline">\(\lambda_j\)</span>.</p>
-<p>Then we need <span class="math inline">\(b = P \Sigma^{-1/2} \mu\)</span>. We can calculate <span class="math inline">\(\Sigma^{-1/2}\)</span> as the square root of the matrix <span class="math inline">\(\Sigma^{-1}\)</span> using the eigendecomposition again. We can decompose <span class="math inline">\(\Sigma^{-1} = W^TDW\)</span> (using different symbols from before to avoid confusion), where <span class="math inline">\(D\)</span> is diagonal and W is orthogonal. Then <span class="math inline">\(\Sigma^{-1/2} = W^T S W\)</span>, where <span class="math inline">\(S\)</span> is the diagonal matrix whose elements are the square roots of the elements of <span class="math inline">\(D\)</span>. This can easily be proven as follows. <span class="math display">\[ \Sigma^{-1/2} \Sigma^{-1/2} = W^T S W W^T S W = W^T S S W = W^T D W = \Sigma^{-1}\]</span></p>
-<p>Now that we know how to calculate <span class="math inline">\(\lambda\)</span> and <span class="math inline">\(U\)</span>, we can calculate the distribution of <span class="math inline">\(||g||^2\)</span>.</p>
+<p>Then we need <span class="math inline">\(b = P \Sigma^{-1/2}
+\mu\)</span>. We can calculate <span class="math inline">\(\Sigma^{-1/2}\)</span> as the square root of the
+matrix <span class="math inline">\(\Sigma^{-1}\)</span> using the
+eigendecomposition again. We can decompose <span class="math inline">\(\Sigma^{-1} = W^TDW\)</span> (using different
+symbols from before to avoid confusion), where <span class="math inline">\(D\)</span> is diagonal and W is orthogonal. Then
+<span class="math inline">\(\Sigma^{-1/2} = W^T S W\)</span>, where
+<span class="math inline">\(S\)</span> is the diagonal matrix whose
+elements are the square roots of the elements of <span class="math inline">\(D\)</span>. This can easily be proven as follows.
+<span class="math display">\[ \Sigma^{-1/2} \Sigma^{-1/2} = W^T S W W^T
+S W = W^T S S W = W^T D W = \Sigma^{-1}\]</span></p>
+<p>Now that we know how to calculate <span class="math inline">\(\lambda\)</span> and <span class="math inline">\(U\)</span>, we can calculate the distribution of
+<span class="math inline">\(||g||^2\)</span>.</p>
 </div>
 </div>
 </div>
 <div id="references" class="section level1 unnumbered">
-<h1>References</h1>
-<div id="refs" class="references">
-<div id="ref-halvorsen">
-<p>halvorsen, kjetil b. 2015. “Sum of Squares of Dependent Gaussian Random Variables.” <em>Mathematics Stack Exchange</em>. Mathematics Stack Exchange. <a href="https://math.stackexchange.com/q/442916" class="uri">https://math.stackexchange.com/q/442916</a>.</p>
+<h1 class="unnumbered">References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-halvorsen" class="csl-entry">
+halvorsen, kjetil b. 2015. <span>“Sum of Squares of Dependent Gaussian
+Random Variables.”</span> <em>Mathematics Stack Exchange</em>.
+Mathematics Stack Exchange. <a href="https://math.stackexchange.com/q/442916">https://math.stackexchange.com/q/442916</a>.
 </div>
-<div id="ref-mchutchon">
-<p>McHutchon, Andrew. n.d. “Differentiating Gaussian Processes.” <a href="http://mlg.eng.cam.ac.uk/mchutchon/DifferentiatingGPs.pdf" class="uri">http://mlg.eng.cam.ac.uk/mchutchon/DifferentiatingGPs.pdf</a>.</p>
+<div id="ref-mchutchon2" class="csl-entry">
+McHutchon, Andrew. n.d. <span>“Differentiating Gaussian
+Processes.”</span> <a href="https://mlg.eng.cam.ac.uk/pub/pdf/Mch14.pdf">https://mlg.eng.cam.ac.uk/pub/pdf/Mch14.pdf</a>.
 </div>
 </div>
 </div>
 
+
+
+<!-- code folding -->
 
 
 <!-- dynamically load mathjax for compatibility with self-contained -->

@@ -12,3 +12,4 @@ cran-comments.md
 \.dll$
 ^\.github$
 ^revdep$
+^CRAN-SUBMISSION$

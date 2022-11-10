@@ -20,12 +20,19 @@ references:
   issued:
     year: 2015
     month: 4
-- id: mchutchon
+# - id: mchutchon
+#   title: Differentiating Gaussian Processes
+#   author:
+#   - family: McHutchon
+#     given: Andrew
+#   URL: 'http://mlg.eng.cam.ac.uk/mchutchon/DifferentiatingGPs.pdf'
+# mchutchon webpage above no longer available, cite page below instead
+- id: mchutchon2
   title: Differentiating Gaussian Processes
   author:
   - family: McHutchon
     given: Andrew
-  URL: 'http://mlg.eng.cam.ac.uk/mchutchon/DifferentiatingGPs.pdf'
+  URL: 'https://mlg.eng.cam.ac.uk/pub/pdf/Mch14.pdf'
 
 ---
 
@@ -149,7 +156,7 @@ $$
 ### Variance of the gradient
 
 The variance is harder to calculate.
-I used [this reference](http://mlg.eng.cam.ac.uk/mchutchon/DifferentiatingGPs.pdf) [@mchutchon] to get started,
+I used [this reference](https://mlg.eng.cam.ac.uk/pub/pdf/Mch14.pdf) [@mchutchon2] to get started,
 but the derivation presented here is much simpler.
 
 

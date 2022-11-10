@@ -29,7 +29,7 @@ $$ \mathcal{D} = \log |R| + n\log[Z^T R^{-1} Z]$$
 Thus the only dependence on the correlation parameters is through $R$.
 
 
-Via the [GPML book section A.3.1](http://www.gaussianprocess.org/gpml/chapters/RWA.pdf), we need the following equations:
+Via the [GPML book section A.3.1](https://gaussianprocess.org/gpml/chapters/RWA.pdf), we need the following equations:
 
 $$  \frac{\partial }{\partial \theta} R^{-1} = -R^{-1} \frac{\partial R}{\partial \theta} R^{-1}$$
 
