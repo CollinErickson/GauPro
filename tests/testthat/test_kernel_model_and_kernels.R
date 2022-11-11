@@ -12,7 +12,8 @@ test_that("kernels work and have correct grads", {
   x <- matrix(runif(n*d), ncol=d)
   f <- function(x) {abs(sin(x[1]^.8*6))^1.2 + log(1+x[2]) + x[1]*x[2]}
   y <- apply(x, 1, f) + rnorm(n,0,1e-4) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
-  kern_chars <- c('Gaussian', 'Matern32', 'Matern52', 'Triangle', 'Cubic', 'White',
+  kern_chars <- c('Gaussian', 'Matern32', 'Matern52',
+                  'Triangle', 'Cubic', 'White',
                   'PowerExp', 'Periodic', "Exponential", "RatQuad",
                   "Ignore", "Product", "Sum")
   kern_list <- list(0,0,0,0,0,0,
@@ -132,7 +133,7 @@ test_that("kernels work and have correct grads", {
     kernpars <- gp$kernel$param_optim_start(jitter=T)
     if (kern_char=="RatQuad") {
       # Make sure kernpars are reasonable to avoid error: logalpha not too big
-      cat('ratquad kernpars are', kernpars, "\n")
+      # cat('ratquad kernpars are', kernpars, "\n")
     }
     actgrad <- gp$deviance_grad(params = kernpars, nug.update = F)
     for (i in 1:length(kernpars)) {
@@ -146,7 +147,8 @@ test_that("kernels work and have correct grads", {
       dp4 <- gp$deviance(params = kernpars + epsvec)
       numgrad <- (-dp4 + 8*dp2 - 8*dp1 + dp3)/(12*eps/2)
       # cat(j, kern_char, i, numgrad, actgrad[i+1], abs((numgrad - actgrad[1+i])/numgrad), "\n")
-      expect_equal(numgrad, actgrad[1+i], tolerance = 1e-2, label=paste(j,kern_char,i, 'numgrad'))
+      expect_equal(numgrad, actgrad[1+i], tolerance = 1e-2,
+                   label=paste(j,kern_char,i, 'numgrad'))
     }
   }
 })
@@ -161,7 +163,8 @@ test_that("check factor kernels alone", {
   # f <- function(x) {abs(sin(x[1]^.8*6))^1.2 + log(1+x[2]) + x[1]*x[2]}
   f <- function(x) {x[1]^.7}
   y <- apply(x, 1, f) + rnorm(n,0,1e-4) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
-  kern_chars <- c('FactorKernel', 'OrderedFactorKernel', 'LatentFactorKernel', 'LatentFactorKernel')
+  kern_chars <- c('FactorKernel', 'OrderedFactorKernel',
+                  'LatentFactorKernel', 'LatentFactorKernel')
   kern_list <- list(
     FactorKernel$new(D=1, nlevels=3, xindex=1),
     OrderedFactorKernel$new(D=1, nlevels=3, xindex=1),
@@ -214,8 +217,10 @@ test_that("check factor kernels alone", {
       dp3 <- gp$deviance(params = kernpars - epsvec)
       dp4 <- gp$deviance(params = kernpars + epsvec)
       numgrad <- (-dp4 + 8*dp2 - 8*dp1 + dp3)/(12*eps/2)
-      # cat(j, kern_char, i, numgrad, actgrad[i+1], abs((numgrad - actgrad[1+i])/numgrad), "\n")
-      expect_equal(numgrad, actgrad[1+i], tolerance = 1e-2, label=paste(j,kern_char,i, 'numgrad'))
+      # cat(j, kern_char, i, numgrad, actgrad[i+1],
+      #     abs((numgrad - actgrad[1+i])/numgrad), "\n")
+      expect_equal(numgrad, actgrad[1+i], tolerance = 1e-2,
+                   label=paste(j,kern_char,i, 'numgrad'))
       # debugonce(gp$kernel$dC_dparams)
     }
   }
@@ -231,7 +236,8 @@ test_that("check factor kernels in product", {
   x[, 2] <- sample(1:nlev, n, T)
   f <- function(x) {abs(sin(x[1]^.8*6))^1.2 + log(1+x[2]) + x[1]*x[2]}
   y <- apply(x, 1, f) + rnorm(n,0,1e-4) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
-  kern_chars <- c('FactorKernel', 'OrderedFactorKernel', 'LatentFactorKernel1', 'LatentFactorKernel2')
+  kern_chars <- c('FactorKernel', 'OrderedFactorKernel',
+                  'LatentFactorKernel1', 'LatentFactorKernel2')
   kern_list <- list(
     FactorKernel$new(D=2, nlevels=nlev, xindex=2),
     OrderedFactorKernel$new(D=2, nlevels=nlev, xindex=2),
@@ -293,8 +299,10 @@ test_that("check factor kernels in product", {
       dp4 <- gp$deviance(params = kernpars + epsvec)
       numgrad <- (-dp4 + 8*dp2 - 8*dp1 + dp3)/(12*eps/2)
       numgrads[1+i] <- numgrad
-      # cat(j, kern_char, i, numgrad, actgrad[i+1], abs((numgrad - actgrad[1+i])/numgrad), "\n")
-      expect_equal(numgrad, actgrad[1+i], tolerance = 1e-2, label=paste(j,kern_char,i, 'numgrad'))
+      # cat(j, kern_char, i, numgrad, actgrad[i+1],
+      #     abs((numgrad - actgrad[1+i])/numgrad), "\n")
+      expect_equal(numgrad, actgrad[1+i], tolerance = 1e-2,
+                   label=paste(j,kern_char,i, 'numgrad'))
     }
   }
 })
