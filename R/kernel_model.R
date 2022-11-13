@@ -2364,7 +2364,7 @@ GauPro_kernel_model <- R6::R6Class(
           fn=function(xx){-self$EI(unlist(xx), minimize = minimize)}
         )
         return(list(
-          par=moout$par,
+          par=unlist(moout$par),
           value=-moout$val
         ))
       }
@@ -2749,14 +2749,17 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param n0 Number of points to evaluate in initial stage
     #' @param minimize Are you trying to minimize the output?
     #' @param eps Exploration parameter
+    #' @param mopar List of parameters using mixopt
     maxqEI = function(npoints, method="CL",
-                      lower=apply(self$X, 2, min), upper=apply(self$X, 2, max),
-                      n0=100, minimize=FALSE, eps=0) {
+                      lower=apply(self$X, 2, min),
+                      upper=apply(self$X, 2, max),
+                      n0=100, minimize=FALSE, eps=0,
+                      mopar=NULL) {
       stopifnot(is.numeric(npoints), length(npoints)==1, npoints >= 1)
       if (npoints==1) {
         # For single point, use proper function
         return(self$maxEI(lower=lower, upper=upper, n0=n0,
-                          minimize=minimize, eps=eps))
+                          minimize=minimize, eps=eps, mopar=mopar))
       }
       stopifnot(method %in% c("CL", "pred"))
       # Clone object since we will add fake data
@@ -2769,7 +2772,8 @@ GauPro_kernel_model <- R6::R6Class(
       Zimpute <- if (minimize) {min(Xmeanpred$mean)} else {max(Xmeanpred$mean)}
       for (i in 1:npoints) {
         # Find and store point that maximizes EI
-        maxEI_i <- gpclone$maxEI(lower=lower, upper=upper, n0=n0, eps=eps, minimize=minimize)
+        maxEI_i <- gpclone$maxEI(lower=lower, upper=upper, n0=n0, eps=eps,
+                                 minimize=minimize, mopar=mopar)
         xi <- maxEI_i$par
         selectedX[i, ] <- xi
         if (method == "pred") {

@@ -1484,7 +1484,8 @@ improvement. Currently only implements the constant liar method.
   upper = apply(self$X, 2, max),
   n0 = 100,
   minimize = FALSE,
-  eps = 0
+  eps = 0,
+  mopar = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -1504,6 +1505,8 @@ improvement. Currently only implements the constant liar method.
 \item{\code{minimize}}{Are you trying to minimize the output?}
 
 \item{\code{eps}}{Exploration parameter}
+
+\item{\code{mopar}}{List of parameters using mixopt}
 }
 \if{html}{\out{</div>}}
 }

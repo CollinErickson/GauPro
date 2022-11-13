@@ -390,4 +390,5 @@ test_that("EI with mixopt", {
     mixopt::mopar_ordered(10:30)
   )
   expect_error(gpf$maxEI(mopar = mop, minimize = T), NA)
+  expect_error(gpf$maxqEI(npoints = 3, mopar = mop, minimize = T), NA)
 })
