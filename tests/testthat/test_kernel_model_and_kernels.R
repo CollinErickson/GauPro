@@ -370,3 +370,24 @@ test_that("Formula/data input", {
   expect_true(is.matrix(gpf$X))
   expect_error(predict(gpf, tdf), NA)
 })
+
+# EI ----
+test_that("EI with mixopt", {
+  n <- 30
+  tdf <- data.frame(a=runif(n), b=runif(n, -1,1),
+                    c=(sample(5:6,n,T)),
+                    d=sample(c(.1,.2,.3,.4), n, T),
+                    # e=sample(letters[1:3], n,T),
+                    f=sample(10:30, n, T))
+  z <- with(tdf, a+a*b+b^2 +5*(d-.22)^2*(f-22)^2)
+  gpf <- GauPro_kernel_model$new(X=as.matrix(tdf), Z=z, kernel='m52')
+  gpf$maxEI(minimize = T)
+  mop <- c(
+    mixopt::mopar_cts(0,1),
+    mixopt::mopar_cts(-1,1),
+    mixopt::mopar_unordered(5:6),
+    mixopt::mopar_ordered(c(.1,.2,.3,.4)),
+    mixopt::mopar_ordered(10:30)
+  )
+  expect_error(gpf$maxEI(mopar = mop, minimize = T), NA)
+})

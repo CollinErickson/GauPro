@@ -1399,7 +1399,8 @@ Find the point that maximizes the expected improvement
   n0 = 100,
   minimize = FALSE,
   eps = 0,
-  discreteinputs = NULL
+  discreteinputs = NULL,
+  mopar = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -1415,6 +1416,8 @@ Find the point that maximizes the expected improvement
 \item{\code{minimize}}{Are you trying to minimize the output?}
 
 \item{\code{eps}}{Exploration parameter}
+
+\item{\code{mopar}}{List of parameters using mixopt}
 }
 \if{html}{\out{</div>}}
 }

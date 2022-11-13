@@ -27,6 +27,7 @@ Suggests: testthat,
     ggplot2,
     ggrepel,
     lhs,
+    mixopt,
     tidyr,
     MASS
 VignetteBuilder: knitr

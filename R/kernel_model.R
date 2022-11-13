@@ -2339,19 +2339,34 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param n0 Number of points to evaluate in initial stage
     #' @param minimize Are you trying to minimize the output?
     #' @param eps Exploration parameter
+    #' @param mopar List of parameters using mixopt
     maxEI = function(lower=apply(self$X, 2, min), upper=apply(self$X, 2, max),
                      n0=100, minimize=FALSE, eps=0,
-                     discreteinputs=NULL) {
+                     discreteinputs=NULL, mopar=NULL) {
       stopifnot(all(lower < upper))
       stopifnot(length(n0)==1, is.numeric(n0), n0>=1)
       # Check if any kernels have factors
-      if (!is.null(discreteinputs) || length(find_kernel_factor_dims(self$kernel)) > 0) {
+      if (is.null(mopar) &&
+          (!is.null(discreteinputs) ||
+           length(find_kernel_factor_dims(self$kernel)) > 0)) {
         # Has at least one factor
         # return(self$maxEIwithfactors(lower=lower, upper=upper, n0=n0,
         #                              minimize=minimize, eps=eps))
         return(self$maxEIwithfactorsordiscrete(lower=lower, upper=upper, n0=n0,
                                                minimize=minimize, eps=eps,
                                                discreteinputs=discreteinputs))
+      }
+      if (!is.null(mopar)) {
+        # Use mixopt, allows for factor/discrete/integer inputs
+        stopifnot(self$D == length(mopar))
+        moout <- mixopt::mixopt_multistart(
+          par=mopar,
+          fn=function(xx){-self$EI(unlist(xx), minimize = minimize)}
+        )
+        return(list(
+          par=moout$par,
+          value=-moout$val
+        ))
       }
       # Random points to evaluate to find best starting point
       X0 <- lhs::randomLHS(n=n0, k=ncol(self$X))

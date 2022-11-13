@@ -92,3 +92,7 @@ an error the user should know. Like when I test useCM.
 * FactorKernel and OrderedFK: change correlation, maybe just 1.95 instead of 2
 
 * find_kernel_factor_dims should separate ordered from unordered
+
+* mixopt for EI, qEI: allow give in mopar
+
+* examples for data.frame input
