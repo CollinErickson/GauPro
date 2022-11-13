@@ -93,6 +93,9 @@ an error the user should know. Like when I test useCM.
 
 * find_kernel_factor_dims should separate ordered from unordered
 
-* mixopt for EI, qEI: allow give in mopar
+* mixopt for qEI: picks same point multiple times
+
+* Should EI be zero for already evaluated points? Mean can have high uncertainty
+when nug>0, so it can pick already eval points.
 
 * examples for data.frame input

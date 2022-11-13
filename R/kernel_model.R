@@ -1014,7 +1014,7 @@ GauPro_kernel_model <- R6::R6Class(
         ggplot2::facet_wrap(.~i, scales = "free_x") +
         ggplot2::geom_line(ggplot2::aes(y=predupper), color="green") +
         ggplot2::geom_line(ggplot2::aes(y=predlower), color="green") +
-        ggplot2::geom_line(size=1) +
+        ggplot2::geom_line(linewidth=1) +
         ggplot2::ylab("Predicted Z (95% interval)") +
         ggplot2::xlab("x along dimension i")
     },
@@ -1046,7 +1046,7 @@ GauPro_kernel_model <- R6::R6Class(
         ggplot2::facet_wrap(.~name, scales="free_x") +
         # geom_point(aes(y=upper), color="green") +
         ggplot2::geom_segment(ggplot2::aes(y=upper, yend=lower, xend=value),
-                              color="green", size=2) +
+                              color="green", linewidth=2) +
         ggplot2::geom_point() +
         ggplot2::ylab("Predicted Z (95% interval)") +
         ggplot2::xlab("x along dimension i (other dims at random values)")
@@ -1069,7 +1069,8 @@ GauPro_kernel_model <- R6::R6Class(
       ggplot2::ggplot(loodf, ggplot2::aes(fit, Z)) +
         ggplot2::stat_smooth(method="loess", formula="y~x") +
         ggplot2::geom_abline(slope=1, intercept=0, color="red") +
-        ggplot2::geom_segment(ggplot2::aes(x=lower, xend=upper, yend=Z), color="green") +
+        ggplot2::geom_segment(ggplot2::aes(x=lower, xend=upper, yend=Z),
+                              color="green") +
         ggplot2::geom_point() +
         # geom_text(x=min(loodf$fit), y=max(loodf$Z), label="abc") +
         ggplot2::geom_text(x=-Inf, y=Inf,
