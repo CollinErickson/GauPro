@@ -1,5 +1,9 @@
-This package was removed from CRAN on 10/3/22 because I didn't update it.
-Sorry for taking so long to get back to this.
+This package was accepted to CRAN on 11/14/22.
+The next day I received an email saying I had until 11/29/22 to fix
+some build errors or the package will be removed from CRAN.
+
+The errors are from flaky tests that use randomness and fail a small portion
+of the time. I have rewritten these tests so that they will pass consistently.
 
 
 

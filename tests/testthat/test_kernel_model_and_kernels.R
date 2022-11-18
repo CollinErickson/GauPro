@@ -38,22 +38,28 @@ test_that("kernels work and have correct grads", {
     expect_is(gp, "R6")
 
     # Check predict
-    pred1 <- predict(gp, runif(2))
+    expect_error(pred1 <- predict(gp, runif(2)), NA)
     expect_true(is.numeric(pred1))
     expect_true(!is.matrix(pred1))
     expect_equal(length(pred1), 1)
-    pred2 <- predict(gp, runif(2), se.fit=T)
+    # Predict with SE
+    expect_error(pred2 <- predict(gp, runif(2), se.fit=T), NA)
     expect_true(is.data.frame(pred2))
     expect_equal(dim(pred2), c(1,3))
     expect_equal(colnames(pred2), c('mean', 's2', 'se'))
-    pred3 <- predict(gp, matrix(runif(12), ncol=2))
+    # Matrix
+    expect_error(pred3 <- predict(gp, matrix(runif(12), ncol=2)), NA)
     expect_true(is.numeric(pred3))
     expect_true(!is.matrix(pred3))
     expect_equal(length(pred3), 6)
-    pred4 <- predict(gp, matrix(runif(12), ncol=2), se.fit=T)
+    # Matrix with SE
+    expect_error(pred4 <- predict(gp, matrix(runif(12), ncol=2), se.fit=T), NA)
     expect_true(is.data.frame(pred4))
     expect_equal(dim(pred4), c(6,3))
     expect_equal(colnames(pred4), c('mean', 's2', 'se'))
+    # Predict mean dist
+    expect_error(pred5 <- predict(gp, matrix(runif(12), ncol=2), se.fit=T,
+                                  mean_dist=TRUE), NA)
 
     # Check kernel$k matches when giving in as matrix or vector
     kn1 <- 5
@@ -128,28 +134,60 @@ test_that("kernels work and have correct grads", {
     numder <- (gpd2-gpd1)/eps
     actder <- gp$deviance_grad(nuglog=nuglog, params=kernpars, nug.update = T)
     expect_equal(numder, actder[length(actder)], 1e-3)
-    # kernel params
-    # Use a random value since it's not exact enough to work at minimum
-    kernpars <- gp$kernel$param_optim_start(jitter=T)
-    if (kern_char=="RatQuad") {
-      # Make sure kernpars are reasonable to avoid error: logalpha not too big
-      # cat('ratquad kernpars are', kernpars, "\n")
+
+    # max attempts
+    maxattempts <- 10
+    numgradtol <- 1e-4
+    for (iatt in 1:maxattempts) {
+      goodsofar <- TRUE
+      # kernel params
+      # Use a random value since it's not exact enough to work at minimum
+      kernpars <- gp$kernel$param_optim_start(jitter=T)
+      if (kern_char=="RatQuad") {
+        # Make sure kernpars are reasonable to avoid error: logalpha not too big
+        # cat('ratquad kernpars are', kernpars, "\n")
+      }
+      actgrad <- gp$deviance_grad(params = kernpars, nug.update = F)
+      for (i in 1:length(kernpars)) {
+        epsvec <- rep(0, length(kernpars))
+        epsvec[i] <- eps
+        dp1 <- gp$deviance(params = kernpars - epsvec/2)
+        dp2 <- gp$deviance(params = kernpars + epsvec/2)
+        # numgrad <- (dp2-dp1) / eps
+        # Switching to 4-point to reduce numerical errors, helps a lot
+        dp3 <- gp$deviance(params = kernpars - epsvec)
+        dp4 <- gp$deviance(params = kernpars + epsvec)
+        numgrad <- (-dp4 + 8*dp2 - 8*dp1 + dp3)/(12*eps/2)
+        # cat(j, kern_char, i, numgrad, actgrad[i+1], abs((numgrad - actgrad[1+i])/numgrad), "\n")
+        # expect_equal(numgrad, actgrad[1+i], tolerance = 1e-6,
+        # label=paste(j,kern_char,i, 'numgrad'))
+        alleq <- all.equal(actgrad[1+i], numgrad, tolerance=numgradtol)
+        if (isTRUE(alleq)) {
+          expect_equal(numgrad, actgrad[1+i], tolerance = numgradtol,
+                       label=paste(j,kern_char,i, 'numgrad'))
+        } else {
+          if (printkern) {
+            cat("FAILURE", kern_char, iatt, i, alleq, "\n")
+          }
+          goodsofar <- FALSE
+        }
+      }
+      if (goodsofar) {
+        break
+      } else {
+        if (printkern) {
+          cat("failed on", kern_char, "attempt", iatt,
+              alleq,
+              (numgrad-actgrad[1+i]) / actgrad[1+i],
+              "\n")
+        }
+      }
     }
-    actgrad <- gp$deviance_grad(params = kernpars, nug.update = F)
-    for (i in 1:length(kernpars)) {
-      epsvec <- rep(0, length(kernpars))
-      epsvec[i] <- eps
-      dp1 <- gp$deviance(params = kernpars - epsvec/2)
-      dp2 <- gp$deviance(params = kernpars + epsvec/2)
-      # numgrad <- (dp2-dp1) / eps
-      # Switching to 4-point to reduce numerical errors, helps a lot
-      dp3 <- gp$deviance(params = kernpars - epsvec)
-      dp4 <- gp$deviance(params = kernpars + epsvec)
-      numgrad <- (-dp4 + 8*dp2 - 8*dp1 + dp3)/(12*eps/2)
-      # cat(j, kern_char, i, numgrad, actgrad[i+1], abs((numgrad - actgrad[1+i])/numgrad), "\n")
-      expect_equal(numgrad, actgrad[1+i], tolerance = 1e-2,
-                   label=paste(j,kern_char,i, 'numgrad'))
-    }
+    # This is where it will fail if none succeeded
+    expect_true(alleq,
+                label=paste(kern_char,
+                            'numgrad matches symbolic grad (failed on all',
+                            maxattempts, "attempts)"))
   }
 })
 

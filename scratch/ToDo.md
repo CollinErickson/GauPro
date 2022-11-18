@@ -93,9 +93,15 @@ an error the user should know. Like when I test useCM.
 
 * find_kernel_factor_dims should separate ordered from unordered
 
-* mixopt for qEI: picks same point multiple times
+* mixopt for qEI: picks same point multiple times b/c of mean uncertainty
 
 * Should EI be zero for already evaluated points? Mean can have high uncertainty
 when nug>0, so it can pick already eval points.
 
 * examples for data.frame input
+
+* Add reference to Description (my first paper) as Uwe said.
+
+* Fix LOO pred one matrix: don't let it take in mean_dist. Add tests.
+
+* Fix test issue and resubmit to CRAN by 11/28.

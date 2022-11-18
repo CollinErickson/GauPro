@@ -29,6 +29,7 @@ gp <- GauPro_Gauss_LOO$new(X=x, Z=y, parallel=FALSE)
 \itemize{
 \item \href{#method-GauPro_Gauss_LOO-update}{\code{GauPro_Gauss_LOO$update()}}
 \item \href{#method-GauPro_Gauss_LOO-pred_one_matrix}{\code{GauPro_Gauss_LOO$pred_one_matrix()}}
+\item \href{#method-GauPro_Gauss_LOO-print}{\code{GauPro_Gauss_LOO$print()}}
 \item \href{#method-GauPro_Gauss_LOO-clone}{\code{GauPro_Gauss_LOO$clone()}}
 }
 }
@@ -79,7 +80,6 @@ gp <- GauPro_Gauss_LOO$new(X=x, Z=y, parallel=FALSE)
 <li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_Gauss" data-id="param_optim_start"><a href='../../GauPro/html/GauPro_Gauss.html#method-GauPro_Gauss-param_optim_start'><code>GauPro::GauPro_Gauss$param_optim_start()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_Gauss" data-id="param_optim_start0"><a href='../../GauPro/html/GauPro_Gauss.html#method-GauPro_Gauss-param_optim_start0'><code>GauPro::GauPro_Gauss$param_optim_start0()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_Gauss" data-id="param_optim_upper"><a href='../../GauPro/html/GauPro_Gauss.html#method-GauPro_Gauss-param_optim_upper'><code>GauPro::GauPro_Gauss$param_optim_upper()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_Gauss" data-id="print"><a href='../../GauPro/html/GauPro_Gauss.html#method-GauPro_Gauss-print'><code>GauPro::GauPro_Gauss$print()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_Gauss" data-id="update_params"><a href='../../GauPro/html/GauPro_Gauss.html#method-GauPro_Gauss-update_params'><code>GauPro::GauPro_Gauss$update_params()</code></a></span></li>
 </ul>
 </details>
@@ -108,6 +108,16 @@ gp <- GauPro_Gauss_LOO$new(X=x, Z=y, parallel=FALSE)
 \subsection{Method \code{pred_one_matrix()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss_LOO$pred_one_matrix(XX, se.fit = F, covmat = F)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-GauPro_Gauss_LOO-print"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_Gauss_LOO-print}{}}}
+\subsection{Method \code{print()}}{
+Print this object
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss_LOO$print()}\if{html}{\out{</div>}}
 }
 
 }

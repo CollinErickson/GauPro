@@ -83,6 +83,16 @@ GauPro_Gauss_LOO <- R6::R6Class(
 
       # se.fit but not covmat
       data.frame(mean=mn, s2=s2, se=se)
+    },
+    #' @description Print this object
+    print = function() {
+      cat("GauPro object of GauPro_Gauss LOO\n")
+      cat(paste0("\tD = ", self$D, ", N = ", self$N,"\n"))
+      cat(paste0(c("\tTheta = ", signif(self$theta, 3), "\n")))
+      cat(paste0("\tNugget = ", signif(self$nug, 3), "\n"))
+      cat("\tRun update to add data and/or optimize again\n")
+      cat("\tUse pred to get predictions at new points\n")
+      invisible(self)
     }
   )
 )

@@ -97,67 +97,88 @@ GauPro_kernel_model_LOO <- R6::R6Class(
     #' @param covmat Should covariance matrix be returned?
     #' @param return_df When returning se.fit, should it be returned in
     #' a data frame?
-    pred_one_matrix = function(XX, se.fit=F, covmat=F, return_df=FALSE) {
-      # input should already be check for matrix
-      # kxx <- self$kernel$k(XX) + diag(self$nug * self$s2_hat, nrow(XX))
-      kx.xx <- self$kernel$k(self$X, XX)
-      mu_hat_matXX <- self$trend$Z(XX)
+    pred_one_matrix = function(XX, se.fit=F, covmat=F,
+                               return_df=FALSE, mean_dist=FALSE) {
+      # # input should already be check for matrix
+      # # kxx <- self$kernel$k(XX) + diag(self$nug * self$s2_hat, nrow(XX))
+      # kx.xx <- self$kernel$k(self$X, XX)
+      # mu_hat_matXX <- self$trend$Z(XX)
+      #
+      # mn <- pred_meanC_mumat(XX, kx.xx, self$mu_hatX, mu_hat_matXX,
+      #                        self$Kinv, self$Z)
+      #
+      # if (self$normalize) {mn <- mn * self$normalize_sd + self$normalize_mean}
+      #
+      # if (!se.fit & !covmat) {
+      #   return(mn)
+      # }
+      # if (covmat && self$use_LOO) {
+      #   stop("covmat not implemented for GauPro_kernel_model_LOO #68239")
+      #   # new for kernel
+      #   kxx <- self$kernel$k(XX) + diag(self$nug * self$s2_hat, nrow(XX))
+      #   covmatdat <- kxx - t(kx.xx) %*% self$Kinv %*% kx.xx
+      #
+      #   if (self$normalize) {
+      #     covmatdat <- covmatdat * self$normalize_sd ^ 2
+      #   }
+      #
+      #   # #covmatdat <- self$pred_var(XX, kxx=kxx, kx.xx=kx.xx, covmat=T)
+      #   # covmatdat <- pred_cov(XX, kxx, kx.xx, self$s2_hat, self$Kinv, self$Z)
+      #   s2 <- diag(covmatdat)
+      #   se <- rep(1e-8, length(mn)) # NEG VARS will be 0 for se, NOT SURE I WANT THIS
+      #   se[s2>=0] <- sqrt(s2[s2>=0])
+      #   return(list(mean=mn, s2=s2, se=se, cov=covmatdat))
+      # }
+      #
+      #
+      # # new for kernel
+      # # covmatdat <- kxx - t(kx.xx) %*% self$Kinv %*% kx.xx
+      # # s2 <- diag(covmatdat)
+      # # Speed up, see kernel_model.R for more details
+      # diag.kxx <- self$nug * self$s2_hat + rep(self$s2_hat, nrow(XX))
+      # s2 <- diag.kxx - colSums( (kx.xx) * (self$Kinv %*% kx.xx))
+      #
+      # if (self$normalize) {
+      #   s2 <- s2 * self$normalize_sd ^ 2
+      # }
+      #
+      # # s2 <- pred_var(XX, kxx, kx.xx, self$s2_hat, self$Kinv, self$Z)
+      # se <- rep(0, length(mn)) # NEG VARS will be 0 for se, NOT SURE I WANT THIS
+      # se[s2>=0] <- sqrt(s2[s2>=0])
+      #
 
-      mn <- pred_meanC_mumat(XX, kx.xx, self$mu_hatX, mu_hat_matXX, self$Kinv, self$Z)
-
-      if (self$normalize) {mn <- mn * self$normalize_sd + self$normalize_mean}
-
-      if (!se.fit & !covmat) {
-        return(mn)
+      pred_super <- super$pred_one_matrix(XX=XX,
+                                          se.fit=se.fit,
+                                          covmat=covmat,
+                                          return_df=return_df,
+                                          mean_dist=mean_dist)
+      if (!self$use_LOO) {
+        return(pred_super)
+      }
+      if (!se.fit && !covmat) {
+        return(pred_super)
       }
       if (covmat && self$use_LOO) {
         stop("covmat not implemented for GauPro_kernel_model_LOO #68239")
-        # new for kernel
-        kxx <- self$kernel$k(XX) + diag(self$nug * self$s2_hat, nrow(XX))
-        covmatdat <- kxx - t(kx.xx) %*% self$Kinv %*% kx.xx
-
-        if (self$normalize) {
-          covmatdat <- covmatdat * self$normalize_sd ^ 2
-        }
-
-        # #covmatdat <- self$pred_var(XX, kxx=kxx, kx.xx=kx.xx, covmat=T)
-        # covmatdat <- pred_cov(XX, kxx, kx.xx, self$s2_hat, self$Kinv, self$Z)
-        s2 <- diag(covmatdat)
-        se <- rep(1e-8, length(mn)) # NEG VARS will be 0 for se, NOT SURE I WANT THIS
-        se[s2>=0] <- sqrt(s2[s2>=0])
-        return(list(mean=mn, s2=s2, se=se, cov=covmatdat))
       }
-
-
-      # new for kernel
-      # covmatdat <- kxx - t(kx.xx) %*% self$Kinv %*% kx.xx
-      # s2 <- diag(covmatdat)
-      # Speed up, see kernel_model.R for more details
-      diag.kxx <- self$nug * self$s2_hat + rep(self$s2_hat, nrow(XX))
-      s2 <- diag.kxx - colSums( (kx.xx) * (self$Kinv %*% kx.xx))
-
-      if (self$normalize) {
-        s2 <- s2 * self$normalize_sd ^ 2
-      }
-
-      # s2 <- pred_var(XX, kxx, kx.xx, self$s2_hat, self$Kinv, self$Z)
-      se <- rep(0, length(mn)) # NEG VARS will be 0 for se, NOT SURE I WANT THIS
-      se[s2>=0] <- sqrt(s2[s2>=0])
 
       # Do LOO stuff here
-      if (self$use_LOO) {
+      if (self$use_LOO && se.fit) {
         loo.p <- self$tmod$predict(XX)
-        se <- se * loo.p
-        se <- pmax(se, 1e-8)
-        s2 <- se ^ 2 #s2 * loo.p ^ 2
+        pred_super$se <- pred_super$se * loo.p
+        pred_super$se <- pmax(pred_super$se, 0)
+        pred_super$s2 <- pred_super$se ^ 2 #s2 * loo.p ^ 2
+        return(pred_super)
       }
 
-      # se.fit but not covmat
-      if (return_df) {
-        data.frame(mean=mn, s2=s2, se=se) # data.frame is really slow compared to cbind or list
-      } else {
-        list(mean=mn, s2=s2, se=se)
-      }
+      stop('LOO pred failure, this should not happen #8572398')
+
+      # # se.fit but not covmat
+      # if (return_df) {
+      #   data.frame(mean=mn, s2=s2, se=se) # data.frame is really slow compared to cbind or list
+      # } else {
+      #   list(mean=mn, s2=s2, se=se)
+      # }
     }
   )
 )

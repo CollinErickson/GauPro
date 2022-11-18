@@ -1,5 +1,8 @@
 # GauPro 0.2.5.9000
 
+GP kernel model maxEI can now be run using mixopt to account for discrete
+inputs.
+
 # GauPro 0.2.5
 
 Added kernels for factors.

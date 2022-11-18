@@ -179,7 +179,8 @@ Predict for a matrix of points
   XX,
   se.fit = F,
   covmat = F,
-  return_df = FALSE
+  return_df = FALSE,
+  mean_dist = FALSE
 )}\if{html}{\out{</div>}}
 }
 
