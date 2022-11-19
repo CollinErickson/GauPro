@@ -96,6 +96,7 @@ gp <- GauPro_kernel_model_LOO$new(X=x, Z=y, kernel=Matern52)
 <li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="predict"><a href='../../GauPro/html/GauPro.html#method-GauPro-predict'><code>GauPro::GauPro$predict()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="print"><a href='../../GauPro/html/GauPro.html#method-GauPro-print'><code>GauPro::GauPro$print()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="sample"><a href='../../GauPro/html/GauPro.html#method-GauPro-sample'><code>GauPro::GauPro$sample()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="summary"><a href='../../GauPro/html/GauPro.html#method-GauPro-summary'><code>GauPro::GauPro$summary()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="update_K_and_estimates"><a href='../../GauPro/html/GauPro.html#method-GauPro-update_K_and_estimates'><code>GauPro::GauPro$update_K_and_estimates()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="update_corrparams"><a href='../../GauPro/html/GauPro.html#method-GauPro-update_corrparams'><code>GauPro::GauPro$update_corrparams()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="update_data"><a href='../../GauPro/html/GauPro.html#method-GauPro-update_data'><code>GauPro::GauPro$update_data()</code></a></span></li>

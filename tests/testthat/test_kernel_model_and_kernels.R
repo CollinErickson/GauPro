@@ -296,9 +296,12 @@ test_that("check factor kernels in product", {
     expect_is(gp, "GauPro")
     expect_is(gp, "R6")
 
-    # Check kernel
+    # Check kernel print
     expect_error({kernprint <- capture_output(print(gp$kernel))}, NA)
     expect_is(kernprint, 'character')
+
+    # Check LOO
+    print(gp$plotLOO())
 
     # Check EI
     expect_error(mei1 <- gp$maxEI(), NA)
@@ -400,13 +403,52 @@ test_that("check product kernels behave properly", {
 # Formula/data input ----
 test_that("Formula/data input", {
   n <- 30
-  tdf <- data.frame(a=runif(n), b=runif(n), c=factor(sample(5:6,n,T)), d=runif(n), e=sample(letters[1:3], n,T))
+  tdf <- data.frame(a=runif(n), b=runif(n), c=factor(sample(5:6,n,T)),
+                    d=runif(n), e=sample(letters[1:3], n,T))
   tdf$z <- with(tdf, a+a*b+b^2)
   gpf <- GauPro_kernel_model$new(X=tdf, Z=z ~ a + b + c + e, kernel='gauss')
   expect_true("GauPro" %in% class(gpf))
   expect_equal(ncol(gpf$X), 4)
   expect_true(is.matrix(gpf$X))
   expect_error(predict(gpf, tdf), NA)
+})
+
+test_that("Formula/data input 2", {
+  library(dplyr)
+  n <- 133
+  xdf <- tibble(
+    a=rnorm(n),
+    b=runif(n),
+    c=sample(letters[1:5], n, T),
+    d=sample(letters[6:9], n, T),
+    e=rexp(n),
+    # f=rnorm(n),
+    z=a*b + a^2*ifelse(c %in% c('a', 'b'), 1, .5) +
+      e*ifelse(d %in% c('g','h'), 1, -1) +
+      ifelse(paste0(d,e) %in% c('af', 'ah', 'cf', 'cg', 'ci'),4,0) +
+      rnorm(n, 1e-1)
+  )
+  xdf
+  xdf %>% str
+  # xdf %>% GGally::ggpairs()
+
+  # Test fit
+  expect_error(gpdf <- GauPro_kernel_model$new(z ~ ., data=xdf, kernel='m32'), NA)
+  expect_true("formula" %in% class(gpdf$formula))
+  # Kernel should automatically have factors for chars
+  # expect_true("GauPro_kernel_product" %in% class(gpdf$kernel), NA)
+  # Test predict
+  expect_error(predict(gpdf, xdf), NA)
+  # Test pred LOO
+  expect_error(gpdf$plotLOO(), NA)
+
+  # Try other arg names
+  expect_error(gpdf <- GauPro_kernel_model$new(z ~ ., xdf, kernel='m32'), NA)
+  expect_error(gpdf <- GauPro_kernel_model$new(xdf, z ~ ., kernel='m32'), NA)
+  expect_error(gpdf <- GauPro_kernel_model$new(formula=z ~ ., data=xdf, kernel='m32'), NA)
+  expect_error(gpdf <- GauPro_kernel_model$new(z ~ ., xdf, kernel='m32'), NA)
+  expect_error(gpdf <- GauPro_kernel_model$new(z ~ xdf$a + xdf$c + xdf$e, xdf, kernel='m32'), NA)
+  expect_error(gpdf <- GauPro_kernel_model$new(z ~ ., data=xdf, kernel='m32'), NA)
 })
 
 # EI ----

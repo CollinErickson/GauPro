@@ -55,6 +55,17 @@ if (F) {
   }
 }
 
+#' Summary for GauPro object
+#'
+#' @param object GauPro R6 object
+#' @param ... Additional arguments passed to summary
+#'
+#' @return Summary
+#' @export
+summary.GauPro <- function(object, ...) {
+  object$summary(...)
+}
+
 
 #' Kernel sum
 #'

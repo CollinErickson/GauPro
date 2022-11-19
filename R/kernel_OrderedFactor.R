@@ -63,7 +63,7 @@
 #' k2 <- k2a * k2b
 #' k2b$p_upper <- .65*k2b$p_upper
 #' gp <- GauPro_kernel_model$new(X=X, Z=Z, kernel = k2, verbose = 5,
-#'   nug.min=1e-2, restarts=1)
+#'   nug.min=1e-2, restarts=0)
 #' gp$kernel$k1$kernel$beta
 #' gp$kernel$k2$p
 #' gp$kernel$k(x = gp$X)

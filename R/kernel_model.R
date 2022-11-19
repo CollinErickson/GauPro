@@ -161,6 +161,7 @@ GauPro_kernel_model <- R6::R6Class(
                           param.est = TRUE, restarts = 0,
                           normalize = FALSE, optimizer="L-BFGS-B",
                           track_optim=FALSE,
+                          formula, data,
                           ...) {
       #self$initialize_GauPr(X=X,Z=Z,verbose=verbose,useC=useC,
       #                      useGrad=useGrad,
@@ -171,25 +172,60 @@ GauPro_kernel_model <- R6::R6Class(
       # if (missing(Z)) {
       #   stop("You must give Z to GauPro_kernel_model")
       # }
-      if ((!missing(X) && is.formula(X)) || (!missing(Z) && is.formula(Z))) {
+      if ((!missing(X) && is.formula(X)) ||
+          (!missing(Z) && is.formula(Z)) ||
+          (!missing(formula) && is.formula(formula))) {
         if (!missing(X) && is.formula(X)) {
           formula <- X
-          # stopifnot(is.data.frame(Z))
           if (!missing(Z) && is.data.frame(Z)) {
             data <- Z
+          } else if (!missing(data) && is.data.frame(data)) {
+            # data <- data
+          } else if (!missing(Z)) {
+            warning("Z given in but not being used")
+            data <- NULL
+          } else if (!missing(data)) {
+            warning("data given in but not being used")
+            data <- NULL
           } else {
             data <- NULL
           }
         }
         if (!missing(Z) && is.formula(Z)) {
           formula <- Z
-          # stopifnot(is.data.frame(X))
+          # Don't need data given in, can be global variables
           if (!missing(X) && is.data.frame(X)) {
             data <- X
+          } else if (!missing(data) && is.data.frame(data)) {
+            # data <- data
+          } else if (!missing(X)) {
+            warning("X given in but not being used")
+            data <- NULL
+          } else if (!missing(data)) {
+            warning("data given in but not being used")
+            data <- NULL
           } else {
             data <- NULL
           }
         }
+
+        if (!missing(formula) && is.formula(formula)) {
+          # formula <- formula
+          # Find data now
+          if (!missing(X) && is.data.frame(X)) {
+            data <- X
+          } else if (!missing(Z) && is.data.frame(Z)) {
+            data <- Z
+          } else if (!missing(data) && is.data.frame(data)) {
+            # data <- data
+          } else {
+            stop("formula given in but not data")
+          }
+        } else if (!missing(formula) && !is.null(formula)) {
+          message("formula given in but not used")
+        }
+
+        # Get data
         modfr <- model.frame(formula = formula, data = data)
         Z <- modfr[,1]
         Xdf <- modfr[,2:ncol(modfr), drop=FALSE]
@@ -299,12 +335,12 @@ GauPro_kernel_model <- R6::R6Class(
         } else {
           stop(paste0("Kernel given to GauPro_kernel_model (",
                       kernel, ") is not valid. ",
-                      "Consider using Gaussian or Matern52."))
+                      'Consider using "Gaussian" or "Matern52".'))
         }
         self$kernel <- kernel
       } else {
         stop(paste0("Kernel given to GauPro_kernel_model is not valid. ",
-                    "Consider using Gaussian or Matern52."))
+                    'Consider using "Gaussian" or "Matern52".'))
       }
 
       # Set trend
@@ -2850,6 +2886,10 @@ GauPro_kernel_model <- R6::R6Class(
       cat("\tUse $pred() to get predictions at new points\n")
       cat("\tUse $plot() to visualize the model\n")
       invisible(self)
+    },
+    #' @description Summary
+    summary = function(...) {
+      summary(self$Z)
     }
   ),
   private = list(

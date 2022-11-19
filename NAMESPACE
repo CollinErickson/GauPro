@@ -3,6 +3,7 @@
 S3method("*",GauPro_kernel)
 S3method("+",GauPro_kernel)
 S3method(predict,GauPro)
+S3method(summary,GauPro)
 export()
 export(Cubic)
 export(Exponential)

@@ -190,6 +190,7 @@ using the formula}
 \item \href{#method-GauPro-maxqEI}{\code{GauPro_kernel_model$maxqEI()}}
 \item \href{#method-GauPro-KG}{\code{GauPro_kernel_model$KG()}}
 \item \href{#method-GauPro-print}{\code{GauPro_kernel_model$print()}}
+\item \href{#method-GauPro-summary}{\code{GauPro_kernel_model$summary()}}
 \item \href{#method-GauPro-clone}{\code{GauPro_kernel_model$clone()}}
 }
 }
@@ -218,6 +219,8 @@ Create kernel_model object
   normalize = FALSE,
   optimizer = "L-BFGS-B",
   track_optim = FALSE,
+  formula,
+  data,
   ...
 )}\if{html}{\out{</div>}}
 }
@@ -1527,6 +1530,16 @@ improvement. Currently only implements the constant liar method.
 Print this object
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$print()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-GauPro-summary"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro-summary}{}}}
+\subsection{Method \code{summary()}}{
+Summary
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$summary(...)}\if{html}{\out{</div>}}
 }
 
 }

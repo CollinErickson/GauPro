@@ -19,8 +19,7 @@
 #' gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Cubic$new(1),
 #'                               parallel=FALSE, restarts=0)
 #' gp$predict(.454)
-#' gp$plot1D()
-#' # gp$cool1Dplot()
+#' gp$cool1Dplot()
 Cubic <- R6::R6Class(
   classname = "GauPro_kernel_Cubic",
   inherit = GauPro_kernel_beta,

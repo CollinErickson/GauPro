@@ -5,6 +5,7 @@ some build errors or the package will be removed from CRAN.
 The errors are from flaky tests that use randomness and fail a small portion
 of the time. I have rewritten these tests so that they will pass consistently.
 
+I also added a reference to a related paper of mine in the DESCRIPTION.
 
 
 ## Test environments

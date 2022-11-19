@@ -6,8 +6,6 @@
 
 * Ignore input kernel: example
 
-* Take in data/formula input in addition to matrix
-
 * Calculate EI: nopt, test, doc
 
 * EI should use mu instead of Z for noise. Should it be sd of mean, not pred?
@@ -18,11 +16,7 @@ See http://krasserm.github.io/2018/03/21/bayesian-optimization/.
 * With many points, just estimate param from subset of data, but use all data
 at end for K/Kinv so predictions are good.
 
-* Change print, summary
-
 * Improve kernel model plot
-
-* Give kernel in as string. If missing, give better error or just use Mat52.
 
 * Reduce L-BFGS-B tolerance? Need to change tests too.
 
@@ -31,8 +25,6 @@ at end for K/Kinv so predictions are good.
 * Better handling of ignore input when using factors?
 
 * Transform inputs
-
-* Change S3 plot to R6
 
 * plot2D option to do se instead of mean, or side by side
 
@@ -50,8 +42,6 @@ at end for K/Kinv so predictions are good.
 
 * test factor kernels, check grad
 
-* data frame input: everywhere, predict, etc. Convert to matrix.
-
 * 4 inputs, 2 latentfac, .1 noise. predictions have near zero s2
 
 * factor trend, LM ignore inds
@@ -66,8 +56,6 @@ at end for K/Kinv so predictions are good.
 
 * Check which indices are non-factor. If any overlap, give warning.
 
-* If give in data/formula, create kernel with factor cols as factors
-
 * All restarts had error: doesn't say what error is, so sometimes it's
 an error the user should know. Like when I test useCM.
 
@@ -79,29 +67,27 @@ an error the user should know. Like when I test useCM.
 
 * Knowledge gradient: multiple starts for optim
 
-* EI, maxEI, maxqEI: add to test for each kernel, just check no error, right output
-
 * Change plot for factor inputs
 
-* If give in formula/data, fix EI, plot, etc.
+* When giving in formula/data
+  * auto kernel with factors. Turn test back on once fixed.
+  * fix EI
+  * fix plot for 1D, 2D, marginal, marginal random
+  * fix
+  * convert ordered factor
+  * add to doc
 
-* maxqEI: work with factor, discrete. Or give error.
-
-* Optimize any function with cts/factor/discrete: use in EI, qEI, max.
+* maxqEI: if factor in kernel and no mopar, give warning.
 
 * FactorKernel and OrderedFK: change correlation, maybe just 1.95 instead of 2
-
-* find_kernel_factor_dims should separate ordered from unordered
 
 * mixopt for qEI: picks same point multiple times b/c of mean uncertainty
 
 * Should EI be zero for already evaluated points? Mean can have high uncertainty
 when nug>0, so it can pick already eval points.
 
-* examples for data.frame input
+* Resubmit to CRAN by 11/28. After mixopt update.
 
-* Add reference to Description (my first paper) as Uwe said.
+* Plot doesn't work for gp4$kernel
 
-* Fix LOO pred one matrix: don't let it take in mean_dist. Add tests.
-
-* Fix test issue and resubmit to CRAN by 11/28.
+* gpkm summary: diagnostics from LOO, check LM for ideas 
