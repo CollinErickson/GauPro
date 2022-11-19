@@ -81,6 +81,18 @@ summary.GauPro <- function(object, ...) {
 #' k <- k1 + k2
 #' k$k(matrix(c(2,1), ncol=1))
 '+.GauPro_kernel' <- function(k1, k2) {
+  if (is.numeric(k1) && k1==0) {
+    return(k2)
+  }
+  if (is.numeric(k2) && k2==0) {
+    return(k1)
+  }
+  if (!("GauPro_kernel" %in% class(k1))) {
+    stop("Can only add GauPro kernels with other kernels")
+  }
+  if (!("GauPro_kernel" %in% class(k2))) {
+    stop("Can only add GauPro kernels with other kernels")
+  }
   kernel_sum$new(k1=k1, k2=k2)
 }
 
@@ -99,5 +111,17 @@ summary.GauPro <- function(object, ...) {
 #' k <- k1 * k2
 #' k$k(matrix(c(2,1), ncol=1))
 '*.GauPro_kernel' <- function(k1, k2) {
+  if (is.numeric(k1) && k1==1) {
+    return(k2)
+  }
+  if (is.numeric(k2) && k2==1) {
+    return(k1)
+  }
+  if (!("GauPro_kernel" %in% class(k1))) {
+    stop("Can only multiply GauPro kernels with other kernels")
+  }
+  if (!("GauPro_kernel" %in% class(k2))) {
+    stop("Can only multiply GauPro kernels with other kernels")
+  }
   kernel_product$new(k1=k1, k2=k2)
 }

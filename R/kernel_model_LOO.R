@@ -97,6 +97,7 @@ GauPro_kernel_model_LOO <- R6::R6Class(
     #' @param covmat Should covariance matrix be returned?
     #' @param return_df When returning se.fit, should it be returned in
     #' a data frame?
+    #' @param mean_dist Should mean distribution be returned?
     pred_one_matrix = function(XX, se.fit=F, covmat=F,
                                return_df=FALSE, mean_dist=FALSE) {
       # # input should already be check for matrix

@@ -32,8 +32,12 @@ test_that("kernels work and have correct grads", {
       kern <- kern_list[[j]]
     }
 
-    gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=kern, parallel=FALSE,
-                                  verbose=0, nug.est=T, restarts=0)
+    expect_no_warning({
+      expect_error({
+        gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=kern, parallel=FALSE,
+                                      verbose=0, nug.est=T, restarts=0)
+      }, NA)
+    })
     expect_is(gp, "GauPro")
     expect_is(gp, "R6")
 
@@ -166,7 +170,7 @@ test_that("kernels work and have correct grads", {
           expect_equal(numgrad, actgrad[1+i], tolerance = numgradtol,
                        label=paste(j,kern_char,i, 'numgrad'))
         } else {
-          if (printkern) {
+          if (exists('printkern') && printkern) {
             cat("FAILURE", kern_char, iatt, i, alleq, "\n")
           }
           goodsofar <- FALSE
@@ -175,7 +179,7 @@ test_that("kernels work and have correct grads", {
       if (goodsofar) {
         break
       } else {
-        if (printkern) {
+        if (exists("printkern") && printkern) {
           cat("failed on", kern_char, "attempt", iatt,
               alleq,
               (numgrad-actgrad[1+i]) / actgrad[1+i],
@@ -188,6 +192,8 @@ test_that("kernels work and have correct grads", {
                 label=paste(kern_char,
                             'numgrad matches symbolic grad (failed on all',
                             maxattempts, "attempts)"))
+
+    print(warnings())
   }
 })
 
@@ -261,6 +267,7 @@ test_that("check factor kernels alone", {
                    label=paste(j,kern_char,i, 'numgrad'))
       # debugonce(gp$kernel$dC_dparams)
     }
+    print(warnings())
   }
 })
 
@@ -415,32 +422,37 @@ test_that("Formula/data input", {
 
 test_that("Formula/data input 2", {
   library(dplyr)
-  n <- 133
+  n <- 63
   xdf <- tibble(
     a=rnorm(n),
     b=runif(n),
     c=sample(letters[1:5], n, T),
-    d=sample(letters[6:9], n, T),
+    d=factor(sample(letters[6:9], n, T)),
     e=rexp(n),
     # f=rnorm(n),
     z=a*b + a^2*ifelse(c %in% c('a', 'b'), 1, .5) +
       e*ifelse(d %in% c('g','h'), 1, -1) +
       ifelse(paste0(d,e) %in% c('af', 'ah', 'cf', 'cg', 'ci'),4,0) +
-      rnorm(n, 1e-1)
+      rnorm(n, 1e-3)
   )
   xdf
-  xdf %>% str
+  # xdf %>% str
   # xdf %>% GGally::ggpairs()
 
   # Test fit
   expect_error(gpdf <- GauPro_kernel_model$new(z ~ ., data=xdf, kernel='m32'), NA)
   expect_true("formula" %in% class(gpdf$formula))
   # Kernel should automatically have factors for chars
-  # expect_true("GauPro_kernel_product" %in% class(gpdf$kernel), NA)
+  expect_true("GauPro_kernel_product" %in% class(gpdf$kernel), NA)
   # Test predict
   expect_error(predict(gpdf, xdf), NA)
+  # Missing col, give descriptive error
+  expect_error(predict(gpdf, xdf[,1:3]))
   # Test pred LOO
   expect_error(gpdf$plotLOO(), NA)
+  # Test EI
+  expect_error(gpdf$maxEI(), NA)
+  expect_error(gpdf$maxqEI(npoints = 2), NA)
 
   # Try other arg names
   expect_error(gpdf <- GauPro_kernel_model$new(z ~ ., xdf, kernel='m32'), NA)
@@ -449,6 +461,15 @@ test_that("Formula/data input 2", {
   expect_error(gpdf <- GauPro_kernel_model$new(z ~ ., xdf, kernel='m32'), NA)
   expect_error(gpdf <- GauPro_kernel_model$new(z ~ xdf$a + xdf$c + xdf$e, xdf, kernel='m32'), NA)
   expect_error(gpdf <- GauPro_kernel_model$new(z ~ ., data=xdf, kernel='m32'), NA)
+
+  # Only fit on chars
+  expect_error(gpch <- GauPro_kernel_model$new(z ~ c + d, data=xdf, kernel='m32'), NA)
+  expect_error(gpch <- GauPro_kernel_model$new(z ~ a + c, data=xdf, kernel='m32'), NA)
+
+  # Try more complex
+  expect_error(gpco <- GauPro_kernel_model$new(z ~ a*b + c + d, data=xdf, kernel='m32'), NA)
+  expect_error(gpco <- GauPro_kernel_model$new(z ~ exp(a) + c, data=xdf, kernel='m32'), NA)
+  expect_error(gpco <- GauPro_kernel_model$new(exp(z) ~ exp(a) + c, data=xdf, kernel='m32'), NA)
 })
 
 # EI ----
@@ -471,4 +492,19 @@ test_that("EI with mixopt", {
   )
   expect_error(gpf$maxEI(mopar = mop, minimize = T), NA)
   expect_error(gpf$maxqEI(npoints = 3, mopar = mop, minimize = T), NA)
+})
+
+# Misc ----
+test_that("S3 +/*", {
+  w1 <- Cubic$new(D=4)
+  expect_error(w1 * 1, NA)
+  expect_error(w1 * 2)
+  expect_error(w1 + 0, NA)
+  expect_error(w1 + 1)
+})
+test_that("IgnoreInds", {
+  r1 <- Cubic$new(D=1)
+  # Ignore inds must be vector of numeric
+  expect_error(r2 <- IgnoreIndsKernel$new(k=r1, ignoreinds = list(2)))
+  expect_error(IgnoreIndsKernel$new(k=r1, ignoreinds=1.00001))
 })

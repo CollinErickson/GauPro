@@ -196,6 +196,8 @@ Predict for a matrix of points
 
 \item{\code{return_df}}{When returning se.fit, should it be returned in
 a data frame?}
+
+\item{\code{mean_dist}}{Should mean distribution be returned?}
 }
 \if{html}{\out{</div>}}
 }

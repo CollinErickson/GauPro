@@ -45,6 +45,7 @@ kernel_sum <- R6::R6Class(classname = "GauPro_kernel_sum",
       self$k2pl <- self$k2_param_length
       self$s2 <- self$k1$s2 + self$k2$s2
       self$s2_est <- (self$k1$s2_est || self$k2$s2_est)
+      self$D <- max(self$k1$D, self$k2$D)
     },
     #' @description Calculate covariance between two points
     #' @param x vector.

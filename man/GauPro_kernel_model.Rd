@@ -1542,6 +1542,13 @@ Summary
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$summary(...)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{Additional arguments}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GauPro-clone"></a>}}

@@ -1,4 +1,11 @@
+library(testthat)
+
+printkern <- interactive()
+
 test_that("All kernels work in 1-D", {
+  kern_chars <- c("gauss", "exp", "m32", "m52",
+                  "ratquad", "periodic", "cubic",
+                  "triangle", "white")
   kernels <- list(Gaussian$new(0),
                   Exponential$new(0),
                   Matern32$new(0),
@@ -8,6 +15,7 @@ test_that("All kernels work in 1-D", {
                   Cubic$new(0),
                   Triangle$new(0),
                   White$new(s2=.65))
+  expect_equal(length(kern_chars), length(kernels))
   set.seed(0)
   n <- 20
   x <- matrix(seq(0,1,length.out = n), ncol=1)
@@ -15,12 +23,20 @@ test_that("All kernels work in 1-D", {
   y <- f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
   x1 <- .34343
   x2 <- matrix(c(.2352,.4745,.34625,.97654,.16435,.457, .354, .976,.234, .623), ncol=1)
-  for (kernel in kernels) {
+  for (ikern in seq_along(kernels)) {
+    kern_char <- kern_chars[ikern]
+    kernel <- kernels[[ikern]]
+
+    if (exists('printkern') && printkern) cat("1D", j, kern_char, "\n")
     set.seed(0)
 
     # Fit GP using kernel
     #' kernel=RatQuad$new(0.1,0.1)
-    gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=kernel, parallel=FALSE, verbose=0, nug.est=T, restarts=1)
+    expect_error({
+      gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=kernel,
+                                    parallel=FALSE, verbose=0, nug.est=T,
+                                    restarts=0)
+    }, NA)
 
     x1_C <- gp$kernel$k(x=x1)
     expect_is(object = x1_C, class = 'numeric', info = class(kernel)[1])
@@ -41,14 +57,17 @@ test_that("All kernels work in 1-D", {
 })
 
 test_that("All kernels work in 2-D", {
+  kern_chars <- c("gauss", "exp", "m32", "m52",
+                  "ratquad", "cubic", "triangle", "periodic")
   kernels <- list(Gaussian$new(c(0,.3)),
                   Exponential$new(c(0,.3)),
                   Matern32$new(c(0,.3)),
                   Matern52$new(c(0,.3)),
                   RatQuad$new(c(0,.3),0),
-                  Cubic$new(0),
-                  Triangle$new(0),
+                  Cubic$new(D=2),
+                  Triangle$new(D=2),
                   Periodic$new(p=c(.4,.3),alpha=1))
+  expect_equal(length(kern_chars), length(kernels))
   set.seed(0)
   n <- 30
   x <- matrix(runif(2*n), ncol=2)
@@ -56,12 +75,20 @@ test_that("All kernels work in 2-D", {
   y <- apply(x, 1, f) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
   x1 <- c(.34343, .65)
   x2 <- matrix(c(.2352,.4745,.34625,.97654,.16435,.457, .354, .976,.234, .623), ncol=2)
-  for (kernel in kernels) {
+  for (ikern in seq_along(kernels)) {
+    kern_char <- kern_chars[ikern]
+    kernel <- kernels[[ikern]]
+
+    if (exists('printkern') && printkern) cat("2D", j, kern_char, "\n")
     set.seed(0)
 
     # Fit GP using kernel
     #' kernel=RatQuad$new(0.1,0.1)
-    gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=kernel, parallel=FALSE, verbose=0, nug.est=T, restarts=1)
+    expect_error({
+      gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=kernel,
+                                    parallel=FALSE, verbose=0, nug.est=T,
+                                    restarts=0)
+    }, NA)
 
     x1_C <- gp$kernel$k(x=x1)
     expect_is(object = x1_C, class = 'numeric', info = class(kernel)[1])

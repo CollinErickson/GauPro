@@ -70,12 +70,13 @@ an error the user should know. Like when I test useCM.
 * Change plot for factor inputs
 
 * When giving in formula/data
-  * auto kernel with factors. Turn test back on once fixed.
   * fix EI
   * fix plot for 1D, 2D, marginal, marginal random
   * fix
   * convert ordered factor
   * add to doc
+  * convert back for formula, need for EI
+  * make sure exp(), log(), *, : work for fit and pred
 
 * maxqEI: if factor in kernel and no mopar, give warning.
 

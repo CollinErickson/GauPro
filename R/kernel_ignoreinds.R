@@ -53,8 +53,11 @@ IgnoreIndsKernel <- R6::R6Class(
     #' @param ignoreinds Indices of columns of X to ignore.
     initialize = function(k, ignoreinds) {
       stopifnot("GauPro_kernel" %in% class(k))
+      stopifnot(is.numeric(ignoreinds))
+      stopifnot(abs(ignoreinds - round(ignoreinds)) < 1e-8, ignoreinds>.99999)
       self$kernel <- k
       self$ignoreinds <- ignoreinds
+      self$D <- self$kernel$D + length(self$ignoreinds)
     },
     #' @description Calculate covariance between two points
     #' @param x vector.

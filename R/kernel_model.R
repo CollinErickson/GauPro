@@ -256,7 +256,10 @@ GauPro_kernel_model <- R6::R6Class(
                                })
           }
         }
-        self$formula <- formula
+        # Using formula won't convert z ~ . into z ~ a + b + ...,
+        #   but using terms from modfr will
+        # self$formula <- formula
+        self$formula <- attr(modfr, "terms")
         # self$data <- data
         self$convert_formula_data <- convert_formula_data
         X <- as.matrix(Xdf)
@@ -313,29 +316,70 @@ GauPro_kernel_model <- R6::R6Class(
         self$kernel <- kernel$new(D=self$D)
       } else if ("GauPro_kernel" %in% class(kernel)) {
         # Otherwise it should already be a kernel
+        if (!is.na(kernel$D) && kernel$D != self$D) {
+          warning(paste0("Dimensions of data and kernel don't match,",
+                         " this seems like an error"))
+        }
         self$kernel <- kernel
       } else if(is.character(kernel) && length(kernel)==1) {
         kernel <- tolower(kernel)
-        if (kernel %in% c("gaussian", "gauss")) {
-          kernel <- Gaussian$new(D=self$D, useC=useC)
+        Dcts <- self$D - length(self$convert_formula_data$factors) -
+          length(self$convert_formula_data$chars)
+        if (Dcts < .5) {
+          kernel <- 1
+        } else if (kernel %in% c("gaussian", "gauss")) {
+          kernel <- Gaussian$new(D=Dcts, useC=useC)
         } else if (kernel %in% c("matern32", "m32", "matern3/2",
                                  "matern3_2")) {
-          kernel <- Matern32$new(D=self$D)
+          kernel <- Matern32$new(D=Dcts)
         } else if (kernel %in% c("matern52", "m52", "matern5/2",
                                  "matern5_2")) {
-          kernel <- Matern52$new(D=self$D)
+          kernel <- Matern52$new(D=Dcts)
         } else if (kernel %in% c("exp", "exponential",
                                  "m12", "matern12",
                                  "matern1/2", "matern1_2")) {
-          kernel <- Exponential$new(D=self$D)
+          kernel <- Exponential$new(D=Dcts)
         } else if (kernel %in% c("ratquad", "rationalquadratic", "rq")) {
-          kernel <- RatQuad$new(D=self$D)
+          kernel <- RatQuad$new(D=Dcts)
         } else if (kernel %in% c("powerexponential", "powexp", "pe")) {
-          kernel <- PowerExp$new(D=self$D)
+          kernel <- PowerExp$new(D=Dcts)
         } else {
           stop(paste0("Kernel given to GauPro_kernel_model (",
                       kernel, ") is not valid. ",
                       'Consider using "Gaussian" or "Matern52".'))
+        }
+
+        # Add factor kernels for factor/char dimensions
+        if (self$D - Dcts > .5) {
+          # kernel over cts needs to ignore these dims
+          if (Dcts > .5) {
+            igninds <- c(
+              unlist(sapply(self$convert_formula_data$factors, function(x) {x$index})),
+              unlist(sapply(self$convert_formula_data$chars, function(x) {x$index}))
+            )
+            kernel <- IgnoreIndsKernel$new(k=kernel,
+                                           ignoreinds=igninds)
+          }
+          for (i in seq_along(self$convert_formula_data$factors)) {
+            nlevels_i <- length(self$convert_formula_data$factors[[i]]$levels)
+            kernel_i <- LatentFactorKernel$new(
+              D=1,
+              xindex=self$convert_formula_data$factors[[i]]$index,
+              nlevels=nlevels_i,
+              latentdim= if (nlevels_i>=3) {2} else {1}
+            )
+            kernel <- kernel * kernel_i
+          }
+          for (i in seq_along(self$convert_formula_data$chars)) {
+            nlevels_i <- length(self$convert_formula_data$chars[[i]]$vals)
+            kernel_i <- LatentFactorKernel$new(
+              D=1,
+              xindex=self$convert_formula_data$chars[[i]]$index,
+              nlevels=nlevels_i,
+              latentdim= if (nlevels_i>=3) {2} else {1}
+            )
+            kernel <- kernel * kernel_i
+          }
         }
         self$kernel <- kernel
       } else {
@@ -431,7 +475,7 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param split_speed Should the matrix be split for faster predictions?
     #' @param mean_dist Should the error be for the distribution of the mean?
     pred = function(XX, se.fit=F, covmat=F, split_speed=F, mean_dist=FALSE) {
-      if (!is.null(self$formula)) {
+      if (!is.null(self$formula) && is.data.frame(XX)) {
         XX <- convert_X_with_formula(XX, self$convert_formula_data,
                                      self$formula)
       }
@@ -2888,8 +2932,9 @@ GauPro_kernel_model <- R6::R6Class(
       invisible(self)
     },
     #' @description Summary
+    #' @param ... Additional arguments
     summary = function(...) {
-      summary(self$Z)
+      summary(self$Z[,1])
     }
   ),
   private = list(
