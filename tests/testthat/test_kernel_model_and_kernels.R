@@ -103,6 +103,9 @@ test_that("kernels work and have correct grads", {
       expect_error(plot(gp), NA)
     }
 
+    # Kernel plot
+    expect_error(plot(gp$kernel), NA)
+
     # Check EI for some kernels
     if (j<2.5) {
       expect_error(mei1 <- gp$maxEI(), NA)
@@ -223,14 +226,17 @@ test_that("check factor kernels alone", {
     # kern1 <- IgnoreIndsKernel$new(Gaussian$new(D=1), ignoreinds = 2)
     kern <- kern_list[[j]]
 
-    gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=kern, parallel=FALSE,
-                                  verbose=0, nug.est=T, restarts=0)
+    expect_error({
+      gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=kern, parallel=FALSE,
+                                    verbose=0, nug.est=T, restarts=0)
+    }, NA)
     expect_is(gp, "GauPro")
     expect_is(gp, "R6")
 
     # Check kernel
     expect_error({kernprint <- capture_output(print(gp$kernel))}, NA)
     expect_is(kernprint, 'character')
+    expect_no_error(plot(gp$kernel))
 
     df <- gp$deviance()
     dg <- gp$deviance_grad(nug.update = T)

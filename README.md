@@ -11,6 +11,8 @@ Status](https://travis-ci.org/CollinErickson/GauPro.svg?branch=master)](https://
 [![codecov](https://codecov.io/gh/CollinErickson/GauPro/branch/master/graph/badge.svg)](https://app.codecov.io/gh/CollinErickson/GauPro)
 [![R-CMD-check](https://github.com/CollinErickson/GauPro/workflows/R-CMD-check/badge.svg)](https://github.com/CollinErickson/GauPro/actions)
 [![R-CMD-check](https://github.com/CollinErickson/GauPro/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/CollinErickson/GauPro/actions/workflows/R-CMD-check.yaml)
+[![CRAN RStudio mirror
+downloads](https://cranlogs.r-pkg.org/badges/last-month/GauPro?color=blue)](https://r-pkg.org/pkg/GauPro)
 <!-- badges: end -->
 
 ## Overview

@@ -31,7 +31,8 @@
 #' @field useC Should C code be used when possible? Can be much faster.
 #' @examples
 #' #k <- GauPro_kernel$new()
-GauPro_kernel <- R6::R6Class(classname = "GauPro_kernel",
+GauPro_kernel <- R6::R6Class(
+  classname = "GauPro_kernel",
   public = list(
     D = NULL,
     useC = TRUE
@@ -41,25 +42,64 @@ GauPro_kernel <- R6::R6Class(classname = "GauPro_kernel",
     #   else {stop("Error in k_diag #4928")}
     # }
     ,
+    # #' @description Plot kernel decay.
+    # plot = function() {
+    #   stopifnot(!is.null(self$D), self$D >= 1)
+    #   n <- 51
+    #   xseq <- seq(0,1,l=n)
+    #   x0 <- rep(0, self$D)
+    #   df <- NULL
+    #   for (i in 1:self$D) {
+    #     X <- matrix(0, ncol=self$D, nrow=n)
+    #     X[, i] <- xseq
+    #     # xi <- rep(0, self$D)
+    #     # xi[i] <-
+    #     k <- self$k(x0, X)
+    #     df <- rbind(df,
+    #                 data.frame(i=i, x2=xseq, k=k)
+    #     )
+    #   }
+    #   ggplot2::ggplot(df, ggplot2::aes(x2, k)) + ggplot2::geom_line() +
+    #     ggplot2::facet_wrap(.~i)
+    # },
     #' @description Plot kernel decay.
-    plot = function() {
+    #' @param X Matrix of points the kernel is used with. Some will be used
+    #' to demonstrate how the covariance changes.
+    plot = function(X=NULL) {
       stopifnot(!is.null(self$D), self$D >= 1)
-      n <- 51
-      xseq <- seq(0,1,l=n)
+      n <- 101
       x0 <- rep(0, self$D)
       df <- NULL
       for (i in 1:self$D) {
-        X <- matrix(0, ncol=self$D, nrow=n)
-        X[, i] <- xseq
-        # xi <- rep(0, self$D)
-        # xi[i] <-
-        k <- self$k(x0, X)
-        df <- rbind(df,
-                    data.frame(i=i, x2=xseq, k=k)
-        )
+        if (is.null(X)) {
+          Xi <- seq(0, 1, l=10)
+        } else {
+          Xi <- X[, i]
+        }
+        minXi <- min(Xi)
+        maxXi <- max(Xi)
+        Xiseq <- seq(minXi, maxXi,l=n)
+        XX <- matrix(rep(x0, n), byrow = T, ncol=length(x0))
+
+        u <- seq(minXi, maxXi, l=3)
+        for (j in seq_along(u)) {
+          x0j <- x0
+          x0j[i] <- u[j]
+          # X <- matrix(0, ncol=self$D, nrow=n)
+          XX[, i] <- Xiseq
+          # xi <- rep(0, self$D)
+          # xi[i] <-
+          k <- self$k(x0j, XX)
+          df <- rbind(df,
+                      data.frame(i=i, x1i=j,
+                                 x1=u[j], x2=Xiseq, k=k)
+          )
+        }
       }
-      ggplot2::ggplot(df, ggplot2::aes(x2, k)) + ggplot2::geom_line() +
-        ggplot2::facet_wrap(.~i)
+      ggplot2::ggplot(df, ggplot2::aes(x2, k, group=x1, color=factor(x1i))) +
+        ggplot2::geom_line() +
+        ggplot2::facet_wrap(.~i, scales='free_x') +
+        ggplot2::guides(color='none')
     },
     #' @description Print this object
     print = function() {

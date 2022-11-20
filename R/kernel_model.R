@@ -1112,6 +1112,7 @@ GauPro_kernel_model <- R6::R6Class(
       X <- lhs::randomLHS(n=n, k=ncol(self$X))
       X2 <- sweep(X, 2, apply(self$X, 2, max) - apply(self$X, 2, min), "*")
       X3 <- sweep(X2, 2, apply(self$X, 2, min), "+")
+      colnames(X3) <- paste0("X", 1:ncol(X3))
       factorinfo <- find_kernel_factor_dims(self$kernel)
       if (length(factorinfo) > 0) {
         for (i in 1:(length(factorinfo)/2)) {
@@ -1120,7 +1121,6 @@ GauPro_kernel_model <- R6::R6Class(
       }
       X3pred <- self$pred(X3, se.fit = T)
       X3pred$irow <- 1:nrow(X3pred)
-      # head(X3pred)
       X4 <- dplyr::inner_join(
         X3pred,
         tidyr::pivot_longer(cbind(as.data.frame(X3),irow=1:nrow(X)), cols=1:ncol(self$X)),

@@ -41,9 +41,17 @@ Kernel R6 class
 \subsection{Method \code{plot()}}{
 Plot kernel decay.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel$plot()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel$plot(X = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{X}}{Matrix of points the kernel is used with. Some will be used
+to demonstrate how the covariance changes.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GauPro_kernel-print"></a>}}
