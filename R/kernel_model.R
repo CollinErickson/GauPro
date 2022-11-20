@@ -1160,10 +1160,10 @@ GauPro_kernel_model <- R6::R6Class(
         ggplot2::geom_point() +
         # geom_text(x=min(loodf$fit), y=max(loodf$Z), label="abc") +
         ggplot2::geom_text(x=-Inf, y=Inf,
-                           label=paste("Coverage:", signif(coverage,5)),
+                           label=paste("Coverage (95%):", signif(coverage,5)),
                            hjust=0, vjust=1) +
         ggplot2::geom_text(x=-Inf, y=Inf,
-                           label=paste("R-sq:        ", signif(rsq,5)),
+                           label=paste("R-sq:             ", signif(rsq,5)),
                            hjust=0, vjust=2.2) +
         # geom_text(x=Inf, y=-Inf, label="def", hjust=1, vjust=0)
         ggplot2::xlab("Predicted values (fit)") +
@@ -2429,6 +2429,7 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param mopar List of parameters using mixopt
     maxEI = function(lower=apply(self$X, 2, min), upper=apply(self$X, 2, max),
                      n0=100, minimize=FALSE, eps=0,
+                     dontconvertback=FALSE,
                      discreteinputs=NULL, mopar=NULL) {
       stopifnot(all(lower < upper))
       stopifnot(length(n0)==1, is.numeric(n0), n0>=1)
@@ -2441,7 +2442,8 @@ GauPro_kernel_model <- R6::R6Class(
         #                              minimize=minimize, eps=eps))
         return(self$maxEIwithfactorsordiscrete(lower=lower, upper=upper, n0=n0,
                                                minimize=minimize, eps=eps,
-                                               discreteinputs=discreteinputs))
+                                               discreteinputs=discreteinputs,
+                                               dontconvertback=dontconvertback))
       }
       if (!is.null(mopar)) {
         # Use mixopt, allows for factor/discrete/integer inputs
@@ -2603,6 +2605,7 @@ GauPro_kernel_model <- R6::R6Class(
     maxEIwithfactorsordiscrete = function(lower=apply(self$X, 2, min),
                                           upper=apply(self$X, 2, max),
                                           n0=100, minimize=FALSE, eps=0,
+                                          dontconvertback=FALSE,
                                           discreteinputs=NULL) {
       stopifnot(all(lower < upper))
       stopifnot(length(n0)==1, is.numeric(n0), n0>=1)
@@ -2736,26 +2739,42 @@ GauPro_kernel_model <- R6::R6Class(
           if (newbestEI - bestEIsofar <= 1e-16) {
             # return(Xstart)
             # Return list, same format as DiceOptim::max_EI
-            return(
-              list(
-                par=Xstart,
-                value=newbestEI
-              )
-            )
+            # return(
+            #   list(
+            #     par=Xstart,
+            #     value=newbestEI
+            #   )
+            # )
+            notdone <- FALSE
           }
           # Or break if enough iterations
           if (i_while > 10) {
             # return(Xstart)
             # Return list, same format as DiceOptim::max_EI
-            return(
-              list(
-                par=Xstart,
-                value=newbestEI
-              )
-            )
+            # return(
+            #   list(
+            #     par=Xstart,
+            #     value=newbestEI
+            #   )
+            # )
+            notdone <- FALSE
           }
           bestEIsofar <- newbestEI
         }
+
+        # done
+        # Convert factor/char indexes back to level/value
+        if (!is.null(self$formula) && !dontconvertback) {
+          Xstart <- convert_X_with_formula_back(gpdf=self, x=Xstart)
+        }
+
+        # Return list, same format as DiceOptim::max_EI
+        return(
+          list(
+            par=Xstart,
+            value=newbestEI
+          )
+        )
 
       }
       # stopifnot(length(bestpar) == self$D)
@@ -2841,12 +2860,14 @@ GauPro_kernel_model <- R6::R6Class(
                       lower=apply(self$X, 2, min),
                       upper=apply(self$X, 2, max),
                       n0=100, minimize=FALSE, eps=0,
+                      dontconvertback=FALSE,
                       mopar=NULL) {
       stopifnot(is.numeric(npoints), length(npoints)==1, npoints >= 1)
       if (npoints==1) {
         # For single point, use proper function
         return(self$maxEI(lower=lower, upper=upper, n0=n0,
-                          minimize=minimize, eps=eps, mopar=mopar))
+                          minimize=minimize, eps=eps, mopar=mopar,
+                          dontconvertback=dontconvertback))
       }
       stopifnot(method %in% c("CL", "pred"))
       # Clone object since we will add fake data
@@ -2860,7 +2881,8 @@ GauPro_kernel_model <- R6::R6Class(
       for (i in 1:npoints) {
         # Find and store point that maximizes EI
         maxEI_i <- gpclone$maxEI(lower=lower, upper=upper, n0=n0, eps=eps,
-                                 minimize=minimize, mopar=mopar)
+                                 minimize=minimize, mopar=mopar,
+                                 dontconvertback=TRUE)
         xi <- maxEI_i$par
         selectedX[i, ] <- xi
         if (method == "pred") {
@@ -2873,6 +2895,12 @@ GauPro_kernel_model <- R6::R6Class(
       }
       # Return matrix of points
       # selectedX
+
+      # done
+      # Convert factor/char indexes back to level/value
+      if (!is.null(self$formula) && !dontconvertback) {
+        selectedX <- convert_X_with_formula_back(gpdf=self, x=selectedX)
+      }
 
       # Return list, same format as DiceOptim::max_EI
       return(

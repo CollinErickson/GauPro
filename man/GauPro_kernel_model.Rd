@@ -1402,6 +1402,7 @@ Find the point that maximizes the expected improvement
   n0 = 100,
   minimize = FALSE,
   eps = 0,
+  dontconvertback = FALSE,
   discreteinputs = NULL,
   mopar = NULL
 )}\if{html}{\out{</div>}}
@@ -1468,6 +1469,7 @@ Used whenever one of the inputs is a factor (can only take values 1:n).
   n0 = 100,
   minimize = FALSE,
   eps = 0,
+  dontconvertback = FALSE,
   discreteinputs = NULL
 )}\if{html}{\out{</div>}}
 }
@@ -1488,6 +1490,7 @@ improvement. Currently only implements the constant liar method.
   n0 = 100,
   minimize = FALSE,
   eps = 0,
+  dontconvertback = FALSE,
   mopar = NULL
 )}\if{html}{\out{</div>}}
 }

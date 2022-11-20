@@ -452,8 +452,16 @@ test_that("Formula/data input 2", {
   # Test pred LOO
   expect_error(gpdf$plotLOO(), NA)
   # Test EI
-  expect_error(gpdf$maxEI(), NA)
-  expect_error(gpdf$maxqEI(npoints = 2), NA)
+  expect_error(dfEI <- gpdf$maxEI(), NA)
+  expect_true(is.data.frame(dfEI$par))
+  expect_equal(colnames(dfEI$par), colnames(xdf)[1:5])
+  expect_equal(dim(dfEI$par), c(1,5))
+  # Test qEI
+  expect_error(dfqEI <- gpdf$maxqEI(npoints = 2), NA)
+  expect_true(is.data.frame(dfqEI$par))
+  expect_equal(colnames(dfqEI$par), colnames(xdf)[1:5])
+  expect_equal(dim(dfqEI$par), c(2,5))
+
 
   # Try other arg names
   expect_error(gpdf <- GauPro_kernel_model$new(z ~ ., xdf, kernel='m32'), NA)
@@ -462,6 +470,7 @@ test_that("Formula/data input 2", {
   expect_error(gpdf <- GauPro_kernel_model$new(z ~ ., xdf, kernel='m32'), NA)
   expect_error(gpdf <- GauPro_kernel_model$new(z ~ xdf$a + xdf$c + xdf$e, xdf, kernel='m32'), NA)
   expect_error(gpdf <- GauPro_kernel_model$new(z ~ ., data=xdf, kernel='m32'), NA)
+  rm(gpdf, dfEI)
 
   # Only fit on chars
   expect_error(gpch <- GauPro_kernel_model$new(z ~ c + d, data=xdf, kernel='m32'), NA)
@@ -476,6 +485,19 @@ test_that("Formula/data input 2", {
   expect_equal(exp(xdf$z), c(gpco$Z))
   expect_equal(exp(xdf$a), unname(gpco$X[,1]))
   expect_error(gpco <- GauPro_kernel_model$new(exp(z) ~ exp(a) + c +sqrt(e), data=xdf, kernel='m32'), NA)
+
+  # Transf
+  expect_error(gpdf <- GauPro_kernel_model$new(abs(z) ~ exp(a) + c + d + sqrt(e), data=xdf, kernel='m32'), NA)
+  # Test EI
+  expect_error(dfEI <- gpdf$maxEI(), NA)
+  expect_true(is.data.frame(dfEI$par))
+  expect_equal(colnames(dfEI$par), attr(gpdf$formula, "term.labels"))
+  expect_equal(dim(dfEI$par), c(1,4))
+  # Test qEI
+  expect_error(dfqEI <- gpdf$maxqEI(npoints = 2), NA)
+  expect_true(is.data.frame(dfqEI$par))
+  expect_equal(colnames(dfqEI$par), attr(gpdf$formula, "term.labels"))
+  expect_equal(dim(dfqEI$par), c(2,4))
 })
 
 # EI ----
