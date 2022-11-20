@@ -442,6 +442,7 @@ test_that("Formula/data input 2", {
   # Test fit
   expect_error(gpdf <- GauPro_kernel_model$new(z ~ ., data=xdf, kernel='m32'), NA)
   expect_true("formula" %in% class(gpdf$formula))
+  expect_true("terms" %in% class(gpdf$formula))
   # Kernel should automatically have factors for chars
   expect_true("GauPro_kernel_product" %in% class(gpdf$kernel), NA)
   # Test predict
@@ -467,9 +468,14 @@ test_that("Formula/data input 2", {
   expect_error(gpch <- GauPro_kernel_model$new(z ~ a + c, data=xdf, kernel='m32'), NA)
 
   # Try more complex
-  expect_error(gpco <- GauPro_kernel_model$new(z ~ a*b + c + d, data=xdf, kernel='m32'), NA)
-  expect_error(gpco <- GauPro_kernel_model$new(z ~ exp(a) + c, data=xdf, kernel='m32'), NA)
+  # Give error if formula includes
+  expect_error(gpco <- GauPro_kernel_model$new(z ~ a*b + c + d, data=xdf, kernel='m32'))
+  expect_error(gpco <- GauPro_kernel_model$new(z ~ exp(a) + b*e + c, data=xdf, kernel='m32'))
+  # Transformations work fine
   expect_error(gpco <- GauPro_kernel_model$new(exp(z) ~ exp(a) + c, data=xdf, kernel='m32'), NA)
+  expect_equal(exp(xdf$z), c(gpco$Z))
+  expect_equal(exp(xdf$a), unname(gpco$X[,1]))
+  expect_error(gpco <- GauPro_kernel_model$new(exp(z) ~ exp(a) + c +sqrt(e), data=xdf, kernel='m32'), NA)
 })
 
 # EI ----

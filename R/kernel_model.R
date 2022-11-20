@@ -260,6 +260,12 @@ GauPro_kernel_model <- R6::R6Class(
         #   but using terms from modfr will
         # self$formula <- formula
         self$formula <- attr(modfr, "terms")
+        # Don't allow formulas with interaction terms. Everything interacts.
+        if (any(grepl(":", attr(self$formula, "term.labels"), fixed=TRUE)) ||
+            any(grepl("*", attr(self$formula, "term.labels"), fixed=TRUE))) {
+          stop(paste0("Don't use a formula with * or :. ",
+                      "Interactions are all included."))
+        }
         # self$data <- data
         self$convert_formula_data <- convert_formula_data
         X <- as.matrix(Xdf)
@@ -2924,6 +2930,12 @@ GauPro_kernel_model <- R6::R6Class(
     #' @description Print this object
     print = function() {
       cat("GauPro kernel model object\n")
+      if (!is.null(self$formula)) {
+        formchar <- as.character(self$formula)
+        stopifnot(length(formchar) == 3)
+        formchar2 <- paste(formchar[2], formchar[1], formchar[3])
+        cat("\tFormula:", formchar2, "\n")
+      }
       cat(paste0("\tD = ", self$D, ", N = ", self$N,"\n"))
       cat(paste0("\tNugget = ", signif(self$nug, 3), "\n"))
       cat("\tRun $update() to add data and/or optimize again\n")
