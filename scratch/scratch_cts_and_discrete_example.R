@@ -24,6 +24,7 @@ system.time({
   )
 })
 gp1
+summary(gp1)
 gp1$pred(c(7,-4, 1, 1), se.fit = T)
 gp1$nug
 gp1$kernel$k(Xmat)
@@ -43,6 +44,7 @@ system.time({
       LatentFactorKernel$new(D=4, nlevels = 4, latentdim = 2, xindex = 4)
   )
 })
+summary(gp2)
 gp2$plot_track_optim()
 gp2
 gp2$pred(c(7,-4, 1, 1), se.fit = T)

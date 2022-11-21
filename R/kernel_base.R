@@ -70,6 +70,7 @@ GauPro_kernel <- R6::R6Class(
       n <- 101
       x0 <- rep(0, self$D)
       df <- NULL
+      # Loop over each dimension
       for (i in 1:self$D) {
         if (is.null(X)) {
           Xi <- seq(0, 1, l=10)
@@ -80,15 +81,12 @@ GauPro_kernel <- R6::R6Class(
         maxXi <- max(Xi)
         Xiseq <- seq(minXi, maxXi,l=n)
         XX <- matrix(rep(x0, n), byrow = T, ncol=length(x0))
-
+        # u is values to use as centers for current dimension
         u <- seq(minXi, maxXi, l=3)
         for (j in seq_along(u)) {
           x0j <- x0
           x0j[i] <- u[j]
-          # X <- matrix(0, ncol=self$D, nrow=n)
           XX[, i] <- Xiseq
-          # xi <- rep(0, self$D)
-          # xi[i] <-
           k <- self$k(x0j, XX)
           df <- rbind(df,
                       data.frame(i=i, x1i=j,

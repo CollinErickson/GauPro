@@ -46,8 +46,6 @@ at end for K/Kinv so predictions are good.
 
 * factor trend, LM ignore inds
 
-* diagnostics
-
 * transform X, Z
 
 * penalties in optim, on trend/kernels
@@ -88,4 +86,8 @@ when nug>0, so it can pick already eval points.
 
 * Plot doesn't work for gp4$kernel
 
-* gpkm summary: diagnostics from LOO, check LM for ideas 
+* gpkm summary: diagnostics from LOO, feature importance, check LM for ideas 
+
+* factorkernel 1D preds have too little noise
+
+* Plot between marginal and marginalrandom. Vary along 10 points, partial range

@@ -616,7 +616,7 @@ GauPro_kernel_model <- R6::R6Class(
         # se[s2>=0] <- sqrt(s2[s2>=0])
 
         if (any(s2 < 0)) {
-          min_s2 <- .Machine$double.eps
+          min_s2 <- max(.Machine$double.eps, self$s2_hat * self$nug)
           warning(paste0("Negative s2 predictions are being set to ",
                          min_s2, " (", sum(s2<0)," values).",
                          " covmat is not being altered."))
@@ -658,7 +658,7 @@ GauPro_kernel_model <- R6::R6Class(
       # #   NOT SURE I WANT THIS
       # se[s2>=0] <- sqrt(s2[s2>=0])
       if (any(s2 < 0)) {
-        min_s2 <- .Machine$double.eps
+        min_s2 <- max(.Machine$double.eps, self$s2_hat * self$nug)
         warning(paste0("Negative s2 predictions are being set to ",
                        min_s2, " (", sum(s2<0)," values)"))
         s2 <- pmax(s2, min_s2)
@@ -885,7 +885,7 @@ GauPro_kernel_model <- R6::R6Class(
         self$plot2D(...)
       } else {
         # stop("No plot method for higher than 2 dimension")
-        self$plotmarginal(...)
+        self$plotmarginalrandom(...)
       }
     },
     #' @description Make cool 1D plot
@@ -1106,13 +1106,18 @@ GauPro_kernel_model <- R6::R6Class(
     },
     #' @description Plot marginal prediction for random sample of inputs
     #' @param n Number of random points to evaluate
-    plotmarginalrandom = function(n=151) {
+    plotmarginalrandom = function(n=100) {
       # Plot marginal random averages
       # Get random matrix, scale to proper lower/upper
       X <- lhs::randomLHS(n=n, k=ncol(self$X))
       X2 <- sweep(X, 2, apply(self$X, 2, max) - apply(self$X, 2, min), "*")
       X3 <- sweep(X2, 2, apply(self$X, 2, min), "+")
-      colnames(X3) <- paste0("X", 1:ncol(X3))
+      if (is.null(colnames(self$X))) {
+        colnames(X3) <- paste0("X", 1:ncol(X3))
+      } else {
+        colnames(X3) <- colnames(self$X)
+      }
+      # Factor columns shouldn't interpolate
       factorinfo <- find_kernel_factor_dims(self$kernel)
       if (length(factorinfo) > 0) {
         for (i in 1:(length(factorinfo)/2)) {
@@ -2427,6 +2432,8 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param minimize Are you trying to minimize the output?
     #' @param eps Exploration parameter
     #' @param mopar List of parameters using mixopt
+    #' @param dontconvertback If data was given in with a formula, should
+    #' it converted back to the original scale?
     maxEI = function(lower=apply(self$X, 2, min), upper=apply(self$X, 2, max),
                      n0=100, minimize=FALSE, eps=0,
                      dontconvertback=FALSE,
@@ -2856,6 +2863,8 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param minimize Are you trying to minimize the output?
     #' @param eps Exploration parameter
     #' @param mopar List of parameters using mixopt
+    #' @param dontconvertback If data was given in with a formula, should
+    #' it converted back to the original scale?
     maxqEI = function(npoints, method="CL",
                       lower=apply(self$X, 2, min),
                       upper=apply(self$X, 2, max),
@@ -2910,6 +2919,11 @@ GauPro_kernel_model <- R6::R6Class(
         )
       )
     },
+    #' @description Calculate Knowledge Gradient
+    #' @param x Point to calculate at
+    #' @param minimize Is the objective to minimize?
+    #' @param eps Exploration parameter
+    #' @param current_extreme Used for recursive solving
     KG = function(x, minimize=FALSE, eps=0, current_extreme=NULL) {
       # if (exists('kgbrow') && kgbrow) {browser()}
       xkg <- x
@@ -2955,6 +2969,69 @@ GauPro_kernel_model <- R6::R6Class(
       kgs
       mean(kgs)
     },
+    #' @description Feature importance
+    #' @param plot Should the plot be made?
+    #' @references https://scikit-learn.org/stable/modules/permutation_importance.html#id2
+    importance = function(plot=TRUE) {
+      # variable importance
+      # Permutation alg
+      # https://scikit-learn.org/stable/modules/permutation_importance.html#id2
+      stopifnot(is.logical(plot), length(plot)==1)
+      nouter <- 5
+      # rmse if just predicting mean
+      rmse0 <- sqrt(mean((mean(self$Z) - self$Z)^2))
+      rmsemod <- sqrt(mean((predict(self, self$X) - self$Z)^2))
+
+      # Track in loop
+      rmses <- rep(0, self$D)
+      rsqs <- rep(0, self$D)
+
+      # Outer loop to repeat for stability
+      for (iouter in 1:nouter) {
+        # Loop over dimensions
+        for (i in 1:self$D) {
+          Xshuffle <- self$X
+          # Shuffle single column, corrupted data
+          Xshuffle[, i] <- sample(Xshuffle[, i], nrow(Xshuffle), replace=F)
+          # Predict on corrupted, get RMSE
+          predi <- self$pred(Xshuffle)
+          rmse <- sqrt(mean((predi - self$Z)^2))
+          rsq <- 1 - (sum((predi-self$Z)^2)) / (sum((mean(self$Z)-self$Z)^2))
+
+          rmses[i] <- rmses[i] + rmse
+          rsqs[i] <- rsqs[i] + rsq
+        }
+      }
+      rmses <- rmses / nouter
+      rsqs <- rsqs / nouter
+
+      if (!is.null(colnames(self$X))) {
+        names(rmses) <- colnames(self$X)
+      } else {
+        names(rmses) <- paste0("X", seq_along(rmses))
+      }
+
+      # I'm defining importance as this ratio.
+      # 0 means feature has no effect
+      # 1 or higher means that corrupting that feature completely destroys
+      #  model, it's worse than just predicting mean
+      # imp <- rmses / rmse0
+      imp <- (rmses - rmsemod) / (rmse0 - rmsemod)
+      imp
+
+      if (plot) {
+        ggp <- data.frame(name=factor(names(imp), levels = rev(names(imp))), val=imp) %>%
+          ggplot(aes(val, name)) +
+          geom_vline(xintercept=1) +
+          geom_bar(stat='identity', fill="blue") +
+          xlab("Importance") +
+          ylab("Variable")
+        print(ggp)
+      }
+
+      # Return importances
+      imp
+    },
     #' @description Print this object
     print = function() {
       cat("GauPro kernel model object\n")
@@ -2974,7 +3051,56 @@ GauPro_kernel_model <- R6::R6Class(
     #' @description Summary
     #' @param ... Additional arguments
     summary = function(...) {
-      summary(self$Z[,1])
+      # Just return summary of Z
+      # return(summary(self$Z[,1]))
+
+      # Follow example of summary.lm
+      ans <- list()
+      class(ans) <- c("summary.GauPro")
+
+      ans$D <- self$D
+      ans$N <- self$N
+
+      # Use LOO predictions
+      ploo <- self$pred_LOO(se.fit = T)
+      loodf <- cbind(ploo, Z=self$Z)
+      loodf$upper <- loodf$fit + 1.96 * loodf$se.fit
+      loodf$lower <- loodf$fit - 1.96 * loodf$se.fit
+      loodf$upper68 <- loodf$fit + 1.00 * loodf$se.fit
+      loodf$lower68 <- loodf$fit - 1.00 * loodf$se.fit
+      # LOO residuals
+      ans$residualsLOO <- c(ploo$fit - self$Z)
+      # Add LOO coverage, R-sq
+      coverage95vec <- with(loodf, upper >= Z & lower <= Z)
+      coverage95 <- mean(coverage95vec)
+      ans$coverage95LOO <- coverage95
+      coverage68vec <- with(loodf, upper68 >= Z & lower68 <= Z)
+      coverage68 <- mean(coverage68vec)
+      ans$coverage68LOO <- coverage68
+      rsq <- with(loodf, 1 - (sum((fit-Z)^2)) / (sum((mean(Z)-Z)^2)))
+      ans$r.squaredLOO <- rsq
+
+      # Feature importance
+      ans$importance <- self$importance(plot=FALSE)
+
+      # Formula
+      if (is.null(self$formula)) {
+        ans$formula <- "Z ~ "
+        for (i in 1:self$D) {
+          if (i==1) {
+            ans$formula <- paste0(ans$formula, " X", i)
+          } else {
+            ans$formula <- paste0(ans$formula, " + X", i)
+          }
+        }
+      } else {
+        formchar <- as.character(self$formula)
+        stopifnot(length(formchar) == 3)
+        formchar2 <- paste(formchar[2], formchar[1], formchar[3])
+        ans$formula <- formchar2
+      }
+
+      ans
     }
   ),
   private = list(

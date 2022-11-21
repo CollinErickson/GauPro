@@ -65,6 +65,7 @@ gp <- GauPro_kernel_model_LOO$new(X=x, Z=y, kernel=Matern52)
 <li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="grad_norm2_sample"><a href='../../GauPro/html/GauPro.html#method-GauPro-grad_norm2_sample'><code>GauPro::GauPro$grad_norm2_sample()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="grad_sample"><a href='../../GauPro/html/GauPro.html#method-GauPro-grad_sample'><code>GauPro::GauPro$grad_sample()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="hessian"><a href='../../GauPro/html/GauPro.html#method-GauPro-hessian'><code>GauPro::GauPro$hessian()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="importance"><a href='../../GauPro/html/GauPro.html#method-GauPro-importance'><code>GauPro::GauPro$importance()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="loglikelihood"><a href='../../GauPro/html/GauPro.html#method-GauPro-loglikelihood'><code>GauPro::GauPro$loglikelihood()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="maxEI"><a href='../../GauPro/html/GauPro.html#method-GauPro-maxEI'><code>GauPro::GauPro$maxEI()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="maxEIwithfactors"><a href='../../GauPro/html/GauPro.html#method-GauPro-maxEIwithfactors'><code>GauPro::GauPro$maxEIwithfactors()</code></a></span></li>

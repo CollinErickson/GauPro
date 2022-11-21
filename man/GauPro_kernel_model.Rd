@@ -52,6 +52,9 @@ f <- function(x) {x[1]*x[2] + cos(x[3]) + x[4]^2}
 y <- apply(x, 1, f)
 gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian)
 }
+\references{
+https://scikit-learn.org/stable/modules/permutation_importance.html#id2
+}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
@@ -189,6 +192,7 @@ using the formula}
 \item \href{#method-GauPro-maxEIwithfactorsordiscrete}{\code{GauPro_kernel_model$maxEIwithfactorsordiscrete()}}
 \item \href{#method-GauPro-maxqEI}{\code{GauPro_kernel_model$maxqEI()}}
 \item \href{#method-GauPro-KG}{\code{GauPro_kernel_model$KG()}}
+\item \href{#method-GauPro-importance}{\code{GauPro_kernel_model$importance()}}
 \item \href{#method-GauPro-print}{\code{GauPro_kernel_model$print()}}
 \item \href{#method-GauPro-summary}{\code{GauPro_kernel_model$summary()}}
 \item \href{#method-GauPro-clone}{\code{GauPro_kernel_model$clone()}}
@@ -692,7 +696,7 @@ plotted are held constant at this value.}
 \subsection{Method \code{plotmarginalrandom()}}{
 Plot marginal prediction for random sample of inputs
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$plotmarginalrandom(n = 151)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$plotmarginalrandom(n = 100)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -1421,6 +1425,9 @@ Find the point that maximizes the expected improvement
 
 \item{\code{eps}}{Exploration parameter}
 
+\item{\code{dontconvertback}}{If data was given in with a formula, should
+it converted back to the original scale?}
+
 \item{\code{mopar}}{List of parameters using mixopt}
 }
 \if{html}{\out{</div>}}
@@ -1512,6 +1519,9 @@ improvement. Currently only implements the constant liar method.
 
 \item{\code{eps}}{Exploration parameter}
 
+\item{\code{dontconvertback}}{If data was given in with a formula, should
+it converted back to the original scale?}
+
 \item{\code{mopar}}{List of parameters using mixopt}
 }
 \if{html}{\out{</div>}}
@@ -1521,10 +1531,41 @@ improvement. Currently only implements the constant liar method.
 \if{html}{\out{<a id="method-GauPro-KG"></a>}}
 \if{latex}{\out{\hypertarget{method-GauPro-KG}{}}}
 \subsection{Method \code{KG()}}{
+Calculate Knowledge Gradient
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$KG(x, minimize = FALSE, eps = 0, current_extreme = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x}}{Point to calculate at}
+
+\item{\code{minimize}}{Is the objective to minimize?}
+
+\item{\code{eps}}{Exploration parameter}
+
+\item{\code{current_extreme}}{Used for recursive solving}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-GauPro-importance"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro-importance}{}}}
+\subsection{Method \code{importance()}}{
+Feature importance
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$importance(plot = TRUE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{plot}}{Should the plot be made?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GauPro-print"></a>}}

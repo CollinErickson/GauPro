@@ -103,8 +103,18 @@ test_that("kernels work and have correct grads", {
       expect_error(plot(gp), NA)
     }
 
+    # Summary
+    expect_no_warning(
+      expect_error(capture.output(summary(gp)), NA)
+    )
+
     # Kernel plot
     expect_error(plot(gp$kernel), NA)
+
+    # Test importance
+    expect_error(capture.output(imp <- gp$importance(plot=F)), NA)
+    expect_true(is.numeric(imp))
+    expect_equal(names(imp), c("X1", "X2"))
 
     # Check EI for some kernels
     if (j<2.5) {
@@ -195,8 +205,6 @@ test_that("kernels work and have correct grads", {
                 label=paste(kern_char,
                             'numgrad matches symbolic grad (failed on all',
                             maxattempts, "attempts)"))
-
-    print(warnings())
   }
 })
 
@@ -209,7 +217,7 @@ test_that("check factor kernels alone", {
   x[, 1] <- sample(1:3, n, T)
   # f <- function(x) {abs(sin(x[1]^.8*6))^1.2 + log(1+x[2]) + x[1]*x[2]}
   f <- function(x) {x[1]^.7}
-  y <- apply(x, 1, f) + rnorm(n,0,1e-4) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
+  y <- apply(x, 1, f) + rnorm(n,0,1e-1) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
   kern_chars <- c('FactorKernel', 'OrderedFactorKernel',
                   'LatentFactorKernel', 'LatentFactorKernel')
   kern_list <- list(
@@ -232,6 +240,14 @@ test_that("check factor kernels alone", {
     }, NA)
     expect_is(gp, "GauPro")
     expect_is(gp, "R6")
+
+    # Test predict
+    # expect_error(predict(gp, 1:3, se.fit = T), NA)
+
+    # Test importance
+    expect_error(capture.output(imp <- gp$importance(plot=F)), NA)
+    expect_true(is.numeric(imp))
+    expect_equal(names(imp), c("X1"))
 
     # Check kernel
     expect_error({kernprint <- capture_output(print(gp$kernel))}, NA)
@@ -273,7 +289,6 @@ test_that("check factor kernels alone", {
                    label=paste(j,kern_char,i, 'numgrad'))
       # debugonce(gp$kernel$dC_dparams)
     }
-    print(warnings())
   }
 })
 
@@ -457,6 +472,10 @@ test_that("Formula/data input 2", {
   expect_error(predict(gpdf, xdf[,1:3]))
   # Test pred LOO
   expect_error(gpdf$plotLOO(), NA)
+  # Test importance
+  expect_error(capture.output(imp <- gpdf$importance(plot=F)), NA)
+  expect_true(is.numeric(imp))
+  expect_equal(names(imp), attr(gpdf$formula, "term.labels"))
   # Test EI
   expect_error(dfEI <- gpdf$maxEI(), NA)
   expect_true(is.data.frame(dfEI$par))

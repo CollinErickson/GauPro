@@ -66,6 +66,44 @@ summary.GauPro <- function(object, ...) {
   object$summary(...)
 }
 
+#' Print summary.GauPro
+#'
+#' @param x summary.GauPro object
+#' @param ... Additional args
+#' @importFrom stats binom.test
+#'
+#' @return
+#' @export
+print.summary.GauPro <- function(x, ...) {
+  # Formula
+  cat("Formula:\n")
+  cat("\t", x$formula, "\n\n")
+
+  # Residuals
+  cat("Residuals:\n")
+  print(summary(x$residualsLOO))
+
+  # Importance
+  cat("\nFeature importance:\n")
+  print(x$importance)
+
+  # R-squared, Adj R-squared
+  cat("\nPseudo leave-one-out R-squared:\n")
+  cat("\t", x$r.squaredLOO, "\n")
+
+  # Coverage
+  # cat("\nLeave-one-out 95% coverage:\n")
+  # cat("\t", x$coverageLOO, "\t(on", x$N, "samples)", "\n")
+  pval68 <- binom.test(x$coverage68LOO*x$N, x$N, .68)$p.value
+  pval95 <- binom.test(x$coverage95LOO*x$N, x$N, .95)$p.value
+  cat("\nLeave-one-out coverage (on", x$N, "samples):\n")
+  cat("\t68%:  ", x$coverage68LOO, "\t\tp-value:  ", pval68, "\n")
+  cat("\t95%:  ", x$coverage95LOO, "\t\tp-value:  ", pval95, "\n")
+
+  # Return invisible self
+  invisible(x)
+}
+
 
 #' Kernel sum
 #'
