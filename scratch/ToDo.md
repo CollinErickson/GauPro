@@ -65,8 +65,6 @@ an error the user should know. Like when I test useCM.
 
 * Knowledge gradient: multiple starts for optim
 
-* Change plot for factor inputs
-
 * When giving in formula/data
   * fix plot for 1D, 2D, marginal, marginal random
   * convert ordered factor

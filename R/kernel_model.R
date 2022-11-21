@@ -3084,7 +3084,26 @@ GauPro_kernel_model <- R6::R6Class(
       ans$importance <- self$importance(plot=FALSE)
 
       # Formula
-      if (is.null(self$formula)) {
+      if (!is.null(self$formula)) {
+        formchar <- as.character(self$formula)
+        stopifnot(length(formchar) == 3)
+        formchar2 <- paste(formchar[2], formchar[1], formchar[3])
+        ans$formula <- formchar2
+      } else if (!is.null(colnames(self$X))) {
+        if (is.null(colnames(self$Z))) {
+          ans$formula <- "Z ~ "
+        } else {
+          ans$formula <- paste(colnames(self$Z)[1], " ~ ")
+        }
+        for (i in 1:self$D) {
+          if (i==1) {
+            ans$formula <- paste0(ans$formula, colnames(self$X)[i])
+          } else {
+            ans$formula <- paste0(ans$formula, " + ", colnames(self$X)[i])
+          }
+        }
+      } else {
+        # No colnames or formula
         ans$formula <- "Z ~ "
         for (i in 1:self$D) {
           if (i==1) {
@@ -3093,11 +3112,6 @@ GauPro_kernel_model <- R6::R6Class(
             ans$formula <- paste0(ans$formula, " + X", i)
           }
         }
-      } else {
-        formchar <- as.character(self$formula)
-        stopifnot(length(formchar) == 3)
-        formchar2 <- paste(formchar[2], formchar[1], formchar[3])
-        ans$formula <- formchar2
       }
 
       ans

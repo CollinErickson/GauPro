@@ -249,6 +249,11 @@ test_that("check factor kernels alone", {
     expect_true(is.numeric(imp))
     expect_equal(names(imp), c("X1"))
 
+    # Summary
+    expect_no_warning(
+      expect_error(capture.output(summary(gp)), NA)
+    )
+
     # Check kernel
     expect_error({kernprint <- capture_output(print(gp$kernel))}, NA)
     expect_is(kernprint, 'character')
@@ -327,6 +332,11 @@ test_that("check factor kernels in product", {
     # Check kernel print
     expect_error({kernprint <- capture_output(print(gp$kernel))}, NA)
     expect_is(kernprint, 'character')
+
+    # Summary
+    expect_no_warning(
+      expect_error(capture.output(summary(gp)), NA)
+    )
 
     # Check LOO
     print(gp$plotLOO())
@@ -476,6 +486,10 @@ test_that("Formula/data input 2", {
   expect_error(capture.output(imp <- gpdf$importance(plot=F)), NA)
   expect_true(is.numeric(imp))
   expect_equal(names(imp), attr(gpdf$formula, "term.labels"))
+  # Summary
+  expect_no_warning(
+    expect_error(capture.output(summary(gpdf)), NA)
+  )
   # Test EI
   expect_error(dfEI <- gpdf$maxEI(), NA)
   expect_true(is.data.frame(dfEI$par))
