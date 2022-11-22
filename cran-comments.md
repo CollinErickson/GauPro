@@ -2,10 +2,11 @@ This package was accepted to CRAN on 11/14/22.
 The next day I received an email saying I had until 11/29/22 to fix
 some build errors or the package will be removed from CRAN.
 
-The errors are from flaky tests that use randomness and fail a small portion
+The errors were from flaky tests that use randomness and fail a small portion
 of the time. I have rewritten these tests so that they will pass consistently.
 
-I also added a reference to a related paper of mine in the DESCRIPTION.
+I also added a reference to a related paper of mine in the DESCRIPTION
+and made some other improvements.
 
 
 ## Test environments
@@ -20,14 +21,22 @@ I also added a reference to a related paper of mine in the DESCRIPTION.
 * local Windows 11: no errors/warnings/notes
 
 * Mac-builder: 1 NOTE for "sub-directories of 1Mb or more", but it is expected.
-Also an error for a failed test, but it's a test with randomness that passes
-on other attempts.
 
-* GitHub Actions: Also the 1 NOTE for large sub-directories, but no
+* GitHub Actions: 1 NOTE for large sub-directories, but no
 warnings/errors.
 
-* R-hub Ubuntu: NOTE for sub-directory size, NOTE for slow examples,
-NOTE for new submission.
+* R-Hub Windows Server 2022: OK
+
+* R-hub Ubuntu Linux 20.04.1: NOTE for sub-directory size and another
+NOTE for a slow example.
+
+* R-Hub Fedora Linux: NOTE for sub-directory size. NOTE for a slow example.
+NOTE for the HTML version of the manual. There was an issue building a vignette,
+but I haven't seen this issue anywhere else.
+
+* R-Hub Debian Linux: OK
+
+* Win-Builder: NOTE for incoming feasibility.
 
 ## Downstream dependencies
 

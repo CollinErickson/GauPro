@@ -1,9 +1,11 @@
-# GauPro 0.2.5.9000
+# GauPro 0.2.6
 
 GP kernel model maxEI can now be run using mixopt to account for discrete
 inputs.
 
 Improved GP kernel model workability when input is formula and data frame.
+
+Added importance for kernel model, greatly improved summary.
 
 Fixed error in tests to prevent being removed from CRAN.
 
