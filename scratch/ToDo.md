@@ -91,3 +91,15 @@ when nug>0, so it can pick already eval points.
 * Formula with no data should work if vars in global
 
 * Speed up Cubic example
+
+* plot1D: change title to legend. Convert to ggplot2?
+
+* Corrected EI
+
+* Augmented EI: add, grad, test
+
+* summary: add ", low p-value is bad"
+
+* Matrix with some col names, some not. Bad formula in summary. Other errors?
+
+* feature importance: lines (=======   |)
