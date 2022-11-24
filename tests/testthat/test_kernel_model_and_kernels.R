@@ -145,7 +145,7 @@ test_that("kernels work and have correct grads", {
         expect_true(!any(is.na(gpgradX)))
       }
     } else {
-      if (printkern) {
+      if (exists('printkern') && printkern) {
         cat("grad/dC_dx not tested for", j, kern_char, "\n")
       }
     }
@@ -155,7 +155,7 @@ test_that("kernels work and have correct grads", {
     if (j %in% c(1:1, 6:7, 9, 11:12)) {
       expect_no_error(gpv <- gp$gradpredvar(xgrad))
       # numDeriv::grad(func=function(x) gp$pred(x, se=T)$s2, gpv)
-      npv <- 19
+      npv <- 39
       XXpv <- matrix(runif(2*npv), ncol=2)
       expect_no_error(XXgpv <- gp$gradpredvar(XXpv))
       gpvmatches <- 0
@@ -168,14 +168,13 @@ test_that("kernels work and have correct grads", {
                               abs((numpv - XXgpv[iii,]) / XXgpv[iii,]) < 1e-2))
         if (pvclose) {gpvmatches <- gpvmatches + 1}
       }
-      if (printkern) {
+      if (exists('printkern') && printkern) {
         cat(kern_char, "gpv close on ", gpvmatches, "/", npv, "\n")
       }
       expect_true(gpvmatches > npv/2)
-
     } else {
-      if (printkern) {
-        cat("gradprredvar not tested for", j, kern_char, "\n")
+      if (exists('printkern') && printkern) {
+        cat("gradpredvar not tested for", j, kern_char, "\n")
       }
     }
 
@@ -270,7 +269,7 @@ test_that("check factor kernels alone", {
   kern_list <- list(
     FactorKernel$new(D=1, nlevels=3, xindex=1),
     OrderedFactorKernel$new(D=1, nlevels=3, xindex=1),
-    LatentFactorKernel$new(D=1, nlevels=3, xindex=1, latentdim = 1, s2_est = F),
+    LatentFactorKernel$new(D=1, nlevels=3, xindex=1, latentdim = 1, s2_est=F, s2=.3),
     LatentFactorKernel$new(D=1, nlevels=3, xindex=1, latentdim = 2)
   )
   for (j in 1:length(kern_chars)) {
@@ -283,13 +282,31 @@ test_that("check factor kernels alone", {
 
     expect_error({
       gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=kern, parallel=FALSE,
-                                    verbose=0, nug.est=T, restarts=0)
+                                    verbose=0, nug.est=T, restarts=0,
+                                    track_optim = !T)
     }, NA)
+    # gp$plot1D()
+    # gp$plot_track_optim()
     expect_is(gp, "GauPro")
     expect_is(gp, "R6")
 
+    # Basic check for k
+    expect_equal(kern$k(1, 1), c(kern$k(matrix(1), matrix(1))), tolerance=1e-4)
+
     # Test predict
-    # expect_error(predict(gp, 1:3, se.fit = T), NA)
+    if (T || (j %in% 1:4)) {
+      expect_error(predict(gp, 1:3, se.fit = T), NA,
+                   info = paste("bad pred in", kern_char))
+      expect_warning(predict(gp, 1:3, se.fit = T), NA,
+                   info = paste("bad pred in", kern_char))
+      # Test plot
+      expect_no_error(pp <- gp$plot1D())
+      expect_no_error(suppressMessages({pp <- plot(gp)}))
+    } else {
+      if (exists('printkern') && printkern) {
+        cat("factorkernel", j, kern_char, "not testing pred/plot", "\n")
+      }
+    }
 
     # Test importance
     expect_error(capture.output(imp <- gp$importance(plot=F)), NA)
@@ -377,8 +394,10 @@ test_that("check factor kernels in product", {
     kern <- kern1 * kern_list[[j]]
     # kern <- kern_list[[j]]
 
-    gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=kern, parallel=FALSE,
-                                  verbose=0, nug.est=T, restarts=0)
+    expect_no_error({
+      gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=kern, parallel=FALSE,
+                                    verbose=0, nug.est=T, restarts=0)
+    })
     expect_is(gp, "GauPro")
     expect_is(gp, "R6")
 
@@ -392,7 +411,7 @@ test_that("check factor kernels in product", {
     )
 
     # Check LOO
-    print(gp$plotLOO())
+    expect_no_error(capture.output(gp$plotLOO()))
 
     # Check EI
     expect_error(mei1 <- gp$maxEI(), NA)
@@ -551,15 +570,38 @@ test_that("Formula/data input 2", {
     expect_error(capture.output(summary(gpdf)), NA)
   )
   # Test EI
+  expect_no_error(gpdf$EI(xdf[1,]))
+  # Test maxEI
   expect_error(dfEI <- gpdf$maxEI(), NA)
   expect_true(is.data.frame(dfEI$par))
   expect_equal(colnames(dfEI$par), colnames(xdf)[1:5])
   expect_equal(dim(dfEI$par), c(1,5))
-  # Test qEI
-  expect_error(dfqEI <- gpdf$maxqEI(npoints = 2), NA)
-  expect_true(is.data.frame(dfqEI$par))
-  expect_equal(colnames(dfqEI$par), colnames(xdf)[1:5])
-  expect_equal(dim(dfqEI$par), c(2,5))
+  rm(dfEI)
+  # maxEI with mopar
+  expect_error(dfEI <- gpdf$maxEI(
+    mopar = c(mixopt::mopar_cts(-3,3),
+              mixopt::mopar_cts(0,1),
+              mixopt::mopar_unordered(letters[1:5]),
+              mixopt::mopar_unordered(letters[6:9]),
+              mixopt::mopar_cts(0,4)
+    )
+  ), NA)
+  expect_true(is.data.frame(dfEI$par))
+  expect_equal(colnames(dfEI$par), colnames(xdf)[1:5])
+  expect_equal(dim(dfEI$par), c(1,5))
+  # Test qEI with mopar
+  # expect_error(dfqEI <- gpdf$maxqEI(
+  #   npoints = 2,
+  #   mopar = c(mixopt::mopar_cts(-3,3),
+  #             mixopt::mopar_cts(0,1),
+  #             mixopt::mopar_unordered(letters[1:5]),
+  #             mixopt::mopar_unordered(letters[6:9]),
+  #             mixopt::mopar_cts(0,4)
+  #   )
+  # ), NA)
+  # expect_true(is.data.frame(dfqEI$par))
+  # expect_equal(colnames(dfqEI$par), colnames(xdf)[1:5])
+  # expect_equal(dim(dfqEI$par), c(2,5))
 
 
   # Try other arg names
@@ -593,10 +635,10 @@ test_that("Formula/data input 2", {
   expect_equal(colnames(dfEI$par), attr(gpdf$formula, "term.labels"))
   expect_equal(dim(dfEI$par), c(1,4))
   # Test qEI
-  expect_error(dfqEI <- gpdf$maxqEI(npoints = 2), NA)
-  expect_true(is.data.frame(dfqEI$par))
-  expect_equal(colnames(dfqEI$par), attr(gpdf$formula, "term.labels"))
-  expect_equal(dim(dfqEI$par), c(2,4))
+  # expect_error(dfqEI <- gpdf$maxqEI(npoints = 2), NA)
+  # expect_true(is.data.frame(dfqEI$par))
+  # expect_equal(colnames(dfqEI$par), attr(gpdf$formula, "term.labels"))
+  # expect_equal(dim(dfqEI$par), c(2,4))
 })
 
 # EI ----
@@ -634,4 +676,18 @@ test_that("IgnoreInds", {
   # Ignore inds must be vector of numeric
   expect_error(r2 <- IgnoreIndsKernel$new(k=r1, ignoreinds = list(2)))
   expect_error(IgnoreIndsKernel$new(k=r1, ignoreinds=1.00001))
+})
+test_that("Wide range", {
+  d <- 3
+  n <- 40
+  x <- cbind(runif(n, 50, 150),
+             runif(n, -9,-7),
+             runif(n, 1200, 3000))
+  f <- function(x) {x[1] + 14* x[2]^2 + x[3]}
+  y <- apply(x, 1, f) + rnorm(n, 0, 1)
+  expect_no_error(e1 <- GauPro_kernel_model$new(x, y, kernel='gauss'))
+  expect_no_error(e1$summary())
+                  expect_no_error(e1$plotLOO())
+                                  expect_no_error(e1$plotmarginalrandom())
+  expect_true(all(abs((e1$Z-e1$pred(e1$X)) / e1$Z) < 1e-1))
 })

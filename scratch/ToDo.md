@@ -11,8 +11,6 @@
 * EI should use mu instead of Z for noise. Should it be sd of mean, not pred?
 See http://krasserm.github.io/2018/03/21/bayesian-optimization/.
 
-* max_qEI: test, doc, exact solution. Change CL to CLpred
-
 * With many points, just estimate param from subset of data, but use all data
 at end for K/Kinv so predictions are good.
 
@@ -59,8 +57,6 @@ an error the user should know. Like when I test useCM.
 
 * maxEI prob doesn't work because the differences are tiny. Log scale?
 
-* maxqEI doesn't spread out much
-
 * Knowledge gradient: multiple starts for optim
 
 * When giving in formula/data
@@ -69,30 +65,26 @@ an error the user should know. Like when I test useCM.
   * add to doc
   * message what chosen kernel is
 
-* maxqEI: if factor in kernel and no mopar, give warning.
+* OrderedFK and Latent: change correlation, maybe just 1.95 instead of 2
 
-* FactorKernel and OrderedFK: change correlation, maybe just 1.95 instead of 2
-
-* mixopt for qEI: picks same point multiple times b/c of mean uncertainty
-
-* Should EI be zero for already evaluated points? Mean can have high uncertainty
-when nug>0, so it can pick already eval points.
-
-* Resubmit to CRAN by 11/28. After mixopt update.
+* qEI with mixopt:
+    * picks same point multiple times b/c of mean uncertainty
+    * error converting mopar back and forth. mopar_converted?
+    * Slow to convert to df each time. Convert mopar to mopar_converted.
+    * doesn't spread out much. Better with AugEI or CorEI?
+    * test, doc.
+    * CL or pred?
 
 * Plot doesn't work for gp4$kernel
 
-* factorkernel 1D preds have too little noise
+* Latent 1D estimating s2 fails pred.
 
-* Plot between marginal and marginalrandom. Vary along 10 points, partial range
-
-* plot1D: Convert to ggplot2. Factor kernels.
+* Plot between marginal and marginalrandom. Vary along 10 points, partial range.
+Hard to get factors right.
 
 * Corrected EI
 
 * Augmented EI: add, grad, test
-
-* Matrix with some col names, some not. Bad formula in summary. Other errors?
 
 * dC_dx: all kernels (cubic, ...)
 

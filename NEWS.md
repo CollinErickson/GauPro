@@ -1,5 +1,9 @@
 # GauPro 0.2.6.9000
 
+Improved summary, importance, plots.
+
+Added gradpredvar. AugEI?
+
 # GauPro 0.2.6
 
 GP kernel model maxEI can now be run using mixopt to account for discrete
@@ -10,6 +14,8 @@ Improved GP kernel model workability when input is formula and data frame.
 Added importance for kernel model, greatly improved summary.
 
 Fixed error in tests to prevent being removed from CRAN.
+
+Accepted to CRAN on 11/24/22.
 
 # GauPro 0.2.5
 

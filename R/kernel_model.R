@@ -905,6 +905,10 @@ GauPro_kernel_model <- R6::R6Class(
                            ymin=NULL, ymax=NULL
     ) {
       if (self$D != 1) stop('Must be 1D')
+      if (length(find_kernel_factor_dims(self$kernel)) > 0) {
+        message("cool1Dplot doesn't work for factor input, using plot1D instead")
+        return(self$plot1D())
+      }
       # Letting user pass in minx and maxx
       if (is.null(xmin)) {
         minx <- min(self$X)
@@ -989,68 +993,118 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param xmax xmax
     #' @param ymax ymax
     #' @param ymin ymin
+    #' @param gg Should ggplot2 be used to make plot?
     plot1D = function(n2=20, nn=201, col2=2, col3=3, #"gray",
                       xlab='x', ylab='y',
                       xmin=NULL, xmax=NULL,
-                      ymin=NULL, ymax=NULL) {
+                      ymin=NULL, ymax=NULL,
+                      gg=TRUE) {
       if (self$D != 1) stop('Must be 1D')
-      # Letting user pass in minx and maxx
-      if (is.null(xmin)) {
-        minx <- min(self$X)
-      } else {
-        minx <- xmin
-      }
-      if (is.null(xmax)) {
-        maxx <- max(self$X)
-      } else {
-        maxx <- xmax
-      }
-      # minx <- min(self$X)
-      # maxx <- max(self$X)
-      x1 <- minx - .1 * (maxx - minx)
-      x2 <- maxx + .1 * (maxx - minx)
-      # nn <- 201
-      x <- seq(x1, x2, length.out = nn)
-      px <- self$pred(x, se=T)
-      pxmean <- self$pred(x, se=T, mean_dist=T)
-      # n2 <- 20
 
-      # Setting ylim, giving user option
-      if (is.null(ymin)) {
-        miny <- min(px$mean - 2*px$se)
-      } else {
-        miny <- ymin
-      }
-      if (is.null(ymax)) {
-        maxy <- max(px$mean + 2*px$se)
-      } else {
-        maxy <- ymax
-      }
+      if (length(find_kernel_factor_dims(self$kernel)) > 0) {
+        # Factor input
+        fd <- find_kernel_factor_dims(self$kernel)
+        df <- data.frame(x=1:fd[2])
+        pred <- self$pred(df$x, se=T)
+        predmean <- self$pred(df$x, se=T, mean_dist = T)
+        df2 <- data.frame(
+          x=df$x,
+          pred=pred$mean,
+          predse=pred$se,
+          meanpred=predmean$mean,
+          meanpredse=predmean$se
+        )
+        df2
+        ggplot2::ggplot(df2, ggplot2::aes(x=x, xend=x)) +
+          ggplot2::geom_segment(ggplot2::aes(y=pred+2*predse,
+                                             yend=pred-2*predse),
+                                color="red", linewidth=4) +
+          ggplot2::geom_segment(ggplot2::aes(y=meanpred+2*meanpredse,
+                                             yend=meanpred-2*meanpredse),
+                                color="green", linewidth=6) +
+          ggplot2::geom_jitter(ggplot2::aes(x,y),
+                               data=data.frame(x=c(self$X), y=c(self$Z)),
+                               width=.1, height=0, size=2) +
+          ggplot2::ylab(NULL)
+      } else { # Cts input
+        # Letting user pass in minx and maxx
+        if (is.null(xmin)) {
+          minx <- min(self$X)
+        } else {
+          minx <- xmin
+        }
+        if (is.null(xmax)) {
+          maxx <- max(self$X)
+        } else {
+          maxx <- xmax
+        }
+        # minx <- min(self$X)
+        # maxx <- max(self$X)
+        x1 <- minx - .1 * (maxx - minx)
+        x2 <- maxx + .1 * (maxx - minx)
+        # nn <- 201
+        x <- seq(x1, x2, length.out = nn)
+        px <- self$pred(x, se=T)
+        pxmean <- self$pred(x, se=T, mean_dist=T)
+        # n2 <- 20
 
-      plot(x, px$mean+2*px$se, type='l', col=col2, lwd=2,
-           # ylim=c(min(newy),max(newy)),
-           ylim=c(miny,maxy),
-           xlab=xlab, ylab=ylab,
-           # main=paste0("Predicted output (95% interval for mean is green,",
-           #             " 95% interval for sample is red)")
-      )
-      legend(x='topleft',
-             legend=c('95% prediction','95% mean'),
-             fill=2:3)
-      # Mean interval
-      points(x, pxmean$mean+2*pxmean$se, type='l', col=col3, lwd=2)
-      points(x, pxmean$mean-2*pxmean$se, type='l', col=col3, lwd=2)
-      # Prediction interval
-      points(x, px$mean+2*px$se, type='l', col=col2, lwd=2)
-      points(x, px$mean-2*px$se, type='l', col=col2, lwd=2)
-      # Mean line
-      points(x,px$me, type='l', lwd=4)
-      # Data points
-      points(self$X,
-             if (self$normalize) {
-               self$Z * self$normalize_sd + self$normalize_mean
-             } else {self$Z},
-             pch=19, col=1, cex=2)
+        # Setting ylim, giving user option
+        if (is.null(ymin)) {
+          miny <- min(px$mean - 2*px$se)
+        } else {
+          miny <- ymin
+        }
+        if (is.null(ymax)) {
+          maxy <- max(px$mean + 2*px$se)
+        } else {
+          maxy <- ymax
+        }
+
+        if (gg) {
+          ggplot2::ggplot(px, ggplot2::aes(x, mean)) +
+            ggplot2::geom_line(data=pxmean, ggplot2::aes(y=mean+2*se), color="green", size=2) +
+            ggplot2::geom_line(data=pxmean, ggplot2::aes(y=mean-2*se), color="green", size=2) +
+            ggplot2::geom_line(ggplot2::aes(y=mean+2*se), color="red", size=2) +
+            ggplot2::geom_line(ggplot2::aes(y=mean-2*se), color="red", size=2) +
+            ggplot2::geom_line(size=2) +
+            ggplot2::geom_point(data=data.frame(
+              x=self$X,
+              y=if (self$normalize) {
+                self$Z * self$normalize_sd + self$normalize_mean
+              } else {self$Z}),
+              ggplot2::aes(x,y),
+              size=4,
+              # Make points have a border
+              color="gray", fill="black", pch=21
+            ) +
+            ggplot2::ylab(NULL)
+        } else {
+          plot(x, px$mean+2*px$se, type='l', col=col2, lwd=2,
+               # ylim=c(min(newy),max(newy)),
+               ylim=c(miny,maxy),
+               xlab=xlab, ylab=ylab,
+               # main=paste0("Predicted output (95% interval for mean is green,",
+               #             " 95% interval for sample is red)")
+          )
+          legend(x='topleft',
+                 legend=c('95% prediction','95% mean'),
+                 fill=2:3)
+          # Mean interval
+          points(x, pxmean$mean+2*pxmean$se, type='l', col=col3, lwd=2)
+          points(x, pxmean$mean-2*pxmean$se, type='l', col=col3, lwd=2)
+          # Prediction interval
+          points(x, px$mean+2*px$se, type='l', col=col2, lwd=2)
+          points(x, px$mean-2*px$se, type='l', col=col2, lwd=2)
+          # Mean line
+          points(x,px$me, type='l', lwd=4)
+          # Data points
+          points(self$X,
+                 if (self$normalize) {
+                   self$Z * self$normalize_sd + self$normalize_mean
+                 } else {self$Z},
+                 pch=19, col=1, cex=2)
+        }
+      }
     },
     #' @description Make 2D plot
     plot2D = function() {
@@ -1097,8 +1151,10 @@ GauPro_kernel_model <- R6::R6Class(
         Xmat <- matrix(pt, byrow=T, ncol=length(pt), nrow=length(xseq))
         Xmat[, i] <- xseq
         pX <- self$pred(Xmat, se.fit = T)
+        pXm <- self$pred(Xmat, se.fit = T, mean_dist=T)
         pts <- rbind(pts,
-                     cbind(pred=pX$mean, predse=pX$se, xi=xseq, i=i))
+                     cbind(pred=pX$mean, predse=pX$se, predmeanse=pXm$se,
+                           xi=xseq, i=i))
       }
       pts2 <- as.data.frame(pts)
       # pts2 %>%
@@ -1106,8 +1162,12 @@ GauPro_kernel_model <- R6::R6Class(
       #          predlower=pred-2*predse)
       pts2$predupper <- pts2$pred + 2*pts2$predse
       pts2$predlower <- pts2$pred - 2*pts2$predse
+      pts2$predmeanupper <- pts2$pred + 2*pts2$predmeanse
+      pts2$predmeanlower <- pts2$pred - 2*pts2$predmeanse
       ggplot2::ggplot(data=pts2, ggplot2::aes(xi, pred)) +
         ggplot2::facet_wrap(.~i, scales = "free_x") +
+        ggplot2::geom_line(ggplot2::aes(y=predmeanupper), color="orange") +
+        ggplot2::geom_line(ggplot2::aes(y=predmeanlower), color="orange") +
         ggplot2::geom_line(ggplot2::aes(y=predupper), color="green") +
         ggplot2::geom_line(ggplot2::aes(y=predlower), color="green") +
         ggplot2::geom_line(linewidth=1) +
@@ -2427,6 +2487,8 @@ GauPro_kernel_model <- R6::R6Class(
         stopifnot(ncol(x) == ncol(self$X))
       } else if (is.vector(x)) {
         stopifnot(length(x) == ncol(self$X))
+      } else if (is.data.frame(x) && !is.null(self$formula)) {
+        # Fine here, will get converted in predict
       } else {
         stop(paste0("bad x in EI, class is: ", class(x)))
       }
@@ -2487,10 +2549,29 @@ GauPro_kernel_model <- R6::R6Class(
         stopifnot(self$D == length(mopar))
         moout <- mixopt::mixopt_multistart(
           par=mopar,
-          fn=function(xx){-self$EI(unlist(xx), minimize = minimize)}
+          fn=function(xx){
+            if (is.null(self$formula)) {
+              -self$EI(unlist(xx), minimize = minimize)
+            } else {
+              # Convert to data frame since it will convert to formula.
+              # This way is probably slow.
+              # Alternatively, convert to all numeric, no df/formula
+              xx2 <- as.data.frame(xx)
+              colnames(xx2) <- colnames(self$X)
+              -self$EI(xx2, minimize = minimize)
+            }
+          }
         )
+        if (is.null(self$formula)) {
+          # Convert list to numeric
+          moout_par <- unlist(moout$par)
+        } else {
+          # Convert list to data frame
+          moout_par <- as.data.frame(moout$par)
+          colnames(moout_par) <- colnames(self$X)
+        }
         return(list(
-          par=unlist(moout$par),
+          par=moout_par,
           value=-moout$val
         ))
       }
@@ -2909,6 +2990,10 @@ GauPro_kernel_model <- R6::R6Class(
                           dontconvertback=dontconvertback))
       }
       stopifnot(method %in% c("CL", "pred"))
+      # If factor dims in kernel, make sure mopar is given
+      if (length(find_kernel_factor_dims(self$kernel)) > 0 && is.null(mopar)) {
+        warning("maxqEI wasn't given mopar but kernel has factor dimensions")
+      }
       # Clone object since we will add fake data
       gpclone <- self$clone(deep=TRUE)
       # Track points selected

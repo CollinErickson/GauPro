@@ -632,7 +632,8 @@ Make 1D plot
   xmin = NULL,
   xmax = NULL,
   ymin = NULL,
-  ymax = NULL
+  ymax = NULL,
+  gg = TRUE
 )}\if{html}{\out{</div>}}
 }
 
@@ -658,6 +659,8 @@ Make 1D plot
 \item{\code{ymin}}{ymin}
 
 \item{\code{ymax}}{ymax}
+
+\item{\code{gg}}{Should ggplot2 be used to make plot?}
 }
 \if{html}{\out{</div>}}
 }

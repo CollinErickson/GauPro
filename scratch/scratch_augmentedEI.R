@@ -63,7 +63,16 @@ maxAugEI <- function(self) {
 
   if (F) {
     # derivative:
-    # ei * daugterm + dei * daugterm
+    # dAugEI_dx = ei * daugterm_dx + dei_dx * augterm
+    # daug_dx = .5*seps / (s2 + seps2)^1.5 * ds2_dx
+    # dEI_dx = -dy*pnorm(z) + (f-y)*dnorm(z)*dz_dx + ds_dx*dnorm(z) + s*dnorm_dz(z)*dz_dx
+    # dnorm_dz = dnorm(z) * (-2)*z
+    # dz_dx = -dy_dx/s + (f-y)(-1/s^2)*ds_dx
+    # ds_dx = .5/s * ds2_dx
+
+    predx <- self$pred(x, se=T)
+    ds2_dx <- self$gradpredvar(x)
+    ds_dx <- .5
   }
 
   # Optimize

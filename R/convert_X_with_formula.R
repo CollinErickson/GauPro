@@ -27,10 +27,20 @@ convert_X_with_formula <- function(X, convert_formula_data, formula) {
     convert_formula_data$factors,
     function(li) {li$index}
   )
-  for (i in factorinds) {
+  for (iii in seq_along(factorinds)) {
+    i <- factorinds[iii]
     # Check that levels match
     # Convert
-    Xdf[[i]] <- as.integer(Xdf[[i]])
+    if (is.factor(Xdf[[i]])) {
+      Xdf[[i]] <- as.integer(Xdf[[i]])
+    } else {
+      # User can give in character of the level instead of proper factor
+      Xdf[[i]] <- sapply(
+        Xdf[[i]],
+        function(x) {
+          which(x == convert_formula_data$factors[[iii]]$levels)
+        })
+    }
   }
   # # Convert char columns to integer
   # for (i in 1:ncol(Xdf)) {

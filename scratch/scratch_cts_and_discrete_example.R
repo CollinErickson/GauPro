@@ -2,7 +2,7 @@
 
 f <- function(a, b, c, d) {
   -1e-3*a^2*b^2*a + a*ifelse(c==1,1,0) + ifelse(d==1,1,2) +
-    rnorm(length(a),0,1e-1)
+    rnorm(length(a),0,1e0)
 }
 n <- 133
 library(dplyr)
@@ -45,6 +45,8 @@ system.time({
   )
 })
 summary(gp2)
+gp2$plotmarginal()
+gp2$plotmarginalrandom()
 gp2$plot_track_optim()
 gp2
 gp2$pred(c(7,-4, 1, 1), se.fit = T)
@@ -76,6 +78,12 @@ gp2m2 <- profvis::profvis(interval=.01, {
   )
 })
 
+# Use formula
+gp2f <- GauPro_kernel_model$new(data=Xdf, y ~ a+b+factor(c)+factor(d))
+gp2f
+gp2f$kernel
+gp2f$plot()
+gp2f$summary()
 
 # Only factors
 system.time({

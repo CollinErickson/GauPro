@@ -114,6 +114,7 @@ FactorKernel <- R6::R6Class(
     #' @param p_lower Lower bound for p
     #' @param p_upper Upper bound for p
     #' @param p_est Should p be estimated?
+    #' @param p Vector of correlations
     #' @param s2_lower Lower bound for s2
     #' @param s2_upper Upper bound for s2
     #' @param s2_est Should s2 be estimated?
@@ -121,7 +122,8 @@ FactorKernel <- R6::R6Class(
     #' @param nlevels Number of levels for the factor
     initialize = function(s2=1, D, nlevels, xindex,
                           p_lower=0, p_upper=1, p_est=TRUE,
-                          s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE
+                          s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE,
+                          p
     ) {
       # Must give in D
       if (missing(D)) {stop("Must give Index kernel D")}
@@ -130,8 +132,11 @@ FactorKernel <- R6::R6Class(
       self$nlevels <- nlevels
       self$xindex <- xindex
 
-      # p <- rep(0, D * (D-1) / 2)
-      p <- rep(0, nlevels * (nlevels-1) / 2)
+      if (missing(p)) {
+        p <- rep(0, nlevels * (nlevels-1) / 2)
+      } else {
+        stopifnot(length(p) == (nlevels * (nlevels-1) / 2))
+      }
       self$p <- p
       self$p_length <- length(p)
       self$p_lower <-rep(0, self$p_length)
@@ -217,7 +222,8 @@ FactorKernel <- R6::R6Class(
         }
       }
       if (is.matrix(x) & is.matrix(y)) {
-        outer(1:nrow(x), 1:nrow(y), Vectorize(function(i,j){self$kone(x[i,],y[j,],p=p, s2=s2)}))
+        outer(1:nrow(x), 1:nrow(y),
+              Vectorize(function(i,j){self$kone(x[i,],y[j,],p=p, s2=s2)}))
       } else if (is.matrix(x) & !is.matrix(y)) {
         apply(x, 1, function(xx) {self$kone(xx, y, p=p, s2=s2)})
       } else if (is.matrix(y)) {

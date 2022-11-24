@@ -228,7 +228,8 @@ LatentFactorKernel <- R6::R6Class(
           #                self$kone(x[i,],x[j,],p=p, s2=s2)
           #              }))
           if (self$useC) {
-            val <- s2 * corr_latentfactor_matrix_symC((x), pf, self$xindex, self$latentdim, 1-1e-6)
+            val <- s2 * corr_latentfactor_matrix_symC((x), pf, self$xindex,
+                                                      self$latentdim, 1-1e-6)
           } else {
             val <- outer(1:nrow(x), 1:nrow(x),
                          Vectorize(function(i,j){
@@ -244,11 +245,13 @@ LatentFactorKernel <- R6::R6Class(
       if (is.matrix(x) & is.matrix(y)) {
         # C took 0.000 sec, R took 1.793 sec
         if (self$useC) { # Way faster
-          corr_latentfactor_matrixmatrixC(x=x, y=y, theta=pf, xindex=self$xindex,
-                                          latentdim = self$latentdim, offdiagequal=1-1e-6)
+          s2 * corr_latentfactor_matrixmatrixC(
+            x=x, y=y, theta=pf, xindex=self$xindex,
+            latentdim = self$latentdim, offdiagequal=1-1e-6)
         } else {
           outer(1:nrow(x), 1:nrow(y),
-                Vectorize(function(i,j){self$kone(x[i,],y[j,],pf=pf, s2=s2, isdiag=FALSE)}))
+                Vectorize(function(i,j){self$kone(x[i,],y[j,],
+                                                  pf=pf, s2=s2, isdiag=FALSE)}))
         }
       } else if (is.matrix(x) & !is.matrix(y)) {
         apply(x, 1, function(xx) {self$kone(xx, y, pf=pf, s2=s2)})
