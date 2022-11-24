@@ -96,6 +96,4 @@ when nug>0, so it can pick already eval points.
 
 * dC_dx: all kernels (cubic, ...)
 
-* grad is bad for self$X: divides by 0. Fix, add test.
-
 * gradpredvar is bad for matern32 and matern52. How? dC_dx works for grad.

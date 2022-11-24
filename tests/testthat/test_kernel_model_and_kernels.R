@@ -139,9 +139,11 @@ test_that("kernels work and have correct grads", {
       expect_equal(numDeriv::grad(gp$pred, x=xgrad),
                    c(symgrad),
                    tolerance=1e-4)
-      # grad at self shouldn't be zero
+      # grad at self shouldn't be zero, except for Exponential
       expect_no_error(gpgradX <- gp$grad(gp$X))
-      expect_true(!any(is.na(gpgradX)))
+      if (j != 9) {
+        expect_true(!any(is.na(gpgradX)))
+      }
     } else {
       if (printkern) {
         cat("grad/dC_dx not tested for", j, kern_char, "\n")
@@ -199,7 +201,7 @@ test_that("kernels work and have correct grads", {
 
     # max attempts
     maxattempts <- 10
-    numgradtol <- 1e-4
+    numgradtol <- 1e-3
     for (iatt in 1:maxattempts) {
       goodsofar <- TRUE
       # kernel params
