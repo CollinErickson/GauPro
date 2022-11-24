@@ -92,13 +92,18 @@ print.summary.GauPro <- function(x, ...) {
   cat("\t", x$r.squaredLOO, "\n")
 
   # Coverage
-  # cat("\nLeave-one-out 95% coverage:\n")
-  # cat("\t", x$coverageLOO, "\t(on", x$N, "samples)", "\n")
-  pval68 <- binom.test(x$coverage68LOO*x$N, x$N, .68)$p.value
-  pval95 <- binom.test(x$coverage95LOO*x$N, x$N, .95)$p.value
-  cat("\nLeave-one-out coverage (on", x$N, "samples):\n")
-  cat("\t68%:  ", x$coverage68LOO, "\t\tp-value:  ", pval68, "\n")
-  cat("\t95%:  ", x$coverage95LOO, "\t\tp-value:  ", pval95, "\n")
+  pval68 <- signif(binom.test(x$coverage68LOO*x$N, x$N, .68)$p.value, 4)
+  pval95 <- signif(binom.test(x$coverage95LOO*x$N, x$N, .95)$p.value, 4)
+  cat("\nLeave-one-out coverage on", x$N,
+      "samples (small p-value implies bad fit):\n")
+  coverage68LOO <- signif(x$coverage68LOO, 4)
+  coverage95LOO <- signif(x$coverage95LOO, 4)
+  pvalchar <- 2 + max(nchar(format(coverage68LOO)),
+                      nchar(format(coverage95LOO)))
+  cat("\t68%: ", format(coverage68LOO, width=pvalchar),
+      "       p-value:  ", pval68, "\n")
+  cat("\t95%: ", format(coverage95LOO, width=pvalchar),
+      "       p-value:  ", pval95, "\n")
 
   # Return invisible self
   invisible(x)

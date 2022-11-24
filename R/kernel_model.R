@@ -219,7 +219,8 @@ GauPro_kernel_model <- R6::R6Class(
           } else if (!missing(data) && is.data.frame(data)) {
             # data <- data
           } else {
-            stop("formula given in but not data")
+            # stop("formula given in but not data")
+            # Data can be in global, don't give error for this.
           }
         } else if (!missing(formula) && !is.null(formula)) {
           message("formula given in but not used")
@@ -311,7 +312,7 @@ GauPro_kernel_model <- R6::R6Class(
         # ))
         # Set to matern52 by default
         kernel <- "matern52"
-        warning(paste0(
+        message(paste0(
           "Argument 'kernel' is missing. ",
           "It has been set to 'matern52'.",
           " See documentation for more details."
@@ -1030,12 +1031,21 @@ GauPro_kernel_model <- R6::R6Class(
            # ylim=c(min(newy),max(newy)),
            ylim=c(miny,maxy),
            xlab=xlab, ylab=ylab,
-           main=paste0("Predicted output (95% interval for mean is green,",
-                       " 95% interval for sample is red)"))
-      points(x, px$mean-2*px$se, type='l', col=col2, lwd=2)
+           # main=paste0("Predicted output (95% interval for mean is green,",
+           #             " 95% interval for sample is red)")
+      )
+      legend(x='topleft',
+             legend=c('95% prediction','95% mean'),
+             fill=2:3)
+      # Mean interval
       points(x, pxmean$mean+2*pxmean$se, type='l', col=col3, lwd=2)
       points(x, pxmean$mean-2*pxmean$se, type='l', col=col3, lwd=2)
+      # Prediction interval
+      points(x, px$mean+2*px$se, type='l', col=col2, lwd=2)
+      points(x, px$mean-2*px$se, type='l', col=col2, lwd=2)
+      # Mean line
       points(x,px$me, type='l', lwd=4)
+      # Data points
       points(self$X,
              if (self$normalize) {
                self$Z * self$normalize_sd + self$normalize_mean
@@ -2364,6 +2374,26 @@ GauPro_kernel_model <- R6::R6Class(
         hess1
       }
     },
+    #' @description Calculate gradient of the predictive variance
+    #' @param XX points to calculate at
+    gradpredvar = function(XX) {
+      if (!is.matrix(XX)) {
+        if (length(XX) == self$D) {
+          XX <- matrix(XX, nrow=1)
+        } else {
+          stop("XX must have length D or be matrix with D columns")
+        }
+      }
+      KX.XX <- self$kernel$k(self$X, XX)
+      dKX.XX <- self$kernel$dC_dx(X=self$X,XX=XX)
+      # -2 * dK %*% self$Kinv %*% KX.XX
+      t2 <- self$Kinv %*% KX.XX
+      ds2 <- matrix(NA, nrow(XX), ncol(XX))
+      for (i in 1:nrow(XX)) {
+        ds2[i, ] <- (-2 * dKX.XX[i, , ] %*% t2[, i])[,1]
+      }
+      ds2
+    },
     #' @description Sample at rows of XX
     #' @param XX Input matrix
     #' @param n Number of samples
@@ -2971,13 +3001,14 @@ GauPro_kernel_model <- R6::R6Class(
     },
     #' @description Feature importance
     #' @param plot Should the plot be made?
+    #' @param print_bars Should the importances be printed as bars?
     #' @references https://scikit-learn.org/stable/modules/permutation_importance.html#id2
-    importance = function(plot=TRUE) {
+    importance = function(plot=TRUE, print_bars=TRUE) {
       # variable importance
       # Permutation alg
       # https://scikit-learn.org/stable/modules/permutation_importance.html#id2
       stopifnot(is.logical(plot), length(plot)==1)
-      nouter <- 5
+      nouter <- 10
       # rmse if just predicting mean
       rmse0 <- sqrt(mean((mean(self$Z) - self$Z)^2))
       rmsemod <- sqrt(mean((predict(self, self$X) - self$Z)^2))
@@ -3012,25 +3043,88 @@ GauPro_kernel_model <- R6::R6Class(
       }
 
       # I'm defining importance as this ratio.
-      # 0 means feature has no effect
+      # 0 means feature has no effect on the predictions.
       # 1 or higher means that corrupting that feature completely destroys
-      #  model, it's worse than just predicting mean
+      #  model, it's worse than just predicting mean.
       # imp <- rmses / rmse0
-      imp <- (rmses - rmsemod) / (rmse0 - rmsemod)
-      imp
+      # Avoid divide by zero issue. Happens with white kernel.
+      if (abs(rmse0 - rmsemod) < 1e-64) {
+        imp <- 0 * rmses
+      } else {
+        imp <- (rmses - rmsemod) / (rmse0 - rmsemod)
+      }
+      imp <- round(imp, 4)
 
       if (plot) {
-        ggp <- data.frame(name=factor(names(imp), levels = rev(names(imp))), val=imp) %>%
-          ggplot(aes(val, name)) +
-          geom_vline(xintercept=1) +
-          geom_bar(stat='identity', fill="blue") +
-          xlab("Importance") +
-          ylab("Variable")
+        ggp <- data.frame(name=factor(names(imp), levels = rev(names(imp))),
+                          val=imp) %>%
+          ggplot2::ggplot(ggplot2::aes(val, name)) +
+          ggplot2::geom_vline(xintercept=1) +
+          ggplot2::geom_bar(stat='identity', fill="blue") +
+          ggplot2::xlab("Importance") +
+          ggplot2::ylab("Variable")
         print(ggp)
       }
 
-      # Return importances
-      imp
+      # Print bars
+      if (print_bars) {
+        impwidth <- 12
+        namewidth <- max(10, max(nchar(names(imp))) + 4)
+
+        # nchar1 <- 120
+        # Number of characters until hitting where 1 is.
+        nchar1 <- floor(
+          (getOption("width") - 12 - impwidth - namewidth)/max(1, imp)
+        )
+
+        if (nchar1 < 5) {
+          return(imp)
+        }
+
+        s <- paste0(format("Input", width=namewidth),
+
+                    format("Importance", width=impwidth),
+                    "\n")
+        catt <- function(...) {
+          dots <- list(...)
+          for (i in seq_along(dots)) {
+            s <<- paste0(s, dots[[i]])
+          }
+        }
+        for (i in seq_along(imp)) {
+          catt(format(names(imp)[i], width=namewidth),
+               # format(round(imp[i], 3), width=impwidth, justify = "left")
+               paste0(c(round(imp[i], 3),
+                        rep(" ", impwidth - nchar(round(imp[i], 3)))),
+                      collapse='')
+          )
+          j <- 1
+          while (imp[i] >= j/nchar1) {
+            if (j == nchar1) {
+              catt("|")
+
+            } else {
+              catt("=")
+            }
+            j <- j + 1
+          }
+          while (j < nchar1) {
+            # cat(".")
+            catt(" ")
+            j <- j + 1
+          }
+          if (j == nchar1) {
+            catt("|")
+          }
+          catt("\n")
+        }
+        cat(s)
+
+        invisible(imp)
+      } else {
+        # Return importances
+        imp
+      }
     },
     #' @description Print this object
     print = function() {
@@ -3081,7 +3175,7 @@ GauPro_kernel_model <- R6::R6Class(
       ans$r.squaredLOO <- rsq
 
       # Feature importance
-      ans$importance <- self$importance(plot=FALSE)
+      ans$importance <- self$importance(plot=FALSE, print_bars=FALSE)
 
       # Formula
       if (!is.null(self$formula)) {

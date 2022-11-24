@@ -295,7 +295,7 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
     dC_dx = function(XX, X, theta, beta=self$beta, s2=self$s2) {
       if (missing(theta)) {theta <- 10^beta}
       if (!is.matrix(XX)) {stop("XX must be matrix")}
-      if (ncol(X) != ncol(XX)) {stop("XX and X must have same number")}
+      if (ncol(X) != ncol(XX)) {stop("XX and X must have same number of cols")}
       corr_gauss_dCdX(XX, X, theta, s2)
     },
     #' @description Second derivative of covariance with respect to X

@@ -381,29 +381,15 @@ OrderedFactorKernel <- R6::R6Class(
     #' @description Derivative of covariance with respect to X
     #' @param XX matrix of points
     #' @param X matrix of points to take derivative with respect to
-    #' @param logp log of p
-    #' @param logalpha log of alpha
-    #' @param s2 Variance parameter
-    dC_dx = function(XX, X, logp=self$logp, logalpha=self$logalpha, s2=self$s2) {
-      stop("not implemented, ordered factor kernel, dC_dx")
-      # if (missing(theta)) {theta <- 10^beta}
-      p <- 10 ^ logp
-      alpha <- 10 ^ logalpha
+    #' @param ... Additional args, not used
+    dC_dx = function(XX, X, ...) {
       if (!is.matrix(XX)) {stop()}
       d <- ncol(XX)
       if (ncol(X) != d) {stop()}
       n <- nrow(X)
       nn <- nrow(XX)
-      dC_dx <- array(NA, dim=c(nn, d, n))
-      for (i in 1:nn) {
-        for (j in 1:d) {
-          for (k in 1:n) {
-            # r <- sqrt(sum(theta * (XX[i,] - X[k,]) ^ 2))
-            CC <- s2 * exp(-sum(alpha * sin(p * (XX[i, ]-X[k, ]))^2))
-            dC_dx[i, j, k] <- CC * (-alpha) * sin(2*p[j]*(XX[i, j]-X[k, j])) * p[j] #* (XX[i, j] - X[k, j])
-          }
-        }
-      }
+      dC_dx <- array(0, dim=c(nn, d, n))
+      dC_dx[, self$xindex, ] <- NA
       dC_dx
     },
     #' @description Starting point for parameters for optimization

@@ -194,8 +194,10 @@ Matern52 <- R6::R6Class(
           for (k in 1:n) {
             r <- sqrt(sum(theta * (XX[i,] - X[k,]) ^ 2))
             dC_dx[i, j, k] <- (
-              (-5*r/3 - 5/3*self$sqrt5*r^2) * s2 * exp(-self$sqrt5 * r) *
-                theta[j] * (XX[i, j] - X[k, j]) / r
+              # (-5*r/3 - 5/3*self$sqrt5*r^2) * s2 * exp(-self$sqrt5 * r) *
+              #   theta[j] * (XX[i, j] - X[k, j]) / r
+              (-5/3 - 5/3*self$sqrt5*r) * s2 * exp(-self$sqrt5 * r) *
+                theta[j] * (XX[i, j] - X[k, j])
             )
           }
         }

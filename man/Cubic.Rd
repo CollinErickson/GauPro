@@ -25,7 +25,6 @@ y <- sin(2*pi*x) + rnorm(n,0,1e-1)
 gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Cubic$new(1),
                               parallel=FALSE, restarts=0)
 gp$predict(.454)
-gp$cool1Dplot()
 }
 \section{Super classes}{
 \code{\link[GauPro:GauPro_kernel]{GauPro::GauPro_kernel}} -> \code{\link[GauPro:GauPro_kernel_beta]{GauPro::GauPro_kernel_beta}} -> \code{GauPro_kernel_Cubic}

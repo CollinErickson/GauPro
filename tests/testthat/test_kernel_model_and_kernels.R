@@ -19,8 +19,8 @@ test_that("kernels work and have correct grads", {
   kern_list <- list(0,0,0,0,0,0,
                     0,0,0,0,
                     IgnoreIndsKernel$new(Gaussian$new(D=1), 2),
-                    Gaussian$new(D=2)*PowerExp$new(D=2),
-                    Cubic$new(D=2) * Triangle$new(D=2))
+                    Gaussian$new(D=2) * PowerExp$new(D=2),
+                    Matern52$new(D=2) + Matern32$new(D=2))
   stopifnot(length(kern_chars) == length(kern_list))
   for (j in 1:length(kern_chars)) {
     kern_char <- kern_chars[j]
@@ -130,6 +130,51 @@ test_that("kernels work and have correct grads", {
       expect_is(mei2$par, "matrix")
       expect_equal(dim(mei2$par), c(2,2))
       expect_equal(length(mei2$val), 1)
+    }
+
+    # Test grad. Implicitly tests kernel$dC_dx.
+    if (j %in% c(1:3, 6:7, 9, 11:13)) {
+      xgrad <- runif(2) #matrix(runif(6), ncol=2)
+      expect_no_error(symgrad <- gp$grad(xgrad))
+      expect_equal(numDeriv::grad(gp$pred, x=xgrad),
+                   c(symgrad),
+                   tolerance=1e-4)
+      # grad at self shouldn't be zero
+      expect_no_error(gpgradX <- gp$grad(gp$X))
+      expect_true(!any(is.na(gpgradX)))
+    } else {
+      if (printkern) {
+        cat("grad/dC_dx not tested for", j, kern_char, "\n")
+      }
+    }
+
+    # Test gradpredvar
+    # FIX m32/m52
+    if (j %in% c(1:1, 6:7, 9, 11:12)) {
+      expect_no_error(gpv <- gp$gradpredvar(xgrad))
+      # numDeriv::grad(func=function(x) gp$pred(x, se=T)$s2, gpv)
+      npv <- 19
+      XXpv <- matrix(runif(2*npv), ncol=2)
+      expect_no_error(XXgpv <- gp$gradpredvar(XXpv))
+      gpvmatches <- 0
+      for (iii in 1:npv) {
+        numpv <- numDeriv::grad(func=function(x) {gp$pred(x, se=T)$s2},
+                                XXpv[iii,])
+        # expect_equal(numpv, XXgpv[iii,], tolerance = 1e-2)
+        pvclose <- all(ifelse(XXgpv[iii,]==0,
+                              abs(numpv - XXgpv[iii,]) < 1e-8,
+                              abs((numpv - XXgpv[iii,]) / XXgpv[iii,]) < 1e-2))
+        if (pvclose) {gpvmatches <- gpvmatches + 1}
+      }
+      if (printkern) {
+        cat(kern_char, "gpv close on ", gpvmatches, "/", npv, "\n")
+      }
+      expect_true(gpvmatches > npv/2)
+
+    } else {
+      if (printkern) {
+        cat("gradprredvar not tested for", j, kern_char, "\n")
+      }
     }
 
     # Check kernel
@@ -249,10 +294,16 @@ test_that("check factor kernels alone", {
     expect_true(is.numeric(imp))
     expect_equal(names(imp), c("X1"))
 
-    # Summary
+    # Summary works and prints
     expect_no_warning(
       expect_error(capture.output(summary(gp)), NA)
     )
+
+    # grad should be NA
+    expect_no_error(grd <- gp$grad(gp$X))
+    expect_true(is.matrix(grd))
+    expect_equal(dim(grd), c(n, 1))
+    expect_true(all(is.na(grd)))
 
     # Check kernel
     expect_error({kernprint <- capture_output(print(gp$kernel))}, NA)
@@ -346,6 +397,13 @@ test_that("check factor kernels in product", {
     # qEI just adds more time
     # expect_error(gp$maxqEI(npoints=1), NA)
     # expect_error(gp$maxqEI(npoints=2), NA)
+
+    # grad should be NA on factor column, but not other
+    expect_no_error(grd <- gp$grad(cbind(runif(10), sample(1:2, 10, T))))
+    expect_true(is.matrix(grd))
+    expect_equal(dim(grd), c(10, d))
+    expect_true(all(is.na(grd[, 2])))
+    expect_true(all(!is.na(grd[, 1])))
 
     df <- gp$deviance()
     dg <- gp$deviance_grad(nug.update = T)

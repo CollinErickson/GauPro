@@ -185,6 +185,7 @@ using the formula}
 \item \href{#method-GauPro-grad_norm2_dist}{\code{GauPro_kernel_model$grad_norm2_dist()}}
 \item \href{#method-GauPro-grad_norm2_sample}{\code{GauPro_kernel_model$grad_norm2_sample()}}
 \item \href{#method-GauPro-hessian}{\code{GauPro_kernel_model$hessian()}}
+\item \href{#method-GauPro-gradpredvar}{\code{GauPro_kernel_model$gradpredvar()}}
 \item \href{#method-GauPro-sample}{\code{GauPro_kernel_model$sample()}}
 \item \href{#method-GauPro-EI}{\code{GauPro_kernel_model$EI()}}
 \item \href{#method-GauPro-maxEI}{\code{GauPro_kernel_model$maxEI()}}
@@ -1354,6 +1355,23 @@ Calculate Hessian
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-GauPro-gradpredvar"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro-gradpredvar}{}}}
+\subsection{Method \code{gradpredvar()}}{
+Calculate gradient of the predictive variance
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$gradpredvar(XX)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{XX}}{points to calculate at}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GauPro-sample"></a>}}
 \if{latex}{\out{\hypertarget{method-GauPro-sample}{}}}
 \subsection{Method \code{sample()}}{
@@ -1556,13 +1574,15 @@ Calculate Knowledge Gradient
 \subsection{Method \code{importance()}}{
 Feature importance
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$importance(plot = TRUE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$importance(plot = TRUE, print_bars = TRUE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{plot}}{Should the plot be made?}
+
+\item{\code{print_bars}}{Should the importances be printed as bars?}
 }
 \if{html}{\out{</div>}}
 }

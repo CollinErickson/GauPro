@@ -110,6 +110,26 @@ IgnoreIndsKernel <- R6::R6Class(
       arglist <- list(params=params, X=X2, nug=nug)
       do.call(self$kernel$C_dC_dparams, arglist)
     },
+    # Below is updated version using arma, was called dC_dx_arma before
+    #' @description Derivative of covariance with respect to X
+    #' @param XX matrix of points
+    #' @param X matrix of points to take derivative with respect to
+    #' @param theta Correlation parameters
+    #' @param beta log of theta
+    #' @param s2 Variance parameter
+    dC_dx = function(XX, X, ...) {
+      if (!is.matrix(XX)) {stop("XX must be matrix")}
+      if (ncol(X) != ncol(XX)) {stop("XX and X must have same number of cols")}
+      # corr_gauss_dCdX(XX, X, theta, s2)
+      # stop()
+      out <- array(data=0, dim=c(nrow(XX), ncol(X), nrow(X)))
+      # useinds <- setdiff(1:D, self$ignoreinds)
+      sub_dC_dx <- self$kernel$dC_dx(XX=XX[, -self$ignoreinds, drop=FALSE],
+                                     X=X[, -self$ignoreinds, drop=FALSE],
+                                     ...)
+      out[, -self$ignoreinds, ] <- sub_dC_dx
+      out
+    },
     #' @description Starting point for parameters for optimization
     #' @param ... Passed to kernel
     param_optim_start = function(...) {

@@ -267,13 +267,7 @@ Calculate covariance matrix and its derivative
 \subsection{Method \code{dC_dx()}}{
 Derivative of covariance with respect to X
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{OrderedFactorKernel$dC_dx(
-  XX,
-  X,
-  logp = self$logp,
-  logalpha = self$logalpha,
-  s2 = self$s2
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{OrderedFactorKernel$dC_dx(XX, X, ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -283,11 +277,7 @@ Derivative of covariance with respect to X
 
 \item{\code{X}}{matrix of points to take derivative with respect to}
 
-\item{\code{logp}}{log of p}
-
-\item{\code{logalpha}}{log of alpha}
-
-\item{\code{s2}}{Variance parameter}
+\item{\code{...}}{Additional args, not used}
 }
 \if{html}{\out{</div>}}
 }

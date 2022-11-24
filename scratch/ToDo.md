@@ -42,8 +42,6 @@ at end for K/Kinv so predictions are good.
 
 * test factor kernels, check grad
 
-* 4 inputs, 2 latentfac, .1 noise. predictions have near zero s2
-
 * factor trend, LM ignore inds
 
 * transform X, Z
@@ -88,18 +86,16 @@ when nug>0, so it can pick already eval points.
 
 * Plot between marginal and marginalrandom. Vary along 10 points, partial range
 
-* Formula with no data should work if vars in global
-
-* Speed up Cubic example
-
-* plot1D: change title to legend. Convert to ggplot2?
+* plot1D: Convert to ggplot2. Factor kernels.
 
 * Corrected EI
 
 * Augmented EI: add, grad, test
 
-* summary: add ", low p-value is bad"
-
 * Matrix with some col names, some not. Bad formula in summary. Other errors?
 
-* feature importance: lines (=======   |)
+* dC_dx: all kernels (cubic, ...)
+
+* grad is bad for self$X: divides by 0. Fix, add test.
+
+* gradpredvar is bad for matern32 and matern52. How? dC_dx works for grad.

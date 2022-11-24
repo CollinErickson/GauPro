@@ -42,23 +42,34 @@ list(
 maxAugEI <- function(self) {
 
   # self <- gp1
+  # Get preds at existing points, calculate best
   pred_X <- self$predict(self$X, se.fit = T)
   u_X <- -pred_X$mean - pred_X$se
   star_star_index <- which.max(u_X)
+
   f <- pred_X$mean[star_star_index]
+
+  # Func to calculate EI
   EI <- function(y, s) {
     z <- (f - y) / s
     (f - y) * pnorm(z) + s * dnorm(z)
   }
+  # Calculate "augmented" term
   sigma_eps <- self$nug * self$s2_hat
   sigma_eps2 <- sigma_eps^2
   augterm <- function(s2) {
     1 - sigma_eps / sqrt(s2 + sigma_eps2)
   }
 
+  if (F) {
+    # derivative:
+    # ei * daugterm + dei * daugterm
+  }
+
+  # Optimize
   oout <- optim(
     # par=self$X[star_star_index,],
-    par=self$X[star_star_index,] + rnorm(4),
+    par=self$X[star_star_index*1+0,], #+ rnorm(ncol(self$X)),
     # par=colMeans(self$X),
     fn=function(x) {
       print(x)
@@ -74,6 +85,8 @@ maxAugEI <- function(self) {
   oout
   list(
     par=oout$par,
-    value=oout$value
+    value=-oout$value
   )
 }
+maxAugEI(gp2)
+maxAugEI(gp)
