@@ -689,5 +689,5 @@ test_that("Wide range", {
   expect_no_error(e1$summary())
                   expect_no_error(e1$plotLOO())
                                   expect_no_error(e1$plotmarginalrandom())
-  expect_true(all(abs((e1$Z-e1$pred(e1$X)) / e1$Z) < 1e-1))
+  expect_true(mean(abs((e1$Z-e1$pred(e1$X)) / e1$Z)) < 1e-2)
 })
