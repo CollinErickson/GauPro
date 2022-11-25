@@ -298,7 +298,7 @@ test_that("check factor kernels alone", {
       expect_error(predict(gp, 1:3, se.fit = T), NA,
                    info = paste("bad pred in", kern_char))
       expect_warning(predict(gp, 1:3, se.fit = T), NA,
-                   info = paste("bad pred in", kern_char))
+                     info = paste("bad pred in", kern_char))
       # Test plot
       expect_no_error(pp <- gp$plot1D())
       expect_no_error(suppressMessages({pp <- plot(gp)}))
@@ -685,9 +685,12 @@ test_that("Wide range", {
              runif(n, 1200, 3000))
   f <- function(x) {x[1] + 14* x[2]^2 + x[3]}
   y <- apply(x, 1, f) + rnorm(n, 0, 1)
-  expect_no_error(e1 <- GauPro_kernel_model$new(x, y, kernel='gauss'))
+  expect_no_error(e1 <- GauPro_kernel_model$new(
+    x, y, kernel=Gaussian$new(D=3, s2=3e7, s2_lower=1e7),
+    verbose=0, restarts=25))
+  # e1$plotLOO(); print(e1$s2_hat); print(e1$nug)
   expect_no_error(e1$summary())
-                  expect_no_error(e1$plotLOO())
-                                  expect_no_error(e1$plotmarginalrandom())
+  expect_no_error(e1$plotLOO())
+  expect_no_error(e1$plotmarginalrandom())
   expect_true(mean(abs((e1$Z-e1$pred(e1$X)) / e1$Z)) < 1e-2)
 })

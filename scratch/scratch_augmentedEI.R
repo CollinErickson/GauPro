@@ -152,8 +152,10 @@ AugEI <- function(self, x, minimize=FALSE, eps=0,
   s <- predx$se
   s2 <- predx$s2
 
-  z <- (f - y) / s
-  EI <- (f - y) * pnorm(z) + s * dnorm(z)
+  minmult <- if (minimize) {1} else {-1}
+
+  z <- (f - y) / s * minmult
+  EI <- (f - y) * minmult * pnorm(z) + s * dnorm(z)
 
 
   # Calculate "augmented" term
@@ -169,9 +171,11 @@ AugEI <- function(self, x, minimize=FALSE, eps=0,
     # z <- (f - y) / s
     dy_dx <- self$grad(x) # GOOD
     dz_dx <- -dy_dx / s + (f - y) * (-1/s2) * ds_dx # GOOD
+    dz_dx <- dz_dx * minmult
     ddnormz_dz <- -dnorm(z) * z # GOOD
     daug_dx = .5*sigma_eps / (s2 + sigma_eps2)^1.5 * ds2_dx # GOOD
-    dEI_dx = -dy_dx*pnorm(z) + (f-y)*dnorm(z)*dz_dx + ds_dx*dnorm(z) + s*ddnormz_dz*dz_dx #GOOD
+    dEI_dx = minmult * (-dy_dx*pnorm(z) + (f-y)*dnorm(z)*dz_dx) +
+      ds_dx*dnorm(z) + s*ddnormz_dz*dz_dx #GOOD
     # numDeriv::grad(function(x) {pr <- self$pred(x,se=T);( EI(pr$mean,pr$se))}, x)
     dAugEI_dx = EI * daug_dx + dEI_dx * Aug
     # numDeriv::grad(function(x) {pr <- self$pred(x,se=T);( EI(pr$mean,pr$se)*augterm(pr$s2))}, x)
@@ -183,17 +187,25 @@ AugEI <- function(self, x, minimize=FALSE, eps=0,
   AugEI
 }
 # 1D
+# Minimize
 u <- .8
-AugEI(self, u)
-AugEI(self, u, return_grad = T)
-numDeriv::grad(function(u)AugEI(self,u), u)
+AugEI(self, u, minimize = T)
+AugEI(self, u, minimize = T,return_grad = T)
+numDeriv::grad(function(u)AugEI(self,u, minimize = T), u)
+# Maximize
+u <- .3
+AugEI(self, u, minimize = F)
+AugEI(self, u, minimize = F,return_grad = T)
+numDeriv::grad(function(u)AugEI(self,u, minimize = F), u)
 
+# Matrix
 u <- matrix(runif(3), ncol=1)
 AugEI(self, u)
 AugEI(self, u, return_grad = T)
 numDeriv::grad(function(u)AugEI(self,u), .8)
-curve(AugEI(self, x))
+curve(AugEI(self, matrix(x, ncol=1)))
 curve(self$EI(matrix(x, ncol=1),minimize = T))
+curve(AugEI(self, matrix(x, ncol=1), minimize = T))
 
 # 2D
 
