@@ -224,3 +224,34 @@ curve(self$EI(matrix(x, ncol=1),minimize = T))
 maxAugEI <- function() {
 
 }
+
+
+optimize_func <- function(fn, minimize=FALSE,
+                          se.fit=FALSE, mean_dist=FALSE,
+                          gr=NULL, fngr=NULL,
+                          mopar=NULL) {
+
+  if (!is.null(mopar)) {
+    # Transform mopar to better scale
+    stop("1029481")
+  } else {
+    # Make mopar
+    # Get factor info
+    stop("913418")
+    mopar <- list()
+    for (i in 1:self$D) {
+      mopar[[i]] <- 1
+    }
+  }
+
+  # Set up fn2.
+  fn2 <- function(x) {
+    self$pred(x, se.fit=se.fit, mean_dist=mean_dist)
+  }
+
+
+  mixopt::mixopt_multistart(
+    par=mopar, fn=fn2
+  )
+
+}

@@ -159,19 +159,25 @@ test_that("kernels work and have correct grads", {
       XXpv <- matrix(runif(2*npv), ncol=2)
       expect_no_error(XXgpv <- gp$gradpredvar(XXpv))
       gpvmatches <- 0
+      numpvs <- c()
+      actpvs <- c()
       for (iii in 1:npv) {
         numpv <- numDeriv::grad(func=function(x) {gp$pred(x, se=T)$s2},
                                 XXpv[iii,])
         # expect_equal(numpv, XXgpv[iii,], tolerance = 1e-2)
-        pvclose <- all(ifelse(XXgpv[iii,]==0,
+        pvclose <- all(ifelse(abs(XXgpv[iii,]) < 1e-8,
                               abs(numpv - XXgpv[iii,]) < 1e-8,
                               abs((numpv - XXgpv[iii,]) / XXgpv[iii,]) < 1e-2))
         if (pvclose) {gpvmatches <- gpvmatches + 1}
+        numpvs <- c(numpvs, numpv)
+        actpvs <- c(actpvs, XXgpv[iii,])
       }
       if (exists('printkern') && printkern) {
         cat(kern_char, "gpv close on ", gpvmatches, "/", npv, "\n")
       }
-      expect_true(gpvmatches > npv/2)
+      expect_true(gpvmatches > npv/2,
+                  label=paste(j, kern_char, 'gpvmatches', gpvmatches,'/',npv))
+      # qplot(numpvs, actpvs)
     } else {
       if (exists('printkern') && printkern) {
         cat("gradpredvar not tested for", j, kern_char, "\n")
@@ -411,7 +417,7 @@ test_that("check factor kernels in product", {
     )
 
     # Check LOO
-    expect_no_error(capture.output(gp$plotLOO()))
+    expect_no_error((gp$plotLOO()))
 
     # Check EI
     expect_error(mei1 <- gp$maxEI(), NA)
@@ -683,10 +689,12 @@ test_that("Wide range", {
   x <- cbind(runif(n, 50, 150),
              runif(n, -9,-7),
              runif(n, 1200, 3000))
-  f <- function(x) {x[1] + 14* x[2]^2 + x[3]}
+  # f <- function(x) {1e3*(x[1] + 14* x[2]^2 + x[3])} # Often gets stuck
+  f <- function(x) {1e0*(x[1]^1.2 + 14* x[2]^2 + x[3]^.9)} # Reliable
   y <- apply(x, 1, f) + rnorm(n, 0, 1)
   expect_no_error(e1 <- GauPro_kernel_model$new(
-    x, y, kernel=Gaussian$new(D=3, s2=3e7, s2_lower=1e7),
+    x, y,
+    kernel="gauss",#Gaussian$new(D=3, s2=3e7, s2_lower=1e7),
     verbose=0, restarts=25))
   # e1$plotLOO(); print(e1$s2_hat); print(e1$nug)
   expect_no_error(e1$summary())

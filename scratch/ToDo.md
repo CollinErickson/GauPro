@@ -97,3 +97,5 @@ Hard to get factors right.
 
 * Large Z variance is bad. Extend range of s2. Warning to rescale. Tell kernel
 that initial optim values should be large.
+
+* If after par optim, par are at lower/upper, give warning
