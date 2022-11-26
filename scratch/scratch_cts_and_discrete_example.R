@@ -139,3 +139,12 @@ gp4$maxEI()
 gp4$maxEI(discreteinputs = list('5'=1:1e4, '6'=c(1,3,5,7,9)))
 gp4$maxEIwithfactorsordiscrete2(discreteinputs = list('5'=1:1e4, '6'=c(1,3,5,7,9)))
 
+
+
+# Inverse relationship ----
+n <- 30
+d <- 2
+x <- cbind(runif(n,-1,1), runif(n, -1,1))
+y <- x[,1]*x[,2]+rnorm(n,0,1e-1)
+gpinv <- GauPro_kernel_model$new(x, y)
+gpinv$plotmarginal()

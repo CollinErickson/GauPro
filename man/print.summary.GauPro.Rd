@@ -11,6 +11,9 @@
 
 \item{...}{Additional args}
 }
+\value{
+prints, returns invisible object
+}
 \description{
 Print summary.GauPro
 }

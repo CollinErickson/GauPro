@@ -1123,38 +1123,44 @@ GauPro_kernel_model <- R6::R6Class(
     },
     #' @description Plot marginal. For each input, hold all others at a constant
     #' value and adjust it along it's range to see how the prediction changes.
-    #' @param pt What point to use as a center. All values except the one being
-    #' plotted are held constant at this value.
-    plotmarginal = function(pt=colMeans(self$X)) {
+    #' @param npt Number of lines to make. Each line represents changing a
+    #' single variable while holding the others at the same values.
+    plotmarginal = function(npt=5) {
       # pt <- colMeans(self$X)
       # pt
+      pt <- lhs::maximinLHS(n=npt, k=self$D)
+      pt <- sweep(pt, 2, apply(self$X, 2, max) - apply(self$X, 2, min), "*")
+      pt <- sweep(pt, 2, apply(self$X, 2, min), "+")
+
       factorinfo <- find_kernel_factor_dims(self$kernel)
       if (length(factorinfo > 0)) {
         factorindexes <- factorinfo[2*(1:(length(factorinfo)/2))-1]
         factornlevels <- factorinfo[2*(1:(length(factorinfo)/2))]
         for (i in 1:length(factorindexes)) {
           if (!(pt[factorindexes[i]] %in% 1:factornlevels[i])) {
-            pt[factorindexes[i]] <- sample(1:factornlevels[i], 1)
+            pt[, factorindexes[i]] <- sample(1:factornlevels[i], npt, replace=T)
           }
         }
       } else {
         factorindexes <- c()
       }
       pts <- NULL
-      for (i in 1:ncol(self$X)) {
-        if (i %in% factorindexes) {
-          ind_i <- which(factorindexes == i)
-          xseq <- 1:(factorinfo[2*ind_i])
-        } else {
-          xseq <- seq(min(self$X[,i]), max(self$X[,i]), l=51)
+      for (j in 1:npt) {
+        for (i in 1:ncol(self$X)) {
+          if (i %in% factorindexes) {
+            ind_i <- which(factorindexes == i)
+            xseq <- 1:(factorinfo[2*ind_i])
+          } else {
+            xseq <- seq(min(self$X[,i]), max(self$X[,i]), l=51)
+          }
+          Xmat <- matrix(pt[j,], byrow=T, ncol=ncol(pt), nrow=length(xseq))
+          Xmat[, i] <- xseq
+          pX <- self$pred(Xmat, se.fit = T)
+          pXm <- self$pred(Xmat, se.fit = T, mean_dist=T)
+          pts <- rbind(pts,
+                       cbind(pred=pX$mean, predse=pX$se, predmeanse=pXm$se,
+                             xi=xseq, i=i, j=j))
         }
-        Xmat <- matrix(pt, byrow=T, ncol=length(pt), nrow=length(xseq))
-        Xmat[, i] <- xseq
-        pX <- self$pred(Xmat, se.fit = T)
-        pXm <- self$pred(Xmat, se.fit = T, mean_dist=T)
-        pts <- rbind(pts,
-                     cbind(pred=pX$mean, predse=pX$se, predmeanse=pXm$se,
-                           xi=xseq, i=i))
       }
       pts2 <- as.data.frame(pts)
       # pts2 %>%
@@ -1164,7 +1170,7 @@ GauPro_kernel_model <- R6::R6Class(
       pts2$predlower <- pts2$pred - 2*pts2$predse
       pts2$predmeanupper <- pts2$pred + 2*pts2$predmeanse
       pts2$predmeanlower <- pts2$pred - 2*pts2$predmeanse
-      ggplot2::ggplot(data=pts2, ggplot2::aes(xi, pred)) +
+      ggplot2::ggplot(data=pts2, ggplot2::aes(xi, pred, group=j)) +
         ggplot2::facet_wrap(.~i, scales = "free_x") +
         ggplot2::geom_line(ggplot2::aes(y=predmeanupper), color="orange") +
         ggplot2::geom_line(ggplot2::aes(y=predmeanlower), color="orange") +
@@ -1238,7 +1244,7 @@ GauPro_kernel_model <- R6::R6Class(
                            label=paste("Coverage (95%):", signif(coverage,5)),
                            hjust=0, vjust=1) +
         ggplot2::geom_text(x=-Inf, y=Inf,
-                           label=paste("R-sq:             ", signif(rsq,5)),
+                           label=paste("R-sq:                 ", signif(rsq,5)),
                            hjust=0, vjust=2.2) +
         # geom_text(x=Inf, y=-Inf, label="def", hjust=1, vjust=0)
         ggplot2::xlab("Predicted values (fit)") +

@@ -72,7 +72,7 @@ summary.GauPro <- function(object, ...) {
 #' @param ... Additional args
 #' @importFrom stats binom.test
 #'
-#' @return
+#' @return prints, returns invisible object
 #' @export
 print.summary.GauPro <- function(x, ...) {
   # Formula

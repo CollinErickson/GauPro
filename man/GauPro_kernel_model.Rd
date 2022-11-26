@@ -682,14 +682,14 @@ Make 2D plot
 Plot marginal. For each input, hold all others at a constant
 value and adjust it along it's range to see how the prediction changes.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$plotmarginal(pt = colMeans(self$X))}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$plotmarginal(npt = 5)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{pt}}{What point to use as a center. All values except the one being
-plotted are held constant at this value.}
+\item{\code{npt}}{Number of lines to make. Each line represents changing a
+single variable while holding the others at the same values.}
 }
 \if{html}{\out{</div>}}
 }
