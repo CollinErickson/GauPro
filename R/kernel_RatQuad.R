@@ -244,12 +244,12 @@ RatQuad <- R6::R6Class(
       nn <- nrow(XX)
       dC_dx <- array(NA, dim=c(nn, d, n))
       for (i in 1:nn) {
-        for (j in 1:d) {
-          for (k in 1:n) {
-            # r <- sqrt(sum(theta * (XX[i,] - X[k,]) ^ 2))
-            r2 <- sum(theta * (XX[i,] - X[k,])^2)
-            CC <- s2 * (1 + r2 / alpha) ^ -alpha
-            dC_dx[i, j, k] <- CC * (-1) / (1 + r2 / alpha) * 2 * theta[j] * (XX[i, j]-X[k, j]) #) * p[j] #* (XX[i, j] - X[k, j])
+        for (k in 1:n) {
+          r2 <- sum(theta * (XX[i,] - X[k,])^2)
+          CC <- s2 * (1 + r2 / alpha) ^ -alpha
+          for (j in 1:d) {
+            dC_dx[i, j, k] <- CC * (-1) / (1 + r2 / alpha) * 2 * theta[j] *
+              (XX[i, j]-X[k, j])
           }
         }
       }

@@ -168,9 +168,9 @@ Exponential <- R6::R6Class(
       nn <- nrow(XX)
       dC_dx <- array(NA, dim=c(nn, d, n))
       for (i in 1:nn) {
-        for (j in 1:d) {
-          for (k in 1:n) {
-            r <- sqrt(sum(theta * (XX[i,] - X[k,]) ^ 2))
+        for (k in 1:n) {
+          r <- sqrt(sum(theta * (XX[i,] - X[k,]) ^ 2))
+          for (j in 1:d) {
             dC_dx[i, j, k] <- - theta[j] * (XX[i, j] - X[k, j]) * s2 * exp(-r) / r
           }
         }

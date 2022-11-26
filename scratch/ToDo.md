@@ -84,10 +84,6 @@ Hard to get factors right.
 
 * Augmented EI: add, grad, test
 
-* dC_dx: all kernels (cubic, periodic, ratquad)
-
-* gradpredvar is bad for matern32 and matern52. How? dC_dx works for grad.
-
 * Is EI minimize arg working properly?
 
 * Optimize any function. Avoid reimplementing maxEI, maxAugEI, max___.

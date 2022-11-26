@@ -330,11 +330,11 @@ Periodic <- R6::R6Class(
       nn <- nrow(XX)
       dC_dx <- array(NA, dim=c(nn, d, n))
       for (i in 1:nn) {
-        for (j in 1:d) {
-          for (k in 1:n) {
-            # r <- sqrt(sum(theta * (XX[i,] - X[k,]) ^ 2))
-            CC <- s2 * exp(-sum(alpha * sin(p * (XX[i, ]-X[k, ]))^2))
-            dC_dx[i, j, k] <- CC * (-alpha) * sin(2*p[j]*(XX[i, j]-X[k, j])) * p[j] #* (XX[i, j] - X[k, j])
+        for (k in 1:n) {
+          # r <- sqrt(sum(theta * (XX[i,] - X[k,]) ^ 2))
+          CC <- s2 * exp(-sum(alpha * sin(p * (XX[i, ]-X[k, ]))^2))
+          for (j in 1:d) {
+            dC_dx[i, j, k] <- CC * (-alpha) * sin(2*p[j]*(XX[i, j]-X[k, j])) * p[j]
           }
         }
       }

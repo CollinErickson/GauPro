@@ -260,14 +260,13 @@ PowerExp <- R6::R6Class(
       nn <- nrow(XX)
       dC_dx <- array(NA, dim=c(nn, d, n))
       for (i in 1:nn) {
-        for (j in 1:d) {
-          alphaj <- if (length(alpha)==1) alpha else alpha[j]
-          for (k in 1:n) {
-            # r <- sqrt(sum(theta * (XX[i,] - X[k,]) ^ 2))
-            r2 <- sum(theta * abs(XX[i,] - X[k,])^alpha)
-            CC <- s2 * exp(-r2)
-            dC_dx[i, j, k] <- CC * (-1) * theta[j] * alphaj * abs(XX[i, j]-X[k, j]) ^ (alphaj-1) * sign(XX[i, j]-X[k, j])
-            #) * p[j] #* (XX[i, j] - X[k, j])
+        alphaj <- if (length(alpha)==1) alpha else alpha[j]
+        for (k in 1:n) {
+          r2 <- sum(theta * abs(XX[i,] - X[k,])^alpha)
+          CC <- s2 * exp(-r2)
+          for (j in 1:d) {
+            dC_dx[i, j, k] <- CC * (-1) * theta[j] * alphaj *
+              abs(XX[i, j]-X[k, j]) ^ (alphaj-1) * sign(XX[i, j]-X[k, j])
           }
         }
       }

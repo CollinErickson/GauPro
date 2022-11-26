@@ -10,7 +10,7 @@ test_that("kernels work and have correct grads", {
   n <- 20
   d <- 2
   x <- matrix(runif(n*d), ncol=d)
-  f <- function(x) {abs(sin(x[1]^.8*6))^1.2 + log(1+x[2]) + x[1]*x[2]}
+  f <- function(x) {abs(sin(x[1]^.8*6))^1.2 + log(1+(x[2]-.3)^2) + x[1]*x[2]}
   y <- apply(x, 1, f) + rnorm(n,0,1e-4) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
   kern_chars <- c('Gaussian', 'Matern32', 'Matern52',
                   'Triangle', 'Cubic', 'White',
@@ -133,12 +133,13 @@ test_that("kernels work and have correct grads", {
     }
 
     # Test grad. Implicitly tests kernel$dC_dx.
-    if (j %in% c(1:7, 9, 11:13)) {
+    if (j %in% c(1:13)) {
       xgrad <- runif(2) #matrix(runif(6), ncol=2)
       expect_no_error(symgrad <- gp$grad(xgrad))
       expect_equal(numDeriv::grad(gp$pred, x=xgrad),
                    c(symgrad),
-                   tolerance=1e-4)
+                   tolerance=1e-2,
+                   label=paste(j, kern_char, 'gp$grad'))
       # grad at self shouldn't be zero, except for Triangle, Exponential
       expect_no_error(gpgradX <- gp$grad(gp$X))
       if (!(j %in% c(4,9))) {
@@ -152,7 +153,7 @@ test_that("kernels work and have correct grads", {
 
     # Test gradpredvar
     # FIX m32/m52
-    if (j %in% c(1:1, 4:7, 9, 11:12)) {
+    if (j %in% c(1:13)) {
       expect_no_error(gpv <- gp$gradpredvar(xgrad))
       # numDeriv::grad(func=function(x) gp$pred(x, se=T)$s2, gpv)
       npv <- 39
