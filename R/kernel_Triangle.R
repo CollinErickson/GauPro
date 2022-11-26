@@ -173,7 +173,7 @@ Triangle <- R6::R6Class(
     #' @param beta log of theta
     #' @param s2 Variance parameter
     dC_dx = function(XX, X, theta, beta=self$beta, s2=self$s2) {
-      stop("dC_dx not implemented for triangle")
+      # stop("dC_dx not implemented for triangle")
       if (missing(theta)) {theta <- 10^beta}
       if (!is.matrix(XX)) {stop()}
       d <- ncol(XX)
@@ -184,8 +184,15 @@ Triangle <- R6::R6Class(
       for (i in 1:nn) {
         for (j in 1:d) {
           for (k in 1:n) {
-            r <- sqrt(sum(theta * (XX[i,] - X[k,]) ^ 2))
-            dC_dx[i, j, k] <- -3 * s2 * r * exp(-self$sqrt3 * r) * theta[j] * (XX[i, j] - X[k, j]) / r
+            # r <- sqrt(sum(theta * (XX[i,] - X[k,]) ^ 2))
+            # dC_dx[i, j, k] <- -3 * s2 * r * exp(-self$sqrt3 * r) * theta[j] * (XX[i, j] - X[k, j]) / r
+
+            r <- sqrt(sum(theta * (XX[i,]-X[k,])^2))
+            # s2 * max(1 - r, 0)
+
+            dC_dx[i, j, k] <- if (r > 1) {0} else if (r==0 || r==1) {NaN} else {
+              -s2 * theta[j] * (XX[i, j] - X[k, j]) / r
+            }
           }
         }
       }
