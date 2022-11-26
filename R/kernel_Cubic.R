@@ -89,7 +89,11 @@ Cubic <- R6::R6Class(
       if (missing(theta)) {theta <- 10^beta}
       h <- x-y
       d <- h/theta
-      r <- ifelse(abs(d) <= 0.5, 1-6*d^2+6*abs(d)^3, ifelse(abs(d) <= 1, 2*(1-abs(d))^3, 0))
+      r <- ifelse(abs(d) <= 0.5,
+                  1-6*d^2+6*abs(d)^3,
+                  ifelse(abs(d) <= 1,
+                         2*(1-abs(d))^3,
+                         0))
       prod(r) * s2
     },
     #' @description Derivative of covariance with respect to parameters
@@ -184,19 +188,37 @@ Cubic <- R6::R6Class(
     #' @param beta log of theta
     #' @param s2 Variance parameter
     dC_dx = function(XX, X, theta, beta=self$beta, s2=self$s2) {
-      stop("cubic dC_dparams not implemented")
+      # stop("cubic dC_dparams not implemented")
       if (missing(theta)) {theta <- 10^beta}
       if (!is.matrix(XX)) {stop()}
-      d <- ncol(XX)
-      if (ncol(X) != d) {stop()}
+      D <- ncol(XX)
+      if (ncol(X) != D) {stop()}
       n <- nrow(X)
       nn <- nrow(XX)
-      dC_dx <- array(NA, dim=c(nn, d, n))
+      dC_dx <- array(NA, dim=c(nn, D, n))
       for (i in 1:nn) {
-        for (j in 1:d) {
-          for (k in 1:n) {
-            r <- sqrt(sum(theta * (XX[i,] - X[k,]) ^ 2))
-            dC_dx[i, j, k] <- (-5*r/3 - 5/3*self$sqrt5*r^2) * s2 * exp(-self$sqrt5 * r) * theta[j] * (XX[i, j] - X[k, j]) / r
+        for (k in 1:n) {
+          h <- XX[i,] - X[k,]
+          d <- h/theta
+          r <- ifelse(abs(d) <= 0.5,
+                      1-6*d^2+6*abs(d)^3,
+                      ifelse(abs(d) <= 1,
+                             2*(1-abs(d))^3,
+                             0))
+          # k <- prod(r) * s2
+
+          dr_dd <- ifelse(abs(d) <= 0.5,
+                          # 1-6*d^2+6*abs(d)^3,
+                          -12*d + 18*d^2*sign(d),
+                          ifelse(abs(d) <= 1,
+                                 # 2*(1-abs(d))^3,
+                                 -6*(1-abs(d))^2*sign(d),
+                                 0))
+          for (j in 1:D) {
+            # r <- sqrt(sum(theta * (XX[i,] - X[k,]) ^ 2))
+            # dC_dx[i, j, k] <- (-5*r/3 - 5/3*self$sqrt5*r^2) * s2 * exp(-self$sqrt5 * r) * theta[j] * (XX[i, j] - X[k, j]) / r
+            prodrj <- if (D==1) {1} else {prod(r[-j])}
+            dC_dx[i, j, k] <- s2 * prodrj * dr_dd[j] / theta[j]
           }
         }
       }

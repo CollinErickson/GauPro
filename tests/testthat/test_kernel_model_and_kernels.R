@@ -133,7 +133,7 @@ test_that("kernels work and have correct grads", {
     }
 
     # Test grad. Implicitly tests kernel$dC_dx.
-    if (j %in% c(1:4, 6:7, 9, 11:13)) {
+    if (j %in% c(1:7, 9, 11:13)) {
       xgrad <- runif(2) #matrix(runif(6), ncol=2)
       expect_no_error(symgrad <- gp$grad(xgrad))
       expect_equal(numDeriv::grad(gp$pred, x=xgrad),
@@ -152,7 +152,7 @@ test_that("kernels work and have correct grads", {
 
     # Test gradpredvar
     # FIX m32/m52
-    if (j %in% c(1:1, 4, 6:7, 9, 11:12)) {
+    if (j %in% c(1:1, 4:7, 9, 11:12)) {
       expect_no_error(gpv <- gp$gradpredvar(xgrad))
       # numDeriv::grad(func=function(x) gp$pred(x, se=T)$s2, gpv)
       npv <- 39
