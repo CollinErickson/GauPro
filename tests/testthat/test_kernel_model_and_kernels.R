@@ -1,17 +1,21 @@
 library(testthat)
 
 set.seed(Sys.time())
+seed <- floor(runif(1)*1e6)
+set.seed(seed)
 
 printkern <- interactive()
 # cat('printkern is', printkern, '\n')
+if (printkern) {cat("seed =", seed, "\n")}
 
-# kernels work and have correct grads ----
-test_that("kernels work and have correct grads", {
+# Cts kernels ----
+test_that("Cts kernels", {
   n <- 20
   d <- 2
   x <- matrix(runif(n*d), ncol=d)
+  x <- lhs::maximinLHS(n, d) # Better spacing might avoid grad issues?
   f <- function(x) {abs(sin(x[1]^.8*6))^1.2 + log(1+(x[2]-.3)^2) + x[1]*x[2]}
-  y <- apply(x, 1, f) + rnorm(n,0,1e-4) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
+  y <- apply(x, 1, f) + rnorm(n,0,1e-2) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
   kern_chars <- c('Gaussian', 'Matern32', 'Matern52',
                   'Triangle', 'Cubic', 'White',
                   'PowerExp', 'Periodic', "Exponential", "RatQuad",
@@ -23,6 +27,7 @@ test_that("kernels work and have correct grads", {
                     Matern52$new(D=2) + Matern32$new(D=2))
   stopifnot(length(kern_chars) == length(kern_list))
   for (j in 1:length(kern_chars)) {
+    set.seed(seed)
     kern_char <- kern_chars[j]
     if (exists('printkern') && printkern) cat(j, kern_char, "\n")
     if (is.numeric(kern_list[[j]])) {
@@ -166,9 +171,12 @@ test_that("kernels work and have correct grads", {
         numpv <- numDeriv::grad(func=function(x) {gp$pred(x, se=T)$s2},
                                 XXpv[iii,])
         # expect_equal(numpv, XXgpv[iii,], tolerance = 1e-2)
-        pvclose <- all(ifelse(abs(XXgpv[iii,]) < 1e-8,
-                              abs(numpv - XXgpv[iii,]) < 1e-8,
-                              abs((numpv - XXgpv[iii,]) / XXgpv[iii,]) < 1e-2))
+        pvclose <- all(
+          ifelse(abs(XXgpv[iii,]) < 1e-8,
+                 abs(numpv - XXgpv[iii,]) < 1e-8,
+                 ifelse(abs(XXgpv[iii,]) < 1e-2,
+                        abs((numpv - XXgpv[iii,]) / XXgpv[iii,]) < 1e-1,
+                        abs((numpv - XXgpv[iii,]) / XXgpv[iii,]) < 1e-3)))
         if (pvclose) {gpvmatches <- gpvmatches + 1}
         numpvs <- c(numpvs, numpv)
         actpvs <- c(actpvs, XXgpv[iii,])
@@ -177,8 +185,12 @@ test_that("kernels work and have correct grads", {
         cat(kern_char, "gpv close on ", gpvmatches, "/", npv, "\n")
       }
       expect_true(gpvmatches > npv/2,
-                  label=paste(j, kern_char, 'gpvmatches', gpvmatches,'/',npv))
+                  label=paste(j, kern_char, 'gpvmatches', gpvmatches,'/',npv,
+                              "seed =", seed))
       # qplot(numpvs, actpvs)
+      # summary((numpvs - actpvs) / actpvs)
+      # cbind(numpvs, actpvs, prop=(numpvs - actpvs) / actpvs)
+      # qplot(numpvs, (numpvs - actpvs) / actpvs)
     } else {
       if (exists('printkern') && printkern) {
         cat("gradpredvar not tested for", j, kern_char, "\n")
@@ -261,8 +273,8 @@ test_that("kernels work and have correct grads", {
   }
 })
 
-# Check factor kernels ----
-test_that("check factor kernels alone", {
+# Factor kernels ----
+test_that("Factor kernels", {
   n <- 20
   d <- 1
   x <- matrix(runif(n*d), ncol=d)
@@ -668,6 +680,51 @@ test_that("EI with mixopt", {
   )
   expect_error(gpf$maxEI(mopar = mop, minimize = T), NA)
   expect_error(gpf$maxqEI(npoints = 3, mopar = mop, minimize = T), NA)
+})
+test_that("EI minimize is right", {
+  d <- 1
+  n <- 6
+  x <- runif(n)
+  y <- sin(2*pi*x^.9)*(1+.2*x^.5) + rnorm(n,0,1e-3)
+  gp <- GauPro_kernel_model$new(x, y, kernel=Matern52)
+  # gp$plot1D()
+  u <- matrix(seq(0,1,l=101), ncol=1)
+  expect_no_error(ei1 <- gp$EI(u, minimize = T))
+  gpinv <- GauPro_kernel_model$new(
+    x, -y,
+    kernel=Matern52$new(D=1, beta=gp$kernel$beta,
+                        beta_est=F, s2=gp$kernel$s2, s2_est=F))
+  # gpinv$plot1D()
+  expect_no_error(eiinv <- gpinv$EI(u, minimize=F))
+  # plot(ei1, eiinv)
+  expect_equal(ei1, eiinv, tol=1e-4)
+
+  # Augmented EI
+  expect_no_error(augei1 <- gp$AugmentedEI(u, minimize=T))
+  expect_no_error(augei2 <- gpinv$AugmentedEI(u, minimize=F))
+  expect_equal(augei1, augei2, tol=1e-4)
+  # plot(augei1, augei2)
+  # curve(gp$AugmentedEI(matrix(x, ncol=1), minimize=T))
+  # curve(gpinv$AugmentedEI(matrix(x, ncol=1), minimize=F), add=T, col=2)
+  # curve(gp$AugmentedEI(matrix(x, ncol=1), minimize=F))
+  # curve(gpinv$AugmentedEI(matrix(x, ncol=1), minimize=T), add=T, col=2)
+})
+test_that("Aug EI makes sense", {
+  d <- 1
+  n <- 16
+  x <- c(seq(0,1,l=n), seq(.3,.5,l=n))
+  n <- length(x)
+  # y <- sin(2*pi*x^.9)*(1+.2*x^.5) + rnorm(n,0,1e-1)
+  # y <- x^4-x^2 + .01*sin(2*pi*x^.9)*(1+.2*x^.5) + rnorm(n,0,1e-1)
+  y <- sin(2*pi*x*2)+ .3*x + rnorm(n,0,1e-1)
+  gp <- GauPro_kernel_model$new(x, y, kernel=Matern52)
+  gp$plot1D()
+  u <- matrix(seq(0,1,l=101), ncol=1)
+  expect_no_error(ei1 <- gp$EI(u, minimize = T))
+
+  curve(gp$EI(matrix(x, ncol=1), minimize=T))
+  curve(gp$AugmentedEI(matrix(x, ncol=1), minimize=T))
+  curve(gp$pred(matrix(x, ncol=1), se=T)$se)
 })
 
 # Misc ----

@@ -2491,6 +2491,8 @@ GauPro_kernel_model <- R6::R6Class(
       # }
       if (is.matrix(x)) {
         stopifnot(ncol(x) == ncol(self$X))
+      } else if (is.vector(x) && self$D==1) {
+        x <- matrix(x, ncol=1)
       } else if (is.vector(x)) {
         stopifnot(length(x) == ncol(self$X))
       } else if (is.data.frame(x) && !is.null(self$formula)) {
@@ -3089,6 +3091,86 @@ GauPro_kernel_model <- R6::R6Class(
       }
       kgs
       mean(kgs)
+    },
+    #' @description Calculated Augmented EI
+    #' @param x Vector to calculate EI of, or matrix for whose rows it should
+    #' be calculated
+    #' @param minimize Are you trying to minimize the output?
+    #' @param eps Exploration parameter
+    #' @param return_grad Should the gradient be returned?
+    #' @param f The reference max, user shouldn't change this.
+    AugmentedEI = function(x, minimize=FALSE, eps=0,
+                           return_grad=F, f=NULL) {
+      stopifnot(length(minimize)==1, is.logical(minimize))
+      stopifnot(length(eps)==1, is.numeric(eps), eps >= 0)
+      stopifnot(eps == 0)
+      if (is.matrix(x)) {
+        stopifnot(ncol(x) == ncol(self$X))
+      } else if (is.vector(x) && self$D==1) {
+        x <- matrix(x, ncol=1)
+      } else if (is.vector(x)) {
+        stopifnot(length(x) == ncol(self$X))
+      } else if (is.data.frame(x) && !is.null(self$formula)) {
+        # Fine here, will get converted in predict
+      } else {
+        stop(paste0("bad x in EI, class is: ", class(x)))
+      }
+
+      if (is.null(f)) {
+        # Get preds at existing points, calculate best
+        pred_X <- self$predict(self$X, se.fit = T)
+        if (minimize) {
+          u_X <- -pred_X$mean - pred_X$se
+          star_star_index <- which.max(u_X)
+        } else {
+          # warning("AugEI must minimize for now")
+          u_X <- +pred_X$mean + pred_X$se
+          star_star_index <- which.max(u_X)
+        }
+        f <- pred_X$mean[star_star_index]
+      } else {
+        stopifnot(is.numeric(f), length(f) == 1)
+      }
+
+      predx <- self$pred(x, se=T)
+      y <- predx$mean
+      s <- predx$se
+      s2 <- predx$s2
+
+      minmult <- if (minimize) {1} else {-1}
+
+      z <- (f - y) / s * minmult
+      EI <- (f - y) * minmult * pnorm(z) + s * dnorm(z)
+
+      # Calculate "augmented" term
+      sigma_eps <- self$nug * self$s2_hat
+      sigma_eps2 <- sigma_eps^2
+      Aug <- 1 - sigma_eps / sqrt(s2 + sigma_eps2)
+      AugEI <- Aug * EI
+
+      if (return_grad) {
+        # x <- .8
+        ds2_dx <- self$gradpredvar(x) # GOOD
+        ds_dx <- .5/s * ds2_dx # GOOD
+        # z <- (f - y) / s
+        dy_dx <- self$grad(x) # GOOD
+        dz_dx <- -dy_dx / s + (f - y) * (-1/s2) * ds_dx # GOOD
+        dz_dx <- dz_dx * minmult
+        ddnormz_dz <- -dnorm(z) * z # GOOD
+        daug_dx = .5*sigma_eps / (s2 + sigma_eps2)^1.5 * ds2_dx # GOOD
+        dEI_dx = minmult * (-dy_dx*pnorm(z) + (f-y)*dnorm(z)*dz_dx) +
+          ds_dx*dnorm(z) + s*ddnormz_dz*dz_dx #GOOD
+        # numDeriv::grad(function(x) {pr <- self$pred(x,se=T);
+        #   ( EI(pr$mean,pr$se))}, x)
+        dAugEI_dx = EI * daug_dx + dEI_dx * Aug
+        # numDeriv::grad(function(x) {pr <- self$pred(x,se=T);
+        #   ( EI(pr$mean,pr$se)*augterm(pr$s2))}, x)
+        return(list(
+          AugEI=AugEI,
+          grad=dAugEI_dx
+        ))
+      }
+      AugEI
     },
     #' @description Feature importance
     #' @param plot Should the plot be made?

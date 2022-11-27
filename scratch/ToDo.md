@@ -77,14 +77,12 @@ an error the user should know. Like when I test useCM.
 
 * Plot doesn't work for gp4$kernel
 
-* Plot between marginal and marginalrandom. Vary along 10 points, partial range.
-Hard to get factors right.
-
 * Corrected EI
 
-* Augmented EI: add, grad, test
+* Augmented EI: grad, test, check minimize
 
-* Is EI minimize arg working properly?
+* Is EI minimize arg working properly? Fit gp with reversed Z, see if EI is
+reversed.
 
 * Optimize any function. Avoid reimplementing maxEI, maxAugEI, max___.
   * Can use gr or fngr
