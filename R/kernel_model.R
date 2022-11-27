@@ -1062,8 +1062,10 @@ GauPro_kernel_model <- R6::R6Class(
 
         if (gg) {
           ggplot2::ggplot(px, ggplot2::aes(x, mean)) +
-            ggplot2::geom_line(data=pxmean, ggplot2::aes(y=mean+2*se), color="green", size=2) +
-            ggplot2::geom_line(data=pxmean, ggplot2::aes(y=mean-2*se), color="green", size=2) +
+            ggplot2::geom_line(data=pxmean, ggplot2::aes(y=mean+2*se),
+                               color="green", size=2) +
+            ggplot2::geom_line(data=pxmean, ggplot2::aes(y=mean-2*se),
+                               color="green", size=2) +
             ggplot2::geom_line(ggplot2::aes(y=mean+2*se), color="red", size=2) +
             ggplot2::geom_line(ggplot2::aes(y=mean-2*se), color="red", size=2) +
             ggplot2::geom_line(size=2) +
@@ -1235,7 +1237,8 @@ GauPro_kernel_model <- R6::R6Class(
       X3pred$irow <- 1:nrow(X3pred)
       X4 <- dplyr::inner_join(
         X3pred,
-        tidyr::pivot_longer(cbind(as.data.frame(X3),irow=1:nrow(X)), cols=1:ncol(self$X)),
+        tidyr::pivot_longer(cbind(as.data.frame(X3),irow=1:nrow(X)),
+                            cols=1:ncol(self$X)),
         "irow")
       # head(X4)
       X4$upper <- X4$mean + 2*X4$se
@@ -1306,7 +1309,9 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param mu Mean parameters
     #' @param s2 Variance parameter
     loglikelihood = function(mu=self$mu_hatX, s2=self$s2_hat) {
-      -.5 * (self$N*log(s2) + as.numeric(determinant(self$K,logarithm=TRUE)$modulus) + #log(det(self$K)) +
+      -.5 * (self$N*log(s2) +
+               as.numeric(determinant(self$K,logarithm=TRUE)$modulus) +
+               #log(det(self$K)) +
                t(self$Z - mu)%*%self$Kinv%*%(self$Z - mu)/s2)
     },
     #' @description Get optimization functions
@@ -1589,7 +1594,8 @@ GauPro_kernel_model <- R6::R6Class(
         }
         # Find best to start with
         best_start_inds <- order(order(devs))
-        param_optim_start_mat <- param_optim_start_mat[, best_start_inds < restarts+1.5, drop=F]
+        param_optim_start_mat <- param_optim_start_mat[
+          , best_start_inds < restarts+1.5, drop=F]
       }
 
 
@@ -2708,7 +2714,8 @@ GauPro_kernel_model <- R6::R6Class(
           optim_out_i_indcomb <- optim(par=Xstart[-factorxindex], #X0[ind, -factorxindex],
                                        lower=lower[-factorxindex],
                                        upper=upper[-factorxindex],
-                                       # fn=function(xx){ei <- -self$EI(xx); cat(xx, ei, "\n"); ei},
+                                       # fn=function(xx){ei <- -self$EI(xx);
+                                       #  cat(xx, ei, "\n"); ei},
                                        fn=function(xx){
                                          xx2 <- numeric(self$D)
                                          xx2[ctsinds] <- xx
@@ -2842,12 +2849,14 @@ GauPro_kernel_model <- R6::R6Class(
             optim_out_i_indcomb <- optim(par=Xstart[ctsinds], #X0[ind, -factorxindex],
                                          lower=lower[ctsinds],
                                          upper=upper[ctsinds],
-                                         # fn=function(xx){ei <- -self$EI(xx); cat(xx, ei, "\n"); ei},
+                                         # fn=function(xx){ei <- -self$EI(xx);
+                                         #  cat(xx, ei, "\n"); ei},
                                          fn=function(xx){
                                            xx2 <- numeric(self$D)
                                            xx2[ctsinds] <- xx
                                            xx2[-ctsinds] <- Xstart[-ctsinds]
-                                           # xx2 <- c(xx[xxinds1], factorxlevel, xx[xxinds2])
+                                           # xx2 <- c(xx[xxinds1], factorxlevel,
+                                           #  xx[xxinds2])
                                            # cat(xx, xx2, "\n")
                                            -self$EI(xx2, minimize = minimize)
                                          },
@@ -3051,7 +3060,8 @@ GauPro_kernel_model <- R6::R6Class(
         if (method == "pred") {
           Zimpute <- self$predict(xi)
         }
-        # Update clone with new data, don't update parameters since it's fake data
+        # Update clone with new data, don't update parameters since
+        #  it's fake data
         if (i < npoints) {
           gpclone$update(Xnew=xi, Znew=Zimpute, no_update=TRUE)
         }
@@ -3206,7 +3216,8 @@ GauPro_kernel_model <- R6::R6Class(
     #' @description Feature importance
     #' @param plot Should the plot be made?
     #' @param print_bars Should the importances be printed as bars?
-    #' @references https://scikit-learn.org/stable/modules/permutation_importance.html#id2
+    #' @references
+    #' https://scikit-learn.org/stable/modules/permutation_importance.html#id2
     importance = function(plot=TRUE, print_bars=TRUE) {
       # variable importance
       # Permutation alg

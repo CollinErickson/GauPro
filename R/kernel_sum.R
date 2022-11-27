@@ -59,7 +59,8 @@ kernel_sum <- R6::R6Class(classname = "GauPro_kernel_sum",
       } else {
         params1 <- params[1:self$k1pl]
         params2 <- params[(self$k1pl+1):(self$k1pl+self$k2pl)]
-        self$k1$k(x=x, y=y, params=params1) + self$k2$k(x=x, y=y, params=params2)
+        self$k1$k(x=x, y=y, params=params1) +
+          self$k2$k(x=x, y=y, params=params2)
       }
     },
     # k1 = function(x, y, theta=self$theta) {
@@ -78,9 +79,11 @@ kernel_sum <- R6::R6Class(classname = "GauPro_kernel_sum",
     #   # p should be theta length
     #   dl_dt <- sapply(1:self$p, function(l) {
     #     # dR_dti <- R
-    #     dr_dtl <- outer(1:n, 1:n, function(i, j) {-(X[i,k] - X[j,k])^2 * R[i,j]})
+    #     dr_dtl <- outer(1:n, 1:n, function(i, j) {
+    #  -(X[i,k] - X[j,k])^2 * R[i,j]})
     #     dR_dtl_Rinv <- solve(dR_dtl, R)
-    #     dl_dtl <- diag(dR_dtl) / s2 + sum(Rinv %*% (y-mu), dR_dtl %*% (y-mu))/ s2^2
+    #     dl_dtl <- diag(dR_dtl) / s2 + sum(Rinv %*% (y-mu),
+    #  dR_dtl %*% (y-mu))/ s2^2
     #     dl_dtl
     #   })
     #   c(cl_dtl, dl_ds2)
@@ -90,16 +93,20 @@ kernel_sum <- R6::R6Class(classname = "GauPro_kernel_sum",
     #' @param y Output
     param_optim_start = function(jitter=F, y) {
       # Use current values for theta, partial MLE for s2
-      # vec <- c(log(self$theta, 10), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
-      c(self$k1$param_optim_start(jitter=jitter), self$k2$param_optim_start(jitter=jitter))
+      # vec <- c(log(self$theta, 10), log(sum((y - mu) *
+      #  solve(R, y - mu)) / n), 10)
+      c(self$k1$param_optim_start(jitter=jitter),
+        self$k2$param_optim_start(jitter=jitter))
     },
     #' @description Starting point for parameters for optimization
     #' @param jitter Should there be a jitter?
     #' @param y Output
     param_optim_start0 = function(jitter=F, y) {
       # Use 0 for theta, partial MLE for s2
-      # vec <- c(rep(0, length(self$theta)), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
-      c(self$k1$param_optim_start0(jitter=jitter), self$k2$param_optim_start0(jitter=jitter))
+      # vec <- c(rep(0, length(self$theta)),
+      #  log(sum((y - mu) * solve(R, y - mu)) / n), 10)
+      c(self$k1$param_optim_start0(jitter=jitter),
+        self$k2$param_optim_start0(jitter=jitter))
     },
     #' @description Lower bounds of parameters for optimization
     param_optim_lower = function() {
@@ -124,7 +131,7 @@ kernel_sum <- R6::R6Class(classname = "GauPro_kernel_sum",
     #' @param C_nonug Covariance without nugget added to diagonal
     #' @param C Covariance with nugget
     #' @param nug Value of nugget
-    dC_dparams = function(params=NULL, C, X, C_nonug, nug) {#browser(text = "Make sure all in one list")
+    dC_dparams = function(params=NULL, C, X, C_nonug, nug) {
       params1 <- params[1:self$k1pl]
       params2 <- params[(self$k1pl+1):(self$k1pl+self$k2pl)]
       # #
@@ -146,7 +153,7 @@ kernel_sum <- R6::R6Class(classname = "GauPro_kernel_sum",
     #' @param params Kernel parameters
     #' @param X matrix of points in rows
     #' @param nug Value of nugget
-    C_dC_dparams = function(params=NULL, X, nug) {#browser(text = "Make sure all in one list")
+    C_dC_dparams = function(params=NULL, X, nug) {
       params1 <- params[1:self$k1pl]
       params2 <- params[(self$k1pl+1):(self$k1pl+self$k2pl)]
       # out1 <- self$k1$dC_dparams(params=params1, C=C, X=X, C_nonug=C_nonug)
@@ -179,7 +186,8 @@ kernel_sum <- R6::R6Class(classname = "GauPro_kernel_sum",
     s2_from_params = function(params) {
       params1 <- params[1:self$k1pl]
       params2 <- params[(self$k1pl+1):(self$k1pl+self$k2pl)]
-      self$k1$s2_from_params(params=params1) + self$k2$s2_from_params(params=params2)
+      self$k1$s2_from_params(params=params1) +
+        self$k2$s2_from_params(params=params2)
     },
     #' @description Print this object
     print = function() {

@@ -401,8 +401,8 @@ test_that("Factor kernels", {
   }
 })
 
-# Check factor kernels in products ----
-test_that("check factor kernels in product", {
+# Factor kernels in products ----
+test_that("Factor kernels in product", {
   n <- 20
   d <- 2
   x <- matrix(runif(n*d), ncol=d)
@@ -410,7 +410,7 @@ test_that("check factor kernels in product", {
   nlev <- 2
   x[, 2] <- sample(1:nlev, n, T)
   f <- function(x) {abs(sin(x[1]^.8*6))^1.2 + log(1+x[2]) + x[1]*x[2]}
-  y <- apply(x, 1, f) + rnorm(n,0,1e-4) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
+  y <- apply(x, 1, f) + rnorm(n,0,1e-2) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
   kern_chars <- c('FactorKernel', 'OrderedFactorKernel',
                   'LatentFactorKernel1', 'LatentFactorKernel2')
   kern_list <- list(
