@@ -70,6 +70,14 @@ test_that("Cts kernels", {
     expect_error(pred5 <- predict(gp, matrix(runif(12), ncol=2), se.fit=T,
                                   mean_dist=TRUE), NA)
 
+    # Kernel k with self must equal s2. If this fails, may need to change places
+    #  where it is assumed to be true.
+    expect_equal(gp$kernel$k(.3), gp$kernel$s2,
+                 label=paste(j, kern_char, 'k(.3)'))
+    if (kern_char != "White") {
+      expect_equal(gp$kernel$k(.3,.3), gp$kernel$s2,
+                   label=paste(j, kern_char, 'k(.3,.3)'))
+    }
     # Check kernel$k matches when giving in as matrix or vector
     kn1 <- 5
     kn2 <- 7
@@ -104,7 +112,14 @@ test_that("Cts kernels", {
       expect_error(gp$plotLOO(), NA)
       expect_error(gp$plotmarginal(), NA)
       expect_error(gp$plotmarginalrandom(), NA)
+      # plot2D
       expect_error(gp$plot2D(), NA)
+      expect_no_error({gp$plot2D(se=T, n=5)})
+      expect_no_error(gp$plot2D(se=T, n=5, horizontal=F))
+      expect_no_error(gp$plot2D(se=T, n=5, mean=F))
+      expect_error(gp$plot2D(se=F, mean=F))
+      expect_error(gp$plot2D(se=1))
+      # Should call plot2D
       expect_error(plot(gp), NA)
     }
 
@@ -712,19 +727,20 @@ test_that("EI minimize is right", {
 test_that("Aug EI makes sense", {
   d <- 1
   n <- 16
-  x <- c(seq(0,1,l=n), seq(.3,.5,l=n))
+  x <- c(seq(0,1,l=n), seq(.3,.5,l=n*3))
   n <- length(x)
   # y <- sin(2*pi*x^.9)*(1+.2*x^.5) + rnorm(n,0,1e-1)
   # y <- x^4-x^2 + .01*sin(2*pi*x^.9)*(1+.2*x^.5) + rnorm(n,0,1e-1)
   y <- sin(2*pi*x*2)+ .3*x + rnorm(n,0,1e-1)
   gp <- GauPro_kernel_model$new(x, y, kernel=Matern52)
-  gp$plot1D()
+  # gp$plot1D()
   u <- matrix(seq(0,1,l=101), ncol=1)
   expect_no_error(ei1 <- gp$EI(u, minimize = T))
 
-  curve(gp$EI(matrix(x, ncol=1), minimize=T))
-  curve(gp$AugmentedEI(matrix(x, ncol=1), minimize=T))
-  curve(gp$pred(matrix(x, ncol=1), se=T)$se)
+  # curve(gp$EI(matrix(x, ncol=1), minimize=T))
+  # curve(gp$AugmentedEI(matrix(x, ncol=1), minimize=T))
+  # curve(gp$pred(matrix(x, ncol=1), se=T)$se)
+  # curve(gp$pred(matrix(x, ncol=1), se=T, mean_dist = T)$se)
 })
 
 # Misc ----

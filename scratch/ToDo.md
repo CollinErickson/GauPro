@@ -6,15 +6,12 @@
 
 * Ignore input kernel: example
 
-* Calculate EI: nopt, test, doc
-
-* EI should use mu instead of Z for noise. Should it be sd of mean, not pred?
-See http://krasserm.github.io/2018/03/21/bayesian-optimization/.
+* EI: nopt, test, doc
+  * Use t-dist
+  * dEI_dx
 
 * With many points, just estimate param from subset of data, but use all data
 at end for K/Kinv so predictions are good.
-
-* Improve kernel model plot
 
 * Reduce L-BFGS-B tolerance? Need to change tests too.
 
@@ -23,8 +20,6 @@ at end for K/Kinv so predictions are good.
 * Better handling of ignore input when using factors?
 
 * Transform inputs
-
-* plot2D option to do se instead of mean, or side by side
 
 * use self$kernel$k on x instead of assuming it is 1
 
@@ -38,8 +33,6 @@ at end for K/Kinv so predictions are good.
 
 * estimate_run_time()
 
-* test factor kernels, check grad
-
 * factor trend, LM ignore inds
 
 * transform X, Z
@@ -52,10 +45,6 @@ at end for K/Kinv so predictions are good.
 
 * All restarts had error: doesn't say what error is, so sometimes it's
 an error the user should know. Like when I test useCM.
-
-* dEI_dx
-
-* maxEI prob doesn't work because the differences are tiny. Log scale?
 
 * Knowledge gradient: multiple starts for optim
 
@@ -81,9 +70,6 @@ an error the user should know. Like when I test useCM.
 
 * Augmented EI: grad, test, check minimize
 
-* Is EI minimize arg working properly? Fit gp with reversed Z, see if EI is
-reversed.
-
 * Optimize any function. Avoid reimplementing maxEI, maxAugEI, max___.
   * Can use gr or fngr
   * Can do matrix eval
@@ -93,3 +79,5 @@ reversed.
 that initial optim values should be large.
 
 * If after par optim, par are at lower/upper, give warning
+
+* make gradpredvar test more reliable

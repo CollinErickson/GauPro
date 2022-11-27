@@ -107,7 +107,7 @@ CorrectedEI <- function(self, x, minimize=FALSE, eps=0,
     } else {
       # warning("AugEI must minimize for now")
       # u_X <- +pred_X$mean + pred_X$se
-      star_star_index <- which.max(u_X)
+      star_star_index <- which.max(pred_X)
     }
 
     f <- pred_X[star_star_index]
@@ -124,6 +124,7 @@ CorrectedEI <- function(self, x, minimize=FALSE, eps=0,
 
   minmult <- if (minimize) {1} else {-1}
 
+  x <- matrix(seq(0,1,l=131), ncol=1)
   u <- x
   X <- self$X
   mu_u <- self$trend$Z(u)
@@ -138,11 +139,18 @@ CorrectedEI <- function(self, x, minimize=FALSE, eps=0,
   if (ncol(s2) > 1.5) {s2 <- diag(s2)}
   s <- sqrt(s2)
 
+  # int from f to Inf: (x-f) p(x) dx
+
 
   z <- (f - y) / s * minmult
-  EI <- (f - y) * minmult * pnorm(z) + s * dnorm(z)
-  plot(x, EI)
-  cbind(x, y, s, z, EI=EI, EIt=(f - y) * minmult * pt(z,3) + s * dt(z, 3))
+  CorEI <- (f - y) * minmult * pnorm(z) + s * dnorm(z)
+  tdf <- 3
+  CorEIt <- (f - y) * minmult * pt(z,tdf) + s * dt(z,tdf)
+  plot(x, CorEI)
+  plot(x, s, ylim=c(0,.3))
+  points(x, self$pred(x, se=T)$se,col=2)
+  points(x, self$pred(x, se=T, mean_dist = T)$se,col=3)
+  cbind(x, y, s, z, CorEI=CorEI, EIt=(f - y) * minmult * pt(z,3) + s * dt(z, 3))
 
 
   # # Calculate "augmented" term

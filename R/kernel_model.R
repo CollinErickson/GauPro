@@ -1107,19 +1107,50 @@ GauPro_kernel_model <- R6::R6Class(
       }
     },
     #' @description Make 2D plot
-    plot2D = function() {
+    #' @param mean Should the mean be plotted?
+    #' @param se Should the standard error of prediction be plotted?
+    #' @param horizontal If plotting mean and se, should they be next to each
+    #' other?
+    #' @param n Number of points along each dimension
+    plot2D = function(se=FALSE, mean=TRUE, horizontal=TRUE, n=50) {
       if (self$D != 2) {stop("plot2D only works in 2D")}
+      stopifnot(is.logical(se), length(se)==1)
+      stopifnot(is.logical(mean), length(mean)==1)
+      stopifnot(is.logical(horizontal), length(horizontal)==1)
+      stopifnot(mean || se)
       mins <- apply(self$X, 2, min)
       maxs <- apply(self$X, 2, max)
       xmin <- mins[1] - .03 * (maxs[1] - mins[1])
       xmax <- maxs[1] + .03 * (maxs[1] - mins[1])
       ymin <- mins[2] - .03 * (maxs[2] - mins[2])
       ymax <- maxs[2] + .03 * (maxs[2] - mins[2])
-      ContourFunctions::cf_func(self$predict, batchmax=Inf,
-                                xlim=c(xmin, xmax),
-                                ylim=c(ymin, ymax),
-                                pts=self$X,
-                                gg=TRUE)
+      if (mean) {
+        plotmean <- ContourFunctions::cf_func(self$predict, batchmax=Inf,
+                                              xlim=c(xmin, xmax),
+                                              ylim=c(ymin, ymax),
+                                              pts=self$X,
+                                              n=n,
+                                              gg=TRUE)
+      }
+      if (se) {
+        plotse <- ContourFunctions::cf_func(
+          function(X) {self$predict(X, se.fit=T)$se}, batchmax=Inf,
+          xlim=c(xmin, xmax),
+          ylim=c(ymin, ymax),
+          pts=self$X,
+          n=n,
+          gg=TRUE)
+      }
+      if (mean && se) {
+        gridExtra::grid.arrange(plotmean, plotse,
+                                nrow=if (horizontal) {1} else{2})
+      } else if (mean) {
+        plotmean
+      } else if (se) {
+        plotse
+      } else {
+        stop("Impossible #819571924")
+      }
     },
     #' @description Plot marginal. For each input, hold all others at a constant
     #' value and adjust it along it's range to see how the prediction changes.

@@ -672,9 +672,23 @@ Make 1D plot
 \subsection{Method \code{plot2D()}}{
 Make 2D plot
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$plot2D()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$plot2D(se = FALSE, mean = TRUE, horizontal = TRUE, n = 50)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{se}}{Should the standard error of prediction be plotted?}
+
+\item{\code{mean}}{Should the mean be plotted?}
+
+\item{\code{horizontal}}{If plotting mean and se, should they be next to each
+other?}
+
+\item{\code{n}}{Number of points along each dimension}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GauPro-plotmarginal"></a>}}
