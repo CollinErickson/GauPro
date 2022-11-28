@@ -28,6 +28,7 @@ summary(gp1)
 gp1$pred(c(7,-4, 1, 1), se.fit = T)
 gp1$nug
 gp1$kernel$k(Xmat)
+gp1$kernel$plot(gp1$X)
 
 # With 0 restarts
 # 23.8,27.9,43.6,19.4 sec before Rcpp on latent
@@ -47,6 +48,7 @@ system.time({
 summary(gp2)
 gp2$plotmarginal()
 gp2$plotmarginalrandom()
+gp2$plotkernel()
 gp2$plot_track_optim()
 gp2
 gp2$pred(c(7,-4, 1, 1), se.fit = T)

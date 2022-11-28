@@ -130,6 +130,7 @@ test_that("Cts kernels", {
 
     # Kernel plot
     expect_error(plot(gp$kernel), NA)
+    expect_error(gp$plotkernel, NA)
 
     # Test importance
     expect_error(capture.output(imp <- gp$importance(plot=F)), NA)
@@ -342,6 +343,9 @@ test_that("Factor kernels", {
       }
     }
 
+    # Kernel plot
+    expect_error(plot(gp$kernel), NA)
+
     # Test importance
     expect_error(capture.output(imp <- gp$importance(plot=F)), NA)
     expect_true(is.numeric(imp))
@@ -401,7 +405,7 @@ test_that("Factor kernels", {
   }
 })
 
-# Factor kernels in products ----
+# Factor*Cts kernels ----
 test_that("Factor kernels in product", {
   n <- 20
   d <- 2
@@ -438,6 +442,9 @@ test_that("Factor kernels in product", {
     # Check kernel print
     expect_error({kernprint <- capture_output(print(gp$kernel))}, NA)
     expect_is(kernprint, 'character')
+
+    # Kernel plot
+    expect_error(plot(gp$kernel), NA)
 
     # Summary
     expect_no_warning(

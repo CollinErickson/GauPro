@@ -1252,6 +1252,11 @@ GauPro_kernel_model <- R6::R6Class(
         ggplot2::ylab("Predicted Z (95% interval)") +
         ggplot2::xlab("x along dimension i (other dims at random values)")
     },
+    #' @description Plot the kernel
+    #' @param X X matrix for kernel plot
+    plotkernel = function(X=self$X) {
+      self$kernel$plot(X=X)
+    },
     #' @description Plot leave one out predictions for design points
     # @importFrom ggplot2 ggplot aes stat_smooth geom_abline geom_segment
     # @importFrom ggplot2 geom_point geom_text xlab ylab ggtitle

@@ -1,11 +1,5 @@
 # GauPro to do
 
-* Factor kernel: example
-
-* Ordered factor kernel: example
-
-* Ignore input kernel: example
-
 * EI: nopt, test, doc
   * Use t-dist
   * dEI_dx
@@ -54,8 +48,6 @@ an error the user should know. Like when I test useCM.
   * add to doc
   * message what chosen kernel is
 
-* OrderedFK and Latent: change correlation, maybe just 1.95 instead of 2
-
 * qEI with mixopt:
     * picks same point multiple times b/c of mean uncertainty
     * error converting mopar back and forth. mopar_converted?
@@ -81,3 +73,7 @@ that initial optim values should be large.
 * If after par optim, par are at lower/upper, give warning
 
 * make gradpredvar test more reliable
+
+* Add deprecated for old model
+
+* Add test with factor kernel in multiple kernels, or else make it give error

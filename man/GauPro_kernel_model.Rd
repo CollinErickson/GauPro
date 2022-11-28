@@ -157,6 +157,7 @@ using the formula}
 \item \href{#method-GauPro-plot2D}{\code{GauPro_kernel_model$plot2D()}}
 \item \href{#method-GauPro-plotmarginal}{\code{GauPro_kernel_model$plotmarginal()}}
 \item \href{#method-GauPro-plotmarginalrandom}{\code{GauPro_kernel_model$plotmarginalrandom()}}
+\item \href{#method-GauPro-plotkernel}{\code{GauPro_kernel_model$plotkernel()}}
 \item \href{#method-GauPro-plotLOO}{\code{GauPro_kernel_model$plotLOO()}}
 \item \href{#method-GauPro-plot_track_optim}{\code{GauPro_kernel_model$plot_track_optim()}}
 \item \href{#method-GauPro-loglikelihood}{\code{GauPro_kernel_model$loglikelihood()}}
@@ -722,6 +723,23 @@ Plot marginal prediction for random sample of inputs
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{n}}{Number of random points to evaluate}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-GauPro-plotkernel"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro-plotkernel}{}}}
+\subsection{Method \code{plotkernel()}}{
+Plot the kernel
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$plotkernel(X = self$X)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{X}}{X matrix for kernel plot}
 }
 \if{html}{\out{</div>}}
 }
