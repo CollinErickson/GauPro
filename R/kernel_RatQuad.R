@@ -49,7 +49,7 @@ RatQuad <- R6::R6Class(
     #' @param s2_est Should s2 be estimated?
     initialize = function(beta, alpha=1, s2=1, D,
                           beta_lower=-8, beta_upper=6, beta_est=TRUE,
-                          alpha_lower=0, alpha_upper=Inf, alpha_est=TRUE,
+                          alpha_lower=1e-8, alpha_upper=1e2, alpha_est=TRUE,
                           s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE
     ) {
       super$initialize(beta=beta, s2=s2, D=D, beta_lower=beta_lower,
@@ -117,13 +117,18 @@ RatQuad <- R6::R6Class(
       }
       if (is.matrix(x) & is.matrix(y)) {
         # s2 * corr_gauss_matrixC(x, y, theta)
-        outer(1:nrow(x), 1:nrow(y), Vectorize(function(i,j){self$kone(x[i,],y[j,],theta=theta, alpha=alpha, s2=s2)}))
+        outer(1:nrow(x), 1:nrow(y),
+              Vectorize(function(i,j){self$kone(x[i,],y[j,],
+                                                theta=theta,
+                                                alpha=alpha, s2=s2)}))
       } else if (is.matrix(x) & !is.matrix(y)) {
         # s2 * corr_gauss_matrixvecC(x, y, theta)
-        apply(x, 1, function(xx) {self$kone(xx, y, theta=theta, alpha=alpha, s2=s2)})
+        apply(x, 1,
+              function(xx) {self$kone(xx, y, theta=theta, alpha=alpha, s2=s2)})
       } else if (is.matrix(y)) {
         # s2 * corr_gauss_matrixvecC(y, x, theta)
-        apply(y, 1, function(yy) {self$kone(yy, x, theta=theta, alpha=alpha, s2=s2)})
+        apply(y, 1,
+              function(yy) {self$kone(yy, x, theta=theta, alpha=alpha, s2=s2)})
       } else {
         self$kone(x, y, theta=theta, alpha=alpha, s2=s2)
       }
@@ -147,7 +152,7 @@ RatQuad <- R6::R6Class(
     #' @param C_nonug Covariance without nugget added to diagonal
     #' @param C Covariance with nugget
     #' @param nug Value of nugget
-    dC_dparams = function(params=NULL, X, C_nonug, C, nug) {#browser(text = "Make sure all in one list")
+    dC_dparams = function(params=NULL, X, C_nonug, C, nug) {
       n <- nrow(X)
       # if (is.null(params)) {params <- c(self$beta, self$logalpha, self$logs2)}
 
@@ -198,7 +203,9 @@ RatQuad <- R6::R6Class(
             for (j in seq(i+1, n, 1)) {
               r2 <- sum(theta * (X[i,]-X[j,])^2)
               t1 <- 1 + r2 / alpha
-              dC_dparams[k,i,j] <- -C_nonug[i,j] * (X[i,k] - X[j,k])^2  / t1 * theta[k] * log10   #s2 * (1+t1) * exp(-t1) *-dt1dbk + s2 * dt1dbk * exp(-t1)
+              dC_dparams[k,i,j] <- (-C_nonug[i,j] * (X[i,k] - X[j,k])^2 /
+                                      t1 * theta[k] * log10)
+              #s2 * (1+t1) * exp(-t1) *-dt1dbk + s2 * dt1dbk * exp(-t1)
               dC_dparams[k,j,i] <- dC_dparams[k,i,j]
             }
           }
@@ -214,7 +221,9 @@ RatQuad <- R6::R6Class(
           for (j in seq(i+1, n, 1)) {
             r2 <- sum(theta * (X[i,]-X[j,])^2)
             t1 <- 1 + r2 / alpha
-            dC_dparams[alpha_ind, i,j] <- C_nonug[i,j] * (- log(t1) + r2 / alpha / t1) * alpha * log10
+            dC_dparams[alpha_ind, i,j] <- (
+              C_nonug[i,j] * (- log(t1) + r2 / alpha / t1) *
+                alpha * log10)
             dC_dparams[alpha_ind, j,i] <- dC_dparams[alpha_ind, i,j]
           }
         }
@@ -263,14 +272,13 @@ RatQuad <- R6::R6Class(
     #' @param s2_est Is s2 being estimated?
     param_optim_start = function(jitter=F, y, beta_est=self$beta_est,
                                  alpha_est=self$alpha_est, s2_est=self$s2_est) {
-      # Use current values for theta, partial MLE for s2
-      # vec <- c(log(self$theta, 10), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
       if (beta_est) {vec <- c(self$beta)} else {vec <- c()}
       if (alpha_est) {vec <- c(vec, self$logalpha)} else {}
       if (s2_est) {vec <- c(vec, self$logs2)} else {}
       if (jitter && beta_est) {
         # vec <- vec + c(self$beta_optim_jitter,  0)
-        vec[1:length(self$beta)] = vec[1:length(self$beta)] + rnorm(length(self$beta), 0, 1)
+        vec[1:length(self$beta)] = vec[1:length(self$beta)] +
+          rnorm(length(self$beta), 0, 1)
       }
       vec
     },
@@ -281,14 +289,14 @@ RatQuad <- R6::R6Class(
     #' @param alpha_est Is alpha being estimated?
     #' @param s2_est Is s2 being estimated?
     param_optim_start0 = function(jitter=F, y, beta_est=self$beta_est,
-                                  alpha_est=self$alpha_est, s2_est=self$s2_est) {
-      # Use 0 for theta, partial MLE for s2
-      # vec <- c(rep(0, length(self$theta)), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
+                                  alpha_est=self$alpha_est,
+                                  s2_est=self$s2_est) {
       if (beta_est) {vec <- rep(0, self$beta_length)} else {vec <- c()}
       if (alpha_est) {vec <- c(vec, 1)} else {}
       if (s2_est) {vec <- c(vec, 0)} else {}
       if (jitter && beta_est) {
-        vec[1:length(self$beta)] = vec[1:length(self$beta)] + rnorm(length(self$beta), 0, 1)
+        vec[1:length(self$beta)] = vec[1:length(self$beta)] +
+          rnorm(length(self$beta), 0, 1)
       }
       vec
     },
@@ -324,7 +332,8 @@ RatQuad <- R6::R6Class(
     #' @param alpha_est Is alpha being estimated?
     #' @param s2_est Is s2 being estimated?
     set_params_from_optim = function(optim_out, beta_est=self$beta_est,
-                                     alpha_est=self$alpha_est, s2_est=self$s2_est) {
+                                     alpha_est=self$alpha_est,
+                                     s2_est=self$s2_est) {
       loo <- length(optim_out)
       if (beta_est) {
         self$beta <- optim_out[1:(self$beta_length)]

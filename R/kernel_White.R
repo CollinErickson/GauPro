@@ -64,21 +64,12 @@ White <- R6::R6Class(
         }
       }
       if (is.matrix(x) & is.matrix(y)) {
-        # s2 * corr_gauss_matrixC(x, y, theta)
-        # outer(1:nrow(x), 1:nrow(y), Vectorize(function(i,j){self$kone(x[i,],y[j,],theta=theta, alpha=alpha, s2=s2)}))
         matrix(0, nrow(x), nrow(y))
       } else if (is.matrix(x) & !is.matrix(y)) {
-        # s2 * corr_gauss_matrixvecC(x, y, theta)
-        # apply(x, 1, function(xx) {self$kone(xx, y, theta=theta, alpha=alpha, s2=s2)})
-        # matrix(0, nrow(x), 1)
         rep(0, nrow(x))
       } else if (is.matrix(y)) {
-        # s2 * corr_gauss_matrixvecC(y, x, theta)
-        # apply(y, 1, function(yy) {self$kone(yy, x, theta=theta, alpha=alpha, s2=s2)})
-        # matrix(0, 1, nrow(y))
         rep(0, nrow(y))
       } else {
-        # self$kone(x, y, theta=theta, alpha=alpha, s2=s2)
         0
       }
     },
@@ -98,7 +89,7 @@ White <- R6::R6Class(
     #' @param C_nonug Covariance without nugget added to diagonal
     #' @param C Covariance with nugget
     #' @param nug Value of nugget
-    dC_dparams = function(params=NULL, X, C_nonug, C, nug) {#browser(text = "Make sure all in one list")
+    dC_dparams = function(params=NULL, X, C_nonug, C, nug) {
       n <- nrow(X)
       lenparams <- length(params)
       if (is.null(params)) {
@@ -131,7 +122,8 @@ White <- R6::R6Class(
       s2 <- self$s2_from_params(params)
       C_nonug <- self$k(x=X, params=params)
       C <- C_nonug + diag(s2*nug, nrow(X))
-      dC_dparams <- self$dC_dparams(params=params, X=X, C_nonug=C_nonug, C=C, nug=nug)
+      dC_dparams <- self$dC_dparams(params=params, X=X, C_nonug=C_nonug,
+                                    C=C, nug=nug)
       list(C=C, dC_dparams=dC_dparams)
     },
     #' @description Derivative of covariance with respect to X
@@ -154,15 +146,7 @@ White <- R6::R6Class(
     #' @param y Output
     #' @param s2_est Is s2 being estimated?
     param_optim_start = function(jitter=F, y, s2_est=self$s2_est) {
-      # Use current values for theta, partial MLE for s2
-      # vec <- c(log(self$theta, 10), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
-      # if (beta_est) {vec <- c(self$beta)} else {vec <- c()}
-      # if (alpha_est) {vec <- c(vec, self$logalpha)} else {}
       if (s2_est) {vec <- self$logs2} else {c()}
-      # if (jitter && beta_est) {
-      #   # vec <- vec + c(self$beta_optim_jitter,  0)
-      #   vec[1:length(self$beta)] = vec[1:length(self$beta)] + rnorm(length(self$beta), 0, 1)
-      # }
       vec
     },
     #' @description Starting point for parameters for optimization
@@ -170,31 +154,18 @@ White <- R6::R6Class(
     #' @param y Output
     #' @param s2_est Is s2 being estimated?
     param_optim_start0 = function(jitter=F, y, s2_est=self$s2_est) {
-      # Use 0 for theta, partial MLE for s2
-      # vec <- c(rep(0, length(self$theta)), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
-      # if (beta_est) {vec <- rep(0, self$beta_length)} else {vec <- c()}
-      # if (alpha_est) {vec <- c(vec, 1)} else {}
       if (s2_est) {vec <- 0} else {c()}
-      # if (jitter && beta_est) {
-      #   vec[1:length(self$beta)] = vec[1:length(self$beta)] + rnorm(length(self$beta), 0, 1)
-      # }
       vec
     },
     #' @description Lower bounds of parameters for optimization
     #' @param s2_est Is s2 being estimated?
     param_optim_lower = function(s2_est=self$s2_est) {
-      # c(self$beta_lower, self$logs2_lower)
-      # if (beta_est) {vec <- c(self$beta_lower)} else {vec <- c()}
-      # if (alpha_est) {vec <- c(vec, self$logalpha_lower)} else {}
       if (s2_est) {vec <- self$logs2_lower} else {c()}
       vec
     },
     #' @description Upper bounds of parameters for optimization
     #' @param s2_est Is s2 being estimated?
     param_optim_upper = function(s2_est=self$s2_est) {
-      # c(self$beta_upper, self$logs2_upper)
-      # if (beta_est) {vec <- c(self$beta_upper)} else {vec <- c()}
-      # if (alpha_est) {vec <- c(vec, self$logalpha_upper)} else {}
       if (s2_est) {vec <- self$logs2_upper} else {c()}
       vec
     },

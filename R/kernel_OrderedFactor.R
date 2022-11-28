@@ -266,8 +266,7 @@ OrderedFactorKernel <- R6::R6Class(
     #' @param C_nonug Covariance without nugget added to diagonal
     #' @param C Covariance with nugget
     #' @param nug Value of nugget
-    dC_dparams = function(params=NULL, X, C_nonug, C, nug) {#browser(text = "Make sure all in one list")
-      # stop("not implemented, kernel index, dC_dp")
+    dC_dparams = function(params=NULL, X, C_nonug, C, nug) {
       n <- nrow(X)
 
       lenparams <- length(params)
@@ -341,7 +340,8 @@ OrderedFactorKernel <- R6::R6Class(
               }
               #
               # r2 <- sum(p * (X[i,]-X[j,])^2)
-              # dC_dparams[k,i,j] <- -C_nonug[i,j] * alpha * sin(2*p[k]*(X[i,k] - X[j,k])) * (X[i,k] - X[j,k]) * p[k] * log10
+              # dC_dparams[k,i,j] <- -C_nonug[i,j] * alpha * sin(2*p[k]*(X[i,k]
+              #  - X[j,k])) * (X[i,k] - X[j,k]) * p[k] * log10
               # dC_dparams[k,j,i] <- dC_dparams[k,i,j]
             }
           }

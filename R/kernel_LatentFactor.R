@@ -309,8 +309,7 @@ LatentFactorKernel <- R6::R6Class(
     #' @param C_nonug Covariance without nugget added to diagonal
     #' @param C Covariance with nugget
     #' @param nug Value of nugget
-    dC_dparams = function(params=NULL, X, C_nonug, C, nug) {#browser(text = "Make sure all in one list")
-      # stop("not implemented, kernel index, dC_dp")
+    dC_dparams = function(params=NULL, X, C_nonug, C, nug) {
       n <- nrow(X)
 
       stopifnot(X[, self$xindex] >= 1, X[, self$xindex] <= self$nlevels)
@@ -400,7 +399,8 @@ LatentFactorKernel <- R6::R6Class(
                   out <- s2 * exp(-p_dist2)
                   # kinds <- (ylev-1)*latentdim+1:latentdim - latentdim
                   # if (inherits(try({
-                  #   dC_dparams[kinds,i,j] <- 2 * out * (latentx - latenty)}), 'try-error')) {browser()}
+                  #   dC_dparams[kinds,i,j] <- 2 * out * (latentx - latenty)}),
+                  #   'try-error')) {browser()}
                   dC_dparams[kinds,i,j] <- 2 * out * (latentx - latenty)
                   dC_dparams[kinds,j,i] <- dC_dparams[kinds,i,j]
                 } else {

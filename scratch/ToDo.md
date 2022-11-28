@@ -56,8 +56,6 @@ an error the user should know. Like when I test useCM.
     * test, doc.
     * CL or pred?
 
-* Plot doesn't work for gp4$kernel
-
 * Corrected EI
 
 * Augmented EI: grad, test, check minimize
@@ -72,8 +70,8 @@ that initial optim values should be large.
 
 * If after par optim, par are at lower/upper, give warning
 
-* make gradpredvar test more reliable
+* make gradpredvar test more reliable. Just test R^2?
 
-* Add deprecated for old model
+* Add deprecated for old model: lifecycle::
 
 * Add test with factor kernel in multiple kernels, or else make it give error
