@@ -5,7 +5,8 @@
 # param_optim_lower - lower bound of params
 # param_optim_upper - upper
 # param_optim_start - current param values
-# param_optim_start0 - some central param values that can be used for optimization restarts
+# param_optim_start0 - some central param values that can be used for
+#  optimization restarts
 # param_optim_jitter - how to jitter params in optimization
 
 # Suggested
@@ -20,7 +21,8 @@
 #'
 #' This is the base structure for a kernel that uses beta = log10(theta)
 #' for the lengthscale parameter.
-#' It standardizes the params because they all use the same underlying structure.
+#' It standardizes the params because they all use the same underlying
+#' structure.
 #' Kernels that inherit this only need to implement kone and dC_dparams.
 #'
 #' @docType class
@@ -45,7 +47,8 @@
 #' @field useC Should C code used? Much faster.
 #' @examples
 #' #k1 <- Matern52$new(beta=0)
-GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
+GauPro_kernel_beta <- R6::R6Class(
+  classname = "GauPro_kernel_beta",
   inherit = GauPro_kernel,
   public = list(
     beta = NULL,
@@ -74,7 +77,7 @@ GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
                           beta_lower=-8, beta_upper=6, beta_est=TRUE,
                           s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE,
                           useC=TRUE
-                          ) {
+    ) {
       # Check beta and D
       missing_beta <- missing(beta)
       missing_D    <- missing(D)
@@ -88,14 +91,23 @@ GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
       self$beta_length <- length(beta)
 
       # Setting beta_lower so dimensions are right
-      self$beta_lower <- if (length(beta_lower) == self$beta_length) {beta_lower}
-                         else if (length(beta_lower)==1) {rep(beta_lower, self$beta_length)}
-                         else {stop("Error for kernel_beta beta_lower")}
+      self$beta_lower <- if (length(beta_lower) == self$beta_length) {
+        beta_lower
+      } else if (length(beta_lower)==1) {
+        rep(beta_lower,
+            self$beta_length)
+      } else {
+        stop("Error for kernel_beta beta_lower")
+      }
 
       #self$beta_upper <- beta_upper
-      self$beta_upper <- if (length(beta_upper) == self$beta_length) {beta_upper}
-                         else if (length(beta_upper)==1) {rep(beta_upper, self$beta_length)}
-                         else {stop("Error for kernel_beta beta_upper")}
+      self$beta_upper <- if (length(beta_upper) == self$beta_length) {
+        beta_upper
+      } else if (length(beta_upper)==1) {
+        rep(beta_upper, self$beta_length)
+      } else {
+        stop("Error for kernel_beta beta_upper")
+      }
       self$beta_est <- beta_est
 
       self$s2 <- s2
@@ -127,7 +139,9 @@ GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
       if (is.null(y)) {
         if (is.matrix(x)) {
           # cgmtry <- try(val <- s2 * corr_gauss_matrix_symC(x, theta))
-          val <- outer(1:nrow(x), 1:nrow(x), Vectorize(function(i,j){self$kone(x[i,],x[j,],theta=theta, s2=s2)}))
+          val <- outer(1:nrow(x), 1:nrow(x),
+                       Vectorize(function(i,j){self$kone(x[i,],x[j,],
+                                                         theta=theta, s2=s2)}))
           # if (inherits(cgmtry,"try-error")) {browser()}
           return(val)
         } else {
@@ -136,7 +150,9 @@ GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
       }
       if (is.matrix(x) & is.matrix(y)) {
         # s2 * corr_gauss_matrixC(x, y, theta)
-        outer(1:nrow(x), 1:nrow(y), Vectorize(function(i,j){self$kone(x[i,],y[j,],theta=theta, s2=s2)}))
+        outer(1:nrow(x), 1:nrow(y),
+              Vectorize(function(i,j){self$kone(x[i,],y[j,],
+                                                theta=theta, s2=s2)}))
       } else if (is.matrix(x) & !is.matrix(y)) {
         # s2 * corr_gauss_matrixvecC(x, y, theta)
         apply(x, 1, function(xx) {self$kone(xx, y, theta=theta, s2=s2)})
@@ -161,9 +177,11 @@ GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
     #' @param y Output
     #' @param beta_est Is beta being estimated?
     #' @param s2_est Is s2 being estimated?
-    param_optim_start = function(jitter=F, y, beta_est=self$beta_est, s2_est=self$s2_est) {
+    param_optim_start = function(jitter=F, y, beta_est=self$beta_est,
+                                 s2_est=self$s2_est) {
       # Use current values for theta, partial MLE for s2
-      # vec <- c(log(self$theta, 10), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
+      # vec <- c(log(self$theta, 10),
+      #  log(sum((y - mu) * solve(R, y - mu)) / n), 10)
       if (beta_est && s2_est) {
         vec <- c(self$beta, self$logs2)
       } else if (beta_est) {
@@ -175,7 +193,8 @@ GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
       }
       if (jitter && beta_est) {
         # vec <- vec + c(self$beta_optim_jitter,  0)
-        vec[1:length(self$beta)] = vec[1:length(self$beta)] + rnorm(length(self$beta), 0, 1)
+        vec[1:length(self$beta)] = vec[1:length(self$beta)] +
+          rnorm(length(self$beta), 0, 1)
       }
       vec
     },
@@ -184,9 +203,8 @@ GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
     #' @param y Output
     #' @param beta_est Is beta being estimated?
     #' @param s2_est Is s2 being estimated?
-    param_optim_start0 = function(jitter=F, y, beta_est=self$beta_est, s2_est=self$s2_est) {
-      # Use 0 for theta, partial MLE for s2
-      # vec <- c(rep(0, length(self$theta)), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
+    param_optim_start0 = function(jitter=F, y, beta_est=self$beta_est,
+                                  s2_est=self$s2_est) {
       if (beta_est && s2_est) {
         vec <- c(rep(0, self$beta_length), 0)
       } else if (beta_est) {
@@ -197,7 +215,8 @@ GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
         vec <- c()
       }
       if (jitter && beta_est) {
-        vec[1:length(self$beta)] = vec[1:length(self$beta)] + rnorm(length(self$beta), 0, 1)
+        vec[1:length(self$beta)] = vec[1:length(self$beta)] +
+          rnorm(length(self$beta), 0, 1)
       }
       vec
     },
@@ -237,7 +256,8 @@ GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
     #' @param optim_out Output from optimization
     #' @param beta_est Is beta being estimated?
     #' @param s2_est Is s2 being estimated?
-    set_params_from_optim = function(optim_out, beta_est=self$beta_est, s2_est=self$s2_est) {
+    set_params_from_optim = function(optim_out, beta_est=self$beta_est,
+                                     s2_est=self$s2_est) {
       loo <- length(optim_out)
       if (beta_est) {
         self$beta <- optim_out[1:(self$beta_length)]
@@ -259,7 +279,8 @@ GauPro_kernel_beta <- R6::R6Class(classname = "GauPro_kernel_beta",
       s2 <- self$s2_from_params(params)
       C_nonug <- self$k(x=X, params=params)
       C <- C_nonug + diag(s2*nug, nrow(X))
-      dC_dparams <- self$dC_dparams(params=params, X=X, C_nonug=C_nonug, C=C, nug=nug)
+      dC_dparams <- self$dC_dparams(params=params, X=X, C_nonug=C_nonug,
+                                    C=C, nug=nug)
       list(C=C, dC_dparams=dC_dparams)
     },
     #' @description Get s2 from params vector

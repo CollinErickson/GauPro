@@ -18,7 +18,8 @@ Beta Kernel R6 class
 \details{
 This is the base structure for a kernel that uses beta = log10(theta)
 for the lengthscale parameter.
-It standardizes the params because they all use the same underlying structure.
+It standardizes the params because they all use the same underlying
+structure.
 Kernels that inherit this only need to implement kone and dC_dparams.
 }
 \examples{
