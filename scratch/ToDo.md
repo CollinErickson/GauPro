@@ -15,8 +15,6 @@ at end for K/Kinv so predictions are good.
 
 * Transform inputs
 
-* use self$kernel$k on x instead of assuming it is 1
-
 * optim NaN starting value (found on 1D doing EI)
 
 * Speed up m52 grad, Cubic k/grad
@@ -70,13 +68,16 @@ that initial optim values should be large.
 
 * If after par optim, par are at lower/upper, give warning
 
-* make gradpredvar test more reliable. Just test R^2?
-
 * Add deprecated for old model: lifecycle::
 
 * Add test with factor kernel in multiple kernels, or else make it give error
 
+* func to get which indexes are in cts kernels. Make sure no overlap with factor
+
 * Use blockcd, not coordesc
 
-* Plot kernel for factors: change ticks to be integers. Outline squares since
-sometimes they are all red.
+* new kernel_base_factor, inherits kernel_base, factor kernels inherit it.
+They share plot. Or: remove plot from factor kernels, base already has it.
+No need for base factor.
+
+* Submit bug for lifecycle depr inside R6

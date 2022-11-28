@@ -512,6 +512,13 @@ FactorKernel <- R6::R6Class(
         ggplot2::scale_fill_gradient(low='white', high='red', limits=c(0, NA)) +
         ggplot2::scale_x_continuous(breaks=1:self$nlevels) +
         ggplot2::scale_y_continuous(breaks=self$nlevels:1, trans='reverse')
+      # To add squares
+      # geom_segment(data=data.frame(x=c(.5+0:nlevels), xend=c(.5+0:nlevels),
+      #  y=.5, yend=nlevels+.5),
+      #              aes(x=x,xend=xend,y=y,yend=yend), inherit.aes = F) +
+      # geom_segment(data=data.frame(y=c(.5+0:nlevels), yend=c(.5+0:nlevels),
+      #  x=.5, xend=nlevels+.5),
+      #              aes(x=x,xend=xend,y=y,yend=yend), inherit.aes = F)
     },
     #' @description Print this object
     print = function() {

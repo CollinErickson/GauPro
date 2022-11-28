@@ -50,6 +50,14 @@ GauPro_Gauss <- R6::R6Class(classname = "GauPro_Gauss",
                              param.est=T,
                              theta = NULL, theta_short = NULL, theta_map = NULL,
                              ...) {
+         # This doesn't work inside R6 init as of now.
+         # # Deprecating, haven't used in years. Use kernel model instead.
+         # lifecycle::deprecate_soft(
+         #   when = "0.2.7",
+         #   what = "GauPro_Gauss$new()",
+         #   details = paste0("Please use GauPro::GauPro_kernel_model instead")
+         # )
+
          super$initialize(X=X,Z=Z,verbose=verbose,useC=useC,useGrad=useGrad,
                           parallel=parallel,
                           nug=nug, nug.min=nug.min, nug.est=nug.est, param.est=param.est)
