@@ -617,9 +617,13 @@ GauPro_kernel_model <- R6::R6Class(
         # se[s2>=0] <- sqrt(s2[s2>=0])
 
         if (any(s2 < 0)) {
-          min_s2 <- max(.Machine$double.eps, self$s2_hat * self$nug)
+          if (mean_dist) { # mean can have zero s2
+            min_s2 <- 0
+          } else { # pred var should always be at least this big
+            min_s2 <- max(.Machine$double.eps, self$s2_hat * self$nug)
+          }
           warning(paste0("Negative s2 predictions are being set to ",
-                         min_s2, " (", sum(s2<0)," values).",
+                         min_s2, " (", sum(s2<0)," values, min=", min(s2),").",
                          " covmat is not being altered."))
           s2 <- pmax(s2, min_s2)
         }
@@ -659,9 +663,13 @@ GauPro_kernel_model <- R6::R6Class(
       # #   NOT SURE I WANT THIS
       # se[s2>=0] <- sqrt(s2[s2>=0])
       if (any(s2 < 0)) {
-        min_s2 <- max(.Machine$double.eps, self$s2_hat * self$nug)
+        if (mean_dist) { # mean can have zero s2
+          min_s2 <- 0
+        } else { # pred var should always be at least this big
+          min_s2 <- max(.Machine$double.eps, self$s2_hat * self$nug)
+        }
         warning(paste0("Negative s2 predictions are being set to ",
-                       min_s2, " (", sum(s2<0)," values)"))
+                       min_s2, " (", sum(s2<0)," values, min=", min(s2),")"))
         s2 <- pmax(s2, min_s2)
       }
       se <- sqrt(s2)

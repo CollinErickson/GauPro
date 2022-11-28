@@ -510,7 +510,8 @@ FactorKernel <- R6::R6Class(
       ggplot2::ggplot(data=df, ggplot2::aes(x1, x2, fill=k)) +
         ggplot2::geom_tile() +
         ggplot2::scale_fill_gradient(low='white', high='red', limits=c(0, NA)) +
-        ggplot2::scale_y_reverse()
+        ggplot2::scale_x_continuous(breaks=1:self$nlevels) +
+        ggplot2::scale_y_continuous(breaks=self$nlevels:1, trans='reverse')
     },
     #' @description Print this object
     print = function() {

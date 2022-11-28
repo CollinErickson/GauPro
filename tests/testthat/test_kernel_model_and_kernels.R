@@ -455,7 +455,7 @@ test_that("Factor kernels in product", {
     expect_no_error((gp$plotLOO()))
 
     # Check EI
-    expect_error(mei1 <- gp$maxEI(), NA)
+    expect_no_error(suppressWarnings(mei1 <- gp$maxEI()))
     # qEI just adds more time
     # expect_error(gp$maxqEI(npoints=1), NA)
     # expect_error(gp$maxqEI(npoints=2), NA)

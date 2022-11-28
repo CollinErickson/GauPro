@@ -75,3 +75,8 @@ that initial optim values should be large.
 * Add deprecated for old model: lifecycle::
 
 * Add test with factor kernel in multiple kernels, or else make it give error
+
+* Use blockcd, not coordesc
+
+* Plot kernel for factors: change ticks to be integers. Outline squares since
+sometimes they are all red.
