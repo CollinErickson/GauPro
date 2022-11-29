@@ -799,3 +799,32 @@ test_that("Wide range", {
   expect_no_error(e1$plotmarginalrandom())
   expect_true(mean(abs((e1$Z-e1$pred(e1$X)) / e1$Z)) < 1e-2)
 })
+
+# Bad kernels ----
+test_that("Bad kernels", {
+  # Data set up
+  n <- 20
+  d <- 2
+  x <- matrix(runif(n*d), ncol=d)
+  # second is factor dim
+  nlev <- 2
+  x[, 2] <- sample(1:nlev, n, T)
+  f <- function(x) {abs(sin(x[1]^.8*6))^1.2 + log(1+x[2]) + x[1]*x[2]}
+  y <- apply(x, 1, f) + rnorm(n,0,1e-2)
+
+  # Can't use factor twice on same dim
+  expect_error({
+    GauPro_kernel_model$new(
+      x, y,
+      kernel=IgnoreIndsKernel$new(k = Gaussian$new(D=1), ignoreinds = 2) *
+        FactorKernel$new(D=2, xindex = 2, nlevels = nlev) *
+        LatentFactorKernel$new(D=2, xindex=2, nlevels=nlev))
+  })
+  # Can't use same index as cts and factor
+  expect_error({
+    GauPro_kernel_model$new(
+      x, y,
+      kernel=Gaussian$new(D=2) *
+        FactorKernel$new(D=2, xindex = 2, nlevels = nlev))
+  })
+})

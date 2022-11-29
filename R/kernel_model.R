@@ -163,15 +163,7 @@ GauPro_kernel_model <- R6::R6Class(
                           track_optim=FALSE,
                           formula, data,
                           ...) {
-      #self$initialize_GauPr(X=X,Z=Z,verbose=verbose,useC=useC,
-      #                      useGrad=useGrad,
-      #                      parallel=parallel, nug.est=nug.est)
-      # if (missing(X)) {
-      #   stop("You must give X to GauPro_kernel_model")
-      # }
-      # if (missing(Z)) {
-      #   stop("You must give Z to GauPro_kernel_model")
-      # }
+      # If formula is given, use it to get X and Z.
       if ((!missing(X) && is.formula(X)) ||
           (!missing(Z) && is.formula(Z)) ||
           (!missing(formula) && is.formula(formula))) {
@@ -270,7 +262,7 @@ GauPro_kernel_model <- R6::R6Class(
         # self$data <- data
         self$convert_formula_data <- convert_formula_data
         X <- as.matrix(Xdf)
-      }
+      } # End formula was given in
 
       if (missing(X) || is.null(X)) {
         stop("You must give X to GauPro_kernel_model")
@@ -394,6 +386,25 @@ GauPro_kernel_model <- R6::R6Class(
                     'Consider using "Gaussian" or "Matern52".'))
       }
 
+      # Check that kernel is valid
+      if (exists("fkc") && isTRUE(fkc)) {browser("exists/debug")}
+      ctsinds <- find_kernel_cts_dims(self$kernel)
+      facinds <- find_kernel_factor_dims(self$kernel)
+      if (length(facinds) > .5) {
+        facinds <- facinds[seq(1, length(facinds), 2)]
+      }
+      cts_and_fac <- intersect(ctsinds, facinds)
+      if (length(cts_and_fac) > .5) {
+        stop(paste0(c("Invalid kernel: index", cts_and_fac,
+                      " appear in both continuous and factor kernels"),
+                    collapse = ' '))
+      }
+      if (anyDuplicated(facinds) > .5) {
+        stop(paste0(c("Invalid kernel: index", facinds[anyDuplicated(facinds)],
+                      " appears in multiple factor kernels"),
+                    collapse = ' '))
+      }
+
       # Set trend
       if (missing(trend)) {
         self$trend <- trend_c$new()
@@ -403,6 +414,7 @@ GauPro_kernel_model <- R6::R6Class(
         self$trend <- trend$new(D=self$D)
       }
 
+      stopifnot(nug.min <= nug.max)
       self$nug <- min(max(nug, nug.min), nug.max)
       self$nug.min <- nug.min
       self$nug.max <- nug.max

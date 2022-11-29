@@ -23,7 +23,7 @@ at end for K/Kinv so predictions are good.
 
 * Add test with repeated X. Add test with big nugget and make sure deriv still matches.
 
-* estimate_run_time()
+* estimate_run_time(). Run it when creating object. Give estimated time if long.
 
 * factor trend, LM ignore inds
 
@@ -41,7 +41,7 @@ an error the user should know. Like when I test useCM.
 * Knowledge gradient: multiple starts for optim
 
 * When giving in formula/data
-  * fix plot for 1D, 2D, marginal, marginal random
+  * fix plot for 1D, 2D, marginal, marginal random, kernel
   * convert ordered factor
   * add to doc
   * message what chosen kernel is
@@ -69,9 +69,6 @@ that initial optim values should be large.
 * If after par optim, par are at lower/upper, give warning
 
 * Add deprecated for old model: lifecycle::
-
-* Add test with factor kernel in multiple kernels, or else make it give error
-* Make sure no overlap with factor and cts indexes
 
 * Use blockcd, not coordesc
 
