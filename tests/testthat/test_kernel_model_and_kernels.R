@@ -27,7 +27,7 @@ test_that("Cts kernels", {
                     Matern52$new(D=2) + Matern32$new(D=2))
   stopifnot(length(kern_chars) == length(kern_list))
   for (j in 1:length(kern_chars)) {
-    set.seed(seed)
+    if (exists('seed')) {set.seed(seed)} else {seed <- runif(1)}
     kern_char <- kern_chars[j]
     if (exists('printkern') && printkern) cat(j, kern_char, "\n")
     if (is.numeric(kern_list[[j]])) {
@@ -45,6 +45,14 @@ test_that("Cts kernels", {
     })
     expect_is(gp, "GauPro")
     expect_is(gp, "R6")
+
+    # Check kernel properties
+
+    expect_equal(GauPro:::find_kernel_cts_dims(gp$kernel),
+                 if (kern_char == "White") {NULL}
+                 else if (kern_char=="Ignore") {1}
+                 else {1:2})
+    expect_true(is.null(GauPro:::find_kernel_factor_dims(gp$kernel)))
 
     # Check predict
     expect_error(pred1 <- predict(gp, runif(2)), NA)
@@ -328,6 +336,10 @@ test_that("Factor kernels", {
     # Basic check for k
     expect_equal(kern$k(1, 1), c(kern$k(matrix(1), matrix(1))), tolerance=1e-4)
 
+    # Check kernel properties
+    expect_equal(GauPro:::find_kernel_cts_dims(gp$kernel), NULL)
+    expect_equal(GauPro:::find_kernel_factor_dims(gp$kernel), c(1,3))
+
     # Test predict
     if (T || (j %in% 1:4)) {
       expect_error(predict(gp, 1:3, se.fit = T), NA,
@@ -438,6 +450,10 @@ test_that("Factor kernels in product", {
     })
     expect_is(gp, "GauPro")
     expect_is(gp, "R6")
+
+    # Check kernel properties
+    expect_equal(GauPro:::find_kernel_cts_dims(gp$kernel), 1)
+    expect_equal(GauPro:::find_kernel_factor_dims(gp$kernel), c(2,2))
 
     # Check kernel print
     expect_error({kernprint <- capture_output(print(gp$kernel))}, NA)

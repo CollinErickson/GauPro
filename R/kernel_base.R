@@ -5,7 +5,8 @@
 # param_optim_lower - lower bound of params
 # param_optim_upper - upper
 # param_optim_start - current param values
-# param_optim_start0 - some central param values that can be used for optimization restarts
+# param_optim_start0 - some central param values that can be used for
+#  optimization restarts
 # param_optim_jitter - how to jitter params in optimization
 
 # Suggested
@@ -130,11 +131,21 @@ GauPro_kernel <- R6::R6Class(
           }
           ploti <- ggplot2::ggplot(data=df, ggplot2::aes(x1, x2, fill=k)) +
             ggplot2::geom_tile() +
-            ggplot2::scale_fill_gradient(low='white', high='red', limits=c(0, NA)) +
+            ggplot2::scale_fill_gradient(low='white', high='red',
+                                         limits=c(0, NA)) +
             ggplot2::scale_x_continuous(breaks=1:nlevels) +
             ggplot2::scale_y_continuous(breaks=nlevels:1, trans='reverse') +
             ggplot2::ylab(NULL) +
             ggplot2::xlab(paste0("X", i))
+          # To add squares
+          # geom_segment(data=data.frame(x=c(.5+0:nlevels),
+          #  xend=c(.5+0:nlevels),
+          #  y=.5, yend=nlevels+.5),
+          #              aes(x=x,xend=xend,y=y,yend=yend), inherit.aes = F) +
+          # geom_segment(data=data.frame(y=c(.5+0:nlevels),
+          #  yend=c(.5+0:nlevels),
+          #  x=.5, xend=nlevels+.5),
+          #              aes(x=x,xend=xend,y=y,yend=yend), inherit.aes = F)
 
         }
         # Add plot to list
@@ -142,7 +153,8 @@ GauPro_kernel <- R6::R6Class(
         rm(df)
       }
       # Arrange
-      # do.call(gridExtra::grid.arrange, c(plots, ncol=floor(sqrt(length(plots)))))
+      # do.call(gridExtra::grid.arrange, c(plots,
+      #  ncol=floor(sqrt(length(plots)))))
       gridExtra::grid.arrange(grobs=plots,
                               ncol=floor(sqrt(length(plots))))
     },

@@ -107,11 +107,17 @@ plot(k2b)
 \item \href{#method-GauPro_kernel_FactorKernel-param_optim_upper}{\code{FactorKernel$param_optim_upper()}}
 \item \href{#method-GauPro_kernel_FactorKernel-set_params_from_optim}{\code{FactorKernel$set_params_from_optim()}}
 \item \href{#method-GauPro_kernel_FactorKernel-s2_from_params}{\code{FactorKernel$s2_from_params()}}
-\item \href{#method-GauPro_kernel_FactorKernel-plot}{\code{FactorKernel$plot()}}
 \item \href{#method-GauPro_kernel_FactorKernel-print}{\code{FactorKernel$print()}}
 \item \href{#method-GauPro_kernel_FactorKernel-clone}{\code{FactorKernel$clone()}}
 }
 }
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel" data-id="plot"><a href='../../GauPro/html/GauPro_kernel.html#method-GauPro_kernel-plot'><code>GauPro::GauPro_kernel$plot()</code></a></span></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GauPro_kernel_FactorKernel-new"></a>}}
 \if{latex}{\out{\hypertarget{method-GauPro_kernel_FactorKernel-new}{}}}
@@ -432,22 +438,6 @@ Get s2 from params vector
 \item{\code{params}}{parameter vector}
 
 \item{\code{s2_est}}{Is s2 being estimated?}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro_kernel_FactorKernel-plot"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro_kernel_FactorKernel-plot}{}}}
-\subsection{Method \code{plot()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FactorKernel$plot(...)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{...}}{Not used.}
 }
 \if{html}{\out{</div>}}
 }

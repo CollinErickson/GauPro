@@ -537,27 +537,6 @@ LatentFactorKernel <- R6::R6Class(
         self$s2
       }
     },
-    #' @param ... Not used.
-    plot = function(...) {
-      x1 <- 1:self$nlevels
-      X1 <- X2 <- matrix(data=0, ncol=self$D, nrow=self$nlevels)
-      X1[, self$xindex] <- x1
-      X2[, self$xindex] <- x1
-      k <- self$k(X1, X2)
-
-      df <- NULL
-      for (i in 1:self$nlevels) {
-        for (j in 1:self$nlevels) {
-          df <- rbind(df,
-                      data.frame(x1=i, x2=j, k=k[i,j]))
-        }
-      }
-      ggplot2::ggplot(data=df, ggplot2::aes(x1, x2, fill=k)) +
-        ggplot2::geom_tile() +
-        ggplot2::scale_fill_gradient(low='white', high='red', limits=c(0, NA)) +
-        ggplot2::scale_x_continuous(breaks=1:self$nlevels) +
-        ggplot2::scale_y_continuous(breaks=self$nlevels:1, trans='reverse')
-    },
     #' @description Plot the points in the latent space
     plotLatent = function() {
       # pf = p full has zero for first dim, then p

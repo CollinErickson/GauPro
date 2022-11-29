@@ -71,13 +71,8 @@ that initial optim values should be large.
 * Add deprecated for old model: lifecycle::
 
 * Add test with factor kernel in multiple kernels, or else make it give error
-
-* func to get which indexes are in cts kernels. Make sure no overlap with factor
+* Make sure no overlap with factor and cts indexes
 
 * Use blockcd, not coordesc
-
-* new kernel_base_factor, inherits kernel_base, factor kernels inherit it.
-They share plot. Or: remove plot from factor kernels, base already has it.
-No need for base factor.
 
 * Submit bug for lifecycle depr inside R6

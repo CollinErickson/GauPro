@@ -126,12 +126,18 @@ https://stackoverflow.com/questions/27086195/linear-index-upper-triangular-matri
 \item \href{#method-GauPro_kernel_LatentFactorKernel-param_optim_upper}{\code{LatentFactorKernel$param_optim_upper()}}
 \item \href{#method-GauPro_kernel_LatentFactorKernel-set_params_from_optim}{\code{LatentFactorKernel$set_params_from_optim()}}
 \item \href{#method-GauPro_kernel_LatentFactorKernel-s2_from_params}{\code{LatentFactorKernel$s2_from_params()}}
-\item \href{#method-GauPro_kernel_LatentFactorKernel-plot}{\code{LatentFactorKernel$plot()}}
 \item \href{#method-GauPro_kernel_LatentFactorKernel-plotLatent}{\code{LatentFactorKernel$plotLatent()}}
 \item \href{#method-GauPro_kernel_LatentFactorKernel-print}{\code{LatentFactorKernel$print()}}
 \item \href{#method-GauPro_kernel_LatentFactorKernel-clone}{\code{LatentFactorKernel$clone()}}
 }
 }
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel" data-id="plot"><a href='../../GauPro/html/GauPro_kernel.html#method-GauPro_kernel-plot'><code>GauPro::GauPro_kernel$plot()</code></a></span></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GauPro_kernel_LatentFactorKernel-new"></a>}}
 \if{latex}{\out{\hypertarget{method-GauPro_kernel_LatentFactorKernel-new}{}}}
@@ -451,22 +457,6 @@ Get s2 from params vector
 \item{\code{params}}{parameter vector}
 
 \item{\code{s2_est}}{Is s2 being estimated?}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro_kernel_LatentFactorKernel-plot"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro_kernel_LatentFactorKernel-plot}{}}}
-\subsection{Method \code{plot()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LatentFactorKernel$plot(...)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{...}}{Not used.}
 }
 \if{html}{\out{</div>}}
 }

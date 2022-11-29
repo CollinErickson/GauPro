@@ -106,11 +106,17 @@ https://stackoverflow.com/questions/27086195/linear-index-upper-triangular-matri
 \item \href{#method-GauPro_kernel_OrderedFactorKernel-param_optim_upper}{\code{OrderedFactorKernel$param_optim_upper()}}
 \item \href{#method-GauPro_kernel_OrderedFactorKernel-set_params_from_optim}{\code{OrderedFactorKernel$set_params_from_optim()}}
 \item \href{#method-GauPro_kernel_OrderedFactorKernel-s2_from_params}{\code{OrderedFactorKernel$s2_from_params()}}
-\item \href{#method-GauPro_kernel_OrderedFactorKernel-plot}{\code{OrderedFactorKernel$plot()}}
 \item \href{#method-GauPro_kernel_OrderedFactorKernel-print}{\code{OrderedFactorKernel$print()}}
 \item \href{#method-GauPro_kernel_OrderedFactorKernel-clone}{\code{OrderedFactorKernel$clone()}}
 }
 }
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_kernel" data-id="plot"><a href='../../GauPro/html/GauPro_kernel.html#method-GauPro_kernel-plot'><code>GauPro::GauPro_kernel$plot()</code></a></span></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GauPro_kernel_OrderedFactorKernel-new"></a>}}
 \if{latex}{\out{\hypertarget{method-GauPro_kernel_OrderedFactorKernel-new}{}}}
@@ -426,22 +432,6 @@ Get s2 from params vector
 \item{\code{params}}{parameter vector}
 
 \item{\code{s2_est}}{Is s2 being estimated?}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro_kernel_OrderedFactorKernel-plot"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro_kernel_OrderedFactorKernel-plot}{}}}
-\subsection{Method \code{plot()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{OrderedFactorKernel$plot(...)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{...}}{Not used.}
 }
 \if{html}{\out{</div>}}
 }
