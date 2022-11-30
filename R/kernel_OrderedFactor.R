@@ -203,10 +203,17 @@ OrderedFactorKernel <- R6::R6Class(
           #              Vectorize(function(i,j){
           #                self$kone(x[i,],x[j,],p=p, s2=s2)
           #              }))
-          val <- outer(1:nrow(x), 1:nrow(x),
-                       Vectorize(function(i,j){
-                         self$kone(x[i,],x[j,],p=p, s2=s2, isdiag=i==j)
-                       }))
+          if (self$useC) {
+            # print('ordfacC')
+            if (exists("ordfacC") && isTRUE(ordfacC)) {browser("exists/debug")}
+            val <- s2 * corr_orderedfactor_matrix_symC(x, p, self$xindex,
+                                                       1-1e-6)
+          } else {
+            val <- outer(1:nrow(x), 1:nrow(x),
+                         Vectorize(function(i,j){
+                           self$kone(x[i,],x[j,],p=p, s2=s2, isdiag=i==j)
+                         }))
+          }
           # if (inherits(cgmtry,"try-error")) {browser()}
           return(val)
         } else {
@@ -214,7 +221,15 @@ OrderedFactorKernel <- R6::R6Class(
         }
       }
       if (is.matrix(x) & is.matrix(y)) {
-        outer(1:nrow(x), 1:nrow(y), Vectorize(function(i,j){self$kone(x[i,],y[j,],p=p, s2=s2)}))
+        if (self$useC) { # Way faster
+          if (exists("ofmm") && isTRUE(ofmm)) {browser("exists/debug")}
+          s2 * corr_latentfactor_matrixmatrixC(
+            x=x, y=y, theta=pf, xindex=self$xindex,
+            latentdim = self$latentdim, offdiagequal=1-1e-6)
+        } else {
+          outer(1:nrow(x), 1:nrow(y),
+                Vectorize(function(i,j){self$kone(x[i,],y[j,],p=p, s2=s2)}))
+        }
       } else if (is.matrix(x) & !is.matrix(y)) {
         apply(x, 1, function(xx) {self$kone(xx, y, p=p, s2=s2)})
       } else if (is.matrix(y)) {
@@ -309,44 +324,54 @@ OrderedFactorKernel <- R6::R6Class(
       }
 
       lenparams_D <- self$p_length*self$p_est + self$s2_est
-      dC_dparams <- array(dim=c(lenparams_D, n, n), data=0)
-      if (self$s2_est) {
-        dC_dparams[lenparams_D,,] <- C * log10
-      }
-      if (self$p_est) {
-        for (k in 1:length(p)) { # k is index of parameter
-          for (i in seq(1, n-1, 1)) {
-            for (j in seq(i+1, n, 1)) {
-              xx <- X[i, self$xindex]
-              yy <- X[j, self$xindex]
-              if (xx == yy) {
-                # Corr is just 1, parameter has no effect
-              } else {
-                # ii <- min(xx-1, yy-1)
-                # jj <- max(xx-1, yy-1)
-                # nn <- self$nlevels
-                # ind <- (nn*(nn-1)/2) - (nn-ii)*((nn-ii)-1)/2 + jj - ii #- 1
-                ii <- min(xx,yy)
-                jj <- max(xx,yy) - 1
-                if (ii <= k && k <= jj) { # Does correspond to the correct parameter
-                  p_dist <- sum(p[ii:jj])
-                  r <- exp(-p_dist^2)
-                  dC_dparams[k,i,j] <- -2 * p_dist * r * s2
-                  dC_dparams[k,j,i] <- dC_dparams[k,i,j]
 
+
+      if (self$useC) {
+        if (exists("fkdc") && isTRUE(fkdc)) {browser("exists/debug")}
+        dC_dparams <- kernel_orderedFactor_dC(X, p, C_nonug, self$s2_est,
+                                              self$p_est, lenparams_D, s2*nug,
+                                              self$xindex-1,
+                                              self$nlevels, s2)
+      } else {
+        dC_dparams <- array(dim=c(lenparams_D, n, n), data=0)
+        if (self$s2_est) {
+          dC_dparams[lenparams_D,,] <- C * log10
+        }
+        if (self$p_est) {
+          for (k in 1:length(p)) { # k is index of parameter
+            for (i in seq(1, n-1, 1)) {
+              for (j in seq(i+1, n, 1)) {
+                xx <- X[i, self$xindex]
+                yy <- X[j, self$xindex]
+                if (xx == yy) {
+                  # Corr is just 1, parameter has no effect
                 } else {
-                  # Parameter has no effect
+                  # ii <- min(xx-1, yy-1)
+                  # jj <- max(xx-1, yy-1)
+                  # nn <- self$nlevels
+                  # ind <- (nn*(nn-1)/2) - (nn-ii)*((nn-ii)-1)/2 + jj - ii #- 1
+                  ii <- min(xx,yy)
+                  jj <- max(xx,yy) - 1
+                  if (ii <= k && k <= jj) { # Does correspond to the correct parameter
+                    p_dist <- sum(p[ii:jj])
+                    r <- exp(-p_dist^2)
+                    dC_dparams[k,i,j] <- -2 * p_dist * r * s2
+                    dC_dparams[k,j,i] <- dC_dparams[k,i,j]
+
+                  } else {
+                    # Parameter has no effect
+                  }
                 }
+                #
+                # r2 <- sum(p * (X[i,]-X[j,])^2)
+                # dC_dparams[k,i,j] <- -C_nonug[i,j] * alpha * sin(2*p[k]*(X[i,k]
+                #  - X[j,k])) * (X[i,k] - X[j,k]) * p[k] * log10
+                # dC_dparams[k,j,i] <- dC_dparams[k,i,j]
               }
-              #
-              # r2 <- sum(p * (X[i,]-X[j,])^2)
-              # dC_dparams[k,i,j] <- -C_nonug[i,j] * alpha * sin(2*p[k]*(X[i,k]
-              #  - X[j,k])) * (X[i,k] - X[j,k]) * p[k] * log10
-              # dC_dparams[k,j,i] <- dC_dparams[k,i,j]
             }
-          }
-          for (i in seq(1, n, 1)) { # Get diagonal set to zero
-            dC_dparams[k,i,i] <- 0
+            for (i in seq(1, n, 1)) { # Get diagonal set to zero
+              dC_dparams[k,i,i] <- 0
+            }
           }
         }
       }

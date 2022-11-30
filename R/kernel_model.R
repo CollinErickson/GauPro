@@ -230,7 +230,8 @@ GauPro_kernel_model <- R6::R6Class(
             convert_formula_data$factors[[
               length(convert_formula_data$factors)+1
             ]] <- list(index=i,
-                       levels=levels(Xdf[[i]]))
+                       levels=levels(Xdf[[i]]),
+                       ordered=is.ordered(Xdf[, i]))
             Xdf[[i]] <- as.integer(Xdf[[i]])
           }
         }
@@ -353,20 +354,31 @@ GauPro_kernel_model <- R6::R6Class(
           # kernel over cts needs to ignore these dims
           if (Dcts > .5) {
             igninds <- c(
-              unlist(sapply(self$convert_formula_data$factors, function(x) {x$index})),
-              unlist(sapply(self$convert_formula_data$chars, function(x) {x$index}))
+              unlist(sapply(self$convert_formula_data$factors,
+                            function(x) {x$index})),
+              unlist(sapply(self$convert_formula_data$chars,
+                            function(x) {x$index}))
             )
             kernel <- IgnoreIndsKernel$new(k=kernel,
                                            ignoreinds=igninds)
           }
           for (i in seq_along(self$convert_formula_data$factors)) {
+            if (exists("ordfac") && isTRUE(ordfac)) {browser("exists/debug")}
             nlevels_i <- length(self$convert_formula_data$factors[[i]]$levels)
-            kernel_i <- LatentFactorKernel$new(
-              D=1,
-              xindex=self$convert_formula_data$factors[[i]]$index,
-              nlevels=nlevels_i,
-              latentdim= if (nlevels_i>=3) {2} else {1}
-            )
+            if (self$convert_formula_data$factors[[i]]$ordered) {
+              kernel_i <- OrderedFactorKernel$new(
+                D=1,
+                xindex=self$convert_formula_data$factors[[i]]$index,
+                nlevels=nlevels_i
+              )
+            } else {
+              kernel_i <- LatentFactorKernel$new(
+                D=1,
+                xindex=self$convert_formula_data$factors[[i]]$index,
+                nlevels=nlevels_i,
+                latentdim= if (nlevels_i>=3) {2} else {1}
+              )
+            }
             kernel <- kernel * kernel_i
           }
           for (i in seq_along(self$convert_formula_data$chars)) {

@@ -81,7 +81,12 @@ GauPro_kernel <- R6::R6Class(
       # Loop over each dimension
       for (i in 1:self$D) {
         df <- NULL
-        if (!(i %in% factordims)) {
+        xname <- if (!is.null(colnames(X)) && colnames(X)[i] != "") {
+          colnames(X)[i]
+        } else {
+          paste0("X", i)
+        }
+        if (!(i %in% factordims)) { # Continuous kernel
           if (is.null(X)) {
             Xi <- seq(0, 1, l=10)
           } else {
@@ -109,11 +114,9 @@ GauPro_kernel <- R6::R6Class(
             ggplot2::geom_line() +
             # ggplot2::facet_wrap(.~i, scales='free_x') +
             ggplot2::guides(color='none') +
-            ggplot2::xlab(paste0("X", i)) +
+            ggplot2::xlab(xname) +
             ggplot2::coord_cartesian(ylim=(c(0, max(df$k))))
         } else { # Factor dim
-          # Copied from kernel_LatentFactor plot
-          # nlevels <- length(unique(X[, i]))
           nlevels <- which(factorinfo[seq(1, length(factorinfo), 2)] == i)[1] *2
           xindex <- i
           x1 <- 1:nlevels
@@ -136,7 +139,7 @@ GauPro_kernel <- R6::R6Class(
             ggplot2::scale_x_continuous(breaks=1:nlevels) +
             ggplot2::scale_y_continuous(breaks=nlevels:1, trans='reverse') +
             ggplot2::ylab(NULL) +
-            ggplot2::xlab(paste0("X", i))
+            ggplot2::xlab(xname)
           # To add squares
           # geom_segment(data=data.frame(x=c(.5+0:nlevels),
           #  xend=c(.5+0:nlevels),
@@ -155,9 +158,14 @@ GauPro_kernel <- R6::R6Class(
       # Arrange
       # do.call(gridExtra::grid.arrange, c(plots,
       #  ncol=floor(sqrt(length(plots)))))
-      gridExtra::grid.arrange(grobs=plots,
-                              ncol=floor(sqrt(length(plots))))
+      if (length(plots) == 1) {
+        plots[[1]]
+      } else {
+        gridExtra::grid.arrange(grobs=plots,
+                                ncol=floor(sqrt(length(plots))))
+      }
     },
+    # Below only worked for cts, not factors.
     # plot = function(X=NULL) {
     #   stopifnot(!is.null(self$D), self$D >= 1)
     #   if (!is.null(X)) {

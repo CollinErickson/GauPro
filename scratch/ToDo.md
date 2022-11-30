@@ -21,8 +21,6 @@ at end for K/Kinv so predictions are good.
 
 * no param est gave error, dC_dparam can't be calculated
 
-* Add test with repeated X. Add test with big nugget and make sure deriv still matches.
-
 * estimate_run_time(). Run it when creating object. Give estimated time if long.
 
 * factor trend, LM ignore inds
@@ -70,6 +68,10 @@ that initial optim values should be large.
 
 * Add deprecated for old model: lifecycle::
 
-* Use blockcd, not coordesc
-
 * Submit bug for lifecycle depr inside R6
+
+* LatFacKer: Add zeros to reduce par
+
+* Ordered is way slower than Latent
+
+* Test with useC=F
