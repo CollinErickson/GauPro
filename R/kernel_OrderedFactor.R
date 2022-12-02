@@ -223,9 +223,9 @@ OrderedFactorKernel <- R6::R6Class(
       if (is.matrix(x) & is.matrix(y)) {
         if (self$useC) { # Way faster
           if (exists("ofmm") && isTRUE(ofmm)) {browser("exists/debug")}
-          s2 * corr_latentfactor_matrixmatrixC(
-            x=x, y=y, theta=pf, xindex=self$xindex,
-            latentdim = self$latentdim, offdiagequal=1-1e-6)
+          s2 * corr_orderedfactor_matrixmatrixC(
+            x=x, y=y, theta=p, xindex=self$xindex,
+            offdiagequal=1-1e-6)
         } else {
           outer(1:nrow(x), 1:nrow(y),
                 Vectorize(function(i,j){self$kone(x[i,],y[j,],p=p, s2=s2)}))
@@ -332,6 +332,11 @@ OrderedFactorKernel <- R6::R6Class(
                                               self$p_est, lenparams_D, s2*nug,
                                               self$xindex-1,
                                               self$nlevels, s2)
+        if (any(is.na(dC_dparams))) {
+          print('bad dcdparams')
+          browser('fix this')
+          warning('a;slkdfja;sdlkfj')
+        }
       } else {
         dC_dparams <- array(dim=c(lenparams_D, n, n), data=0)
         if (self$s2_est) {

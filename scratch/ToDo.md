@@ -75,3 +75,17 @@ that initial optim values should be large.
 * Ordered is way slower than Latent
 
 * Test with useC=F
+
+* Fix ordered grad
+
+* Ordered: plotlatent
+
+* Latent assert nlat < nlev
+
+* Check kernel start par outside of bounds set by user. Test if it gives all errors.
+
+* Latent convert p to pf
+
+* EI for t dist
+
+* Noisy EI?

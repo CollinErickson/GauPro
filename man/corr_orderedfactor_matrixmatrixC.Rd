@@ -16,8 +16,6 @@ corr_orderedfactor_matrixmatrixC(x, y, theta, xindex, offdiagequal)
 \item{xindex}{Index to use}
 
 \item{offdiagequal}{What to set off-diagonal values with matching values to.}
-
-\item{latentdim}{Number of latent dimensions}
 }
 \value{
 Correlation matrix

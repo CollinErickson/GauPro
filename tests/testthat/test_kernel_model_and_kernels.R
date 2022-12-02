@@ -301,7 +301,7 @@ test_that("Cts kernels", {
 
 # Factor kernels ----
 test_that("Factor kernels", {
-  n <- 20
+  n <- 10
   d <- 1
   x <- matrix(runif(n*d), ncol=d)
   # second is factor dim

@@ -351,7 +351,6 @@ corr_orderedfactor_matrix_symC <- function(x, theta, xindex, offdiagequal) {
 #' @param y Matrix y
 #' @param theta Theta vector
 #' @param xindex Index to use
-#' @param latentdim Number of latent dimensions
 #' @param offdiagequal What to set off-diagonal values with matching values to.
 #' @return Correlation matrix
 #' @export
@@ -370,7 +369,7 @@ corr_orderedfactor_matrixmatrixC <- function(x, y, theta, xindex, offdiagequal) 
 }
 
 #' Derivative of covariance matrix of X with respect to kernel
-#' parameters for the Latent Factor Kernel
+#' parameters for the Ordered Factor Kernel
 #' @param x Matrix x
 #' @param pf pf vector
 #' @param C_nonug cov mat without nugget
@@ -378,7 +377,6 @@ corr_orderedfactor_matrixmatrixC <- function(x, y, theta, xindex, offdiagequal) 
 #' @param p_est Whether theta/beta is being estimated
 #' @param lenparams_D Number of parameters the derivative is being calculated for
 #' @param s2_nug s2 times the nug
-#' @param latentdim Number of latent dimensions
 #' @param xindex Which column of x is the indexing variable
 #' @param nlevels Number of levels
 #' @param s2 Value of s2

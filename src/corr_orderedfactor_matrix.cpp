@@ -79,7 +79,6 @@ NumericMatrix corr_orderedfactor_matrix_symC(NumericMatrix x,
 //' @param y Matrix y
 //' @param theta Theta vector
 //' @param xindex Index to use
-//' @param latentdim Number of latent dimensions
 //' @param offdiagequal What to set off-diagonal values with matching values to.
 //' @return Correlation matrix
 //' @export
@@ -142,7 +141,7 @@ NumericMatrix corr_orderedfactor_matrixmatrixC(NumericMatrix x, NumericMatrix y,
 
 // Trying to get C_dC for Gaussian kernel
 //' Derivative of covariance matrix of X with respect to kernel
-//' parameters for the Latent Factor Kernel
+//' parameters for the Ordered Factor Kernel
 //' @param x Matrix x
 //' @param pf pf vector
 //' @param C_nonug cov mat without nugget
@@ -150,7 +149,6 @@ NumericMatrix corr_orderedfactor_matrixmatrixC(NumericMatrix x, NumericMatrix y,
 //' @param p_est Whether theta/beta is being estimated
 //' @param lenparams_D Number of parameters the derivative is being calculated for
 //' @param s2_nug s2 times the nug
-//' @param latentdim Number of latent dimensions
 //' @param xindex Which column of x is the indexing variable
 //' @param nlevels Number of levels
 //' @param s2 Value of s2
@@ -197,7 +195,7 @@ arma::cube kernel_orderedFactor_dC(
             if (a <= k && k <= b) {
               // dC_dparams(k_ind,i,j) = -2 * out * (latentx_l - latenty_l);
               dC_dparams(k,i,j) = (
-                -2 * sqrt(-log(C_nonug(i, j))) * C_nonug(i, j));
+                -2 * sqrt(-log(C_nonug(i, j) / s2)) * C_nonug(i, j));
               dC_dparams(k,j,i) = dC_dparams(k,i,j);
             }
             // if (xlev>1.5 && xlev==k && ylev !=k) {
