@@ -5,7 +5,8 @@
 # param_optim_lower - lower bound of params
 # param_optim_upper - upper
 # param_optim_start - current param values
-# param_optim_start0 - some central param values that can be used for optimization restarts
+# param_optim_start0 - some central param values that can be used for
+#  optimization restarts
 # param_optim_jitter - how to jitter params in optimization
 
 # Suggested
@@ -204,8 +205,6 @@ OrderedFactorKernel <- R6::R6Class(
           #                self$kone(x[i,],x[j,],p=p, s2=s2)
           #              }))
           if (self$useC) {
-            # print('ordfacC')
-            if (exists("ordfacC") && isTRUE(ordfacC)) {browser("exists/debug")}
             val <- s2 * corr_orderedfactor_matrix_symC(x, p, self$xindex,
                                                        1-1e-6)
           } else {
@@ -222,7 +221,6 @@ OrderedFactorKernel <- R6::R6Class(
       }
       if (is.matrix(x) & is.matrix(y)) {
         if (self$useC) { # Way faster
-          if (exists("ofmm") && isTRUE(ofmm)) {browser("exists/debug")}
           s2 * corr_orderedfactor_matrixmatrixC(
             x=x, y=y, theta=p, xindex=self$xindex,
             offdiagequal=1-1e-6)
@@ -247,7 +245,8 @@ OrderedFactorKernel <- R6::R6Class(
     #' @param offdiagequal What should offdiagonal values be set to when the
     #' indices are the same? Use to avoid decomposition errors, similar to
     #' adding a nugget.
-    #' @references https://stackoverflow.com/questions/27086195/linear-index-upper-triangular-matrix
+    #' @references
+    #' https://stackoverflow.com/questions/27086195/linear-index-upper-triangular-matrix
     kone = function(x, y, p, s2, isdiag=TRUE, offdiagequal=1-1e-6) {
       # if (missing(p)) {p <- 10^logp}
       # out <- s2 * exp(-sum(alpha*sin(p * (x-y))^2))
@@ -327,7 +326,6 @@ OrderedFactorKernel <- R6::R6Class(
 
 
       if (self$useC) {
-        if (exists("fkdc") && isTRUE(fkdc)) {browser("exists/debug")}
         dC_dparams <- kernel_orderedFactor_dC(X, p, C_nonug, self$s2_est,
                                               self$p_est, lenparams_D, s2*nug,
                                               self$xindex-1,
@@ -357,7 +355,8 @@ OrderedFactorKernel <- R6::R6Class(
                   # ind <- (nn*(nn-1)/2) - (nn-ii)*((nn-ii)-1)/2 + jj - ii #- 1
                   ii <- min(xx,yy)
                   jj <- max(xx,yy) - 1
-                  if (ii <= k && k <= jj) { # Does correspond to the correct parameter
+                  if (ii <= k && k <= jj) {
+                    # Does correspond to the correct parameter
                     p_dist <- sum(p[ii:jj])
                     r <- exp(-p_dist^2)
                     dC_dparams[k,i,j] <- -2 * p_dist * r * s2
@@ -405,7 +404,8 @@ OrderedFactorKernel <- R6::R6Class(
       s2 <- self$s2_from_params(params)
       C_nonug <- self$k(x=X, params=params)
       C <- C_nonug + diag(s2*nug, nrow(X))
-      dC_dparams <- self$dC_dparams(params=params, X=X, C_nonug=C_nonug, C=C, nug=nug)
+      dC_dparams <- self$dC_dparams(params=params, X=X, C_nonug=C_nonug, C=C,
+                                    nug=nug)
       list(C=C, dC_dparams=dC_dparams)
     },
     #' @description Derivative of covariance with respect to X
@@ -430,14 +430,12 @@ OrderedFactorKernel <- R6::R6Class(
     #' @param s2_est Is s2 being estimated?
     param_optim_start = function(jitter=F, y, p_est=self$p_est,
                                  s2_est=self$s2_est) {
-      # Use current values for theta, partial MLE for s2
-      # vec <- c(log(self$theta, 10), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
       if (p_est) {vec <- c(self$p)} else {vec <- c()}
-      # if (alpha_est) {vec <- c(vec, self$logalpha)} else {}
       if (s2_est) {vec <- c(vec, self$logs2)} else {}
       # if (jitter && p_est) {
       #   # vec <- vec + c(self$logp_optim_jitter,  0)
-      #   vec[1:length(self$p)] = vec[1:length(self$p)] + rnorm(length(self$p), 0, 1)
+      #   vec[1:length(self$p)] = vec[1:length(self$p)] +
+      #  rnorm(length(self$p), 0, 1)
       # }
       vec
     },
@@ -449,13 +447,11 @@ OrderedFactorKernel <- R6::R6Class(
     #' @param s2_est Is s2 being estimated?
     param_optim_start0 = function(jitter=F, y, p_est=self$p_est,
                                   s2_est=self$s2_est) {
-      # Use 0 for theta, partial MLE for s2
-      # vec <- c(rep(0, length(self$theta)), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
       if (p_est) {vec <- rep(0, self$p_length)} else {vec <- c()}
-      # if (alpha_est) {vec <- c(vec, 1)} else {}
       if (s2_est) {vec <- c(vec, 0)} else {}
       if (jitter && p_est) {
-        vec[1:length(self$p)] = vec[1:length(self$logp)] + rnorm(length(self$p), 0, 1)
+        vec[1:length(self$p)] = vec[1:length(self$logp)] +
+          rnorm(length(self$p), 0, 1)
       }
       vec
     },
@@ -517,6 +513,24 @@ OrderedFactorKernel <- R6::R6Class(
       } else { # Else it is just using set value, not being estimated
         self$s2
       }
+    },
+    #' @description Plot the points in the latent space
+    plotLatent = function() {
+      x <- c(0, cumsum(self$p))
+      pdf <- data.frame(x=x, y=0)
+      pdf$name <- paste0("x=",1:nrow(pdf))
+      # if (self$latentdim == 1) {
+      ggplot2::ggplot(pdf, ggplot2::aes(x, 0, label=name)) +
+        ggplot2::geom_point() +
+        ggrepel::geom_label_repel() +
+        ggplot2::scale_y_continuous(labels=NULL) +
+        ggplot2::ylab(NULL)
+      # } else if (self$latentdim == 2) {
+      #   ggplot2::ggplot(pdf, ggplot2::aes(V1, V2, label=name)) +
+      #     ggplot2::geom_point() + ggrepel::geom_label_repel()
+      # } else {
+      #   stop("Can't plotLatent for latentdim > 2")
+      # }
     },
     #' @description Print this object
     print = function() {

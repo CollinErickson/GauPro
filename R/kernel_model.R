@@ -363,7 +363,6 @@ GauPro_kernel_model <- R6::R6Class(
                                            ignoreinds=igninds)
           }
           for (i in seq_along(self$convert_formula_data$factors)) {
-            if (exists("ordfac") && isTRUE(ordfac)) {browser("exists/debug")}
             nlevels_i <- length(self$convert_formula_data$factors[[i]]$levels)
             if (self$convert_formula_data$factors[[i]]$ordered) {
               kernel_i <- OrderedFactorKernel$new(
@@ -399,7 +398,6 @@ GauPro_kernel_model <- R6::R6Class(
       }
 
       # Check that kernel is valid
-      if (exists("fkc") && isTRUE(fkc)) {browser("exists/debug")}
       ctsinds <- find_kernel_cts_dims(self$kernel)
       facinds <- find_kernel_factor_dims(self$kernel)
       if (length(facinds) > .5) {

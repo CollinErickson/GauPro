@@ -68,24 +68,16 @@ that initial optim values should be large.
 
 * Add deprecated for old model: lifecycle::
 
-* Submit bug for lifecycle depr inside R6
-
-* LatFacKer: Add zeros to reduce par
-
-* Ordered is way slower than Latent
+* LatFacKer: Add zeros to reduce par. Convert p to pf.
 
 * Test with useC=F
 
-* Fix ordered grad
-
-* Ordered: plotlatent
-
-* Latent assert nlat < nlev
-
 * Check kernel start par outside of bounds set by user. Test if it gives all errors.
-
-* Latent convert p to pf
 
 * EI for t dist
 
+* Test 1D
+
 * Noisy EI?
+
+* Rename to gpkm, hide all R6 classes. Look into R7.

@@ -301,11 +301,12 @@ test_that("Cts kernels", {
 
 # Factor kernels ----
 test_that("Factor kernels", {
-  n <- 10
+  n <- sample(20:30, 1)
   d <- 1
   x <- matrix(runif(n*d), ncol=d)
   # second is factor dim
-  x[, 1] <- sample(1:3, n, T)
+  nlev <- 3
+  x[, 1] <- sample(nlev, n, T)
   # f <- function(x) {abs(sin(x[1]^.8*6))^1.2 + log(1+x[2]) + x[1]*x[2]}
   f <- function(x) {x[1]^.7}
   y <- apply(x, 1, f) + rnorm(n,0,1e-1) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
@@ -340,7 +341,7 @@ test_that("Factor kernels", {
 
     # Check kernel properties
     expect_equal(GauPro:::find_kernel_cts_dims(gp$kernel), NULL)
-    expect_equal(GauPro:::find_kernel_factor_dims(gp$kernel), c(1,3))
+    expect_equal(GauPro:::find_kernel_factor_dims(gp$kernel), c(1,nlev))
 
     # Test predict
     if (T || (j %in% 1:4)) {
@@ -359,6 +360,9 @@ test_that("Factor kernels", {
 
     # Kernel plot
     expect_error(plot(gp$kernel), NA)
+    if (j > 1.5) {
+      expect_no_error(gp$kernel$plotLatent())
+    }
 
     # Test importance
     expect_error(capture.output(imp <- gp$importance(plot=F)), NA)
@@ -421,11 +425,11 @@ test_that("Factor kernels", {
 
 # Factor*Cts kernels ----
 test_that("Factor kernels in product", {
-  n <- 20
+  n <- sample(20:30, 1)
   d <- 2
   x <- matrix(runif(n*d), ncol=d)
   # second is factor dim
-  nlev <- 2
+  nlev <- 3
   x[, 2] <- sample(1:nlev, n, T)
   f <- function(x) {abs(sin(x[1]^.8*6))^1.2 + log(1+x[2]) + x[1]*x[2]}
   y <- apply(x, 1, f) + rnorm(n,0,1e-2) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
@@ -439,7 +443,7 @@ test_that("Factor kernels in product", {
   )
   for (j in 1:length(kern_chars)) {
     kern_char <- kern_chars[j]
-    if (exists('printkern') && printkern) cat(j, kern_char, "\n")
+    if (exists('printkern') && printkern) cat(j, kern_char, " w/ cts\n")
     # kern <- eval(parse(text=kern_char))
     # expect_is(kern, "R6ClassGenerator")
     kern1 <- IgnoreIndsKernel$new(Matern32$new(D=1), ignoreinds = 2)
@@ -455,7 +459,7 @@ test_that("Factor kernels in product", {
 
     # Check kernel properties
     expect_equal(GauPro:::find_kernel_cts_dims(gp$kernel), 1)
-    expect_equal(GauPro:::find_kernel_factor_dims(gp$kernel), c(2,2))
+    expect_equal(GauPro:::find_kernel_factor_dims(gp$kernel), c(2,nlev))
 
     # Check kernel print
     expect_error({kernprint <- capture_output(print(gp$kernel))}, NA)

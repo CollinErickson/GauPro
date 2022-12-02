@@ -106,6 +106,7 @@ https://stackoverflow.com/questions/27086195/linear-index-upper-triangular-matri
 \item \href{#method-GauPro_kernel_OrderedFactorKernel-param_optim_upper}{\code{OrderedFactorKernel$param_optim_upper()}}
 \item \href{#method-GauPro_kernel_OrderedFactorKernel-set_params_from_optim}{\code{OrderedFactorKernel$set_params_from_optim()}}
 \item \href{#method-GauPro_kernel_OrderedFactorKernel-s2_from_params}{\code{OrderedFactorKernel$s2_from_params()}}
+\item \href{#method-GauPro_kernel_OrderedFactorKernel-plotLatent}{\code{OrderedFactorKernel$plotLatent()}}
 \item \href{#method-GauPro_kernel_OrderedFactorKernel-print}{\code{OrderedFactorKernel$print()}}
 \item \href{#method-GauPro_kernel_OrderedFactorKernel-clone}{\code{OrderedFactorKernel$clone()}}
 }
@@ -435,6 +436,16 @@ Get s2 from params vector
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-GauPro_kernel_OrderedFactorKernel-plotLatent"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_OrderedFactorKernel-plotLatent}{}}}
+\subsection{Method \code{plotLatent()}}{
+Plot the points in the latent space
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{OrderedFactorKernel$plotLatent()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GauPro_kernel_OrderedFactorKernel-print"></a>}}

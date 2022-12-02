@@ -137,7 +137,7 @@ LatentFactorKernel <- R6::R6Class(
       stopifnot(length(D) == 1, length(nlevels) == 1,
                 length(xindex) == 1, length(latentdim) == 1,
                 D>=1L, nlevels>=2L, xindex>=1L, latentdim>=1)
-      stopifnot(latentdim <= nlevels)
+      stopifnot(latentdim < nlevels)
 
       self$D <- D
       self$nlevels <- nlevels
@@ -541,10 +541,9 @@ LatentFactorKernel <- R6::R6Class(
     plotLatent = function() {
       # pf = p full has zero for first dim, then p
       pf <- c(rep(0, self$latentdim), self$p)
-
       pmat <- matrix(pf, ncol=self$latentdim, byrow=TRUE)
       pdf <- as.data.frame(pmat)
-      pdf$name <- paste0("D=",1:nrow(pdf))
+      pdf$name <- paste0("x=",1:nrow(pdf))
       if (self$latentdim == 1) {
         ggplot2::ggplot(pdf, ggplot2::aes(V1, 0, label=name)) +
           ggplot2::geom_point() +
