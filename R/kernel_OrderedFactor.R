@@ -213,7 +213,6 @@ OrderedFactorKernel <- R6::R6Class(
                            self$kone(x[i,],x[j,],p=p, s2=s2, isdiag=i==j)
                          }))
           }
-          # if (inherits(cgmtry,"try-error")) {browser()}
           return(val)
         } else {
           return(s2 * 1)
@@ -519,18 +518,11 @@ OrderedFactorKernel <- R6::R6Class(
       x <- c(0, cumsum(self$p))
       pdf <- data.frame(x=x, y=0)
       pdf$name <- paste0("x=",1:nrow(pdf))
-      # if (self$latentdim == 1) {
       ggplot2::ggplot(pdf, ggplot2::aes(x, 0, label=name)) +
         ggplot2::geom_point() +
         ggrepel::geom_label_repel() +
-        ggplot2::scale_y_continuous(labels=NULL) +
+        ggplot2::scale_y_continuous(breaks=NULL) +
         ggplot2::ylab(NULL)
-      # } else if (self$latentdim == 2) {
-      #   ggplot2::ggplot(pdf, ggplot2::aes(V1, V2, label=name)) +
-      #     ggplot2::geom_point() + ggrepel::geom_label_repel()
-      # } else {
-      #   stop("Can't plotLatent for latentdim > 2")
-      # }
     },
     #' @description Print this object
     print = function() {

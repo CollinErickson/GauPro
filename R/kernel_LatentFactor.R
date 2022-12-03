@@ -149,7 +149,6 @@ LatentFactorKernel <- R6::R6Class(
       self$xindex <- xindex
       self$latentdim <- latentdim
 
-
       p_to_pf <- c()
       for (i in 1:nlevels) {
         n0 <- max(0, latentdim+1-i)
@@ -237,12 +236,9 @@ LatentFactorKernel <- R6::R6Class(
         s2 <- 10^logs2
       } else {
         if (is.null(p)) {p <- self$p}
-        # if (is.null(logalpha)) {logalpha <- self$logalpha}
         if (is.null(s2)) {s2 <- self$s2}
       }
 
-      # pf = p full has zero for first dim, then p
-      # pf <- c(rep(0, self$latentdim), p)
       pf <- self$p_to_pf(p)
       # p <- 10^logp
       # alpha <- 10^logalpha
@@ -261,7 +257,6 @@ LatentFactorKernel <- R6::R6Class(
                            self$kone(x[i,],x[j,],pf=pf, s2=s2, isdiag=i==j)
                          }))
           }
-          # if (inherits(cgmtry,"try-error")) {browser()}
           return(val)
         } else {
           return(s2 * 1)
@@ -298,11 +293,8 @@ LatentFactorKernel <- R6::R6Class(
     #' adding a nugget.
     #' @references https://stackoverflow.com/questions/27086195/linear-index-upper-triangular-matrix
     kone = function(x, y, pf, s2, isdiag=TRUE, offdiagequal=1-1e-6) {
-      # if (missing(p)) {p <- 10^logp}
-      # out <- s2 * exp(-sum(alpha*sin(p * (x-y))^2))
       x <- x[self$xindex]
       y <- y[self$xindex]
-      # browser()
       stopifnot(x>=1, y>=1, x<=self$nlevels, y<=self$nlevels,
                 length(pf) == self$nlevels*self$latentdim,
                 abs(x-as.integer(x)) < 1e-8, abs(y-as.integer(y)) < 1e-8)
@@ -337,7 +329,6 @@ LatentFactorKernel <- R6::R6Class(
     #' @param nug Value of nugget
     dC_dparams = function(params=NULL, X, C_nonug, C, nug) {
       n <- nrow(X)
-      # browser()
 
       stopifnot(X[, self$xindex] >= 1, X[, self$xindex] <= self$nlevels)
 
@@ -382,10 +373,7 @@ LatentFactorKernel <- R6::R6Class(
 
       lenparams_D <- self$p_length*self$p_est + self$s2_est
 
-      # pf = p full has zero for first dim, then p
-      # pf <- c(rep(0, self$latentdim), p)
       pf <- self$p_to_pf(p)
-      # browser()
 
       if (self$useC) {
         dC_dparams <- kernel_latentFactor_dC(X, pf, C_nonug, self$s2_est,
@@ -405,10 +393,8 @@ LatentFactorKernel <- R6::R6Class(
         xindex <- self$xindex
 
         if (self$p_est) {
-          # for (k in 1:length(p)) { # k is index of parameter
           stopifnot(self$nlevels>=2L)
           for (k in 2:self$nlevels) { # k is index of level
-            # browser()
             # kinds <- (k-1)*latentdim+1:latentdim - latentdim
             kinds <- (cumsum(self$pf_to_p_log) * self$pf_to_p_log)[
               (k-1)*latentdim+1:latentdim]
@@ -439,9 +425,6 @@ LatentFactorKernel <- R6::R6Class(
                   p_dist2 <- sum((latentx - latenty)^2)
                   out <- s2 * exp(-p_dist2)
                   # kinds <- (ylev-1)*latentdim+1:latentdim - latentdim
-                  # if (inherits(try({
-                  #   dC_dparams[kinds,i,j] <- 2 * out * (latentx - latenty)}),
-                  #   'try-error')) {browser()}
                   # dC_dparams[kinds,i,j] <- 2 * out * (latentx - latenty)
                   # dC_dparams[kinds,j,i] <- dC_dparams[kinds,i,j]
                   dC_dparams[kinds,i,j] <- 2 * out * (latentx[kactiveinds] -
@@ -575,7 +558,6 @@ LatentFactorKernel <- R6::R6Class(
     #' vector with zeros).
     #' @param p Parameter vector
     p_to_pf = function(p) {
-      # browser()
       pf <- rep(0, length(self$pf_to_p_log))
       pf[self$pf_to_p_log] <- p
       pf
@@ -592,8 +574,6 @@ LatentFactorKernel <- R6::R6Class(
     },
     #' @description Plot the points in the latent space
     plotLatent = function() {
-      # pf = p full has zero for first dim, then p
-      # pf <- c(rep(0, self$latentdim), self$p)
       pf <- self$p_to_pf(self$p)
       pmat <- matrix(pf, ncol=self$latentdim, byrow=TRUE)
       pdf <- as.data.frame(pmat)
@@ -601,10 +581,13 @@ LatentFactorKernel <- R6::R6Class(
       if (self$latentdim == 1) {
         ggplot2::ggplot(pdf, ggplot2::aes(V1, 0, label=name)) +
           ggplot2::geom_point() +
-          ggrepel::geom_label_repel()
+          ggplot2::scale_y_continuous(breaks=NULL) +
+          ggrepel::geom_label_repel() +
+          ggplot2::ylab(NULL)
       } else if (self$latentdim == 2) {
         ggplot2::ggplot(pdf, ggplot2::aes(V1, V2, label=name)) +
-          ggplot2::geom_point() + ggrepel::geom_label_repel()
+          ggplot2::geom_point() +
+          ggrepel::geom_label_repel()
       } else {
         stop("Can't plotLatent for latentdim > 2")
       }
