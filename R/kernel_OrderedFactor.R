@@ -152,7 +152,7 @@ OrderedFactorKernel <- R6::R6Class(
       self$logs2_lower <- log(s2_lower, 10)
       self$logs2_upper <- log(s2_upper, 10)
       self$s2_est <- s2_est
-      self$useC <- TRUE
+      self$useC <- useC
     },
     #' @description Calculate covariance between two points
     #' @param x vector.

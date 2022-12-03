@@ -333,18 +333,18 @@ GauPro_kernel_model <- R6::R6Class(
           kernel <- Gaussian$new(D=Dcts, useC=useC)
         } else if (kernel %in% c("matern32", "m32", "matern3/2",
                                  "matern3_2")) {
-          kernel <- Matern32$new(D=Dcts)
+          kernel <- Matern32$new(D=Dcts, useC=useC)
         } else if (kernel %in% c("matern52", "m52", "matern5/2",
                                  "matern5_2")) {
-          kernel <- Matern52$new(D=Dcts)
+          kernel <- Matern52$new(D=Dcts, useC=useC)
         } else if (kernel %in% c("exp", "exponential",
                                  "m12", "matern12",
                                  "matern1/2", "matern1_2")) {
-          kernel <- Exponential$new(D=Dcts)
+          kernel <- Exponential$new(D=Dcts, useC=useC)
         } else if (kernel %in% c("ratquad", "rationalquadratic", "rq")) {
-          kernel <- RatQuad$new(D=Dcts)
+          kernel <- RatQuad$new(D=Dcts, useC=useC)
         } else if (kernel %in% c("powerexponential", "powexp", "pe")) {
-          kernel <- PowerExp$new(D=Dcts)
+          kernel <- PowerExp$new(D=Dcts, useC=useC)
         } else {
           stop(paste0("Kernel given to GauPro_kernel_model (",
                       kernel, ") is not valid. ",
@@ -370,14 +370,15 @@ GauPro_kernel_model <- R6::R6Class(
               kernel_i <- OrderedFactorKernel$new(
                 D=1,
                 xindex=self$convert_formula_data$factors[[i]]$index,
-                nlevels=nlevels_i
+                nlevels=nlevels_i, useC=useC
               )
             } else {
               kernel_i <- LatentFactorKernel$new(
                 D=1,
                 xindex=self$convert_formula_data$factors[[i]]$index,
                 nlevels=nlevels_i,
-                latentdim= if (nlevels_i>=3) {2} else {1}
+                latentdim= if (nlevels_i>=3) {2} else {1},
+                useC=useC
               )
             }
             kernel <- kernel * kernel_i
@@ -388,7 +389,8 @@ GauPro_kernel_model <- R6::R6Class(
               D=1,
               xindex=self$convert_formula_data$chars[[i]]$index,
               nlevels=nlevels_i,
-              latentdim= if (nlevels_i>=3) {2} else {1}
+              latentdim= if (nlevels_i>=3) {2} else {1},
+              useC=useC
             )
             kernel <- kernel * kernel_i
           }

@@ -70,8 +70,6 @@ that initial optim values should be large.
 
 * Test with useC=F
 
-* Kernels use useC: add to init, pass in gpkm init
-
 * Check kernel start par outside of bounds set by user. Test if it gives all errors.
 
 * EI for t dist
@@ -81,3 +79,7 @@ that initial optim values should be large.
 * Noisy EI?
 
 * Rename to gpkm, hide all R6 classes. Look into R7.
+
+* optim starts for kernel parameters. Add jitter.
+
+* PowerExp dC_dx at self$X in 1D gives error
