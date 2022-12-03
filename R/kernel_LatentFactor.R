@@ -26,6 +26,8 @@
 #' @field xindex Index of the factor (which column of X)
 #' @field nlevels Number of levels for the factor
 #' @field latentdim Dimension of embedding space
+#' @field pf_to_p_log Logical vector used to convert pf to p
+#' @field p_to_pf_inds Vector of indexes used to convert p to pf
 #' @examples
 #' # Create a new kernel for a single factor with 5 levels,
 #' #  mapped into two latent dimensions.
@@ -103,6 +105,8 @@ LatentFactorKernel <- R6::R6Class(
     nlevels = NULL,
     latentdim = NULL,
     xindex = NULL,
+    pf_to_p_log = NULL,
+    p_to_pf_inds = NULL,
     # alpha = NULL,
     # logalpha = NULL,
     # logalpha_lower = NULL,
@@ -137,6 +141,7 @@ LatentFactorKernel <- R6::R6Class(
       stopifnot(length(D) == 1, length(nlevels) == 1,
                 length(xindex) == 1, length(latentdim) == 1,
                 D>=1L, nlevels>=2L, xindex>=1L, latentdim>=1)
+      # Following avoids redundancies
       stopifnot(latentdim < nlevels)
 
       self$D <- D
@@ -144,10 +149,29 @@ LatentFactorKernel <- R6::R6Class(
       self$xindex <- xindex
       self$latentdim <- latentdim
 
+
+      p_to_pf <- c()
+      for (i in 1:nlevels) {
+        n0 <- max(0, latentdim+1-i)
+        nnon0 <- latentdim - n0
+        p_to_pf <- c(p_to_pf, rep(T, nnon0), rep(F, n0))
+      }
+      pf_to_p <- which(p_to_pf)
+      # p_to_pf
+      # pf_to_p
+      # (1:(nlev*nld))[pf_to_p]
+      # Names are backwards, or just unclear
+      self$p_to_pf_inds <- pf_to_p
+      self$pf_to_p_log  <- p_to_pf
+      self$useC <- T
+
+
       # p <- rep(0, D * (D-1) / 2)
       # p <- rep(1, nlevels - 1)
       # Latent vars for first dim will be pinned to 0
-      p <- rnorm(latentdim*(nlevels - 1))
+      # p <- rnorm(latentdim*(nlevels - 1))
+      # Now pinning more to 0, more complex conversions
+      p <- rnorm(length(self$p_to_pf_inds))
       self$p <- p
       self$p_length <- length(p)
       # Ensure separation between levels to avoid instability
@@ -218,7 +242,8 @@ LatentFactorKernel <- R6::R6Class(
       }
 
       # pf = p full has zero for first dim, then p
-      pf <- c(rep(0, self$latentdim), p)
+      # pf <- c(rep(0, self$latentdim), p)
+      pf <- self$p_to_pf(p)
       # p <- 10^logp
       # alpha <- 10^logalpha
       if (is.null(y)) {
@@ -277,6 +302,7 @@ LatentFactorKernel <- R6::R6Class(
       # out <- s2 * exp(-sum(alpha*sin(p * (x-y))^2))
       x <- x[self$xindex]
       y <- y[self$xindex]
+      # browser()
       stopifnot(x>=1, y>=1, x<=self$nlevels, y<=self$nlevels,
                 length(pf) == self$nlevels*self$latentdim,
                 abs(x-as.integer(x)) < 1e-8, abs(y-as.integer(y)) < 1e-8)
@@ -311,6 +337,7 @@ LatentFactorKernel <- R6::R6Class(
     #' @param nug Value of nugget
     dC_dparams = function(params=NULL, X, C_nonug, C, nug) {
       n <- nrow(X)
+      # browser()
 
       stopifnot(X[, self$xindex] >= 1, X[, self$xindex] <= self$nlevels)
 
@@ -356,7 +383,9 @@ LatentFactorKernel <- R6::R6Class(
       lenparams_D <- self$p_length*self$p_est + self$s2_est
 
       # pf = p full has zero for first dim, then p
-      pf <- c(rep(0, self$latentdim), p)
+      # pf <- c(rep(0, self$latentdim), p)
+      pf <- self$p_to_pf(p)
+      # browser()
 
       if (self$useC) {
         dC_dparams <- kernel_latentFactor_dC(X, pf, C_nonug, self$s2_est,
@@ -379,21 +408,33 @@ LatentFactorKernel <- R6::R6Class(
           # for (k in 1:length(p)) { # k is index of parameter
           stopifnot(self$nlevels>=2L)
           for (k in 2:self$nlevels) { # k is index of level
-            kinds <- (k-1)*latentdim+1:latentdim - latentdim
+            # browser()
+            # kinds <- (k-1)*latentdim+1:latentdim - latentdim
+            kinds <- (cumsum(self$pf_to_p_log) * self$pf_to_p_log)[
+              (k-1)*latentdim+1:latentdim]
+            kinds <- kinds[kinds != 0]
+            stopifnot(length(kinds)>0, !anyDuplicated(kinds))
+            # kactiveinds <- kinds[self$pf_to_p_log[kinds]]
+            # kactiveinds <- ((kinds - 1) %% self$nlevels) + 1
+            kactiveinds <- 1:length(kinds)
+            stopifnot(length(kinds) == length(kactiveinds))
             for (i in seq(1, n-1, 1)) { # Index of X
+              xlev <- X[i, xindex]
+              latentx <- pf[(xlev-1)*latentdim+1:latentdim]
               for (j in seq(i+1, n, 1)) { # Index of Y
-                xlev <- X[i, xindex]
                 ylev <- X[j, xindex]
                 if (xlev > 1.5 && xlev == k && ylev != k) {
-                  latentx <- pf[(xlev-1)*latentdim+1:latentdim]
                   latenty <- pf[(ylev-1)*latentdim+1:latentdim]
                   p_dist2 <- sum((latentx - latenty)^2)
                   out <- s2 * exp(-p_dist2)
                   # kinds <- (xlev-1)*latentdim+1:latentdim - latentdim
-                  dC_dparams[kinds,i,j] <- -2 * out * (latentx - latenty)
+                  # dC_dparams[kinds,i,j] <- -2 * out * (latentx - latenty)
+                  # dC_dparams[kinds,j,i] <- dC_dparams[kinds,i,j]
+                  dC_dparams[kinds,i,j] <- -2 * out * (latentx[kactiveinds] -
+                                                         latenty[kactiveinds])
                   dC_dparams[kinds,j,i] <- dC_dparams[kinds,i,j]
                 } else if (ylev > 1.5 && xlev != k && ylev == k) {
-                  latentx <- pf[(xlev-1)*latentdim+1:latentdim]
+                  # latentx <- pf[(xlev-1)*latentdim+1:latentdim]
                   latenty <- pf[(ylev-1)*latentdim+1:latentdim]
                   p_dist2 <- sum((latentx - latenty)^2)
                   out <- s2 * exp(-p_dist2)
@@ -401,7 +442,10 @@ LatentFactorKernel <- R6::R6Class(
                   # if (inherits(try({
                   #   dC_dparams[kinds,i,j] <- 2 * out * (latentx - latenty)}),
                   #   'try-error')) {browser()}
-                  dC_dparams[kinds,i,j] <- 2 * out * (latentx - latenty)
+                  # dC_dparams[kinds,i,j] <- 2 * out * (latentx - latenty)
+                  # dC_dparams[kinds,j,i] <- dC_dparams[kinds,i,j]
+                  dC_dparams[kinds,i,j] <- 2 * out * (latentx[kactiveinds] -
+                                                        latenty[kactiveinds])
                   dC_dparams[kinds,j,i] <- dC_dparams[kinds,i,j]
                 } else {
                   # Derivative is when when level isn't used in either
@@ -527,6 +571,15 @@ LatentFactorKernel <- R6::R6Class(
         self$s2 <- 10 ^ self$logs2
       }
     },
+    #' @description Convert p (short parameter vector) to pf (long parameter
+    #' vector with zeros).
+    #' @param p Parameter vector
+    p_to_pf = function(p) {
+      # browser()
+      pf <- rep(0, length(self$pf_to_p_log))
+      pf[self$pf_to_p_log] <- p
+      pf
+    },
     #' @description Get s2 from params vector
     #' @param params parameter vector
     #' @param s2_est Is s2 being estimated?
@@ -540,7 +593,8 @@ LatentFactorKernel <- R6::R6Class(
     #' @description Plot the points in the latent space
     plotLatent = function() {
       # pf = p full has zero for first dim, then p
-      pf <- c(rep(0, self$latentdim), self$p)
+      # pf <- c(rep(0, self$latentdim), self$p)
+      pf <- self$p_to_pf(self$p)
       pmat <- matrix(pf, ncol=self$latentdim, byrow=TRUE)
       pdf <- as.data.frame(pmat)
       pdf$name <- paste0("x=",1:nrow(pdf))

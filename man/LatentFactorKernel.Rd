@@ -108,6 +108,10 @@ https://stackoverflow.com/questions/27086195/linear-index-upper-triangular-matri
 \item{\code{nlevels}}{Number of levels for the factor}
 
 \item{\code{latentdim}}{Dimension of embedding space}
+
+\item{\code{pf_to_p_log}}{Logical vector used to convert pf to p}
+
+\item{\code{p_to_pf_inds}}{Vector of indexes used to convert p to pf}
 }
 \if{html}{\out{</div>}}
 }
@@ -125,6 +129,7 @@ https://stackoverflow.com/questions/27086195/linear-index-upper-triangular-matri
 \item \href{#method-GauPro_kernel_LatentFactorKernel-param_optim_lower}{\code{LatentFactorKernel$param_optim_lower()}}
 \item \href{#method-GauPro_kernel_LatentFactorKernel-param_optim_upper}{\code{LatentFactorKernel$param_optim_upper()}}
 \item \href{#method-GauPro_kernel_LatentFactorKernel-set_params_from_optim}{\code{LatentFactorKernel$set_params_from_optim()}}
+\item \href{#method-GauPro_kernel_LatentFactorKernel-p_to_pf}{\code{LatentFactorKernel$p_to_pf()}}
 \item \href{#method-GauPro_kernel_LatentFactorKernel-s2_from_params}{\code{LatentFactorKernel$s2_from_params()}}
 \item \href{#method-GauPro_kernel_LatentFactorKernel-plotLatent}{\code{LatentFactorKernel$plotLatent()}}
 \item \href{#method-GauPro_kernel_LatentFactorKernel-print}{\code{LatentFactorKernel$print()}}
@@ -438,6 +443,24 @@ Set parameters from optimization output
 \item{\code{s2_est}}{Is s2 being estimated?}
 
 \item{\code{alpha_est}}{Is alpha being estimated?}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-GauPro_kernel_LatentFactorKernel-p_to_pf"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_kernel_LatentFactorKernel-p_to_pf}{}}}
+\subsection{Method \code{p_to_pf()}}{
+Convert p (short parameter vector) to pf (long parameter
+vector with zeros).
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LatentFactorKernel$p_to_pf(p)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{p}}{Parameter vector}
 }
 \if{html}{\out{</div>}}
 }

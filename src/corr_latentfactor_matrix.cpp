@@ -149,6 +149,7 @@ arma::cube kernel_latentFactor_dC(
   arma::cube dC_dparams(lenparams_D, nrow, nrow);
 
   if (s2_est) {
+    // Rcout << "s2_est changes index  " << lenparams_D-1 << "\n";
     for (int i = 0; i < nrow - 1; i++) {
       for (int j = i + 1; j < nrow; j++) {
         dC_dparams(lenparams_D - 1,i,j) = C_nonug(i,j) * log(10.0);
@@ -156,14 +157,25 @@ arma::cube kernel_latentFactor_dC(
       }
       dC_dparams(lenparams_D - 1, i, i) = (C_nonug(i,i) + s2_nug) * log(10.0);
     }
-    dC_dparams(lenparams_D - 1, nrow - 1, nrow - 1) = (C_nonug(nrow - 1, nrow - 1) + s2_nug) * log(10.0);
+    dC_dparams(lenparams_D - 1, nrow - 1, nrow - 1) = (
+      C_nonug(nrow - 1, nrow - 1) + s2_nug) * log(10.0);
   }
   if (p_est) {
     int xlev, ylev;
+    int k_npar = 0;
+    int kind_low = 0;
+    int kind_high = -1;
     for (int k = 2; k <= nlevels; k++) {
+      k_npar = k - 1;
+      if (k_npar > latentdim) {
+        k_npar = latentdim;
+      }
+      kind_low = kind_high + 1;
+      kind_high = kind_low + k_npar - 1;
+      // Rcout << k << ' ' << k_npar << ' ' << kind_low << ' ' << kind_high << "\n";
       for (int i = 0; i < nrow - 1; i++) {
+        xlev = x(i, xindex);
         for (int j = i + 1; j < nrow; j++) {
-          xlev = x(i, xindex);
           ylev = x(j, xindex);
           if (xlev>1.5 && xlev==k && ylev !=k) {
             double p_dist2 = 0;
@@ -175,10 +187,18 @@ arma::cube kernel_latentFactor_dC(
             // s2 or s2_nug here?
             double out = s2 * exp(-p_dist2);
 
-            for (int l=0; l<latentdim; l++) {
-              int k_ind = (k-2)*latentdim + l;
+            // for (int l=0; l<latentdim; l++) {
+            //   int k_ind = (k-2)*latentdim + l;
+            //   double latentx_l = pf[(xlev-1)*latentdim + l];
+            //   double latenty_l = pf[(ylev-1)*latentdim + l];
+            //   dC_dparams(k_ind,i,j) = -2 * out * (latentx_l - latenty_l);
+            //   dC_dparams(k_ind,j,i) = dC_dparams(k_ind,i,j);
+            // }
+            for (int l=0; l<= kind_high - kind_low; l++) {
+              int k_ind = kind_low + l;
               double latentx_l = pf[(xlev-1)*latentdim + l];
               double latenty_l = pf[(ylev-1)*latentdim + l];
+              // Rcout << "  " << k << " " << l << " " << k_ind << "\n";
               dC_dparams(k_ind,i,j) = -2 * out * (latentx_l - latenty_l);
               dC_dparams(k_ind,j,i) = dC_dparams(k_ind,i,j);
             }
@@ -193,10 +213,18 @@ arma::cube kernel_latentFactor_dC(
             // s2 or s2_nug here?
             double out = s2 * exp(-p_dist2);
 
-            for (int l=0; l<latentdim; l++) {
-              int k_ind = (k-2)*latentdim + l;
+            // for (int l=0; l<latentdim; l++) {
+            //   int k_ind = (k-2)*latentdim + l;
+            //   double latentx_l = pf[(xlev-1)*latentdim + l];
+            //   double latenty_l = pf[(ylev-1)*latentdim + l];
+            //   dC_dparams(k_ind,i,j) = 2 * out * (latentx_l - latenty_l);
+            //   dC_dparams(k_ind,j,i) = dC_dparams(k_ind,i,j);
+            // }
+            for (int l=0; l<= kind_high - kind_low; l++) {
+              int k_ind = kind_low + l;
               double latentx_l = pf[(xlev-1)*latentdim + l];
               double latenty_l = pf[(ylev-1)*latentdim + l];
+              // Rcout << "  " << k << " " << l << " " << k_ind << "\n";
               dC_dparams(k_ind,i,j) = 2 * out * (latentx_l - latenty_l);
               dC_dparams(k_ind,j,i) = dC_dparams(k_ind,i,j);
             }
