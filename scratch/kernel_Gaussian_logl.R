@@ -146,13 +146,14 @@ Gaussian_logl <- R6::R6Class(classname = "GauPro_kernel_Gaussian_logl",
     #   theta <- 10^params[1:self$p]
     #   s2 <- 10^params[self$p+1]
     #   list(fn=self$l(X=X, y=y, theta=theta, s2=s2, mu=mu, n=n),
-    #        gr=self$dl_dthetas2(X=X, y=y, theta=theta, s2=s2, mu=mu, n=n, firstiter=FALSE)
+    #        gr=self$dl_dthetas2(X=X, y=y, theta=theta, s2=s2, mu=mu,
+    #        n=n, firstiter=FALSE)
     #   )
     # },
     # get_optim_functions = function(param_update) {
     #
     # },
-    dC_dparams = function(params=NULL, C, X, C_nonug, nug) {#browser(text = "Make sure all in one list")
+    dC_dparams = function(params=NULL, C, X, C_nonug, nug) {
       if (is.null(params)) {params <- c(self$logl, self$logs2)}
       lenparams <- length(params)
       logl <- params[1:(lenparams - 1)]

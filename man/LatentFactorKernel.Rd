@@ -160,7 +160,8 @@ Initialize kernel object
   p_est = TRUE,
   s2_lower = 1e-08,
   s2_upper = 1e+08,
-  s2_est = TRUE
+  s2_est = TRUE,
+  useC = TRUE
 )}\if{html}{\out{</div>}}
 }
 
@@ -189,7 +190,9 @@ Initialize kernel object
 
 \item{\code{s2_est}}{Should s2 be estimated?}
 
-\item{\code{p}}{Periodic parameter}
+\item{\code{useC}}{Should C code used? Much faster.}
+
+\item{\code{p}}{Vector of latent variables}
 }
 \if{html}{\out{</div>}}
 }

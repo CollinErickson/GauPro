@@ -17,9 +17,9 @@
 
 
 
-#' Periodic Kernel R6 class
+#' Ordered Factor Kernel R6 class
 #'
-#' p is the period for each dimension, a is a single number for scaling
+#' Use for factor inputs that are considered to have an ordering
 #'
 #' @docType class
 #' @importFrom R6 R6Class
@@ -98,13 +98,8 @@ OrderedFactorKernel <- R6::R6Class(
     logs2_upper = NULL,
     nlevels = NULL,
     xindex = NULL,
-    # alpha = NULL,
-    # logalpha = NULL,
-    # logalpha_lower = NULL,
-    # logalpha_upper = NULL,
-    # alpha_est = NULL,
     #' @description Initialize kernel object
-    #' @param p Periodic parameter
+    #' @param p Vector of distances in latent space
     #' @param s2 Initial variance
     #' @param D Number of input dimensions of data
     #' @param p_lower Lower bound for p
@@ -115,9 +110,11 @@ OrderedFactorKernel <- R6::R6Class(
     #' @param s2_est Should s2 be estimated?
     #' @param xindex Index of X to use the kernel on
     #' @param nlevels Number of levels for the factor
+    #' @param useC Should C code used? Much faster.
     initialize = function(s2=1, D, nlevels, xindex,
                           p_lower=0, p_upper=1, p_est=TRUE,
-                          s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE
+                          s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE,
+                          useC=TRUE
     ) {
       # Must give in D
       if (missing(D)) {stop("Must give Index kernel D")}
@@ -155,7 +152,7 @@ OrderedFactorKernel <- R6::R6Class(
       self$logs2_lower <- log(s2_lower, 10)
       self$logs2_upper <- log(s2_upper, 10)
       self$s2_est <- s2_est
-
+      self$useC <- TRUE
     },
     #' @description Calculate covariance between two points
     #' @param x vector.

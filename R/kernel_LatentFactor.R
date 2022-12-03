@@ -107,13 +107,8 @@ LatentFactorKernel <- R6::R6Class(
     xindex = NULL,
     pf_to_p_log = NULL,
     p_to_pf_inds = NULL,
-    # alpha = NULL,
-    # logalpha = NULL,
-    # logalpha_lower = NULL,
-    # logalpha_upper = NULL,
-    # alpha_est = NULL,
     #' @description Initialize kernel object
-    #' @param p Periodic parameter
+    #' @param p Vector of latent variables
     #' @param s2 Initial variance
     #' @param D Number of input dimensions of data
     #' @param p_lower Lower bound for p
@@ -125,10 +120,12 @@ LatentFactorKernel <- R6::R6Class(
     #' @param xindex Index of X to use the kernel on
     #' @param nlevels Number of levels for the factor
     #' @param latentdim Dimension of embedding space
+    #' @param useC Should C code used? Much faster.
     initialize = function(s2=1, D, nlevels, xindex,
                           latentdim,
                           p_lower=0, p_upper=1, p_est=TRUE,
-                          s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE
+                          s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE,
+                          useC=TRUE
     ) {
       # Must give in D
       if (missing(D)) {stop("Must give Index kernel D")}
@@ -162,7 +159,7 @@ LatentFactorKernel <- R6::R6Class(
       # Names are backwards, or just unclear
       self$p_to_pf_inds <- pf_to_p
       self$pf_to_p_log  <- p_to_pf
-      self$useC <- T
+      self$useC <- useC
 
 
       # p <- rep(0, D * (D-1) / 2)

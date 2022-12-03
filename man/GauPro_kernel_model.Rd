@@ -276,6 +276,10 @@ parameters.}
 \item{\code{track_optim}}{Should it track the parameters evaluated
 while optimizing?}
 
+\item{\code{formula}}{Formula for the data if giving in a data frame.}
+
+\item{\code{data}}{Data frame of data. Use in conjunction with formula.}
+
 \item{\code{...}}{Not used}
 }
 \if{html}{\out{</div>}}

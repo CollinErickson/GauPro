@@ -101,13 +101,7 @@ FactorKernel <- R6::R6Class(
     logs2_upper = NULL,
     nlevels = NULL,
     xindex = NULL,
-    # alpha = NULL,
-    # logalpha = NULL,
-    # logalpha_lower = NULL,
-    # logalpha_upper = NULL,
-    # alpha_est = NULL,
     #' @description Initialize kernel object
-    #' @param p Periodic parameter
     #' @param alpha Periodic parameter
     #' @param s2 Initial variance
     #' @param D Number of input dimensions of data
@@ -120,10 +114,11 @@ FactorKernel <- R6::R6Class(
     #' @param s2_est Should s2 be estimated?
     #' @param xindex Index of the factor (which column of X)
     #' @param nlevels Number of levels for the factor
+    #' @param useC Should C code used? Not implemented for FactorKernel yet.
     initialize = function(s2=1, D, nlevels, xindex,
                           p_lower=0, p_upper=1, p_est=TRUE,
                           s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE,
-                          p
+                          p, useC=TRUE
     ) {
       # Must give in D
       if (missing(D)) {stop("Must give Index kernel D")}
@@ -163,7 +158,7 @@ FactorKernel <- R6::R6Class(
       self$logs2_lower <- log(s2_lower, 10)
       self$logs2_upper <- log(s2_upper, 10)
       self$s2_est <- s2_est
-
+      self$useC <- useC
     },
     #' @description Calculate covariance between two points
     #' @param x vector.
@@ -274,7 +269,7 @@ FactorKernel <- R6::R6Class(
     #' @param C_nonug Covariance without nugget added to diagonal
     #' @param C Covariance with nugget
     #' @param nug Value of nugget
-    dC_dparams = function(params=NULL, X, C_nonug, C, nug) {#browser(text = "Make sure all in one list")
+    dC_dparams = function(params=NULL, X, C_nonug, C, nug) {
       # stop("not implemented, kernel index, dC_dp")
       n <- nrow(X)
 
@@ -345,7 +340,7 @@ FactorKernel <- R6::R6Class(
               }
               #
               # r2 <- sum(p * (X[i,]-X[j,])^2)
-              # dC_dparams[k,i,j] <- -C_nonug[i,j] * alpha * sin(2*p[k]*(X[i,k] - X[j,k])) * (X[i,k] - X[j,k]) * p[k] * log10
+              # dC_dparams[k,i,j] <- -C_nonug[i,j] * alpha *
               # dC_dparams[k,j,i] <- dC_dparams[k,i,j]
             }
           }

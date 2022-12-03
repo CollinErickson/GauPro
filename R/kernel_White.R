@@ -31,7 +31,9 @@ White <- R6::R6Class(
     #' @param s2_lower Lower bound for s2
     #' @param s2_upper Upper bound for s2
     #' @param s2_est Should s2 be estimated?
-    initialize = function(s2=1, D, s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE) {
+    #' @param useC Should C code used? Not implemented for White.
+    initialize = function(s2=1, D, s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE,
+                          useC=TRUE) {
       self$s2 <- s2
       self$logs2 <- log(s2, 10)
       self$logs2_lower <- log(s2_lower, 10)
@@ -41,6 +43,7 @@ White <- R6::R6Class(
       if (missing(D)) {self$D <- NA}
       else {self$D <- D}
 
+      self$useC <- useC
     },
     #' @description Calculate covariance between two points
     #' @param x vector.

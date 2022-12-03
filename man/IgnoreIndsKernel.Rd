@@ -79,7 +79,7 @@ kernel, such as for factors.}
 \subsection{Method \code{new()}}{
 Initialize kernel object
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{IgnoreIndsKernel$new(k, ignoreinds)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{IgnoreIndsKernel$new(k, ignoreinds, useC = TRUE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -88,6 +88,8 @@ Initialize kernel object
 \item{\code{k}}{Kernel to use on the non-ignored indices}
 
 \item{\code{ignoreinds}}{Indices of columns of X to ignore.}
+
+\item{\code{useC}}{Should C code used? Not implemented for IgnoreInds.}
 }
 \if{html}{\out{</div>}}
 }
@@ -194,11 +196,7 @@ Derivative of covariance with respect to X
 
 \item{\code{X}}{matrix of points to take derivative with respect to}
 
-\item{\code{theta}}{Correlation parameters}
-
-\item{\code{beta}}{log of theta}
-
-\item{\code{s2}}{Variance parameter}
+\item{\code{...}}{Additional arguments passed on to the kernel}
 }
 \if{html}{\out{</div>}}
 }

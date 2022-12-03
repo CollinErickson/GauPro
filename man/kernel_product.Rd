@@ -86,7 +86,7 @@ Length of the parameters of k2
 
 Initialize kernel
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{kernel_product$new(k1, k2)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{kernel_product$new(k1, k2, useC = TRUE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -95,6 +95,8 @@ Initialize kernel
 \item{\code{k1}}{Kernel 1}
 
 \item{\code{k2}}{Kernel 2}
+
+\item{\code{useC}}{Should C code used? Not applicable for kernel product.}
 }
 \if{html}{\out{</div>}}
 }

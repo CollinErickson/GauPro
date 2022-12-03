@@ -3,7 +3,7 @@
 \docType{class}
 \name{OrderedFactorKernel}
 \alias{OrderedFactorKernel}
-\title{Periodic Kernel R6 class}
+\title{Ordered Factor Kernel R6 class}
 \format{
 \code{\link{R6Class}} object.
 }
@@ -11,12 +11,12 @@
 Object of \code{\link{R6Class}} with methods for fitting GP model.
 }
 \description{
-Periodic Kernel R6 class
+Ordered Factor Kernel R6 class
 
-Periodic Kernel R6 class
+Ordered Factor Kernel R6 class
 }
 \details{
-p is the period for each dimension, a is a single number for scaling
+Use for factor inputs that are considered to have an ordering
 }
 \examples{
 kk <- OrderedFactorKernel$new(D=1, nlevels=5, xindex=1)
@@ -134,7 +134,8 @@ Initialize kernel object
   p_est = TRUE,
   s2_lower = 1e-08,
   s2_upper = 1e+08,
-  s2_est = TRUE
+  s2_est = TRUE,
+  useC = TRUE
 )}\if{html}{\out{</div>}}
 }
 
@@ -161,7 +162,9 @@ Initialize kernel object
 
 \item{\code{s2_est}}{Should s2 be estimated?}
 
-\item{\code{p}}{Periodic parameter}
+\item{\code{useC}}{Should C code used? Much faster.}
+
+\item{\code{p}}{Vector of distances in latent space}
 }
 \if{html}{\out{</div>}}
 }

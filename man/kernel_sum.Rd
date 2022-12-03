@@ -76,7 +76,7 @@ k$k(matrix(c(2,1), ncol=1))
 \subsection{Method \code{new()}}{
 Initialize kernel
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{kernel_sum$new(k1, k2)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{kernel_sum$new(k1, k2, useC = TRUE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -85,6 +85,8 @@ Initialize kernel
 \item{\code{k1}}{Kernel 1}
 
 \item{\code{k2}}{Kernel 2}
+
+\item{\code{useC}}{Should C code used? Not applicable for kernel sum.}
 }
 \if{html}{\out{</div>}}
 }

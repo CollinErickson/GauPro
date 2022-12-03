@@ -51,13 +51,15 @@ IgnoreIndsKernel <- R6::R6Class(
     #' @description Initialize kernel object
     #' @param k Kernel to use on the non-ignored indices
     #' @param ignoreinds Indices of columns of X to ignore.
-    initialize = function(k, ignoreinds) {
+    #' @param useC Should C code used? Not implemented for IgnoreInds.
+    initialize = function(k, ignoreinds, useC=TRUE) {
       stopifnot("GauPro_kernel" %in% class(k))
       stopifnot(is.numeric(ignoreinds))
       stopifnot(abs(ignoreinds - round(ignoreinds)) < 1e-8, ignoreinds>.99999)
       self$kernel <- k
       self$ignoreinds <- ignoreinds
       self$D <- self$kernel$D + length(self$ignoreinds)
+      self$useC <- useC # Never used
     },
     #' @description Calculate covariance between two points
     #' @param x vector.
@@ -114,9 +116,7 @@ IgnoreIndsKernel <- R6::R6Class(
     #' @description Derivative of covariance with respect to X
     #' @param XX matrix of points
     #' @param X matrix of points to take derivative with respect to
-    #' @param theta Correlation parameters
-    #' @param beta log of theta
-    #' @param s2 Variance parameter
+    #' @param ... Additional arguments passed on to the kernel
     dC_dx = function(XX, X, ...) {
       if (!is.matrix(XX)) {stop("XX must be matrix")}
       if (ncol(X) != ncol(XX)) {stop("XX and X must have same number of cols")}

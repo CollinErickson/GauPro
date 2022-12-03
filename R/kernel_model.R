@@ -152,6 +152,8 @@ GauPro_kernel_model <- R6::R6Class(
     #' parameters.
     #' @param track_optim Should it track the parameters evaluated
     #' while optimizing?
+    #' @param formula Formula for the data if giving in a data frame.
+    #' @param data Data frame of data. Use in conjunction with formula.
     #' @param ... Not used
     initialize = function(X, Z,
                           kernel, trend,

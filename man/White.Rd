@@ -68,7 +68,14 @@ k1 <- White$new(s2=1e-8)
 \subsection{Method \code{new()}}{
 Initialize kernel object
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{White$new(s2 = 1, D, s2_lower = 1e-08, s2_upper = 1e+08, s2_est = TRUE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{White$new(
+  s2 = 1,
+  D,
+  s2_lower = 1e-08,
+  s2_upper = 1e+08,
+  s2_est = TRUE,
+  useC = TRUE
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -83,6 +90,8 @@ Initialize kernel object
 \item{\code{s2_upper}}{Upper bound for s2}
 
 \item{\code{s2_est}}{Should s2 be estimated?}
+
+\item{\code{useC}}{Should C code used? Not implemented for White.}
 }
 \if{html}{\out{</div>}}
 }

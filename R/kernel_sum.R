@@ -36,7 +36,8 @@ kernel_sum <- R6::R6Class(classname = "GauPro_kernel_sum",
     #' @description Initialize kernel
     #' @param k1 Kernel 1
     #' @param k2 Kernel 2
-    initialize = function(k1, k2) {
+    #' @param useC Should C code used? Not applicable for kernel sum.
+    initialize = function(k1, k2, useC=TRUE) {
       self$k1 <- k1
       self$k2 <- k2
       self$k1_param_length <- length(self$k1$param_optim_start())
@@ -46,6 +47,7 @@ kernel_sum <- R6::R6Class(classname = "GauPro_kernel_sum",
       self$s2 <- self$k1$s2 + self$k2$s2
       self$s2_est <- (self$k1$s2_est || self$k2$s2_est)
       self$D <- max(self$k1$D, self$k2$D)
+      self$useC <- useC
     },
     #' @description Calculate covariance between two points
     #' @param x vector.

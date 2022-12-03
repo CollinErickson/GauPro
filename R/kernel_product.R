@@ -71,7 +71,8 @@ kernel_product <- R6::R6Class(
     #' @description Initialize kernel
     #' @param k1 Kernel 1
     #' @param k2 Kernel 2
-    initialize = function(k1, k2) {
+    #' @param useC Should C code used? Not applicable for kernel product.
+    initialize = function(k1, k2, useC=TRUE) {
       self$k1 <- k1
       self$k2 <- k2
       # self$k1_param_length <- length(self$k1$param_optim_start())
@@ -85,6 +86,7 @@ kernel_product <- R6::R6Class(
       if (self$k1$s2_est & self$k2$s2_est) {
         self$k2$s2_est <- FALSE
       }
+      self$useC <- useC # Not used
     },
     #' @description Calculate covariance between two points
     #' @param x vector.

@@ -146,7 +146,7 @@ Gaussian_bad <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
     # get_optim_functions = function(param_update) {
     #
     # },
-    dC_dparams = function(params=NULL, C, X, C_nonug) {#browser(text = "Make sure all in one list")
+    dC_dparams = function(params=NULL, C, X, C_nonug) {
       if (is.null(params)) {params <- c(self$theta, self$s2)}
       theta <- params[1:(length(params) - 1)]
       s2 <- tail(params, 1)

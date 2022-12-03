@@ -47,10 +47,12 @@ RatQuad <- R6::R6Class(
     #' @param s2_lower Lower bound for s2
     #' @param s2_upper Upper bound for s2
     #' @param s2_est Should s2 be estimated?
+    #' @param useC Should C code used? Much faster if implemented.
     initialize = function(beta, alpha=1, s2=1, D,
                           beta_lower=-8, beta_upper=6, beta_est=TRUE,
                           alpha_lower=1e-8, alpha_upper=1e2, alpha_est=TRUE,
-                          s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE
+                          s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE,
+                          useC=TRUE
     ) {
       super$initialize(beta=beta, s2=s2, D=D, beta_lower=beta_lower,
                        beta_upper=beta_upper, beta_est=beta_est,
@@ -60,7 +62,7 @@ RatQuad <- R6::R6Class(
       self$logalpha_lower <- log(alpha_lower, 10)
       self$logalpha_upper <- log(alpha_upper, 10)
       self$alpha_est <- alpha_est
-
+      self$useC <- useC
     },
     #' @description Calculate covariance between two points
     #' @param x vector.
