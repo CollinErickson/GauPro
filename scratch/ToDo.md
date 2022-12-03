@@ -68,9 +68,9 @@ that initial optim values should be large.
 
 * Add deprecated for old model: lifecycle::
 
-* LatFacKer: Add zeros to reduce par. Convert p to pf.
-
 * Test with useC=F
+
+* Kernels use useC: add to init, pass in gpkm init
 
 * Check kernel start par outside of bounds set by user. Test if it gives all errors.
 

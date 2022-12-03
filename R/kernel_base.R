@@ -117,7 +117,8 @@ GauPro_kernel <- R6::R6Class(
             ggplot2::xlab(xname) +
             ggplot2::coord_cartesian(ylim=(c(0, max(df$k))))
         } else { # Factor dim
-          nlevels <- which(factorinfo[seq(1, length(factorinfo), 2)] == i)[1] *2
+          nlevels <- factorinfo[
+            which(factorinfo[seq(1, length(factorinfo), 2)] == i)[1] *2]
           xindex <- i
           x1 <- 1:nlevels
           X1 <- X2 <- matrix(data=1, ncol=self$D, nrow=nlevels)
