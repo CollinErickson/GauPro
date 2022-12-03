@@ -74,8 +74,6 @@ that initial optim values should be large.
 
 * EI for t dist
 
-* Test 1D
-
 * Noisy EI?
 
 * Rename to gpkm, hide all R6 classes. Look into R7.

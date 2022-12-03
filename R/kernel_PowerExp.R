@@ -23,7 +23,7 @@ PowerExp <- R6::R6Class(
     # beta_lower = NULL,
     # beta_upper = NULL,
     # beta_length = NULL,
-    # s2 = NULL, # variance coefficient to scale correlation matrix to covariance
+    # s2 = NULL, # variance coefficient to scale correlation matrix to cov
     # logs2 = NULL,
     # logs2_lower = NULL,
     # logs2_upper = NULL,
@@ -59,9 +59,13 @@ PowerExp <- R6::R6Class(
       self$alpha <- alpha
       # self$logalpha <- log(alpha, 10)
       self$alpha_lower <- alpha_lower # log(alpha_lower, 10)
-      if (length(self$alpha)>1 && length(self$alpha_lower) == 1) {self$alpha_lower <- rep(alpha_lower, length(alpha))}
+      if (length(self$alpha)>1 && length(self$alpha_lower) == 1) {
+        self$alpha_lower <- rep(alpha_lower, length(alpha))
+      }
       self$alpha_upper <- alpha_upper # log(alpha_upper, 10)
-      if (length(self$alpha)>1 && length(self$alpha_upper) == 1) {self$alpha_upper <- rep(alpha_upper, length(alpha))}
+      if (length(self$alpha)>1 && length(self$alpha_upper) == 1) {
+        self$alpha_upper <- rep(alpha_upper, length(alpha))
+      }
       self$alpha_est <- alpha_est
       self$useC <- useC
     },
@@ -73,7 +77,8 @@ PowerExp <- R6::R6Class(
     #' @param beta Correlation parameters.
     #' @param s2 Variance parameter.
     #' @param params parameters to use instead of beta and s2.
-    k = function(x, y=NULL, beta=self$beta, alpha=self$alpha, s2=self$s2, params=NULL) {
+    k = function(x, y=NULL, beta=self$beta, alpha=self$alpha, s2=self$s2,
+                 params=NULL) {
       if (!is.null(params)) {
         lenparams <- length(params)
         # beta <- params[1:(lenpar-2)]
@@ -86,7 +91,8 @@ PowerExp <- R6::R6Class(
           beta <- self$beta
         }
         if (self$alpha_est) {
-          alpha <- params[1:length(self$alpha) + as.integer(self$beta_est) * self$beta_length]
+          alpha <- params[1:length(self$alpha) +
+                            as.integer(self$beta_est) * self$beta_length]
         } else {
           alpha <- self$alpha
         }
@@ -119,13 +125,17 @@ PowerExp <- R6::R6Class(
       }
       if (is.matrix(x) & is.matrix(y)) {
         # s2 * corr_gauss_matrixC(x, y, theta)
-        outer(1:nrow(x), 1:nrow(y), Vectorize(function(i,j){self$kone(x[i,],y[j,],theta=theta, alpha=alpha, s2=s2)}))
+        outer(1:nrow(x), 1:nrow(y),
+              Vectorize(function(i,j){self$kone(x[i,],y[j,],theta=theta,
+                                                alpha=alpha, s2=s2)}))
       } else if (is.matrix(x) & !is.matrix(y)) {
         # s2 * corr_gauss_matrixvecC(x, y, theta)
-        apply(x, 1, function(xx) {self$kone(xx, y, theta=theta, alpha=alpha, s2=s2)})
+        apply(x, 1,
+              function(xx) {self$kone(xx, y, theta=theta, alpha=alpha, s2=s2)})
       } else if (is.matrix(y)) {
         # s2 * corr_gauss_matrixvecC(y, x, theta)
-        apply(y, 1, function(yy) {self$kone(yy, x, theta=theta, alpha=alpha, s2=s2)})
+        apply(y, 1,
+              function(yy) {self$kone(yy, x, theta=theta, alpha=alpha, s2=s2)})
       } else {
         self$kone(x, y, theta=theta, alpha=alpha, s2=s2)
       }
@@ -161,7 +171,8 @@ PowerExp <- R6::R6Class(
           beta <- self$beta
         }
         if (self$alpha_est) {
-          alpha <- params[1:length(self$alpha) + as.integer(self$beta_est) * self$beta_length]
+          alpha <- params[1:length(self$alpha) +
+                            as.integer(self$beta_est) * self$beta_length]
         } else {
           alpha <- self$alpha
         }
@@ -189,7 +200,8 @@ PowerExp <- R6::R6Class(
         C <- C_nonug + diag(nug*s2, nrow(C_nonug))
       }
 
-      lenparams_D <- self$beta_length*self$beta_est + length(alpha)*self$alpha_est +self$s2_est
+      lenparams_D <- self$beta_length*self$beta_est +
+        length(alpha)*self$alpha_est + self$s2_est
       dC_dparams <- array(dim=c(lenparams_D, n, n), data=0)
       if (self$s2_est) {
         dC_dparams[lenparams_D,,] <- C * log10
@@ -201,7 +213,9 @@ PowerExp <- R6::R6Class(
             for (j in seq(i+1, n, 1)) {
               # r2 <- sum(theta * abs(X[i,]-X[j,])^alpha)
               # t1 <- 1 + r2 / alpha
-              dC_dparams[k,i,j] <- - C_nonug[i,j] * abs(X[i,k] - X[j,k])^alphak * theta[k] * log10
+              dC_dparams[k,i,j] <- (
+                - C_nonug[i,j] * abs(X[i,k] -
+                                       X[j,k])^alphak * theta[k] * log10)
               #s2 * (1+t1) * exp(-t1) *-dt1dbk + s2 * dt1dbk * exp(-t1)
               dC_dparams[k,j,i] <- dC_dparams[k,i,j]
             }
@@ -222,7 +236,8 @@ PowerExp <- R6::R6Class(
               if (r2 == 0) { # Avoid divide by zero error
                 dC_dparams[alpha_dC_inds, i,j] <- 0
               } else {
-                dC_dparams[alpha_dC_inds, i,j] <- C_nonug[i,j] * sum((-theta*(abs(X[i,]-X[j,]))^alpha)*log(abs(X[i,]-X[j,])))
+                dC_dparams[alpha_dC_inds, i,j] <- C_nonug[i,j] *
+                  sum((-theta*(abs(X[i,]-X[j,]))^alpha)*log(abs(X[i,]-X[j,])))
               }
               dC_dparams[alpha_dC_inds, j,i] <- dC_dparams[alpha_dC_inds, i,j]
             } else { # alpha for each dimension
@@ -230,10 +245,13 @@ PowerExp <- R6::R6Class(
                 if (X[i,k] == X[j,k]) { # Avoid divide by zero error
                   dC_dparams[k + self$beta_est * length(beta), i,j] <- 0
                 } else {
-                  dC_dparams[k + self$beta_est * length(beta), i,j] <- C_nonug[i,j] * (
-                    - theta[k]*(abs(X[i,k]-X[j,k]))^alpha[k]) * log(abs(X[i,k]-X[j,k]))
+                  dC_dparams[k + self$beta_est * length(beta), i,j] <- (
+                    C_nonug[i,j] * (
+                      - theta[k]*(abs(X[i,k]-X[j,k]))^alpha[k]) *
+                      log(abs(X[i,k]-X[j,k])))
                 }
-                dC_dparams[k + self$beta_est * length(beta), j,i] <- dC_dparams[k + self$beta_est * length(beta), i,j]
+                dC_dparams[k + self$beta_est * length(beta), j,i] <- (
+                  dC_dparams[k + self$beta_est * length(beta), i,j])
               }
             }
           }
@@ -251,7 +269,8 @@ PowerExp <- R6::R6Class(
     #' @param beta log of theta
     #' @param alpha alpha value (the exponent). Between 0 and 2.
     #' @param s2 Variance parameter
-    dC_dx = function(XX, X, theta, beta=self$beta, alpha=self$alpha, s2=self$s2) {
+    dC_dx = function(XX, X, theta, beta=self$beta, alpha=self$alpha,
+                     s2=self$s2) {
       if (missing(theta)) {theta <- 10^beta}
       # p <- 10 ^ logp
       # alpha <- 10 ^ logalpha
@@ -281,15 +300,15 @@ PowerExp <- R6::R6Class(
     #' @param alpha_est Is alpha being estimated?
     #' @param s2_est Is s2 being estimated?
     param_optim_start = function(jitter=F, y, beta_est=self$beta_est,
-                                 alpha_est=self$alpha_est, s2_est=self$s2_est) {
-      # Use current values for theta, partial MLE for s2
-      # vec <- c(log(self$theta, 10), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
+                                 alpha_est=self$alpha_est,
+                                 s2_est=self$s2_est) {
       if (beta_est) {vec <- c(self$beta)} else {vec <- c()}
       if (alpha_est) {vec <- c(vec, self$alpha)} else {}
       if (s2_est) {vec <- c(vec, self$logs2)} else {}
       if (jitter && beta_est) {
         # vec <- vec + c(self$beta_optim_jitter,  0)
-        vec[1:length(self$beta)] = vec[1:length(self$beta)] + rnorm(length(self$beta), 0, 1)
+        vec[1:length(self$beta)] = vec[1:length(self$beta)] +
+          rnorm(length(self$beta), 0, 1)
       }
       vec
     },
@@ -300,14 +319,14 @@ PowerExp <- R6::R6Class(
     #' @param alpha_est Is alpha being estimated?
     #' @param s2_est Is s2 being estimated?
     param_optim_start0 = function(jitter=F, y, beta_est=self$beta_est,
-                                  alpha_est=self$alpha_est, s2_est=self$s2_est) {
-      # Use 0 for theta, partial MLE for s2
-      # vec <- c(rep(0, length(self$theta)), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
+                                  alpha_est=self$alpha_est,
+                                  s2_est=self$s2_est) {
       if (beta_est) {vec <- rep(0, self$beta_length)} else {vec <- c()}
       if (alpha_est) {vec <- c(vec, 1)} else {}
       if (s2_est) {vec <- c(vec, 0)} else {}
       if (jitter && beta_est) {
-        vec[1:length(self$beta)] = vec[1:length(self$beta)] + rnorm(length(self$beta), 0, 1)
+        vec[1:length(self$beta)] = vec[1:length(self$beta)] +
+          rnorm(length(self$beta), 0, 1)
       }
       vec
     },
@@ -343,13 +362,15 @@ PowerExp <- R6::R6Class(
     #' @param alpha_est Is alpha estimated?
     #' @param s2_est Is s2 estimated?
     set_params_from_optim = function(optim_out, beta_est=self$beta_est,
-                                     alpha_est=self$alpha_est, s2_est=self$s2_est) {
+                                     alpha_est=self$alpha_est,
+                                     s2_est=self$s2_est) {
       loo <- length(optim_out)
       if (beta_est) {
         self$beta <- optim_out[1:(self$beta_length)]
       }
       if (alpha_est) {
-        self$alpha <- optim_out[(1:length(self$alpha) + beta_est * self$beta_length)]
+        self$alpha <- optim_out[(1:length(self$alpha) +
+                                   beta_est * self$beta_length)]
         # self$alpha <- 10 ^ self$logalpha
       }
       if (s2_est) {

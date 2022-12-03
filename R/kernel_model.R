@@ -1097,12 +1097,14 @@ GauPro_kernel_model <- R6::R6Class(
         if (gg) {
           ggplot2::ggplot(px, ggplot2::aes(x, mean)) +
             ggplot2::geom_line(data=pxmean, ggplot2::aes(y=mean+2*se),
-                               color="green", size=2) +
+                               color="green", linewidth=2) +
             ggplot2::geom_line(data=pxmean, ggplot2::aes(y=mean-2*se),
-                               color="green", size=2) +
-            ggplot2::geom_line(ggplot2::aes(y=mean+2*se), color="red", size=2) +
-            ggplot2::geom_line(ggplot2::aes(y=mean-2*se), color="red", size=2) +
-            ggplot2::geom_line(size=2) +
+                               color="green", linewidth=2) +
+            ggplot2::geom_line(ggplot2::aes(y=mean+2*se),
+                               color="red", linewidth=2) +
+            ggplot2::geom_line(ggplot2::aes(y=mean-2*se),
+                               color="red", linewidth=2) +
+            ggplot2::geom_line(linewidth=2) +
             ggplot2::geom_point(data=data.frame(
               x=self$X,
               y=if (self$normalize) {
@@ -1264,7 +1266,8 @@ GauPro_kernel_model <- R6::R6Class(
       factorinfo <- find_kernel_factor_dims(self$kernel)
       if (length(factorinfo) > 0) {
         for (i in 1:(length(factorinfo)/2)) {
-          X3[, factorinfo[i*2-1]] <- sample(1:factorinfo[i*2], size=n, replace=T)
+          X3[, factorinfo[i*2-1]] <- sample(1:factorinfo[i*2], size=n,
+                                            replace=T)
         }
       }
       X3pred <- self$pred(X3, se.fit = T)
