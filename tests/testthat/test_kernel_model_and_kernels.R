@@ -19,12 +19,29 @@ test_that("Cts kernels 1D", {
   kern_chars <- c('Gaussian', 'Matern32', 'Matern52',
                   'Triangle', 'Cubic', 'White',
                   'PowerExp', 'Periodic', "Exponential", "RatQuad",
-                  "Product", "Sum")
+                  "Product", "Sum",
+                  # Same but with useC=FALSE
+                  'Gaussian', 'Matern32', 'Matern52',
+                  'Triangle', 'Cubic', 'White',
+                  'PowerExp', 'Periodic', "Exponential", "RatQuad"
+  )
   kern_list <- list(0,0,0,0,0,0,
                     0,0,0,0,
                     # IgnoreIndsKernel$new(Gaussian$new(D=1), 2),
-                    Gaussian$new(D=d) * PowerExp$new(D=d),
-                    Matern52$new(D=d) + Matern32$new(D=d))
+                    Gaussian$new(D=d) * Periodic$new(D=d),
+                    Matern52$new(D=d) + Matern32$new(D=d),
+                    # Same but with useC=FALSE
+                    Gaussian$new(D=1, useC=FALSE),
+                    Matern32$new(D=1, useC=FALSE),
+                    Matern52$new(D=1, useC=FALSE),
+                    Triangle$new(D=1, useC=FALSE),
+                    Cubic$new(D=1, useC=FALSE),
+                    White$new(D=1, useC=FALSE),
+                    PowerExp$new(D=1, useC=FALSE),
+                    Periodic$new(D=1, useC=FALSE),
+                    Exponential$new(D=1, useC=FALSE),
+                    RatQuad$new(D=1, useC=FALSE)
+  )
   stopifnot(length(kern_chars) == length(kern_list))
   for (j in 1:length(kern_chars)) {
     if (exists('seed')) {set.seed(seed)} else {seed <- runif(1)}
@@ -122,6 +139,7 @@ test_that("Cts kernels 1D", {
       expect_error(gp$plotmarginalrandom(), NA)
       # plot1D
       expect_error(gp$plot1D(), NA)
+      expect_error(gp$plot1D(gg=FALSE), NA)
       # Should call plot2D
       expect_error(plot(gp), NA)
     }
@@ -142,7 +160,7 @@ test_that("Cts kernels 1D", {
 
 
     # Test grad. Implicitly tests kernel$dC_dx.
-    if (j %in% c(1:13)) {
+    if (j %in% c(1:33)) {
       xgrad <- runif(d) #matrix(runif(6), ncol=2)
       expect_no_error(symgrad <- gp$grad(xgrad))
       expect_equal(numDeriv::grad(gp$pred, x=xgrad),
@@ -151,7 +169,8 @@ test_that("Cts kernels 1D", {
                    label=paste(j, kern_char, 'gp$grad'))
       # grad at self shouldn't be zero, except for Triangle, Exponential, PowerExp.
       expect_no_error(gpgradX <- gp$grad(gp$X))
-      if (!(j %in% c(4,7,9))) {
+      # if (!(j %in% c(4,7,9))) {
+      if (!(kern_char %in% c("Triangle", "Exponential", "PowerExp"))) {
         expect_true(!any(is.na(gpgradX)))
       }
     } else {
@@ -162,7 +181,7 @@ test_that("Cts kernels 1D", {
 
     # Test gradpredvar
     # FIX m32/m52
-    if (j %in% c(1:13)) {
+    if (j %in% c(1:33)) {
       expect_no_error(gpv <- gp$gradpredvar(xgrad))
       # numDeriv::grad(func=function(x) gp$pred(x, se=T)$s2, gpv)
       npv <- 39
@@ -433,7 +452,7 @@ test_that("Cts kernels 2D", {
     }
 
     # Test grad. Implicitly tests kernel$dC_dx.
-    if (j %in% c(1:13)) {
+    if (T) {
       xgrad <- runif(2) #matrix(runif(6), ncol=2)
       expect_no_error(symgrad <- gp$grad(xgrad))
       expect_equal(numDeriv::grad(gp$pred, x=xgrad),
@@ -453,7 +472,7 @@ test_that("Cts kernels 2D", {
 
     # Test gradpredvar
     # FIX m32/m52
-    if (j %in% c(1:13)) {
+    if (j %in% c(1:13) || TRUE) {
       expect_no_error(gpv <- gp$gradpredvar(xgrad))
       # numDeriv::grad(func=function(x) gp$pred(x, se=T)$s2, gpv)
       npv <- 39
