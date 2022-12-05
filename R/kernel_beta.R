@@ -99,7 +99,6 @@ GauPro_kernel_beta <- R6::R6Class(
       } else {
         stop("Error for kernel_beta beta_lower")
       }
-
       #self$beta_upper <- beta_upper
       self$beta_upper <- if (length(beta_upper) == self$beta_length) {
         beta_upper
@@ -108,10 +107,12 @@ GauPro_kernel_beta <- R6::R6Class(
       } else {
         stop("Error for kernel_beta beta_upper")
       }
+      stopifnot(self$beta_lower <= self$beta_upper)
       self$beta_est <- beta_est
 
       self$s2 <- s2
       self$logs2 <- log(s2, 10)
+      stopifnot(s2_lower <= s2, s2 <= s2_upper, s2_lower <= s2_upper)
       self$logs2_lower <- log(s2_lower, 10)
       self$logs2_upper <- log(s2_upper, 10)
       self$s2_est <- s2_est

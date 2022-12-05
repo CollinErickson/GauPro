@@ -49,7 +49,7 @@ PowerExp <- R6::R6Class(
     #' @param useC Should C code used? Much faster if implemented.
     initialize = function(alpha=1.95, beta, s2=1, D,
                           beta_lower=-8, beta_upper=6, beta_est=TRUE,
-                          alpha_lower=0, alpha_upper=2, alpha_est=TRUE,
+                          alpha_lower=1e-8, alpha_upper=2, alpha_est=TRUE,
                           s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE,
                           useC=TRUE
     ) {

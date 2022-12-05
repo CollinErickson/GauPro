@@ -74,7 +74,7 @@ Initialize kernel object
   beta_lower = -8,
   beta_upper = 6,
   beta_est = TRUE,
-  alpha_lower = 0,
+  alpha_lower = 1e-08,
   alpha_upper = 2,
   alpha_est = TRUE,
   s2_lower = 1e-08,

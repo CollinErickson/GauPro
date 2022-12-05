@@ -325,7 +325,8 @@ Predict for a matrix of points
   se.fit = F,
   covmat = F,
   split_speed = F,
-  mean_dist = FALSE
+  mean_dist = FALSE,
+  return_df = TRUE
 )}\if{html}{\out{</div>}}
 }
 
@@ -341,6 +342,9 @@ Predict for a matrix of points
 \item{\code{split_speed}}{Should the matrix be split for faster predictions?}
 
 \item{\code{mean_dist}}{Should the error be for the distribution of the mean?}
+
+\item{\code{return_df}}{When returning se.fit, should it be returned in
+a data frame? Otherwise it will be a list, which is faster.}
 }
 \if{html}{\out{</div>}}
 }
@@ -356,7 +360,8 @@ Predict for a matrix of points
   se.fit = F,
   covmat = F,
   split_speed = F,
-  mean_dist = FALSE
+  mean_dist = FALSE,
+  return_df = TRUE
 )}\if{html}{\out{</div>}}
 }
 
@@ -372,6 +377,9 @@ Predict for a matrix of points
 \item{\code{split_speed}}{Should the matrix be split for faster predictions?}
 
 \item{\code{mean_dist}}{Should the error be for the distribution of the mean?}
+
+\item{\code{return_df}}{When returning se.fit, should it be returned in
+a data frame? Otherwise it will be a list, which is faster.}
 }
 \if{html}{\out{</div>}}
 }
@@ -401,7 +409,7 @@ Predict for a matrix of points
 \item{\code{covmat}}{Should covariance matrix be returned?}
 
 \item{\code{return_df}}{When returning se.fit, should it be returned in
-a data frame?}
+a data frame? Otherwise it will be a list, which is faster.}
 
 \item{\code{mean_dist}}{Should the error be for the distribution of the mean?}
 }
@@ -1436,7 +1444,7 @@ Sample at rows of XX
 \subsection{Method \code{EI()}}{
 Calculate expected improvement
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$EI(x, minimize = FALSE, eps = 0)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$EI(x, minimize = FALSE, eps = 0, ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -1448,6 +1456,8 @@ be calculated}
 \item{\code{minimize}}{Are you trying to minimize the output?}
 
 \item{\code{eps}}{Exploration parameter}
+
+\item{\code{...}}{Additional args}
 }
 \if{html}{\out{</div>}}
 }

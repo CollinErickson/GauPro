@@ -281,11 +281,6 @@ FactorKernel <- R6::R6Class(
         } else {
           p <- self$p
         }
-        # if (self$alpha_est) {
-        #   logalpha <- params[1 + as.integer(self$p_est) * self$p_length]
-        # } else {
-        #   logalpha <- self$logalpha
-        # }
         if (self$s2_est) {
           logs2 <- params[lenparams]
         } else {
@@ -293,20 +288,12 @@ FactorKernel <- R6::R6Class(
         }
       } else {
         p <- self$p
-        # logalpha <- self$logalpha
         logs2 <- self$logs2
       }
 
-      # lenparams <- length(params)
-      # logp <- params[1:(lenparams - 2)]
-      # p <- 10^logp
-      # logalpha <- params[lenparams-1]
-      # alpha <- 10^logalpha
       log10 <- log(10)
-      # logs2 <- params[lenparams]
       s2 <- 10 ^ logs2
 
-      # if (is.null(params)) {params <- c(self$logp, self$logalpha, self$logs2)}
       if (missing(C_nonug)) { # Assume C missing too, must have nug
         C_nonug <- self$k(x=X, params=params)
         C <- C_nonug + diag(nug*s2, nrow(C_nonug))
@@ -320,8 +307,8 @@ FactorKernel <- R6::R6Class(
       if (self$p_est) {
         for (k in 1:length(p)) { # k is index of parameter
           for (i in seq(1, n-1, 1)) {
+            xx <- X[i, self$xindex]
             for (j in seq(i+1, n, 1)) {
-              xx <- X[i, self$xindex]
               yy <- X[j, self$xindex]
               if (xx == yy) {
                 # Corr is just 1, parameter has no effect
@@ -349,20 +336,6 @@ FactorKernel <- R6::R6Class(
           }
         }
       }
-      # # Grad for logalpha
-      # if (self$alpha_est) {
-      #   alph_ind <- lenparams_D - as.integer(self$s2_est)
-      #   for (i in seq(1, n-1, 1)) {
-      #     for (j in seq(i+1, n, 1)) {
-      #       r2 <- -sum(sin(p * (X[i,]-X[j,]))^2)
-      #       dC_dparams[alph_ind, i,j] <- C_nonug[i,j] * r2 * alpha * log10
-      #       dC_dparams[alph_ind, j,i] <- dC_dparams[alph_ind, i,j]
-      #     }
-      #   }
-      #   for (i in seq(1, n, 1)) {
-      #     dC_dparams[alph_ind, i,i] <- 0
-      #   }
-      # }
       return(dC_dparams)
     },
     #' @description Calculate covariance matrix and its derivative
@@ -374,7 +347,8 @@ FactorKernel <- R6::R6Class(
       s2 <- self$s2_from_params(params)
       C_nonug <- self$k(x=X, params=params)
       C <- C_nonug + diag(s2*nug, nrow(X))
-      dC_dparams <- self$dC_dparams(params=params, X=X, C_nonug=C_nonug, C=C, nug=nug)
+      dC_dparams <- self$dC_dparams(params=params, X=X, C_nonug=C_nonug,
+                                    C=C, nug=nug)
       list(C=C, dC_dparams=dC_dparams)
     },
     #' @description Derivative of covariance with respect to X
@@ -399,14 +373,12 @@ FactorKernel <- R6::R6Class(
     #' @param s2_est Is s2 being estimated?
     param_optim_start = function(jitter=F, y, p_est=self$p_est,
                                  s2_est=self$s2_est) {
-      # Use current values for theta, partial MLE for s2
-      # vec <- c(log(self$theta, 10), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
       if (p_est) {vec <- c(self$p)} else {vec <- c()}
-      # if (alpha_est) {vec <- c(vec, self$logalpha)} else {}
       if (s2_est) {vec <- c(vec, self$logs2)} else {}
       # if (jitter && p_est) {
       #   # vec <- vec + c(self$logp_optim_jitter,  0)
-      #   vec[1:length(self$p)] = vec[1:length(self$p)] + rnorm(length(self$p), 0, 1)
+      #   vec[1:length(self$p)] = vec[1:length(self$p)] +
+      #  rnorm(length(self$p), 0, 1)
       # }
       vec
     },
@@ -418,13 +390,11 @@ FactorKernel <- R6::R6Class(
     #' @param s2_est Is s2 being estimated?
     param_optim_start0 = function(jitter=F, y, p_est=self$p_est,
                                   s2_est=self$s2_est) {
-      # Use 0 for theta, partial MLE for s2
-      # vec <- c(rep(0, length(self$theta)), log(sum((y - mu) * solve(R, y - mu)) / n), 10)
       if (p_est) {vec <- rep(0, self$p_length)} else {vec <- c()}
-      # if (alpha_est) {vec <- c(vec, 1)} else {}
       if (s2_est) {vec <- c(vec, 0)} else {}
       if (jitter && p_est) {
-        vec[1:length(self$p)] = vec[1:length(self$logp)] + rnorm(length(self$p), 0, 1)
+        vec[1:length(self$p)] = vec[1:length(self$logp)] +
+          rnorm(length(self$p), 0, 1)
       }
       vec
     },
@@ -433,11 +403,8 @@ FactorKernel <- R6::R6Class(
     #' @param alpha_est Is alpha being estimated?
     #' @param s2_est Is s2 being estimated?
     param_optim_lower = function(p_est=self$p_est,
-                                 # alpha_est=self$alpha_est,
                                  s2_est=self$s2_est) {
-      # c(self$logp_lower, self$logs2_lower)
       if (p_est) {vec <- c(self$p_lower)} else {vec <- c()}
-      # if (alpha_est) {vec <- c(vec, self$logalpha_lower)} else {}
       if (s2_est) {vec <- c(vec, self$logs2_lower)} else {}
       vec
     },
@@ -448,9 +415,7 @@ FactorKernel <- R6::R6Class(
     param_optim_upper = function(p_est=self$p_est,
                                  # alpha_est=self$alpha_est,
                                  s2_est=self$s2_est) {
-      # c(self$logp_upper, self$logs2_upper)
       if (p_est) {vec <- c(self$p_upper)} else {vec <- c()}
-      # if (alpha_est) {vec <- c(vec, self$logalpha_upper)} else {}
       if (s2_est) {vec <- c(vec, self$logs2_upper)} else {}
       vec
     },
@@ -460,17 +425,12 @@ FactorKernel <- R6::R6Class(
     #' @param alpha_est Is alpha being estimated?
     #' @param s2_est Is s2 being estimated?
     set_params_from_optim = function(optim_out, p_est=self$p_est,
-                                     # alpha_est=self$alpha_est,
                                      s2_est=self$s2_est) {
       loo <- length(optim_out)
       if (p_est) {
         self$p <- optim_out[1:(self$p_length)]
         # self$p <- 10 ^ self$logp
       }
-      # if (alpha_est) {
-      #   self$logalpha <- optim_out[(1 + p_est * self$p_length)]
-      #   self$alpha <- 10 ^ self$logalpha
-      # }
       if (s2_est) {
         self$logs2 <- optim_out[loo]
         self$s2 <- 10 ^ self$logs2

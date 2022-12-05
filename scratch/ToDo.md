@@ -68,8 +68,6 @@ that initial optim values should be large.
 
 * Add deprecated for old model: lifecycle::
 
-* Test with useC=F
-
 * Check kernel start par outside of bounds set by user. Test if it gives all errors.
 
 * EI for t dist
@@ -80,4 +78,6 @@ that initial optim values should be large.
 
 * optim starts for kernel parameters. Add jitter.
 
-* PowerExp dC_dx at self$X in 1D gives error
+* update data with df fails
+
+* Test normalize, probably fails on plots, EI, etc.

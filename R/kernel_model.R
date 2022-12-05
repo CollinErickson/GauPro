@@ -274,6 +274,8 @@ GauPro_kernel_model <- R6::R6Class(
         stop("You must give Z to GauPro_kernel_model")
       }
 
+      # X is always a matrix. If data comes from data frame, it gets converted
+      # to numeric so it can be stored in a matrix.
       if (is.data.frame(X)) {
         X <- as.matrix(X)
       }
@@ -343,8 +345,15 @@ GauPro_kernel_model <- R6::R6Class(
           kernel <- Exponential$new(D=Dcts, useC=useC)
         } else if (kernel %in% c("ratquad", "rationalquadratic", "rq")) {
           kernel <- RatQuad$new(D=Dcts, useC=useC)
-        } else if (kernel %in% c("powerexponential", "powexp", "pe")) {
+        } else if (kernel %in% c("powerexponential", "powexp", "pe",
+                                 "powerexp")) {
           kernel <- PowerExp$new(D=Dcts, useC=useC)
+        } else if (kernel %in% c("triangle", "tri")) {
+          kernel <- Triangle$new(D=Dcts, useC=useC)
+        } else if (kernel %in% c("periodic", "period", "per")) {
+          kernel <- Periodic$new(D=Dcts, useC=useC)
+        } else if (kernel %in% c("cubic", "cube", "cub")) {
+          kernel <- Cubic$new(D=Dcts, useC=useC)
         } else {
           stop(paste0("Kernel given to GauPro_kernel_model (",
                       kernel, ") is not valid. ",
@@ -481,7 +490,8 @@ GauPro_kernel_model <- R6::R6Class(
         self$nug <- max(1e-8, 2 * self$nug)
         self$K <- self$K + diag(self$kernel$s2 * (self$nug - oldnug),
                                 self$N)
-        cat("Increasing nugget to get invertibility from ", oldnug, ' to ', self$nug, "\n")
+        cat("Increasing nugget to get invertibility from ", oldnug, ' to ',
+            self$nug, "\n")
       }
       self$Kinv <- chol2inv(self$Kchol)
       # self$mu_hat <- sum(self$Kinv %*% self$Z) / sum(self$Kinv)
@@ -497,9 +507,13 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param covmat Should covariance matrix be returned?
     #' @param split_speed Should the matrix be split for faster predictions?
     #' @param mean_dist Should the error be for the distribution of the mean?
-    predict = function(XX, se.fit=F, covmat=F, split_speed=F, mean_dist=FALSE) {
+    #' @param return_df When returning se.fit, should it be returned in
+    #' a data frame? Otherwise it will be a list, which is faster.
+    predict = function(XX, se.fit=F, covmat=F, split_speed=F, mean_dist=FALSE,
+                       return_df=TRUE) {
       self$pred(XX=XX, se.fit=se.fit, covmat=covmat,
-                split_speed=split_speed, mean_dist=mean_dist)
+                split_speed=split_speed, mean_dist=mean_dist,
+                return_df=return_df)
     },
     #' @description Predict for a matrix of points
     #' @param XX points to predict at
@@ -507,7 +521,10 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param covmat Should covariance matrix be returned?
     #' @param split_speed Should the matrix be split for faster predictions?
     #' @param mean_dist Should the error be for the distribution of the mean?
-    pred = function(XX, se.fit=F, covmat=F, split_speed=F, mean_dist=FALSE) {
+    #' @param return_df When returning se.fit, should it be returned in
+    #' a data frame? Otherwise it will be a list, which is faster.
+    pred = function(XX, se.fit=F, covmat=F, split_speed=F, mean_dist=FALSE,
+                    return_df=TRUE) {
       if (!is.null(self$formula) && is.data.frame(XX)) {
         XX <- convert_X_with_formula(XX, self$convert_formula_data,
                                      self$formula)
@@ -548,7 +565,8 @@ GauPro_kernel_model <- R6::R6Class(
           # kxxj <- self$corr_func(XXj)
           # kx.xxj <- self$corr_func(self$X, XXj)
           predj <- self$pred_one_matrix(XX=XXj, se.fit=se.fit,
-                                        covmat=covmat, mean_dist=mean_dist)
+                                        covmat=covmat, mean_dist=mean_dist,
+                                        return_df=return_df)
           #mn[(j*ni+1):(min((j+1)*ni,N))] <- pred_meanC(XXj, kx.xxj,
           #                                self$mu_hat, self$Kinv, self$Z)
           if (!se.fit) { # if no se.fit, just set vector
@@ -580,11 +598,11 @@ GauPro_kernel_model <- R6::R6Class(
         } else {
           return(data.frame(mean=mn, s2=s2, se=se))
         }
-
-      } else {
+      } else { # Not splitting, just do it all at once
         pred1 <- self$pred_one_matrix(XX=XX, se.fit=se.fit,
-                                      covmat=covmat, return_df=TRUE,
-                                      mean_dist=mean_dist)
+                                      covmat=covmat,
+                                      mean_dist=mean_dist,
+                                      return_df=return_df)
         return(pred1)
       }
     },
@@ -593,7 +611,7 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param se.fit Should standard error be returned?
     #' @param covmat Should covariance matrix be returned?
     #' @param return_df When returning se.fit, should it be returned in
-    #' a data frame?
+    #' a data frame? Otherwise it will be a list, which is faster.
     #' @param mean_dist Should the error be for the distribution of the mean?
     pred_one_matrix = function(XX, se.fit=F, covmat=F, return_df=FALSE,
                                mean_dist=FALSE) {
@@ -2002,15 +2020,32 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param Zall All Z values to be used. Will replace existing Z.
     update_data = function(Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL) {
       if (!is.null(Xall)) {
-        self$X <- if (is.matrix(Xall)) Xall else matrix(Xall,nrow=1)
+        self$X <- if (is.matrix(Xall)) {
+          Xall
+        } else if (is.data.frame(Xall)) {
+          stop("Xall in update_data must be numeric, not data frame.")
+        } else if (is.numeric(Xall)) {
+          matrix(Xall,nrow=1)
+        } else {
+          stop("Bad Xall in update_data")
+        }
         self$N <- nrow(self$X)
       } else if (!is.null(Xnew)) {
+        Xnewformatted <- if (is.matrix(Xnew)) {
+          Xnew
+        } else if (is.data.frame(Xnew)) {
+          stop("Xnew in update_data must be numeric, not data frame.")
+        } else if (is.numeric(Xnew)) {
+          matrix(Xnew,nrow=1)
+        } else {
+          stop("Bad Xnew in update_data")
+        }
         self$X <- rbind(self$X,
-                        if (is.matrix(Xnew)) Xnew else matrix(Xnew,nrow=1))
+                        Xnewformatted)
         self$N <- nrow(self$X)
       }
       if (!is.null(Zall)) {
-        self$Z <- if (is.matrix(Zall))Zall else matrix(Zall,ncol=1)
+        self$Z <- if (is.matrix(Zall)) Zall else matrix(Zall,ncol=1)
         if (self$normalize) {
           self$normalize_mean <- mean(self$Z)
           self$normalize_sd <- sd(self$Z)
@@ -2562,9 +2597,11 @@ GauPro_kernel_model <- R6::R6Class(
     #' be calculated
     #' @param minimize Are you trying to minimize the output?
     #' @param eps Exploration parameter
-    EI = function(x, minimize=FALSE, eps=0) {
+    #' @param ... Additional args
+    EI = function(x, minimize=FALSE, eps=0, ...) {
       stopifnot(length(minimize)==1, is.logical(minimize))
       stopifnot(length(eps)==1, is.numeric(eps), eps >= 0)
+      dots <- list(...)
       # if (minimize) {
       #   stop('can only max for EI, not min')
       # }
@@ -2583,11 +2620,18 @@ GauPro_kernel_model <- R6::R6Class(
       # fxplus <- if (minimize) {min(self$Z)} else {max(self$Z)}
       # pred <- self$pred(x, se.fit=T)
       # Need to use prediction of mean
-      xnew_meanpred <- self$pred(x, se.fit=T, mean_dist=T)
-      Xold_meanpred <- self$pred(self$X, se.fit=T, mean_dist=T)
+      xnew_meanpred <- self$pred(x, se.fit=T, mean_dist=T, return_df=F)
+      if (is.null(dots$selfXmeanpred)) {
+        selfXmeanpred <- self$pred(self$X, se.fit=F, mean_dist=T)
+      } else {
+        selfXmeanpred <- dots$selfXmeanpred
+        stopifnot(is.numeric(selfXmeanpred),
+                  length(selfXmeanpred) == length(self$Z))
+      }
       # Use predicted mean at each point since it doesn't make sense not to
       # when there is noise. Or should fxplus be optimized over inputs?
-      fxplus <- if (minimize) {min(Xold_meanpred$mean)} else {max(Xold_meanpred$mean)}
+      fxplus <- if (minimize) {min(selfXmeanpred)} else {
+        max(selfXmeanpred)}
       if (minimize) {
         # Ztop <- fxplus - pred$mean - eps
         Ztop <- fxplus - xnew_meanpred$mean - eps
@@ -2631,6 +2675,9 @@ GauPro_kernel_model <- R6::R6Class(
                                                discreteinputs=discreteinputs,
                                                dontconvertback=dontconvertback))
       }
+
+      selfXmeanpred <- self$pred(self$X, se.fit=F, mean_dist=T)
+
       if (!is.null(mopar)) {
         # Use mixopt, allows for factor/discrete/integer inputs
         stopifnot(self$D == length(mopar))
@@ -2638,14 +2685,16 @@ GauPro_kernel_model <- R6::R6Class(
           par=mopar,
           fn=function(xx){
             if (is.null(self$formula)) {
-              -self$EI(unlist(xx), minimize = minimize)
+              -self$EI(unlist(xx), minimize = minimize,
+                       selfXmeanpred=selfXmeanpred)
             } else {
               # Convert to data frame since it will convert to formula.
               # This way is probably slow.
               # Alternatively, convert to all numeric, no df/formula
               xx2 <- as.data.frame(xx)
               colnames(xx2) <- colnames(self$X)
-              -self$EI(xx2, minimize = minimize)
+              -self$EI(xx2, minimize = minimize,
+                       selfXmeanpred=selfXmeanpred)
             }
           }
         )
@@ -2674,7 +2723,7 @@ GauPro_kernel_model <- R6::R6Class(
                             upper),
                        lower))
       # Calculate EI at these points
-      EI0 <- self$EI(x=X0, minimize=minimize, eps=eps)
+      EI0 <- self$EI(x=X0, minimize=minimize, eps=eps, selfXmeanpred=selfXmeanpred)
       if (all(EI0 <= 0)) {
         warning("maxEI couldn't find any inputs with nonzero EI")
       }
@@ -2683,7 +2732,8 @@ GauPro_kernel_model <- R6::R6Class(
       optim_out <- optim(par=X0[ind,],
                          lower=lower, upper=upper,
                          # fn=function(xx){ei <- -self$EI(xx); cat(xx, ei, "\n"); ei},
-                         fn=function(xx){-self$EI(xx, minimize = minimize)},
+                         fn=function(xx){-self$EI(xx, minimize = minimize,
+                                                  selfXmeanpred=selfXmeanpred)},
                          method="L-BFGS-B")
       optim_out$par
       # Return list, same format as DiceOptim::max_EI
@@ -2753,7 +2803,8 @@ GauPro_kernel_model <- R6::R6Class(
           i_while <- i_while + 1
           # Optimize over cts variables
           # Optimize starting from that point to find input that maximizes EI
-          optim_out_i_indcomb <- optim(par=Xstart[-factorxindex], #X0[ind, -factorxindex],
+          optim_out_i_indcomb <- optim(par=Xstart[-factorxindex],
+                                       #X0[ind, -factorxindex],
                                        lower=lower[-factorxindex],
                                        upper=upper[-factorxindex],
                                        # fn=function(xx){ei <- -self$EI(xx);
@@ -2762,7 +2813,8 @@ GauPro_kernel_model <- R6::R6Class(
                                          xx2 <- numeric(self$D)
                                          xx2[ctsinds] <- xx
                                          xx2[factorxindex] <- Xstartfactors
-                                         # xx2 <- c(xx[xxinds1], factorxlevel, xx[xxinds2])
+                                         # xx2 <- c(xx[xxinds1], factorxlevel,
+                                         #  xx[xxinds2])
                                          # cat(xx, xx2, "\n")
                                          -self$EI(xx2, minimize = minimize)
                                        },
@@ -2839,7 +2891,7 @@ GauPro_kernel_model <- R6::R6Class(
         # Track best seen in optimizing EI
         bestval <- Inf
         bestpar <- c()
-        factorxindex <- factorinfo[(1:(length(factorinfo)/2))*2-1] #factorinfo[[1]]
+        factorxindex <- factorinfo[(1:(length(factorinfo)/2))*2-1]
         factornlevels <- factorinfo[(1:(length(factorinfo)/2))*2]
       } else {
         # Indices of factor columns
@@ -2888,7 +2940,8 @@ GauPro_kernel_model <- R6::R6Class(
           # Optimize over cts variables
           if (length(ctsinds) > 0) {
             # Optimize starting from that point to find input that maximizes EI
-            optim_out_i_indcomb <- optim(par=Xstart[ctsinds], #X0[ind, -factorxindex],
+            optim_out_i_indcomb <- optim(par=Xstart[ctsinds],
+                                         #X0[ind, -factorxindex],
                                          lower=lower[ctsinds],
                                          upper=upper[ctsinds],
                                          # fn=function(xx){ei <- -self$EI(xx);
@@ -3026,7 +3079,7 @@ GauPro_kernel_model <- R6::R6Class(
     #     # Track best seen in optimizing EI
     #     bestval <- Inf
     #     bestpar <- c()
-    #     factorxindex <- factorinfo[(1:(length(factorinfo)/2))*2-1] #factorinfo[[1]]
+    #     factorxindex <- factorinfo[(1:(length(factorinfo)/2))*2-1]
     #     factornlevels <- factorinfo[(1:(length(factorinfo)/2))*2]
     #   } else {
     #     # Indices of factor columns
@@ -3088,16 +3141,25 @@ GauPro_kernel_model <- R6::R6Class(
       gpclone <- self$clone(deep=TRUE)
       # Track points selected
       selectedX <- matrix(data=NA, nrow=npoints, ncol=ncol(self$X))
-      Xmeanpred <- self$pred(self$X, se.fit=T, mean_dist=T)
+      # Xmeanpred <- self$pred(self$X, se.fit=T, mean_dist=T)
+      Xmeanpred <- self$pred(self$X, se.fit=F, mean_dist=T)
       # Zimpute <- if (minimize) {min(self$Z)} else {max(self$Z)}
       # Constant liar value
-      Zimpute <- if (minimize) {min(Xmeanpred$mean)} else {max(Xmeanpred$mean)}
+      # Zimpute <- if (minimize) {min(Xmeanpred$mean)} else {max(Xmeanpred$mean)}
+      Zimpute <- if (minimize) {min(Xmeanpred)} else {max(Xmeanpred)}
       for (i in 1:npoints) {
         # Find and store point that maximizes EI
         maxEI_i <- gpclone$maxEI(lower=lower, upper=upper, n0=n0, eps=eps,
                                  minimize=minimize, mopar=mopar,
                                  dontconvertback=TRUE)
         xi <- maxEI_i$par
+        # mixopt could return data frame. Need to convert it to numeric since
+        # it will be added to gpclone$X
+        if (is.data.frame(xi)) {
+          xi <- convert_X_with_formula(xi, self$convert_formula_data,
+                                       self$formula)
+        }
+        stopifnot(is.numeric(xi))
         selectedX[i, ] <- xi
         if (method == "pred") {
           Zimpute <- self$predict(xi)

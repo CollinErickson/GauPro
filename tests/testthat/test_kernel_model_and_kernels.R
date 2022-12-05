@@ -10,7 +10,7 @@ if (printkern) {cat("seed =", seed, "\n")}
 
 # Cts kernels 1D ----
 test_that("Cts kernels 1D", {
-  n <- 15
+  n <- sample(11:18, 1)
   d <- 1
   x <- matrix(runif(n*d,.3,1.9), ncol=d)
   n <- nrow(x)
@@ -25,7 +25,8 @@ test_that("Cts kernels 1D", {
                   'Triangle', 'Cubic', 'White',
                   'PowerExp', 'Periodic', "Exponential", "RatQuad"
   )
-  kern_list <- list(0,0,0,0,0,0,
+  kern_list <- list(0,0,0,
+                    0,0,White$new(D=1),
                     0,0,0,0,
                     # IgnoreIndsKernel$new(Gaussian$new(D=1), 2),
                     Gaussian$new(D=d) * Periodic$new(D=d),
@@ -48,8 +49,9 @@ test_that("Cts kernels 1D", {
     kern_char <- kern_chars[j]
     if (exists('printkern') && printkern) cat("1D", j, kern_char, "\n")
     if (is.numeric(kern_list[[j]])) {
-      kern <- eval(parse(text=kern_char))
-      expect_is(kern, "R6ClassGenerator")
+      # kern <- eval(parse(text=kern_char))
+      # expect_is(kern, "R6ClassGenerator")
+      kern <- kern_char
     } else {
       kern <- kern_list[[j]]
     }
@@ -298,6 +300,7 @@ test_that("Cts kernels 1D", {
 
 # Cts kernels 2D ----
 test_that("Cts kernels 2D", {
+  if (exists('seed')) {set.seed(seed)}
   n <- 20
   d <- 2
   x <- matrix(runif(n*d), ncol=d)
@@ -419,12 +422,24 @@ test_that("Cts kernels 2D", {
       expect_error(gp$plot2D(se=1))
       # Should call plot2D
       expect_error(plot(gp), NA)
+      # Sample
+      expect_no_error(s1 <- gp$sample(XX=runif(d), 3))
+      expect_true(is.matrix(s1))
+      expect_equal(dim(s1), c(3, 1))
+      expect_no_error(s2 <- gp$sample(XX=matrix(runif(d*5), ncol=d), 30))
+      expect_true(is.matrix(s2))
+      expect_equal(dim(s2), c(30, 5))
     }
 
     # Summary
     expect_no_warning(
       expect_error(capture.output(summary(gp)), NA)
     )
+
+    # Print
+    expect_no_error(printout <- capture.output(print(gp)))
+    expect_true(is.character(printout))
+    expect_equal(printout[1], "GauPro kernel model object")
 
     # Kernel plot
     expect_error(plot(gp$kernel), NA)
@@ -653,7 +668,7 @@ test_that("Factor kernels", {
     }
 
     # Test importance
-    expect_error(capture.output(imp <- gp$importance(plot=F)), NA)
+    expect_error(capture.output(imp <- gp$importance(plot=T)), NA)
     expect_true(is.numeric(imp))
     expect_equal(names(imp), c("X1"))
 
@@ -719,6 +734,7 @@ test_that("Factor kernels in product", {
   # second is factor dim
   nlev <- 3
   x[, 2] <- sample(1:nlev, n, T)
+  colnames(x) <- c('cts', 'fct')
   f <- function(x) {abs(sin(x[1]^.8*6))^1.2 + log(1+x[2]) + x[1]*x[2]}
   y <- apply(x, 1, f) + rnorm(n,0,1e-2) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
   kern_chars <- c('FactorKernel', 'OrderedFactorKernel',
@@ -879,6 +895,10 @@ test_that("Formula/data input", {
   expect_equal(ncol(gpf$X), 4)
   expect_true(is.matrix(gpf$X))
   expect_error(predict(gpf, tdf), NA)
+  # Print
+  expect_no_error(printout <- capture.output(print(gpf)))
+  expect_true(is.character(printout))
+  expect_equal(printout[1], "GauPro kernel model object")
 })
 
 test_that("Formula/data input 2", {
@@ -941,15 +961,15 @@ test_that("Formula/data input 2", {
   expect_equal(colnames(dfEI$par), colnames(xdf)[1:5])
   expect_equal(dim(dfEI$par), c(1,5))
   # Test qEI with mopar
-  # expect_error(dfqEI <- gpdf$maxqEI(
-  #   npoints = 2,
-  #   mopar = c(mixopt::mopar_cts(-3,3),
-  #             mixopt::mopar_cts(0,1),
-  #             mixopt::mopar_unordered(letters[1:5]),
-  #             mixopt::mopar_unordered(letters[6:9]),
-  #             mixopt::mopar_cts(0,4)
-  #   )
-  # ), NA)
+  expect_error(dfqEI <- gpdf$maxqEI(
+    npoints = 2,
+    mopar = c(mixopt::mopar_cts(-3,3),
+              mixopt::mopar_cts(0,1),
+              mixopt::mopar_unordered(letters[1:5]),
+              mixopt::mopar_unordered(letters[6:9]),
+              mixopt::mopar_cts(0,4)
+    )
+  ), NA)
   # expect_true(is.data.frame(dfqEI$par))
   # expect_equal(colnames(dfqEI$par), colnames(xdf)[1:5])
   # expect_equal(dim(dfqEI$par), c(2,5))
@@ -1121,4 +1141,18 @@ test_that("Bad kernels", {
       kernel=Gaussian$new(D=2) *
         FactorKernel$new(D=2, xindex = 2, nlevels = nlev))
   })
+})
+
+# Normalize Z ----
+test_that("Normalize Z", {
+  d <- 3
+  n <- 30
+  x <- matrix(runif(d*n), ncol=d)
+  y <- (x[,1]^.7 + x[,2]^1.4 * (x[,3]^.8*2))*1e6 + rnorm(n, 0, 1e2)
+  expect_no_error({
+    gp <- GauPro_kernel_model$new(x, y, normalize = T)
+  })
+  # plot(predict(gp, x), y)
+  expect_no_error(pred <- predict(gp, x))
+  expect_equal(y, pred, tolerance = 1e-1)
 })
