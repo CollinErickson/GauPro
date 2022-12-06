@@ -183,19 +183,23 @@ GauPro_kernel_beta <- R6::R6Class(
       # Use current values for theta, partial MLE for s2
       # vec <- c(log(self$theta, 10),
       #  log(sum((y - mu) * solve(R, y - mu)) / n), 10)
-      if (beta_est && s2_est) {
-        vec <- c(self$beta, self$logs2)
-      } else if (beta_est) {
-        vec <- self$beta
-      } else if (s2_est) {
-        vec <- self$logs2
-      } else {
-        vec <- c()
+
+      vec <- numeric(0)
+      if (beta_est) {
+        b <- c(self$beta)
+        if (jitter) {
+          b <- b + rnorm(length(b), 0, 1)
+        }
+        b <- pmin(pmax(b, self$beta_lower), self$beta_upper)
+        vec <- c(vec, b)
       }
-      if (jitter && beta_est) {
-        # vec <- vec + c(self$beta_optim_jitter,  0)
-        vec[1:length(self$beta)] = vec[1:length(self$beta)] +
-          rnorm(length(self$beta), 0, 1)
+      if (s2_est) {
+        b <- c(self$logs2)
+        if (jitter) {
+          b <- b + rnorm(length(b), 0, 1)
+        }
+        b <- pmin(pmax(b, self$logs2_lower), self$logs2_upper)
+        vec <- c(vec, b)
       }
       vec
     },
@@ -206,18 +210,22 @@ GauPro_kernel_beta <- R6::R6Class(
     #' @param s2_est Is s2 being estimated?
     param_optim_start0 = function(jitter=F, y, beta_est=self$beta_est,
                                   s2_est=self$s2_est) {
-      if (beta_est && s2_est) {
-        vec <- c(rep(0, self$beta_length), 0)
-      } else if (beta_est) {
-        vec <- rep(0, self$beta_length)
-      } else if (s2_est) {
-        vec <- 0
-      } else {
-        vec <- c()
+      vec <- numeric(0)
+      if (beta_est) {
+        b <- rep(0, length(self$beta))
+        if (jitter) {
+          b <- b + rnorm(length(b), 0, 1)
+        }
+        b <- pmin(pmax(b, self$beta_lower), self$beta_upper)
+        vec <- c(vec, b)
       }
-      if (jitter && beta_est) {
-        vec[1:length(self$beta)] = vec[1:length(self$beta)] +
-          rnorm(length(self$beta), 0, 1)
+      if (s2_est) {
+        b <- 0
+        if (jitter) {
+          b <- b + rnorm(length(b), 0, 1)
+        }
+        b <- pmin(pmax(b, self$logs2_lower), self$logs2_upper)
+        vec <- c(vec, b)
       }
       vec
     },
@@ -266,6 +274,18 @@ GauPro_kernel_beta <- R6::R6Class(
       if (s2_est) {
         self$logs2 <- optim_out[loo]
         self$s2 <- 10 ^ self$logs2
+        if (self$logs2 >= self$logs2_upper) {
+          message(paste0("s2 is at maximum value after optimizing. ",
+                         "Check the fit to see it this caused a bad fit. ",
+                         "Consider changing the kernel s2_upper ",
+                         " or rescaling the data."))
+        }
+        if (self$logs2 <= self$logs2_lower) {
+          message(paste0("s2 is at minimum value after optimizing. ",
+                         "Check the fit to see it this caused a bad fit. ",
+                         "Consider changing the kernel s2_lower ",
+                         " or rescaling the data."))
+        }
       }
     },
     # dC_dparams = function(params=NULL, C, X, C_nonug) {

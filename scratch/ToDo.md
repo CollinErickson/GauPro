@@ -64,7 +64,7 @@ an error the user should know. Like when I test useCM.
 * Large Z variance is bad. Extend range of s2. Warning to rescale. Tell kernel
 that initial optim values should be large.
 
-* If after par optim, par are at lower/upper, give warning
+* If after par optim, par are at lower/upper, give warning. Do for nug in kernel
 
 * Add deprecated for old model: lifecycle::
 
@@ -75,9 +75,5 @@ that initial optim values should be large.
 * Noisy EI?
 
 * Rename to gpkm, hide all R6 classes. Look into R7.
-
-* optim starts for kernel parameters. Add jitter.
-
-* update data with df fails
 
 * Test normalize, probably fails on plots, EI, etc.
