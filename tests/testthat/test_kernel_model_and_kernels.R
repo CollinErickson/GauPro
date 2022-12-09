@@ -1148,14 +1148,19 @@ test_that("Bad kernels", {
 
 # Normalize Z ----
 test_that("Normalize Z", {
-  d <- 3
+  d <- 1
   n <- 30
   x <- matrix(runif(d*n), ncol=d)
-  y <- (x[,1]^.7 + x[,2]^1.4 * (x[,3]^.8*2))*1e6 + rnorm(n, 0, 1e2)
+  if (d == 1) {
+    y <- sin(6*x[,1]^.7)*1e6 + rnorm(n, 0, 1e2)
+  } else {
+    y <- (x[,1]^.7 + x[,2]^1.4 * (x[,3]^.8*2))*1e6 + rnorm(n, 0, 1e2)
+  }
   expect_no_error({
     gp <- GauPro_kernel_model$new(x, y, normalize = T)
   })
   # plot(predict(gp, x), y)
   expect_no_error(pred <- predict(gp, x))
   expect_equal(y, pred, tolerance = 1e-1)
+  expect_equal(y, gp$pred_LOO(), tolerance = 1e-1)
 })

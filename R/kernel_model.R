@@ -664,7 +664,8 @@ GauPro_kernel_model <- R6::R6Class(
           if (mean_dist) { # mean can have zero s2
             min_s2 <- 0
           } else { # pred var should always be at least this big
-            min_s2 <- max(.Machine$double.eps, self$s2_hat * self$nug)
+            min_s2 <- max(.Machine$double.eps, self$s2_hat * self$nug *
+                            if (self$normalize) {self$normalize_sd} else {1})
           }
           warning(paste0("Negative s2 predictions are being set to ",
                          min_s2, " (", sum(s2<0)," values, min=", min(s2),").",
@@ -710,7 +711,8 @@ GauPro_kernel_model <- R6::R6Class(
         if (mean_dist) { # mean can have zero s2
           min_s2 <- 0
         } else { # pred var should always be at least this big
-          min_s2 <- max(.Machine$double.eps, self$s2_hat * self$nug)
+          min_s2 <- max(.Machine$double.eps, self$s2_hat * self$nug *
+                          if (self$normalize) {self$normalize_sd} else {1})
         }
         warning(paste0("Negative s2 predictions are being set to ",
                        min_s2, " (", sum(s2<0)," values, min=", min(s2),")"))
@@ -786,9 +788,18 @@ GauPro_kernel_model <- R6::R6Class(
           Z_LOO_s2[i] <- Zi_LOO_s2
         }
       }
+      if (self$normalize) {
+        Z_LOO <- Z_LOO * self$normalize_sd + self$normalize_mean
+        if (se.fit) {
+          Z_LOO_s2 <- Z_LOO_s2 * self$normalize_sd ^ 2
+        }
+      }
       if (se.fit) { # Return df with se and t if se.fit
         Z_LOO_se <- sqrt(Z_LOO_s2)
-        t_LOO <- (self$Z - Z_LOO) / Z_LOO_se
+        Zref <- if (self$normalize) {
+          self$Z * self$normalize_sd + self$normalize_mean
+        } else {self$Z}
+        t_LOO <- (Zref - Z_LOO) / Z_LOO_se
         data.frame(fit=Z_LOO, se.fit=Z_LOO_se, t=t_LOO)
       } else { # Else just mean LOO
         Z_LOO
@@ -985,8 +996,10 @@ GauPro_kernel_model <- R6::R6Class(
                                              Sigma=px$cov),
                        silent = TRUE)
       nug_Sig <- 1e-8 # self$nug, now use 1e-8 since self$nug is excluded in pred.
+      haderror <- FALSE
       while (inherits(Sigma.try, "try-error")) {
-        message(paste0("Adding nugget to cool1Dplot: ", nug_Sig))
+        haderror <- TRUE
+        # message(paste0("Adding nugget to cool1Dplot: ", nug_Sig))
         Sigma.try <- try(
           newy <- MASS::mvrnorm(n=n2, mu=px$mean,
                                 Sigma=px$cov + diag(nug_Sig, nrow(px$cov))),
@@ -995,6 +1008,9 @@ GauPro_kernel_model <- R6::R6Class(
         #   stop("Can't do cool1Dplot")
         # }
         nug_Sig <- 2*nug_Sig
+      }
+      if (haderror) {
+        message(paste0("Adding variance to cool1Dplot: ", nug_Sig))
       }
       if (n2==1) { # Avoid error when n2=1
         newy <- matrix(newy, nrow=1)

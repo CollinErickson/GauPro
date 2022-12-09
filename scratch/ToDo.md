@@ -64,13 +64,9 @@ an error the user should know. Like when I test useCM.
 * Large Z variance is bad. Extend range of s2. Warning to rescale. Tell kernel
 that initial optim values should be large.
 
-* If after par optim, par are at lower/upper, give warning. Do for nug in kernel
-
 * Add deprecated for old model: lifecycle::
 
 * Check kernel start par outside of bounds set by user. Test if it gives all errors.
-
-* EI for t dist
 
 * Noisy EI?
 
