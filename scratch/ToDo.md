@@ -15,9 +15,7 @@ at end for K/Kinv so predictions are good.
 
 * Transform inputs
 
-* optim NaN starting value (found on 1D doing EI)
-
-* Speed up m52 grad, Cubic k/grad
+* Speed up Cubic, triangle, ratquad, periodic, powerexp k/grad
 
 * no param est gave error, dC_dparam can't be calculated
 
@@ -40,7 +38,6 @@ an error the user should know. Like when I test useCM.
 
 * When giving in formula/data
   * fix plot for 1D, 2D, marginal, marginal random, kernel
-  * convert ordered factor
   * add to doc
   * message what chosen kernel is
 
@@ -70,6 +67,4 @@ that initial optim values should be large.
 
 * Noisy EI?
 
-* Rename to gpkm, hide all R6 classes. Look into R7.
-
-* Test normalize, probably fails on plots, EI, etc.
+* Make gpkm doc look good. Look into R7.

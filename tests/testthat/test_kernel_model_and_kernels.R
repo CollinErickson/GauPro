@@ -945,13 +945,14 @@ test_that("Formula/data input 2", {
   # Test EI
   expect_no_error(gpdf$EI(xdf[1,]))
   # Test maxEI
-  expect_error(dfEI <- gpdf$maxEI(), NA)
+  # expect_error(dfEI <- gpdf$maxEI(), NA)
+  expect_error(dfEI <- gpdf$maxEI(lower=c(-3,0,1,1,0), upper=c(3,1,5,4,4)), NA)
   expect_true(is.data.frame(dfEI$par))
   expect_equal(colnames(dfEI$par), colnames(xdf)[1:5])
   expect_equal(dim(dfEI$par), c(1,5))
   rm(dfEI)
   # maxEI with mopar
-  expect_error(dfEI <- gpdf$maxEI(
+  expect_error(dfEI2 <- gpdf$maxEI(
     mopar = c(mixopt::mopar_cts(-3,3),
               mixopt::mopar_cts(0,1),
               mixopt::mopar_unordered(letters[1:5]),
@@ -959,9 +960,10 @@ test_that("Formula/data input 2", {
               mixopt::mopar_cts(0,4)
     )
   ), NA)
-  expect_true(is.data.frame(dfEI$par))
-  expect_equal(colnames(dfEI$par), colnames(xdf)[1:5])
-  expect_equal(dim(dfEI$par), c(1,5))
+  expect_true(is.data.frame(dfEI2$par))
+  expect_equal(colnames(dfEI2$par), colnames(xdf)[1:5])
+  expect_equal(dim(dfEI2$par), c(1,5))
+  rm(dfEI2)
   # Test qEI with mopar
   expect_error(dfqEI <- gpdf$maxqEI(
     npoints = 2,
@@ -972,6 +974,7 @@ test_that("Formula/data input 2", {
               mixopt::mopar_cts(0,4)
     )
   ), NA)
+  rm(dfqEI)
   # expect_true(is.data.frame(dfqEI$par))
   # expect_equal(colnames(dfqEI$par), colnames(xdf)[1:5])
   # expect_equal(dim(dfqEI$par), c(2,5))
@@ -984,7 +987,7 @@ test_that("Formula/data input 2", {
   expect_error(gpdf <- GauPro_kernel_model$new(z ~ ., xdf, kernel='m32'), NA)
   expect_error(gpdf <- GauPro_kernel_model$new(z ~ xdf$a + xdf$c + xdf$e, xdf, kernel='m32'), NA)
   expect_error(gpdf <- GauPro_kernel_model$new(z ~ ., data=xdf, kernel='m32'), NA)
-  rm(gpdf, dfEI)
+  rm(gpdf)
 
   # Only fit on chars
   expect_error(gpch <- GauPro_kernel_model$new(z ~ c + d, data=xdf, kernel='m32'), NA)
@@ -1148,7 +1151,7 @@ test_that("Bad kernels", {
 
 # Normalize Z ----
 test_that("Normalize Z", {
-  d <- 1
+  d <- 3
   n <- 30
   x <- matrix(runif(d*n), ncol=d)
   if (d == 1) {
@@ -1163,4 +1166,6 @@ test_that("Normalize Z", {
   expect_no_error(pred <- predict(gp, x))
   expect_equal(y, pred, tolerance = 1e-1)
   expect_equal(y, gp$pred_LOO(), tolerance = 1e-1)
+  expect_no_error(normEI <- gp$maxEI())
+  expect_true(normEI$value < .5*(max(y) - min(y)))
 })

@@ -24,6 +24,23 @@ gp <- GauPro_Gauss$new(X=x, Z=y, parallel=FALSE)
 \section{Super class}{
 \code{\link[GauPro:GauPro]{GauPro::GauPro}} -> \code{GauPro_Gauss}
 }
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{corr}}{Name of correlation}
+
+\item{\code{theta}}{Correlation parameters}
+
+\item{\code{theta_length}}{Length of theta}
+
+\item{\code{theta_map}}{Map for theta}
+
+\item{\code{theta_short}}{Short vector for theta}
+
+\item{\code{separable}}{Are the dimensions separable?}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
@@ -88,6 +105,7 @@ gp <- GauPro_Gauss$new(X=x, Z=y, parallel=FALSE)
 \if{html}{\out{<a id="method-GauPro_Gauss-new"></a>}}
 \if{latex}{\out{\hypertarget{method-GauPro_Gauss-new}{}}}
 \subsection{Method \code{new()}}{
+Create GauPro object
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$new(
   X,
@@ -108,47 +126,122 @@ gp <- GauPro_Gauss$new(X=x, Z=y, parallel=FALSE)
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{X}}{Matrix whose rows are the input points}
+
+\item{\code{Z}}{Output points corresponding to X}
+
+\item{\code{verbose}}{Amount of stuff to print. 0 is little, 2 is a lot.}
+
+\item{\code{separable}}{Are dimensions separable?}
+
+\item{\code{useC}}{Should C code be used when possible? Should be faster.}
+
+\item{\code{useGrad}}{Should the gradient be used?}
+
+\item{\code{parallel}}{Should code be run in parallel? Make optimization
+faster but uses more computer resources.}
+
+\item{\code{nug}}{Value for the nugget. The starting value if estimating it.}
+
+\item{\code{nug.min}}{Minimum allowable value for the nugget.}
+
+\item{\code{nug.est}}{Should the nugget be estimated?}
+
+\item{\code{param.est}}{Should the kernel parameters be estimated?}
+
+\item{\code{theta}}{Correlation parameters}
+
+\item{\code{theta_short}}{Correlation parameters, not recommended}
+
+\item{\code{theta_map}}{Correlation parameters, not recommended}
+
+\item{\code{...}}{Not used}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GauPro_Gauss-corr_func"></a>}}
 \if{latex}{\out{\hypertarget{method-GauPro_Gauss-corr_func}{}}}
 \subsection{Method \code{corr_func()}}{
+Correlation function
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$corr_func(x, x2 = NULL, theta = self$theta)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x}}{First point}
+
+\item{\code{x2}}{Second point}
+
+\item{\code{theta}}{Correlation parameter}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GauPro_Gauss-deviance_theta"></a>}}
 \if{latex}{\out{\hypertarget{method-GauPro_Gauss-deviance_theta}{}}}
 \subsection{Method \code{deviance_theta()}}{
+Calculate deviance
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$deviance_theta(theta)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{theta}}{Correlation parameter}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GauPro_Gauss-deviance_theta_log"></a>}}
 \if{latex}{\out{\hypertarget{method-GauPro_Gauss-deviance_theta_log}{}}}
 \subsection{Method \code{deviance_theta_log()}}{
+Calculate deviance
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$deviance_theta_log(beta)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{beta}}{Correlation parameter on log scale}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GauPro_Gauss-deviance"></a>}}
 \if{latex}{\out{\hypertarget{method-GauPro_Gauss-deviance}{}}}
 \subsection{Method \code{deviance()}}{
+Calculate deviance
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$deviance(theta = self$theta, nug = self$nug)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{theta}}{Correlation parameter}
+
+\item{\code{nug}}{Nugget}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GauPro_Gauss-deviance_grad"></a>}}
 \if{latex}{\out{\hypertarget{method-GauPro_Gauss-deviance_grad}{}}}
 \subsection{Method \code{deviance_grad()}}{
+Calculate deviance gradient
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$deviance_grad(
   theta = NULL,
@@ -158,11 +251,25 @@ gp <- GauPro_Gauss$new(X=x, Z=y, parallel=FALSE)
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{theta}}{Correlation parameter}
+
+\item{\code{nug}}{Nugget}
+
+\item{\code{joint}}{Calculate over theta and nug at same time?}
+
+\item{\code{overwhat}}{Calculate over theta and nug at same time?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GauPro_Gauss-deviance_fngr"></a>}}
 \if{latex}{\out{\hypertarget{method-GauPro_Gauss-deviance_fngr}{}}}
 \subsection{Method \code{deviance_fngr()}}{
+Calculate deviance and gradient at same time
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$deviance_fngr(
   theta = NULL,
@@ -171,29 +278,67 @@ gp <- GauPro_Gauss$new(X=x, Z=y, parallel=FALSE)
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{theta}}{Correlation parameter}
+
+\item{\code{nug}}{Nugget}
+
+\item{\code{overwhat}}{Calculate over theta and nug at same time?}
+
+\item{\code{joint}}{Calculate over theta and nug at same time?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GauPro_Gauss-deviance_log"></a>}}
 \if{latex}{\out{\hypertarget{method-GauPro_Gauss-deviance_log}{}}}
 \subsection{Method \code{deviance_log()}}{
+Calculate deviance gradient
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$deviance_log(beta = NULL, nug = self$nug, joint = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{beta}}{Correlation parameter on log scale}
+
+\item{\code{nug}}{Nugget}
+
+\item{\code{joint}}{Calculate over theta and nug at same time?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GauPro_Gauss-deviance_log2"></a>}}
 \if{latex}{\out{\hypertarget{method-GauPro_Gauss-deviance_log2}{}}}
 \subsection{Method \code{deviance_log2()}}{
+Calculate deviance on log scale
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$deviance_log2(beta = NULL, lognug = NULL, joint = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{beta}}{Correlation parameter on log scale}
+
+\item{\code{lognug}}{Log of nugget}
+
+\item{\code{joint}}{Calculate over theta and nug at same time?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GauPro_Gauss-deviance_log_grad"></a>}}
 \if{latex}{\out{\hypertarget{method-GauPro_Gauss-deviance_log_grad}{}}}
 \subsection{Method \code{deviance_log_grad()}}{
+Calculate deviance gradient on log scale
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$deviance_log_grad(
   beta = NULL,
@@ -203,11 +348,25 @@ gp <- GauPro_Gauss$new(X=x, Z=y, parallel=FALSE)
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{beta}}{Correlation parameter}
+
+\item{\code{nug}}{Nugget}
+
+\item{\code{joint}}{Calculate over theta and nug at same time?}
+
+\item{\code{overwhat}}{Calculate over theta and nug at same time?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GauPro_Gauss-deviance_log2_grad"></a>}}
 \if{latex}{\out{\hypertarget{method-GauPro_Gauss-deviance_log2_grad}{}}}
 \subsection{Method \code{deviance_log2_grad()}}{
+Calculate deviance gradient on log scale
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$deviance_log2_grad(
   beta = NULL,
@@ -217,11 +376,25 @@ gp <- GauPro_Gauss$new(X=x, Z=y, parallel=FALSE)
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{beta}}{Correlation parameter}
+
+\item{\code{lognug}}{Log of nugget}
+
+\item{\code{joint}}{Calculate over theta and nug at same time?}
+
+\item{\code{overwhat}}{Calculate over theta and nug at same time?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GauPro_Gauss-deviance_log2_fngr"></a>}}
 \if{latex}{\out{\hypertarget{method-GauPro_Gauss-deviance_log2_fngr}{}}}
 \subsection{Method \code{deviance_log2_fngr()}}{
+Calculate deviance and gradient on log scale
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$deviance_log2_fngr(
   beta = NULL,
@@ -231,20 +404,44 @@ gp <- GauPro_Gauss$new(X=x, Z=y, parallel=FALSE)
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{beta}}{Correlation parameter}
+
+\item{\code{lognug}}{Log of nugget}
+
+\item{\code{joint}}{Calculate over theta and nug at same time?}
+
+\item{\code{overwhat}}{Calculate over theta and nug at same time?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GauPro_Gauss-get_optim_functions"></a>}}
 \if{latex}{\out{\hypertarget{method-GauPro_Gauss-get_optim_functions}{}}}
 \subsection{Method \code{get_optim_functions()}}{
+Get optimization functions
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$get_optim_functions(param_update, nug.update)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{param_update}}{Should the parameters be updated?}
+
+\item{\code{nug.update}}{Should the nugget be updated?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GauPro_Gauss-param_optim_lower"></a>}}
 \if{latex}{\out{\hypertarget{method-GauPro_Gauss-param_optim_lower}{}}}
 \subsection{Method \code{param_optim_lower()}}{
+Lower bound of params
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$param_optim_lower()}\if{html}{\out{</div>}}
 }
@@ -254,6 +451,7 @@ gp <- GauPro_Gauss$new(X=x, Z=y, parallel=FALSE)
 \if{html}{\out{<a id="method-GauPro_Gauss-param_optim_upper"></a>}}
 \if{latex}{\out{\hypertarget{method-GauPro_Gauss-param_optim_upper}{}}}
 \subsection{Method \code{param_optim_upper()}}{
+Upper bound of params
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$param_optim_upper()}\if{html}{\out{</div>}}
 }
@@ -263,6 +461,7 @@ gp <- GauPro_Gauss$new(X=x, Z=y, parallel=FALSE)
 \if{html}{\out{<a id="method-GauPro_Gauss-param_optim_start"></a>}}
 \if{latex}{\out{\hypertarget{method-GauPro_Gauss-param_optim_start}{}}}
 \subsection{Method \code{param_optim_start()}}{
+Start value of params for optim
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$param_optim_start()}\if{html}{\out{</div>}}
 }
@@ -272,6 +471,7 @@ gp <- GauPro_Gauss$new(X=x, Z=y, parallel=FALSE)
 \if{html}{\out{<a id="method-GauPro_Gauss-param_optim_start0"></a>}}
 \if{latex}{\out{\hypertarget{method-GauPro_Gauss-param_optim_start0}{}}}
 \subsection{Method \code{param_optim_start0()}}{
+Start value of params for optim
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$param_optim_start0()}\if{html}{\out{</div>}}
 }
@@ -281,51 +481,98 @@ gp <- GauPro_Gauss$new(X=x, Z=y, parallel=FALSE)
 \if{html}{\out{<a id="method-GauPro_Gauss-param_optim_jitter"></a>}}
 \if{latex}{\out{\hypertarget{method-GauPro_Gauss-param_optim_jitter}{}}}
 \subsection{Method \code{param_optim_jitter()}}{
+Jitter value of params for optim
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$param_optim_jitter(param_value)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{param_value}}{param value to add jitter to}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GauPro_Gauss-update_params"></a>}}
 \if{latex}{\out{\hypertarget{method-GauPro_Gauss-update_params}{}}}
 \subsection{Method \code{update_params()}}{
+Update value of params after optim
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$update_params(restarts, param_update, nug.update)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{restarts}}{Number of restarts}
+
+\item{\code{param_update}}{Are the params being updated?}
+
+\item{\code{nug.update}}{Is the nugget being updated?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GauPro_Gauss-grad"></a>}}
 \if{latex}{\out{\hypertarget{method-GauPro_Gauss-grad}{}}}
 \subsection{Method \code{grad()}}{
+Calculate the gradient
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$grad(XX)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{XX}}{Points to calculate grad at}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GauPro_Gauss-grad_dist"></a>}}
 \if{latex}{\out{\hypertarget{method-GauPro_Gauss-grad_dist}{}}}
 \subsection{Method \code{grad_dist()}}{
+Calculate the gradient distribution
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$grad_dist(XX)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{XX}}{Points to calculate grad at}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GauPro_Gauss-hessian"></a>}}
 \if{latex}{\out{\hypertarget{method-GauPro_Gauss-hessian}{}}}
 \subsection{Method \code{hessian()}}{
+Calculate the hessian
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$hessian(XX, useC = self$useC)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{XX}}{Points to calculate grad at}
+
+\item{\code{useC}}{Should C code be used to speed up?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GauPro_Gauss-print"></a>}}
 \if{latex}{\out{\hypertarget{method-GauPro_Gauss-print}{}}}
 \subsection{Method \code{print()}}{
+Print this object
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss$print()}\if{html}{\out{</div>}}
 }

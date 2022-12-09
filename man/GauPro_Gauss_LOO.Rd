@@ -24,6 +24,15 @@ gp <- GauPro_Gauss_LOO$new(X=x, Z=y, parallel=FALSE)
 \section{Super classes}{
 \code{\link[GauPro:GauPro]{GauPro::GauPro}} -> \code{\link[GauPro:GauPro_Gauss]{GauPro::GauPro_Gauss}} -> \code{GauPro_Gauss_LOO}
 }
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{use_LOO}}{Should the leave-one-out correction be used?}
+
+\item{\code{tmod}}{Second GP model fit to the t-values of leave-one-out predictions}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
@@ -88,6 +97,7 @@ gp <- GauPro_Gauss_LOO$new(X=x, Z=y, parallel=FALSE)
 \if{html}{\out{<a id="method-GauPro_Gauss_LOO-update"></a>}}
 \if{latex}{\out{\hypertarget{method-GauPro_Gauss_LOO-update}{}}}
 \subsection{Method \code{update()}}{
+Update the model, can be data and parameters
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss_LOO$update(
   Xnew = NULL,
@@ -101,15 +111,48 @@ gp <- GauPro_Gauss_LOO$new(X=x, Z=y, parallel=FALSE)
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{Xnew}}{New X matrix}
+
+\item{\code{Znew}}{New Z values}
+
+\item{\code{Xall}}{Matrix with all X values}
+
+\item{\code{Zall}}{All Z values}
+
+\item{\code{restarts}}{Number of optimization restarts}
+
+\item{\code{param_update}}{Should the parameters be updated?}
+
+\item{\code{nug.update}}{Should the nugget be updated?}
+
+\item{\code{no_update}}{Should none of the parameters/nugget be updated?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GauPro_Gauss_LOO-pred_one_matrix"></a>}}
 \if{latex}{\out{\hypertarget{method-GauPro_Gauss_LOO-pred_one_matrix}{}}}
 \subsection{Method \code{pred_one_matrix()}}{
+Predict mean and se for given matrix
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_Gauss_LOO$pred_one_matrix(XX, se.fit = F, covmat = F)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{XX}}{Points to predict at}
+
+\item{\code{se.fit}}{Should the se be returned?}
+
+\item{\code{covmat}}{Should the covariance matrix be returned?}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GauPro_Gauss_LOO-print"></a>}}

@@ -1,7 +1,12 @@
-#' GauPro model that uses kernels
+#' Gaussian process model with kernel
 #'
+#' @description
 #' Class providing object with methods for fitting a GP model.
 #' Allows for different kernel and trend functions to be used.
+#' The object is an R6 object with many methods that can be called.
+#'
+#' `gpkm()` is equivalent to `GauPro_kernel_model$new()`, but is easier to type
+#' and gives parameter autocomplete suggestions.
 #'
 #' @docType class
 #' @importFrom R6 R6Class
@@ -2687,6 +2692,8 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param mopar List of parameters using mixopt
     #' @param dontconvertback If data was given in with a formula, should
     #' it converted back to the original scale?
+    #' @param discreteinputs Info for inputs that should only be optimized over
+    #' discrete set of points instead of a continuous range.
     maxEI = function(lower=apply(self$X, 2, min), upper=apply(self$X, 2, max),
                      n0=100, minimize=FALSE, eps=0,
                      dontconvertback=FALSE,
@@ -2826,12 +2833,13 @@ GauPro_kernel_model <- R6::R6Class(
         Xstart <- X0[ind, ]
         Xstartfactors <- Xstart[factorxindex]
         bestEIsofar <- EI0[ind]
+        # While loop ----
         notdone <- TRUE
         i_while <- 0
         while(notdone) {
           # cat('in while loop', i_while, bestEIsofar, "\n")
           i_while <- i_while + 1
-          # Optimize over cts variables
+          # Optimize over cts ----
           # Optimize starting from that point to find input that maximizes EI
           optim_out_i_indcomb <- optim(par=Xstart[-factorxindex],
                                        #X0[ind, -factorxindex],
@@ -2851,7 +2859,7 @@ GauPro_kernel_model <- R6::R6Class(
                                        method="L-BFGS-B")
           Xstart2 <- Xstart
           Xstart2[-factorxindex] <- optim_out_i_indcomb$par
-          # Optimize over factors
+          # Optimize over factors ----
           Xmat <- matrix(Xstart2, byrow=TRUE, nrow=nrow(factordf), ncol=self$D)
           Xmat[, factorxindex] <- as.matrix(factordf)
           EI_Xmat <- self$EI(Xmat, minimize = minimize)
@@ -2890,6 +2898,17 @@ GauPro_kernel_model <- R6::R6Class(
       # return(bestpar)
       stop("maxEIwithfactors failed #320198471")
     },
+    #' @description Find the point that maximizes the expected improvement.
+    #' Used whenever one of the inputs is a factor (can only take values 1:n).
+    #' @param lower Lower bounds to search within
+    #' @param upper Upper bounds to search within
+    #' @param n0 Number of points to evaluate in initial stage
+    #' @param minimize Are you trying to minimize the output?
+    #' @param eps Exploration parameter
+    #' @param dontconvertback If data was given in with a formula, should
+    #' it converted back to the original scale?
+    #' @param discreteinputs Info for inputs that should only be optimized over
+    #' discrete set of points instead of a continuous range.
     maxEIwithfactorsordiscrete = function(lower=apply(self$X, 2, min),
                                           upper=apply(self$X, 2, max),
                                           n0=100, minimize=FALSE, eps=0,

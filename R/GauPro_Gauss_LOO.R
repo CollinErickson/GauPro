@@ -9,6 +9,8 @@
 # @keywords data, kriging, Gaussian process, regression
 #' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
 #' @format \code{\link{R6Class}} object.
+#' @field use_LOO Should the leave-one-out correction be used?
+#' @field tmod Second GP model fit to the t-values of leave-one-out predictions
 #' @examples
 #' n <- 12
 #' x <- matrix(seq(0,1,length.out = n), ncol=1)
@@ -20,9 +22,19 @@ GauPro_Gauss_LOO <- R6::R6Class(
   public = list(
     tmod = NULL, # A second GP model for the t-values of leave-one-out predictions
     use_LOO = TRUE, # Should predicted errors use leave-one-out correction?
+    #' @description Update the model, can be data and parameters
+    #' @param Xnew New X matrix
+    #' @param Znew New Z values
+    #' @param Xall Matrix with all X values
+    #' @param Zall All Z values
+    #' @param restarts Number of optimization restarts
+    #' @param param_update Should the parameters be updated?
+    #' @param nug.update Should the nugget be updated?
+    #' @param no_update Should none of the parameters/nugget be updated?
     update = function (Xnew=NULL, Znew=NULL, Xall=NULL, Zall=NULL,
                        restarts = 5,
-                       param_update = self$param.est, nug.update = self$nug.est, no_update=FALSE) {
+                       param_update = self$param.est, nug.update = self$nug.est,
+                       no_update=FALSE) {
       self$update_data(Xnew=Xnew, Znew=Znew, Xall=Xall, Zall=Zall) # Doesn't update Kinv, etc
 
       if (!no_update || (!param_update && !nug.update)) { # This option lets it skip parameter optimization entirely
@@ -48,7 +60,10 @@ GauPro_Gauss_LOO <- R6::R6Class(
 
       invisible(self)
     },
-
+    #' @description Predict mean and se for given matrix
+    #' @param XX Points to predict at
+    #' @param se.fit Should the se be returned?
+    #' @param covmat Should the covariance matrix be returned?
     pred_one_matrix = function(XX, se.fit=F, covmat=F) {
       # input should already be check for matrix
       kxx <- self$corr_func(XX) + self$nug
