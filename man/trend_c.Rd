@@ -143,7 +143,7 @@ Derivative of trend with respect to X
 \subsection{Method \code{param_optim_start()}}{
 Get parameter initial point for optimization
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{trend_c$param_optim_start(jitter, trend_est = self$m_est)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{trend_c$param_optim_start(jitter = F, trend_est = self$m_est)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -162,7 +162,7 @@ Get parameter initial point for optimization
 \subsection{Method \code{param_optim_start0()}}{
 Get parameter initial point for optimization
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{trend_c$param_optim_start0(jitter, trend_est = self$m_est)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{trend_c$param_optim_start0(jitter = F, trend_est = self$m_est)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

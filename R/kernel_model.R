@@ -469,9 +469,16 @@ GauPro_kernel_model <- R6::R6Class(
       stopifnot(length(track_optim) == 1, is.logical(track_optim))
       self$track_optim <- track_optim
 
-      self$update_K_and_estimates() # Need to get mu_hat before starting
       # self$mu_hat <- mean(Z)
+      # if (exists("dbfastfit") && isTRUE(dbfastfit)) {
+      #   browser("exists/debug")
+      # }
+      # if (exists("fastfit") && is.function(fastfit)) {
+      #   fastfit(self)
+      # } else {
+      self$update_K_and_estimates() # Need to get mu_hat before starting
       self$fit()
+      # }
       invisible(self)
     },
     # initialize_GauPr = function() {
@@ -1572,7 +1579,7 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param l Not used
     param_optim_start_mat = function(restarts, nug.update, l) {
       s0 <- sample(c(T,F), size=restarts+1, replace=TRUE, prob = c(.33,.67))
-      s0[1] <- TRUE
+      s0[1] <- FALSE
       sapply(1:(restarts+1), function(i) {
         if (s0[i]) {
           self$param_optim_start0(nug.update=nug.update, jitter=(i!=1))
@@ -2683,7 +2690,9 @@ GauPro_kernel_model <- R6::R6Class(
       ifelse(xnew_meanpred$se <= 0, 0,
              (Ztop) * pnorm(Z) + xnew_meanpred$se * dnorm(Z))
     },
-    #' @description Find the point that maximizes the expected improvement
+    #' @description Find the point that maximizes the expected improvement.
+    #' If there are inputs that should only be optimized over a discrete set
+    #' of values, specify `mopar` for all parameters.
     #' @param lower Lower bounds to search within
     #' @param upper Upper bounds to search within
     #' @param n0 Number of points to evaluate in initial stage
@@ -2694,12 +2703,49 @@ GauPro_kernel_model <- R6::R6Class(
     #' it converted back to the original scale?
     #' @param discreteinputs Info for inputs that should only be optimized over
     #' discrete set of points instead of a continuous range.
-    maxEI = function(lower=apply(self$X, 2, min), upper=apply(self$X, 2, max),
+    maxEI = function(lower=apply(self$X, 2, min),
+                     upper=apply(self$X, 2, max),
                      n0=100, minimize=FALSE, eps=0,
                      dontconvertback=FALSE,
                      discreteinputs=NULL, mopar=NULL) {
       stopifnot(all(lower < upper))
       stopifnot(length(n0)==1, is.numeric(n0), n0>=1)
+
+      if (exists("meif") && isTRUE(meif)) {
+        browser("exists/debug")
+
+        # If any inputs are factors but mopar is not given, create mopar
+        if (is.null(mopar)) {
+          print('fixing maxEI with factors')
+          browser()
+          fkfd <- find_kernel_factor_dims2(self$kernel)
+          fkcd <- find_kernel_cts_dims(self$kernel)
+          factorinds <- if (is.null(fkfd)) {
+            c()
+          } else {
+            fkfd[seq(1, length(fkfd), 3)]
+          }
+          ctsinds <- setdiff(1:self$D, factorinds)
+          mopar <- list()
+          for (i in 1:self$D) {
+            if (i %in% ctsinds) {
+              mopar[[i]] <- mixopt::mopar_cts(lower=min(self$X[,i]),
+                                              upper=max(self$X[,i]))
+            } else {
+              stopifnot(length(fkfd) > .5, i %in% factorinds)
+              fkfdind <- which(fkfd[(which(seq_along(fkfd) %% 3 == 1))] == i)
+              nlev <- fkfd[(fkfdind-1)*3 + 2]
+              isordered <- fkfd[(fkfdind-1)*3 + 3] > .5
+              if (isordered) {
+                mopar[[i]] <- mixopt::mopar_ordered(values=1:nlev)
+              } else {
+                mopar[[i]] <- mixopt::mopar_unordered(values=1:nlev)
+              }
+            }
+          }
+          attr(mopar, "converted") <- TRUE
+        }
+      }
       # Check if any kernels have factors
       if (is.null(mopar) &&
           (!is.null(discreteinputs) ||
@@ -2721,7 +2767,7 @@ GauPro_kernel_model <- R6::R6Class(
         moout <- mixopt::mixopt_multistart(
           par=mopar,
           fn=function(xx){
-            if (is.null(self$formula)) {
+            if (is.null(self$formula) || !is.null(attr(mopar, "converted"))) {
               -self$EI(unlist(xx), minimize = minimize,
                        selfXmeanpred=selfXmeanpred)
             } else {
@@ -2735,7 +2781,7 @@ GauPro_kernel_model <- R6::R6Class(
             }
           }
         )
-        if (is.null(self$formula)) {
+        if (is.null(self$formula) || !is.null(attr(mopar, "converted"))) {
           # Convert list to numeric
           moout_par <- unlist(moout$par)
         } else {

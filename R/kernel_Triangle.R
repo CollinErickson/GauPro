@@ -55,7 +55,9 @@ Triangle <- R6::R6Class(
       theta <- 10^beta
       if (is.null(y)) {
         if (is.matrix(x)) {
-          val <- outer(1:nrow(x), 1:nrow(x), Vectorize(function(i,j){self$kone(x[i,],x[j,],theta=theta, s2=s2)}))
+          val <- outer(1:nrow(x), 1:nrow(x),
+                       Vectorize(function(i,j){self$kone(x[i,],x[j,],
+                                                         theta=theta, s2=s2)}))
           # val <- s2 * corr_triangle_matrix_symC(x, theta)
           return(val)
         } else {
@@ -63,7 +65,9 @@ Triangle <- R6::R6Class(
         }
       }
       if (is.matrix(x) & is.matrix(y)) {
-        outer(1:nrow(x), 1:nrow(y), Vectorize(function(i,j){self$kone(x[i,],y[j,],theta=theta, s2=s2)}))
+        outer(1:nrow(x), 1:nrow(y),
+              Vectorize(function(i,j){self$kone(x[i,],y[j,],
+                                                theta=theta, s2=s2)}))
         # s2 * corr_triangle_matrixC(x, y, theta)
       } else if (is.matrix(x) & !is.matrix(y)) {
         apply(x, 1, function(xx) {self$kone(xx, y, theta=theta, s2=s2)})
@@ -136,23 +140,19 @@ Triangle <- R6::R6Class(
         for (i in seq(1, n-1, 1)) {
           for (j in seq(i+1, n, 1)) {
             r2 <- sum(theta * (X[i,]-X[j,])^2)
-            if (r2 == 0) {
-              dC_dparams[1:length(beta),i,j] <- dC_dparams[1:length(beta),j,i] <- 0
+            if (r2 == 0) { # Corr is 1, not continuous so no deriv
+              dC_dparams[1:length(beta),i,j] <-
+                dC_dparams[1:length(beta),j,i] <- 0
             } else {
-              # t1 <- sqrt(3 * tx2)
-              # t3 <- C[i,j] * (1/(1+t1) - 1) * self$sqrt3 * log10
               r <- sqrt(r2)
               C <- max(1 - r, 0)
               for (k in 1:length(beta)) {
                 if (C > 0) {
-                  # dC_dparams[k,i,j] <- dC_dparams[k,j,i] <- -1/2/r * (X[i,k]-X[j,k])^2
-                  dC_dparams[k,i,j] <- dC_dparams[k,j,i] <- -1/2/r * (X[i,k]-X[j,k])^2 * s2 * theta[k] * log10
+                  dC_dparams[k,i,j] <- dC_dparams[k,j,i] <- (
+                    -1/2/r * (X[i,k]-X[j,k])^2 * s2 * theta[k] * log10)
                 } else {
                   dC_dparams[k,i,j] <- dC_dparams[k,j,i] <- 0
                 }
-                # dt1dbk <- .5 * (X[i,k] - X[j,k])^2 / sqrttx2
-                # dC_dparams[k,i,j] <- t3 * dt1dbk * theta[k]   #s2 * (1+t1) * exp(-t1) *-dt1dbk + s2 * dt1dbk * exp(-t1)
-                # dC_dparams[k,j,i] <- dC_dparams[k,i,j]
               }
             }
           }
@@ -183,8 +183,6 @@ Triangle <- R6::R6Class(
       dC_dx <- array(NA, dim=c(nn, d, n))
       for (i in 1:nn) {
         for (k in 1:n) {
-          # r <- sqrt(sum(theta * (XX[i,] - X[k,]) ^ 2))
-          # dC_dx[i, j, k] <- -3 * s2 * r * exp(-self$sqrt3 * r) * theta[j] * (XX[i, j] - X[k, j]) / r
           r <- sqrt(sum(theta * (XX[i,]-X[k,])^2))
           # s2 * max(1 - r, 0)
           for (j in 1:d) {

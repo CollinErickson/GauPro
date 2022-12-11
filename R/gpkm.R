@@ -1,5 +1,34 @@
-#' @rdname GauPro_kernel_model
+#' Gaussian process regression model
+#'
+#' Fits a Gaussian process model to data.
+#'
 #' @export
+#' @param X Matrix whose rows are the input points
+#' @param Z Output points corresponding to X
+#' @param kernel The kernel to use. E.g., Gaussian$new().
+#' @param trend Trend to use. E.g., trend_constant$new().
+#' @param verbose Amount of stuff to print. 0 is little, 2 is a lot.
+#' @param useC Should C code be used when possible? Should be faster.
+#' @param useGrad Should the gradient be used?
+#' @param parallel Should code be run in parallel? Make optimization
+#' faster but uses more computer resources.
+#' @param parallel_cores When using parallel, how many cores should
+#' be used?
+#' @param nug Value for the nugget. The starting value if estimating it.
+#' @param nug.min Minimum allowable value for the nugget.
+#' @param nug.max Maximum allowable value for the nugget.
+#' @param nug.est Should the nugget be estimated?
+#' @param param.est Should the kernel parameters be estimated?
+#' @param restarts How many optimization restarts should be used when
+#' estimating parameters?
+#' @param normalize Should the data be normalized?
+#' @param optimizer What algorithm should be used to optimize the
+#' parameters.
+#' @param track_optim Should it track the parameters evaluated
+#' while optimizing?
+#' @param formula Formula for the data if giving in a data frame.
+#' @param data Data frame of data. Use in conjunction with formula.
+#' @param ... Not used
 gpkm <- function(X, Z,
                  kernel, trend,
                  verbose=0, useC=TRUE, useGrad=TRUE,

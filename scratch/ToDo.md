@@ -7,6 +7,8 @@
 * With many points, just estimate param from subset of data, but use all data
 at end for K/Kinv so predictions are good.
 
+* fastfit: with large data, fit on subset of data first, then go to all data
+
 * Reduce L-BFGS-B tolerance? Need to change tests too.
 
 * Add documentation for kernels, esp. factor ones
@@ -68,3 +70,11 @@ that initial optim values should be large.
 * Noisy EI?
 
 * Make gpkm doc look good. Look into R7.
+
+* Write maxEI so it uses mopar for factor auto, remove maxEIwithfactorordiscrete
+  * Always use mixopt, even if no factor/discrete
+  * Remove discreteinputs param, they should just use mopar
+
+* maxEI with mopar check for factor dims so they are specified
+
+* trend optim start, jitter
