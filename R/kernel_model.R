@@ -2701,507 +2701,88 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param mopar List of parameters using mixopt
     #' @param dontconvertback If data was given in with a formula, should
     #' it converted back to the original scale?
-    #' @param discreteinputs Info for inputs that should only be optimized over
-    #' discrete set of points instead of a continuous range.
     maxEI = function(lower=apply(self$X, 2, min),
                      upper=apply(self$X, 2, max),
                      n0=100, minimize=FALSE, eps=0,
                      dontconvertback=FALSE,
-                     discreteinputs=NULL, mopar=NULL) {
+                     mopar=NULL) {
       stopifnot(all(lower < upper))
       stopifnot(length(n0)==1, is.numeric(n0), n0>=1)
 
-      if (exists("meif") && isTRUE(meif)) {
-        browser("exists/debug")
+      # if (exists("meif") && isTRUE(meif)) {
+      # browser("exists/debug")
 
-        # If any inputs are factors but mopar is not given, create mopar
-        if (is.null(mopar)) {
-          print('fixing maxEI with factors')
-          browser()
-          fkfd <- find_kernel_factor_dims2(self$kernel)
-          fkcd <- find_kernel_cts_dims(self$kernel)
-          factorinds <- if (is.null(fkfd)) {
-            c()
+      # If any inputs are factors but mopar is not given, create mopar
+      if (is.null(mopar)) {
+        # print('fixing maxEI with factors')
+        # browser()
+        fkfd <- find_kernel_factor_dims2(self$kernel)
+        fkcd <- find_kernel_cts_dims(self$kernel)
+        factorinds <- if (is.null(fkfd)) {
+          c()
+        } else {
+          fkfd[seq(1, length(fkfd), 3)]
+        }
+        ctsinds <- setdiff(1:self$D, factorinds)
+        mopar <- list()
+        for (i in 1:self$D) {
+          if (i %in% ctsinds) {
+            mopar[[i]] <- mixopt::mopar_cts(lower=lower[i],
+                                            upper=upper[i])
           } else {
-            fkfd[seq(1, length(fkfd), 3)]
-          }
-          ctsinds <- setdiff(1:self$D, factorinds)
-          mopar <- list()
-          for (i in 1:self$D) {
-            if (i %in% ctsinds) {
-              mopar[[i]] <- mixopt::mopar_cts(lower=min(self$X[,i]),
-                                              upper=max(self$X[,i]))
+            stopifnot(length(fkfd) > .5, i %in% factorinds)
+            fkfdind <- which(fkfd[(which(seq_along(fkfd) %% 3 == 1))] == i)
+            nlev <- fkfd[(fkfdind-1)*3 + 2]
+            isordered <- fkfd[(fkfdind-1)*3 + 3] > .5
+            if (isordered) {
+              mopar[[i]] <- mixopt::mopar_ordered(values=1:nlev)
             } else {
-              stopifnot(length(fkfd) > .5, i %in% factorinds)
-              fkfdind <- which(fkfd[(which(seq_along(fkfd) %% 3 == 1))] == i)
-              nlev <- fkfd[(fkfdind-1)*3 + 2]
-              isordered <- fkfd[(fkfdind-1)*3 + 3] > .5
-              if (isordered) {
-                mopar[[i]] <- mixopt::mopar_ordered(values=1:nlev)
-              } else {
-                mopar[[i]] <- mixopt::mopar_unordered(values=1:nlev)
-              }
+              mopar[[i]] <- mixopt::mopar_unordered(values=1:nlev)
             }
           }
-          attr(mopar, "converted") <- TRUE
         }
-      }
-      # Check if any kernels have factors
-      if (is.null(mopar) &&
-          (!is.null(discreteinputs) ||
-           length(find_kernel_factor_dims(self$kernel)) > 0)) {
-        # Has at least one factor
-        # return(self$maxEIwithfactors(lower=lower, upper=upper, n0=n0,
-        #                              minimize=minimize, eps=eps))
-        return(self$maxEIwithfactorsordiscrete(lower=lower, upper=upper, n0=n0,
-                                               minimize=minimize, eps=eps,
-                                               discreteinputs=discreteinputs,
-                                               dontconvertback=dontconvertback))
+        attr(mopar, "converted") <- TRUE
       }
 
       selfXmeanpred <- self$pred(self$X, se.fit=F, mean_dist=T)
 
-      if (!is.null(mopar)) {
-        # Use mixopt, allows for factor/discrete/integer inputs
-        stopifnot(self$D == length(mopar))
-        moout <- mixopt::mixopt_multistart(
-          par=mopar,
-          fn=function(xx){
-            if (is.null(self$formula) || !is.null(attr(mopar, "converted"))) {
-              -self$EI(unlist(xx), minimize = minimize,
-                       selfXmeanpred=selfXmeanpred)
-            } else {
-              # Convert to data frame since it will convert to formula.
-              # This way is probably slow.
-              # Alternatively, convert to all numeric, no df/formula
-              xx2 <- as.data.frame(xx)
-              colnames(xx2) <- colnames(self$X)
-              -self$EI(xx2, minimize = minimize,
-                       selfXmeanpred=selfXmeanpred)
-            }
+      # if (!is.null(mopar)) {
+      # Use mixopt, allows for factor/discrete/integer inputs
+      stopifnot(self$D == length(mopar))
+      moout <- mixopt::mixopt_multistart(
+        par=mopar,
+        fn=function(xx){
+          if (is.null(self$formula) || !is.null(attr(mopar, "converted"))) {
+            -self$EI(unlist(xx), minimize = minimize,
+                     selfXmeanpred=selfXmeanpred)
+          } else {
+            # Convert to data frame since it will convert to formula.
+            # This way is probably slow.
+            # Alternatively, convert to all numeric, no df/formula
+            xx2 <- as.data.frame(xx)
+            colnames(xx2) <- colnames(self$X)
+            -self$EI(xx2, minimize = minimize,
+                     selfXmeanpred=selfXmeanpred)
           }
-        )
-        if (is.null(self$formula) || !is.null(attr(mopar, "converted"))) {
-          # Convert list to numeric
-          moout_par <- unlist(moout$par)
-        } else {
-          # Convert list to data frame
-          moout_par <- as.data.frame(moout$par)
-          colnames(moout_par) <- colnames(self$X)
         }
-        return(list(
-          par=moout_par,
-          value=-moout$val
-        ))
-      }
-      # Random points to evaluate to find best starting point
-      X0 <- lhs::randomLHS(n=n0, k=ncol(self$X))
-      X0 <- sweep(X0, 2, upper-lower, "*")
-      X0 <- sweep(X0, 2, lower, "+")
-      # Also use point near current optimum
-      bestZind <- if (minimize) {which.min(self$Z)} else {which.max(self$Z)}
-      X0 <- rbind(X0,
-                  pmax(pmin(self$X[bestZind, ] +
-                              rnorm(ncol(self$X), 0, 1e-4),
-                            upper),
-                       lower))
-      # Calculate EI at these points
-      EI0 <- self$EI(x=X0, minimize=minimize, eps=eps, selfXmeanpred=selfXmeanpred)
-      if (all(EI0 <= 0)) {
-        warning("maxEI couldn't find any inputs with nonzero EI")
-      }
-      ind <- which.max(EI0)
-      # Optimize starting from that point to find input that maximizes EI
-      optim_out <- optim(par=X0[ind,],
-                         lower=lower, upper=upper,
-                         # fn=function(xx){ei <- -self$EI(xx); cat(xx, ei, "\n"); ei},
-                         fn=function(xx){-self$EI(xx, minimize = minimize,
-                                                  selfXmeanpred=selfXmeanpred)},
-                         method="L-BFGS-B")
-      optim_out$par
-      # Return list, same format as DiceOptim::max_EI
-      list(
-        par=optim_out$par,
-        value=-optim_out$val
       )
+      if (is.null(self$formula)) {
+        # Convert list to numeric
+        moout_par <- unlist(moout$par)
+      } else if (!is.null(attr(mopar, "converted"))) {
+        # Convert numericback to named to data.frame
+        moout_par <- convert_X_with_formula_back(self, moout$par)
+        colnames(moout_par) <- colnames(self$X)
+      } else {
+        # Convert list to data frame
+        moout_par <- as.data.frame(moout$par)
+        colnames(moout_par) <- colnames(self$X)
+      }
+      return(list(
+        par=moout_par,
+        value=-moout$val
+      ))
     },
-    #' @description Find the point that maximizes the expected improvement.
-    #' Used whenever one of the inputs is a factor (can only take values 1:n).
-    #' @param lower Lower bounds to search within
-    #' @param upper Upper bounds to search within
-    #' @param n0 Number of points to evaluate in initial stage
-    #' @param minimize Are you trying to minimize the output?
-    #' @param eps Exploration parameter
-    maxEIwithfactors = function(lower=apply(self$X, 2, min),
-                                upper=apply(self$X, 2, max),
-                                n0=100, minimize=FALSE, eps=0) {
-      stopifnot(all(lower < upper))
-      stopifnot(length(n0)==1, is.numeric(n0), n0>=1)
-      # Get factor info
-      factorinfo <- find_kernel_factor_dims(self$kernel)
-      # Run inner EI over all factor combinations
-      stopifnot(length(factorinfo)>0)
-      # factordf <- data.frame(index=factorinfo[1]
-      factorlist <- list()
-      for (i_f in 1:(length(factorinfo)/2)) {
-        factorlist[[as.character(factorinfo[i_f*2-1])]] <- 1:factorinfo[i_f*2]
-      }
-      factordf <- do.call(expand.grid, factorlist)
-      # Track best seen in optimizing EI
-      bestval <- Inf
-      bestpar <- c()
-      factorxindex <- factorinfo[(1:(length(factorinfo)/2))*2-1] #factorinfo[[1]]
-      factornlevels <- factorinfo[(1:(length(factorinfo)/2))*2]
-
-      # If no non-factor levels, just predict EI at all and return best
-      if (length(factorxindex) == self$D) {
-        Xmat <- as.matrix(factordf)
-        EI_Xmat <- self$EI(Xmat, minimize = minimize)
-        bestind <- which.max(EI_Xmat)[1]
-        bestval <- EI_Xmat[bestind]
-        bestpar <- Xmat[bestind, ]
-        return(unname(bestpar))
-      } else {
-        # Has continuous and factor indices
-        # Alternate optimizing over cts and factors
-        X0 <- lhs::randomLHS(n=n0, k=self$D)
-        X0 <- sweep(X0, 2, upper-lower, "*")
-        X0 <- sweep(X0, 2, lower, "+")
-        for (j in 1:length(factorxindex)) {
-          X0[, factorxindex[j]] <- sample(1:factornlevels[j], n0, replace=TRUE)
-        }
-        # Calculate EI at these points, use best as starting point for optim
-        EI0 <- self$EI(x=X0, minimize=minimize, eps=eps)
-        ind <- which.max(EI0)
-
-        # Continuous indexes
-        ctsinds <- setdiff(1:self$D, factorxindex)
-        Xstart <- X0[ind, ]
-        Xstartfactors <- Xstart[factorxindex]
-        bestEIsofar <- EI0[ind]
-        # While loop ----
-        notdone <- TRUE
-        i_while <- 0
-        while(notdone) {
-          # cat('in while loop', i_while, bestEIsofar, "\n")
-          i_while <- i_while + 1
-          # Optimize over cts ----
-          # Optimize starting from that point to find input that maximizes EI
-          optim_out_i_indcomb <- optim(par=Xstart[-factorxindex],
-                                       #X0[ind, -factorxindex],
-                                       lower=lower[-factorxindex],
-                                       upper=upper[-factorxindex],
-                                       # fn=function(xx){ei <- -self$EI(xx);
-                                       #  cat(xx, ei, "\n"); ei},
-                                       fn=function(xx){
-                                         xx2 <- numeric(self$D)
-                                         xx2[ctsinds] <- xx
-                                         xx2[factorxindex] <- Xstartfactors
-                                         # xx2 <- c(xx[xxinds1], factorxlevel,
-                                         #  xx[xxinds2])
-                                         # cat(xx, xx2, "\n")
-                                         -self$EI(xx2, minimize = minimize)
-                                       },
-                                       method="L-BFGS-B")
-          Xstart2 <- Xstart
-          Xstart2[-factorxindex] <- optim_out_i_indcomb$par
-          # Optimize over factors ----
-          Xmat <- matrix(Xstart2, byrow=TRUE, nrow=nrow(factordf), ncol=self$D)
-          Xmat[, factorxindex] <- as.matrix(factordf)
-          EI_Xmat <- self$EI(Xmat, minimize = minimize)
-          # for (i in 1:nrow(Xmat)) {
-          #   Xmat[i, -factorxindex] <-
-          # }
-          newbestEI <- max(EI_Xmat)
-          newbestX <- Xmat[which.min(EI_Xmat)[1],]
-          # If no improvement, end it
-          if (newbestEI - bestEIsofar <=  1e-16) {
-            # return(newbestX)
-            # Return list, same format as DiceOptim::max_EI
-            return(
-              list(
-                par=newbestX,
-                value=newbestEI
-              )
-            )
-          }
-          # Or break if enough iterations
-          if (i_while > 10) {
-            # return(newbestX)
-            # Return list, same format as DiceOptim::max_EI
-            return(
-              list(
-                par=newbestX,
-                value=newbestEI
-              )
-            )
-          }
-          bestEIsofar <- newbestEI
-        }
-
-      }
-      # stopifnot(length(bestpar) == self$D)
-      # return(bestpar)
-      stop("maxEIwithfactors failed #320198471")
-    },
-    #' @description Find the point that maximizes the expected improvement.
-    #' Used whenever one of the inputs is a factor (can only take values 1:n).
-    #' @param lower Lower bounds to search within
-    #' @param upper Upper bounds to search within
-    #' @param n0 Number of points to evaluate in initial stage
-    #' @param minimize Are you trying to minimize the output?
-    #' @param eps Exploration parameter
-    #' @param dontconvertback If data was given in with a formula, should
-    #' it converted back to the original scale?
-    #' @param discreteinputs Info for inputs that should only be optimized over
-    #' discrete set of points instead of a continuous range.
-    maxEIwithfactorsordiscrete = function(lower=apply(self$X, 2, min),
-                                          upper=apply(self$X, 2, max),
-                                          n0=100, minimize=FALSE, eps=0,
-                                          dontconvertback=FALSE,
-                                          discreteinputs=NULL) {
-      stopifnot(all(lower < upper))
-      stopifnot(length(n0)==1, is.numeric(n0), n0>=1)
-      # Make sure discreteinputs is okay
-      if (!is.null(discreteinputs)) {
-        stopifnot(is.list(discreteinputs), length(discreteinputs)>0)
-        stopifnot(!is.null(names(discreteinputs)),
-                  all(names(discreteinputs) != ""))
-        discreteinds <- as.integer(names(discreteinputs))
-        stopifnot(!is.na(discreteinds))
-      } else {
-        discreteinds <- c()
-      }
-      # Get factor info
-      factorinfo <- find_kernel_factor_dims(self$kernel)
-      if (!is.null(factorinfo)) {
-        # Run inner EI over all factor combinations
-        stopifnot(length(factorinfo)>0)
-        # factordf <- data.frame(index=factorinfo[1]
-        factorlist <- list()
-        for (i_f in 1:(length(factorinfo)/2)) {
-          factorlist[[as.character(factorinfo[i_f*2-1])]] <- 1:factorinfo[i_f*2]
-        }
-        factordf <- do.call(expand.grid, factorlist)
-        # Track best seen in optimizing EI
-        bestval <- Inf
-        bestpar <- c()
-        factorxindex <- factorinfo[(1:(length(factorinfo)/2))*2-1]
-        factornlevels <- factorinfo[(1:(length(factorinfo)/2))*2]
-      } else {
-        # Indices of factor columns
-        factorxindex <- c()
-      }
-
-      ctsinds <- setdiff(1:self$D, c(discreteinds, factorxindex))
-
-      # browser("do coordinate descent here?")
-
-      # If no non-factor levels, just predict EI at all and return best
-      if (length(factorxindex) == self$D) {
-        Xmat <- as.matrix(factordf)
-        EI_Xmat <- self$EI(Xmat, minimize = minimize)
-        bestind <- which.max(EI_Xmat)[1]
-        bestval <- EI_Xmat[bestind]
-        bestpar <- Xmat[bestind, ]
-        return(unname(bestpar))
-      } else {
-        # Has continuous/factor/discrete indices
-        # Alternate optimizing over cts and factors an discrete
-        #
-        X0 <- lhs::randomLHS(n=n0, k=self$D)
-        X0 <- sweep(X0, 2, upper-lower, "*")
-        X0 <- sweep(X0, 2, lower, "+")
-        for (j in seq_along(factorxindex)) {
-          X0[, factorxindex[j]] <- sample(1:factornlevels[j], n0, replace=TRUE)
-        }
-        for (j in seq_along(discreteinds)) {
-          X0[, discreteinds[j]] <- sample(discreteinputs[[j]], n0, replace=TRUE)
-        }
-        # Calculate EI at these points, use best as starting point for optim
-        EI0 <- self$EI(x=X0, minimize=minimize, eps=eps)
-        ind <- which.max(EI0)
-
-        # Continuous indexes
-        # ctsinds <- setdiff(1:self$D, factorxindex)
-        Xstart <- X0[ind, ]
-        # Xstartfactors <- Xstart[factorxindex]
-        bestEIsofar <- EI0[ind]
-        notdone <- TRUE
-        i_while <- 0
-        while(notdone) {
-          # cat('in while loop', i_while, bestEIsofar, "\n")
-          i_while <- i_while + 1
-          # Optimize over cts variables
-          if (length(ctsinds) > 0) {
-            # Optimize starting from that point to find input that maximizes EI
-            optim_out_i_indcomb <- optim(par=Xstart[ctsinds],
-                                         #X0[ind, -factorxindex],
-                                         lower=lower[ctsinds],
-                                         upper=upper[ctsinds],
-                                         # fn=function(xx){ei <- -self$EI(xx);
-                                         #  cat(xx, ei, "\n"); ei},
-                                         fn=function(xx){
-                                           xx2 <- numeric(self$D)
-                                           xx2[ctsinds] <- xx
-                                           xx2[-ctsinds] <- Xstart[-ctsinds]
-                                           # xx2 <- c(xx[xxinds1], factorxlevel,
-                                           #  xx[xxinds2])
-                                           # cat(xx, xx2, "\n")
-                                           -self$EI(xx2, minimize = minimize)
-                                         },
-                                         method="L-BFGS-B")
-            # Xstart2 <- Xstart
-            # Xstart2[-factorxindex] <- optim_out_i_indcomb$par
-            Xstart[ctsinds] <- optim_out_i_indcomb$par
-            newbestEI <- -optim_out_i_indcomb$value
-          }
-          # Optimize over factors
-          if (length(factorxindex) > 0) {
-            Xmat <- matrix(Xstart, byrow=TRUE, nrow=nrow(factordf), ncol=self$D)
-            Xmat[, factorxindex] <- as.matrix(factordf)
-            EI_Xmat <- self$EI(Xmat, minimize = minimize)
-            # for (i in 1:nrow(Xmat)) {
-            #   Xmat[i, -factorxindex] <-
-            # }
-            bestfactorind <- which.max(EI_Xmat)[1]
-            Xstart[factorxindex] <- Xmat[bestfactorind, factorxindex]
-            newbestEI <- max(EI_Xmat)
-          }
-          # Optimize over discrete
-          if (length(discreteinds) > 0) {
-            for (i in seq_along(discreteinds)) {
-              # ndiscrete <- length(discreteinputs)
-              discretevals_i <- discreteinputs[[i]]
-              # If too many, sample plus keep current best
-              if (length(discretevals_i) > 1100) {
-                discretevals_i <- c(Xstart[discreteinds[i]],
-                                    sample(discretevals_i, 1000, replace=FALSE))
-              }
-              Xmat <- matrix(Xstart, byrow=TRUE,
-                             nrow=length(discretevals_i),
-                             ncol=self$D)
-              Xmat[, discreteinds[i]] <- discretevals_i
-              EI_Xmat <- self$EI(Xmat, minimize = minimize)
-              bestdiscreteind <- which.max(EI_Xmat)[1]
-              Xstart[discreteinds] <- Xmat[bestdiscreteind, discreteinds]
-              newbestEI <- max(EI_Xmat)
-            }
-          }
-
-          # newbestEI <- max(EI_Xmat)
-          # newbestX <- Xmat[which.min(EI_Xmat)[1],]
-          # If no improvement, end it
-          if (newbestEI - bestEIsofar <= 1e-16) {
-            # return(Xstart)
-            # Return list, same format as DiceOptim::max_EI
-            # return(
-            #   list(
-            #     par=Xstart,
-            #     value=newbestEI
-            #   )
-            # )
-            notdone <- FALSE
-          }
-          # Or break if enough iterations
-          if (i_while > 10) {
-            # return(Xstart)
-            # Return list, same format as DiceOptim::max_EI
-            # return(
-            #   list(
-            #     par=Xstart,
-            #     value=newbestEI
-            #   )
-            # )
-            notdone <- FALSE
-          }
-          bestEIsofar <- newbestEI
-        }
-
-        # done
-        # Convert factor/char indexes back to level/value
-        if (!is.null(self$formula) && !dontconvertback) {
-          Xstart <- convert_X_with_formula_back(gpdf=self, x=Xstart)
-        }
-
-        # Return list, same format as DiceOptim::max_EI
-        return(
-          list(
-            par=Xstart,
-            value=newbestEI
-          )
-        )
-
-      }
-      # stopifnot(length(bestpar) == self$D)
-      # return(bestpar)
-      stop("maxEIwithfactorsordiscrete failed #259287")
-    },
-    # maxEI_mixopt = function(mopar_list,
-    #                         n0=100,
-    #                         minimize=FALSE,
-    #                         eps=0) {
-    #   out <- mixop
-    # },
-    # maxEIwithfactorsordiscrete2 = function(lower=apply(self$X, 2, min),
-    #                                        upper=apply(self$X, 2, max),
-    #                                        n0=100, minimize=FALSE, eps=0,
-    #                                        discreteinputs=NULL
-    # ) {
-    #   stopifnot(all(lower < upper))
-    #   stopifnot(length(n0)==1, is.numeric(n0), n0>=1)
-    #   # Make sure discreteinputs is okay
-    #   if (!is.null(discreteinputs)) {
-    #     stopifnot(is.list(discreteinputs), length(discreteinputs)>0)
-    #     stopifnot(!is.null(names(discreteinputs)),
-    #               all(names(discreteinputs) != ""))
-    #     discreteinds <- as.integer(names(discreteinputs))
-    #     stopifnot(!is.na(discreteinds))
-    #   } else {
-    #     discreteinds <- c()
-    #   }
-    #   # Get factor info
-    #   factorinfo <- find_kernel_factor_dims(self$kernel)
-    #   if (!is.null(factorinfo)) {
-    #     # Run inner EI over all factor combinations
-    #     stopifnot(length(factorinfo)>0)
-    #     # factordf <- data.frame(index=factorinfo[1]
-    #     factorlist <- list()
-    #     for (i_f in 1:(length(factorinfo)/2)) {
-    #       factorlist[[as.character(factorinfo[i_f*2-1])]] <- 1:factorinfo[i_f*2]
-    #     }
-    #     factordf <- do.call(expand.grid, factorlist)
-    #     # Track best seen in optimizing EI
-    #     bestval <- Inf
-    #     bestpar <- c()
-    #     factorxindex <- factorinfo[(1:(length(factorinfo)/2))*2-1]
-    #     factornlevels <- factorinfo[(1:(length(factorinfo)/2))*2]
-    #   } else {
-    #     # Indices of factor columns
-    #     factorxindex <- c()
-    #   }
-    #
-    #   ctsinds <- setdiff(1:self$D, c(discreteinds, factorxindex))
-    #
-    #   mopar <- list()
-    #   for (i in 1:self$D) {
-    #     if (i %in% ctsinds) {
-    #       mopar[[i]] <- mixopt::mopar_cts(0,1)
-    #     } else if (i %in% discreteinds) {
-    #       mopar[[i]] <- mixopt::mopar_ordered(0:1)
-    #     } else if (i %in% factorxindex) {
-    #       mopar[[i]] <- mixopt::mopar_ordered(0:1)
-    #     } else {
-    #       stop("Error #093842348 not a par")
-    #     }
-    #   }
-    #   mixopt::mixopt_multistart(
-    #     par=mopar,
-    #     fn=mofn,
-    #     n0=n0
-    #   )
-    #
-    # },
     #' @description Find the multiple points that maximize the expected
     #' improvement. Currently only implements the constant liar method.
     #' @param npoints Number of points to add

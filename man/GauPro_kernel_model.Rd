@@ -189,8 +189,6 @@ using the formula}
 \item \href{#method-GauPro-sample}{\code{GauPro_kernel_model$sample()}}
 \item \href{#method-GauPro-EI}{\code{GauPro_kernel_model$EI()}}
 \item \href{#method-GauPro-maxEI}{\code{GauPro_kernel_model$maxEI()}}
-\item \href{#method-GauPro-maxEIwithfactors}{\code{GauPro_kernel_model$maxEIwithfactors()}}
-\item \href{#method-GauPro-maxEIwithfactorsordiscrete}{\code{GauPro_kernel_model$maxEIwithfactorsordiscrete()}}
 \item \href{#method-GauPro-maxqEI}{\code{GauPro_kernel_model$maxqEI()}}
 \item \href{#method-GauPro-KG}{\code{GauPro_kernel_model$KG()}}
 \item \href{#method-GauPro-AugmentedEI}{\code{GauPro_kernel_model$AugmentedEI()}}
@@ -1476,7 +1474,6 @@ of values, specify `mopar` for all parameters.
   minimize = FALSE,
   eps = 0,
   dontconvertback = FALSE,
-  discreteinputs = NULL,
   mopar = NULL
 )}\if{html}{\out{</div>}}
 }
@@ -1497,82 +1494,7 @@ of values, specify `mopar` for all parameters.
 \item{\code{dontconvertback}}{If data was given in with a formula, should
 it converted back to the original scale?}
 
-\item{\code{discreteinputs}}{Info for inputs that should only be optimized over
-discrete set of points instead of a continuous range.}
-
 \item{\code{mopar}}{List of parameters using mixopt}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro-maxEIwithfactors"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro-maxEIwithfactors}{}}}
-\subsection{Method \code{maxEIwithfactors()}}{
-Find the point that maximizes the expected improvement.
-Used whenever one of the inputs is a factor (can only take values 1:n).
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$maxEIwithfactors(
-  lower = apply(self$X, 2, min),
-  upper = apply(self$X, 2, max),
-  n0 = 100,
-  minimize = FALSE,
-  eps = 0
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{lower}}{Lower bounds to search within}
-
-\item{\code{upper}}{Upper bounds to search within}
-
-\item{\code{n0}}{Number of points to evaluate in initial stage}
-
-\item{\code{minimize}}{Are you trying to minimize the output?}
-
-\item{\code{eps}}{Exploration parameter}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro-maxEIwithfactorsordiscrete"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro-maxEIwithfactorsordiscrete}{}}}
-\subsection{Method \code{maxEIwithfactorsordiscrete()}}{
-Find the point that maximizes the expected improvement.
-Used whenever one of the inputs is a factor (can only take values 1:n).
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$maxEIwithfactorsordiscrete(
-  lower = apply(self$X, 2, min),
-  upper = apply(self$X, 2, max),
-  n0 = 100,
-  minimize = FALSE,
-  eps = 0,
-  dontconvertback = FALSE,
-  discreteinputs = NULL
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{lower}}{Lower bounds to search within}
-
-\item{\code{upper}}{Upper bounds to search within}
-
-\item{\code{n0}}{Number of points to evaluate in initial stage}
-
-\item{\code{minimize}}{Are you trying to minimize the output?}
-
-\item{\code{eps}}{Exploration parameter}
-
-\item{\code{dontconvertback}}{If data was given in with a formula, should
-it converted back to the original scale?}
-
-\item{\code{discreteinputs}}{Info for inputs that should only be optimized over
-discrete set of points instead of a continuous range.}
 }
 \if{html}{\out{</div>}}
 }

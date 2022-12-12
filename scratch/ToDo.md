@@ -31,8 +31,6 @@ at end for K/Kinv so predictions are good.
 
 * Clean up trend. b_est/m_est, jitter, aren't used
 
-* Check which indices are non-factor. If any overlap, give warning.
-
 * All restarts had error: doesn't say what error is, so sometimes it's
 an error the user should know. Like when I test useCM.
 
@@ -71,10 +69,6 @@ that initial optim values should be large.
 
 * Make gpkm doc look good. Look into R7.
 
-* Write maxEI so it uses mopar for factor auto, remove maxEIwithfactorordiscrete
-  * Always use mixopt, even if no factor/discrete
-  * Remove discreteinputs param, they should just use mopar
-
 * maxEI with mopar check for factor dims so they are specified
 
-* trend optim start, jitter
+* mixopt needs to be able to eval all at once in multistart
