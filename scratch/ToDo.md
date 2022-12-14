@@ -49,9 +49,9 @@ an error the user should know. Like when I test useCM.
     * test, doc.
     * CL or pred?
 
-* Corrected EI
+* Corrected EI: add, test, check minimize, eps, tdf
 
-* Augmented EI: grad, test, check minimize
+* Augmented EI: test (grad), check minimize, eps, tdf
 
 * Optimize any function. Avoid reimplementing maxEI, maxAugEI, max___.
   * Can use gr or fngr
@@ -69,6 +69,6 @@ that initial optim values should be large.
 
 * Make gpkm doc look good. Look into R7.
 
-* maxEI with mopar check for factor dims so they are specified
-
 * mixopt needs to be able to eval all at once in multistart
+
+* sparse pseudo-input GP. See Snelson 2006. Inherit.

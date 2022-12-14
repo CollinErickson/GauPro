@@ -1,10 +1,10 @@
 # EI with high noise. Gives too much improvement.
 d <- 1
-n <- 20
+n <- 30
 # x <- runif(n)
 x <- seq(0,1,l=n)
 x <- c(runif(n/2,0,.3), runif(5,.3,.7), runif(n/2-5,.7,1))
-y <- sin(2*pi*x) + rnorm(length(x), 0, .2)
+y <- sin(3*pi*x) + rnorm(length(x), 0, .2)
 plot(x, y)
 # gp1 <- GauPro_kernel_model$new(y ~ x)
 gp1 <- GauPro_kernel_model$new(x, y, kernel='m52')
@@ -90,8 +90,12 @@ CorrectedEI <- function(self, x, minimize=FALSE, eps=0,
   stopifnot(length(eps)==1, is.numeric(eps), eps >= 0)
   if (is.matrix(x)) {
     stopifnot(ncol(x) == ncol(self$X))
+  } else if (is.vector(x) && self$D == 1) {
+    # stopifnot(length(x) == ncol(self$X))
+    x <- matrix(x, ncol=1)
   } else if (is.vector(x)) {
     stopifnot(length(x) == ncol(self$X))
+    x <- matrix(x, nrow=1)
   } else if (is.data.frame(x) && !is.null(self$formula)) {
     # Fine here, will get converted in predict
   } else {
@@ -124,7 +128,7 @@ CorrectedEI <- function(self, x, minimize=FALSE, eps=0,
 
   minmult <- if (minimize) {1} else {-1}
 
-  x <- matrix(seq(0,1,l=131), ncol=1)
+  # x <- matrix(seq(0,1,l=131), ncol=1)
   u <- x
   X <- self$X
   mu_u <- self$trend$Z(u)
@@ -144,13 +148,16 @@ CorrectedEI <- function(self, x, minimize=FALSE, eps=0,
 
   z <- (f - y) / s * minmult
   CorEI <- (f - y) * minmult * pnorm(z) + s * dnorm(z)
-  tdf <- 3
-  CorEIt <- (f - y) * minmult * pt(z,tdf) + s * dt(z,tdf)
-  plot(x, CorEI)
-  plot(x, s, ylim=c(0,.3))
-  points(x, self$pred(x, se=T)$se,col=2)
-  points(x, self$pred(x, se=T, mean_dist = T)$se,col=3)
-  cbind(x, y, s, z, CorEI=CorEI, EIt=(f - y) * minmult * pt(z,3) + s * dt(z, 3))
+  if (F) {
+    tdf <- 3
+    CorEIt <- (f - y) * minmult * pt(z,tdf) + s * dt(z,tdf)
+    plot(x, CorEI)
+    plot(x, s, ylim=c(0,.3))
+    points(x, self$pred(x, se=T)$se,col=2)
+    points(x, self$pred(x, se=T, mean_dist = T)$se,col=3)
+    cbind(x, y, s, z, CorEI=CorEI, EIt=(f - y) * minmult * pt(z,3) + s * dt(z, 3))
+    legend(x='topright', legend=c(""), fill=1:3)
+  }
 
 
   # # Calculate "augmented" term
@@ -159,25 +166,66 @@ CorrectedEI <- function(self, x, minimize=FALSE, eps=0,
   # Aug <- 1 - sigma_eps / sqrt(s2 + sigma_eps2)
   # AugEI <- Aug * EI
 
-  if (F && return_grad) {
+  if (return_grad) {
+    # CorrectedEI grad looks good. Need to check for eps, minimize, tdf
     # x <- .8
-    ds2_dx <- self$gradpredvar(x) # GOOD
+    # ds2_dx <- self$gradpredvar(x) # GOOD
+    # ds2_dx <- -2 * Ku.X %*% self$Kinv %*% t(self$kernel$dC_dx(XX=u, X=self$X))
+    ds2_dx_t1 <- -2 * Ku.X %*% self$Kinv
+    dC_dx <- (self$kernel$dC_dx(XX=u, X=self$X))
+    ds2_dx <- u*NaN
+    for (i in 1:nrow(u)) {
+      ds2_dx[i, ] <- ds2_dx_t1[i, ] %*% (dC_dx[i, , ])
+    }
+    ds2_dx <- ds2_dx * (1-self$nug^2*self$s2_hat^2/diag(Ku_given_X)^2)
     ds_dx <- .5/s * ds2_dx # GOOD
     # z <- (f - y) / s
     dy_dx <- self$grad(x) # GOOD
     dz_dx <- -dy_dx / s + (f - y) * (-1/s2) * ds_dx # GOOD
     dz_dx <- dz_dx * minmult
     ddnormz_dz <- -dnorm(z) * z # GOOD
-    daug_dx = .5*sigma_eps / (s2 + sigma_eps2)^1.5 * ds2_dx # GOOD
+    # daug_dx = .5*sigma_eps / (s2 + sigma_eps2)^1.5 * ds2_dx # GOOD
     dEI_dx = minmult * (-dy_dx*pnorm(z) + (f-y)*dnorm(z)*dz_dx) +
       ds_dx*dnorm(z) + s*ddnormz_dz*dz_dx #GOOD
     # numDeriv::grad(function(x) {pr <- self$pred(x,se=T);( EI(pr$mean,pr$se))}, x)
-    dAugEI_dx = EI * daug_dx + dEI_dx * Aug
+    # dAugEI_dx = EI * daug_dx + dEI_dx * Aug
     # numDeriv::grad(function(x) {pr <- self$pred(x,se=T);( EI(pr$mean,pr$se)*augterm(pr$s2))}, x)
     return(list(
-      AugEI=AugEI,
-      grad=dAugEI_dx
+      EI=CorEI,
+      grad=dEI_dx
     ))
   }
-  CorEI
+  c(CorEI)
+}
+if (F) {
+  # EI with high noise. Gives too much improvement.
+  d <- 1
+  n <- 70
+  # x <- runif(n)
+  x <- seq(0,1,l=n)
+  # x <- c(runif(n/2,0,.3), runif(5,.3,.7), runif(n/2-5,.7,1))
+  y <- sin(3*pi*x) + rnorm(length(x), 0, .2)
+  # y <- sin(6*pi*x) + rnorm(length(x), 0, .2)
+  plot(x, y)
+  # gp1 <- GauPro_kernel_model$new(y ~ x)
+  gp1 <- GauPro_kernel_model$new(x, y, kernel='m52')
+  gp1$plot1D()
+
+
+  CorrectedEI(gp1, .5)
+  CorrectedEI(gp1, seq(0,1,l=11))
+  curve(CorrectedEI(gp1, matrix(x, ncol=1)))
+  xseq <- seq(0, 1, l=10001)
+  eis <- cbind(x=xseq,
+               ei=gp1$EI(xseq, minimize=TRUE),
+               aei=gp1$AugmentedEI(xseq, minimize=TRUE),
+               cei=CorrectedEI(gp1, xseq, minimize = T)) %>% as.data.frame
+  eis2 <- eis %>% tidyr::pivot_longer(cols=c(ei, aei, cei))
+  eis2 %>%
+    ggplot(aes(x, value, group=name, color=name)) +
+    geom_point() + facet_wrap(.~name)
+  CorrectedEI(gp1, .5, return_grad = T)
+  CorrectedEI(gp1, xseq, return_grad = T)
+  cg <- CorrectedEI(gp1, xseq, return_grad = T)
+  plot(cg$grad[1:(length(xseq)-1)], diff(cg$EI) / diff(xseq)); abline(a=0, b=1, col=2)
 }
