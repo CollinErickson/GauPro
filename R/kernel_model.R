@@ -2639,8 +2639,9 @@ GauPro_kernel_model <- R6::R6Class(
     #' be calculated
     #' @param minimize Are you trying to minimize the output?
     #' @param eps Exploration parameter
+    #' @param return_grad Should the gradient be returned?
     #' @param ... Additional args
-    EI = function(x, minimize=FALSE, eps=0, ...) {
+    EI = function(x, minimize=FALSE, eps=0, return_grad=FALSE, ...) {
       stopifnot(length(minimize)==1, is.logical(minimize))
       stopifnot(length(eps)==1, is.numeric(eps), eps >= 0)
       dots <- list(...)
@@ -2687,8 +2688,35 @@ GauPro_kernel_model <- R6::R6Class(
       # (Ztop) * pnorm(Z) + pred$se * dnorm(Z)
       # ifelse(pred$se <= 0, 0,
       #        (Ztop) * pnorm(Z) + pred$se * dnorm(Z))
-      ifelse(xnew_meanpred$se <= 0, 0,
-             (Ztop) * pnorm(Z) + xnew_meanpred$se * dnorm(Z))
+      EI <- ifelse(xnew_meanpred$se <= 0, 0,
+                   (Ztop) * pnorm(Z) + xnew_meanpred$se * dnorm(Z))
+      if (return_grad) {
+        minmult <- if (minimize) {1} else {-1}
+        s <- xnew_meanpred$se
+        s2 <- xnew_meanpred$s2
+        y <- xnew_meanpred$mean
+        f <- fxplus - eps
+        z <- Z
+
+        ds2_dx <- self$gradpredvar(x) # GOOD
+        ds_dx <- .5/s * ds2_dx # GOOD
+        # z <- (f - y) / s
+        dy_dx <- self$grad(x) # GOOD
+        dz_dx <- -dy_dx / s + (f - y) * (-1/s2) * ds_dx # GOOD
+        dz_dx <- dz_dx * minmult
+        ddnormz_dz <- -dnorm(z) * z # GOOD
+        # daug_dx = .5*sigma_eps / (s2 + sigma_eps2)^1.5 * ds2_dx # GOOD
+        dEI_dx = minmult * (-dy_dx*pnorm(z) + (f-y)*dnorm(z)*dz_dx) +
+          ds_dx*dnorm(z) + s*ddnormz_dz*dz_dx #GOOD
+        # numDeriv::grad(function(x) {pr <- self$pred(x,se=T);( EI(pr$mean,pr$se))}, x)
+        # dAugEI_dx = EI * daug_dx + dEI_dx * Aug
+        # numDeriv::grad(function(x) {pr <- self$pred(x,se=T);( EI(pr$mean,pr$se)*augterm(pr$s2))}, x)
+        return(list(
+          EI=EI,
+          grad=dEI_dx
+        ))
+      }
+      EI
     },
     #' @description Find the point that maximizes the expected improvement.
     #' If there are inputs that should only be optimized over a discrete set
@@ -2744,6 +2772,7 @@ GauPro_kernel_model <- R6::R6Class(
         attr(mopar, "converted") <- TRUE
       }
 
+      # Pass this in to EI so it doesn't recalculate it unnecessarily every time
       selfXmeanpred <- self$pred(self$X, se.fit=F, mean_dist=T)
 
       # if (!is.null(mopar)) {
@@ -2992,6 +3021,127 @@ GauPro_kernel_model <- R6::R6Class(
         ))
       }
       AugEI
+    },
+    #' @description Calculated Augmented EI
+    #' @param x Vector to calculate EI of, or matrix for whose rows it should
+    #' be calculated
+    #' @param minimize Are you trying to minimize the output?
+    #' @param eps Exploration parameter
+    #' @param return_grad Should the gradient be returned?
+    #' @param f The reference max, user shouldn't change this.
+    CorrectedEI = function(x, minimize=FALSE, eps=0,
+                           return_grad=F, f=NULL) {
+      stopifnot(length(minimize)==1, is.logical(minimize))
+      stopifnot(length(eps)==1, is.numeric(eps), eps >= 0)
+      if (is.matrix(x)) {
+        stopifnot(ncol(x) == ncol(self$X))
+      } else if (is.vector(x) && self$D == 1) {
+        # stopifnot(length(x) == ncol(self$X))
+        x <- matrix(x, ncol=1)
+      } else if (is.vector(x)) {
+        stopifnot(length(x) == ncol(self$X))
+        x <- matrix(x, nrow=1)
+      } else if (is.data.frame(x) && !is.null(self$formula)) {
+        # Fine here, will get converted in predict
+      } else {
+        stop(paste0("bad x in EI, class is: ", class(x)))
+      }
+
+      if (is.null(f)) {
+        # Get preds at existing points, calculate best
+        pred_X <- self$predict(self$X, se.fit = F)
+        if (minimize) {
+          # u_X <- -pred_X$mean - pred_X$se
+          star_star_index <- which.min(pred_X)
+        } else {
+          # warning("AugEI must minimize for now")
+          # u_X <- +pred_X$mean + pred_X$se
+          star_star_index <- which.max(pred_X)
+        }
+
+        f <- pred_X[star_star_index]
+
+      }
+      stopifnot(is.numeric(f), length(f) == 1)
+
+
+
+      # predx <- self$pred(x, se=T)
+      # y <- predx$mean
+      # s <- predx$se
+      # s2 <- predx$s2
+
+      minmult <- if (minimize) {1} else {-1}
+
+      # x <- matrix(seq(0,1,l=131), ncol=1)
+      u <- x
+      X <- self$X
+      mu_u <- self$trend$Z(u)
+      Ku.X <- self$kernel$k(u, X)
+      mu_X <- self$trend$Z(X)
+      Ka <- self$kernel$k(u)
+      Ku <- Ka + self$nug * self$s2_hat
+      Ku_given_X <- Ku - Ku.X %*% self$Kinv %*% t(Ku.X)
+
+      y <- c(mu_u + Ku.X %*% self$Kinv %*% (self$Z - mu_X))
+      s2 <- diag((Ku_given_X - self$nug*self$s2_hat) ^ 2 / (Ku_given_X))
+      # if (ncol(s2) > 1.5) {s2 <- diag(s2)}
+      s <- sqrt(s2)
+
+      # int from f to Inf: (x-f) p(x) dx
+
+
+      z <- (f - y) / s * minmult
+      CorEI <- (f - y) * minmult * pnorm(z) + s * dnorm(z)
+      if (F) {
+        tdf <- 3
+        CorEIt <- (f - y) * minmult * pt(z,tdf) + s * dt(z,tdf)
+        plot(x, CorEI)
+        plot(x, s, ylim=c(0,.3))
+        points(x, self$pred(x, se=T)$se,col=2)
+        points(x, self$pred(x, se=T, mean_dist = T)$se,col=3)
+        cbind(x, y, s, z, CorEI=CorEI, EIt=(f - y) * minmult * pt(z,3) + s * dt(z, 3))
+        legend(x='topright', legend=c(""), fill=1:3)
+      }
+
+
+      # # Calculate "augmented" term
+      # sigma_eps <- self$nug * self$s2_hat
+      # sigma_eps2 <- sigma_eps^2
+      # Aug <- 1 - sigma_eps / sqrt(s2 + sigma_eps2)
+      # AugEI <- Aug * EI
+
+      if (return_grad) {
+        # CorrectedEI grad looks good. Need to check for eps, minimize, tdf
+        # x <- .8
+        # ds2_dx <- self$gradpredvar(x) # GOOD
+        # ds2_dx <- -2 * Ku.X %*% self$Kinv %*% t(self$kernel$dC_dx(XX=u, X=self$X))
+        ds2_dx_t1 <- -2 * Ku.X %*% self$Kinv
+        dC_dx <- (self$kernel$dC_dx(XX=u, X=self$X))
+        ds2_dx <- u*NaN
+        for (i in 1:nrow(u)) {
+          # ds2_dx[i, ] <- ds2_dx_t1[i, ] %*% (dC_dx[i, , ])
+          ds2_dx[i, ] <- t(dC_dx[i, , ] %*% ds2_dx_t1[i, ] )
+        }
+        ds2_dx <- ds2_dx * (1-self$nug^2*self$s2_hat^2/diag(Ku_given_X)^2)
+        ds_dx <- .5/s * ds2_dx # GOOD
+        # z <- (f - y) / s
+        dy_dx <- self$grad(x) # GOOD
+        dz_dx <- -dy_dx / s + (f - y) * (-1/s2) * ds_dx # GOOD
+        dz_dx <- dz_dx * minmult
+        ddnormz_dz <- -dnorm(z) * z # GOOD
+        # daug_dx = .5*sigma_eps / (s2 + sigma_eps2)^1.5 * ds2_dx # GOOD
+        dEI_dx = minmult * (-dy_dx*pnorm(z) + (f-y)*dnorm(z)*dz_dx) +
+          ds_dx*dnorm(z) + s*ddnormz_dz*dz_dx #GOOD
+        # numDeriv::grad(function(x) {pr <- self$pred(x,se=T);( EI(pr$mean,pr$se))}, x)
+        # dAugEI_dx = EI * daug_dx + dEI_dx * Aug
+        # numDeriv::grad(function(x) {pr <- self$pred(x,se=T);( EI(pr$mean,pr$se)*augterm(pr$s2))}, x)
+        return(list(
+          EI=CorEI,
+          grad=dEI_dx
+        ))
+      }
+      c(CorEI)
     },
     #' @description Feature importance
     #' @param plot Should the plot be made?

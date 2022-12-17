@@ -2,14 +2,12 @@
 
 * EI: nopt, test, doc
   * Use t-dist
-  * dEI_dx
+  * Use dEI_dx in maxEI
 
 * With many points, just estimate param from subset of data, but use all data
-at end for K/Kinv so predictions are good.
+at end for K/Kinv so predictions are good. Didn't seem to help at all...
 
 * fastfit: with large data, fit on subset of data first, then go to all data
-
-* Reduce L-BFGS-B tolerance? Need to change tests too.
 
 * Add documentation for kernels, esp. factor ones
 
@@ -49,9 +47,9 @@ an error the user should know. Like when I test useCM.
     * test, doc.
     * CL or pred?
 
-* Corrected EI: add, test, check minimize, eps, tdf
+* Corrected EI: eps, tdf
 
-* Augmented EI: test (grad), check minimize, eps, tdf
+* Augmented EI: eps, tdf
 
 * Optimize any function. Avoid reimplementing maxEI, maxAugEI, max___.
   * Can use gr or fngr
@@ -71,4 +69,7 @@ that initial optim values should be large.
 
 * mixopt needs to be able to eval all at once in multistart
 
-* sparse pseudo-input GP. See Snelson 2006. Inherit.
+* sparse pseudo-input GP. See Snelson 2006. Inherit. Change pred_one_matrix,
+deviance, etc.
+
+* Student-t process: Inherit, change pred and deviance.

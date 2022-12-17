@@ -50,6 +50,7 @@ gp <- GauPro_kernel_model_LOO$new(X=x, Z=y, kernel=Matern52)
 <details><summary>Inherited methods</summary>
 <ul>
 <li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="AugmentedEI"><a href='../../GauPro/html/GauPro.html#method-GauPro-AugmentedEI'><code>GauPro::GauPro$AugmentedEI()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="CorrectedEI"><a href='../../GauPro/html/GauPro.html#method-GauPro-CorrectedEI'><code>GauPro::GauPro$CorrectedEI()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="EI"><a href='../../GauPro/html/GauPro.html#method-GauPro-EI'><code>GauPro::GauPro$EI()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="KG"><a href='../../GauPro/html/GauPro.html#method-GauPro-KG'><code>GauPro::GauPro$KG()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="cool1Dplot"><a href='../../GauPro/html/GauPro.html#method-GauPro-cool1Dplot'><code>GauPro::GauPro$cool1Dplot()</code></a></span></li>

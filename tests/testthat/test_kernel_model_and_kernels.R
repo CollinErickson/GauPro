@@ -1018,6 +1018,43 @@ test_that("Formula/data input 2", {
 })
 
 # EI ----
+test_that("EI with cts", {
+  n <- 20
+  d <- 2
+  x <- lhs::maximinLHS(n, d) # Better spacing might avoid grad issues?
+  n <- nrow(x)
+  f <- function(x) {abs(sin(x[1]^.8*6))^1.2 + log(1+(x[2]-.3)^2) + x[1]*x[2]}
+  y <- apply(x, 1, f) + rnorm(n,0,1e-2) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
+  p1 <- GauPro_kernel_model$new(x, y)
+  # Grid of inputs to test
+  ei_grid <- expand.grid(minim=c(T, F), method=1:3, matr=c(T,F))
+  for (igrid in 1:nrow(ei_grid)) {
+    # print(ei_grid[igrid,])
+    minim <- ei_grid$minim[igrid]
+    maxEI_par <- p1$maxEI(minimize = minim)$par # + rnorm(d, 0, .05)
+    meth <- ei_grid$method[igrid]
+    eifunc <- if (meth == 1) {p1$EI} else if (meth==2) {p1$AugmentedEI} else {p1$CorrectedEI}
+    # eifunc <- if (meth == 1) {p1$EI} else if (meth==2) {p1$AugmentedEI} else {CorrectedEI}
+    matr <- ei_grid$matr[igrid]
+    xx <- if (matr) {
+      matrix(maxEI_par, ncol=d, nrow=7, byrow=T) + matrix(rnorm(d*7,0,.05), ncol=d)
+    } else {
+      maxEI_par +  rnorm(d, 0, .05)
+    }
+    einumgrad <- if (matr) {
+      matrix(
+        unlist(
+          lapply(1:nrow(xx),
+                 function(i) {numDeriv::grad(function(h) {eifunc(x=h, minimize=minim)}, x=xx[i,])})
+        ), byrow=T, ncol=d
+      )
+    } else {
+      numDeriv::grad(function(h) {eifunc(x=h, minimize=minim)}, x=xx)
+    }
+    analyticgrad <- eifunc(x=xx, minimize=minim, return_grad = T)$grad
+    expect_equal(c(einumgrad),   c(analyticgrad), tolerance = 1e-4)
+  }
+})
 test_that("EI with mixopt", {
   n <- 30
   tdf <- data.frame(a=runif(n), b=runif(n, -1,1),
@@ -1027,7 +1064,8 @@ test_that("EI with mixopt", {
                     f=sample(10:30, n, T))
   z <- with(tdf, a+a*b+b^2 +5*(d-.22)^2*(f-22)^2)
   gpf <- GauPro_kernel_model$new(X=as.matrix(tdf), Z=z, kernel='m52')
-  gpf$maxEI(minimize = T)
+  expect_no_error(gpf$EI(as.matrix(tdf[1,])))
+  expect_no_error(gpf$maxEI(minimize = T))
   mop <- c(
     mixopt::mopar_cts(0,1),
     mixopt::mopar_cts(-1,1),

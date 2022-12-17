@@ -192,6 +192,7 @@ using the formula}
 \item \href{#method-GauPro-maxqEI}{\code{GauPro_kernel_model$maxqEI()}}
 \item \href{#method-GauPro-KG}{\code{GauPro_kernel_model$KG()}}
 \item \href{#method-GauPro-AugmentedEI}{\code{GauPro_kernel_model$AugmentedEI()}}
+\item \href{#method-GauPro-CorrectedEI}{\code{GauPro_kernel_model$CorrectedEI()}}
 \item \href{#method-GauPro-importance}{\code{GauPro_kernel_model$importance()}}
 \item \href{#method-GauPro-print}{\code{GauPro_kernel_model$print()}}
 \item \href{#method-GauPro-summary}{\code{GauPro_kernel_model$summary()}}
@@ -1441,7 +1442,7 @@ Sample at rows of XX
 \subsection{Method \code{EI()}}{
 Calculate expected improvement
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$EI(x, minimize = FALSE, eps = 0, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$EI(x, minimize = FALSE, eps = 0, return_grad = FALSE, ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -1453,6 +1454,8 @@ be calculated}
 \item{\code{minimize}}{Are you trying to minimize the output?}
 
 \item{\code{eps}}{Exploration parameter}
+
+\item{\code{return_grad}}{Should the gradient be returned?}
 
 \item{\code{...}}{Additional args}
 }
@@ -1574,6 +1577,38 @@ Calculate Knowledge Gradient
 Calculated Augmented EI
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$AugmentedEI(
+  x,
+  minimize = FALSE,
+  eps = 0,
+  return_grad = F,
+  f = NULL
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x}}{Vector to calculate EI of, or matrix for whose rows it should
+be calculated}
+
+\item{\code{minimize}}{Are you trying to minimize the output?}
+
+\item{\code{eps}}{Exploration parameter}
+
+\item{\code{return_grad}}{Should the gradient be returned?}
+
+\item{\code{f}}{The reference max, user shouldn't change this.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-GauPro-CorrectedEI"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro-CorrectedEI}{}}}
+\subsection{Method \code{CorrectedEI()}}{
+Calculated Augmented EI
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$CorrectedEI(
   x,
   minimize = FALSE,
   eps = 0,
