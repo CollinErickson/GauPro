@@ -25,12 +25,28 @@ e1 <- comparer::ffexp$new(
 e1
 e1$run_all(15)
 e1$run_for_time(120, 1) #, run_order='shuffle')
-e1$run_all(run_order = 'shuffle')
+e1$run_all(run_order = 'random')
 e1
 e1$plot()
 lm(runtime ~ n + d + k, data=e1$outcleandf) %>% summary
+lm(runtime^(1/3) ~ n + d + k, data=e1$outcleandf) %>% summary
 lm(log(runtime) ~ n + d + k, data=e1$outcleandf) %>% summary
 e1$outcleandf %>%
   ggplot(aes(n, log(runtime), color=d, shape=k)) +
   geom_point()
+e1$outcleandf %>%
+  ggplot(aes(n, runtime^(1/3), color=d, shape=k)) +
+  geom_point()
 e1$outcleandf$runtime %>% summary
+
+
+
+# Can't get it to replace last of line
+printfunc <- function() {
+  cat("abcdef")
+  Sys.sleep(1)
+  cat("\r")
+  # cat("ghi\n")
+  cat("ghi\033[K\n")
+}
+printfunc()

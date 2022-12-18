@@ -304,6 +304,12 @@ GauPro_kernel_model <- R6::R6Class(
       self$N <- nrow(self$X)
       self$D <- ncol(self$X)
 
+      # Expected run time
+      expruntime <- (.0581 + .00394*self$N + .0230*self$D) ^ 3
+      if (expruntime > 5 && self$verbose >= 0) {
+        cat("Expected run time:", round(expruntime), "seconds\n")
+      }
+
       # Set kernel
       if (missing(kernel)) {
         # # Stop and give message
@@ -1152,7 +1158,7 @@ GauPro_kernel_model <- R6::R6Class(
                                color="red", linewidth=2) +
             ggplot2::geom_line(linewidth=2) +
             ggplot2::geom_point(data=data.frame(
-              x=self$X,
+              x=unname(self$X),
               y=if (self$normalize) {
                 self$Z * self$normalize_sd + self$normalize_mean
               } else {self$Z}),
@@ -1161,7 +1167,9 @@ GauPro_kernel_model <- R6::R6Class(
               # Make points have a border
               color="gray", fill="black", pch=21
             ) +
-            ggplot2::ylab(NULL)
+            ggplot2::ylab(NULL) +
+            ggplot2::xlab(if (is.null(colnames(self$X))) {"X"} else {
+              colnames(self$X)})
         } else {
           plot(x, px$mean+2*px$se, type='l', col=col2, lwd=2,
                # ylim=c(min(newy),max(newy)),
@@ -1259,6 +1267,11 @@ GauPro_kernel_model <- R6::R6Class(
       } else {
         factorindexes <- c()
       }
+      icolnames <- if (is.null(colnames(self$X))) {
+        paste0("X", 1:ncol(self$X))
+      } else {
+        colnames(self$X)
+      }
       pts <- NULL
       for (j in 1:npt) {
         for (i in 1:ncol(self$X)) {
@@ -1273,8 +1286,8 @@ GauPro_kernel_model <- R6::R6Class(
           pX <- self$pred(Xmat, se.fit = T)
           pXm <- self$pred(Xmat, se.fit = T, mean_dist=T)
           pts <- rbind(pts,
-                       cbind(pred=pX$mean, predse=pX$se, predmeanse=pXm$se,
-                             xi=xseq, i=i, j=j))
+                       data.frame(pred=pX$mean, predse=pX$se, predmeanse=pXm$se,
+                                  xi=xseq, i=i, j=j, icolname=icolnames[i]))
         }
       }
       pts2 <- as.data.frame(pts)
@@ -1286,7 +1299,7 @@ GauPro_kernel_model <- R6::R6Class(
       pts2$predmeanupper <- pts2$pred + 2*pts2$predmeanse
       pts2$predmeanlower <- pts2$pred - 2*pts2$predmeanse
       ggplot2::ggplot(data=pts2, ggplot2::aes(xi, pred, group=j)) +
-        ggplot2::facet_wrap(.~i, scales = "free_x") +
+        ggplot2::facet_wrap(.~icolname, scales = "free_x") +
         ggplot2::geom_line(ggplot2::aes(y=predmeanupper), color="orange") +
         ggplot2::geom_line(ggplot2::aes(y=predmeanlower), color="orange") +
         ggplot2::geom_line(ggplot2::aes(y=predupper), color="green") +
@@ -1966,6 +1979,7 @@ GauPro_kernel_model <- R6::R6Class(
     update_fast = function (Xnew=NULL, Znew=NULL) {
       # Updates data, K, and Kinv, quickly without adjusting parameters
       # Should be O(n^2) instead of O(n^3), but in practice not much faster
+      stopifnot(is.matrix(Xnew))
       N1 <- nrow(self$X)
       N2 <- nrow(Xnew)
       inds2 <- (N1+1):(N1+N2) # indices for new col/row, shorter than inds1
@@ -2695,7 +2709,7 @@ GauPro_kernel_model <- R6::R6Class(
         s <- xnew_meanpred$se
         s2 <- xnew_meanpred$s2
         y <- xnew_meanpred$mean
-        f <- fxplus - eps
+        f <- fxplus - eps * minmult
         z <- Z
 
         ds2_dx <- self$gradpredvar(x) # GOOD
@@ -2953,7 +2967,7 @@ GauPro_kernel_model <- R6::R6Class(
                            return_grad=F, f=NULL) {
       stopifnot(length(minimize)==1, is.logical(minimize))
       stopifnot(length(eps)==1, is.numeric(eps), eps >= 0)
-      stopifnot(eps == 0)
+      # stopifnot(eps == 0)
       if (is.matrix(x)) {
         stopifnot(ncol(x) == ncol(self$X))
       } else if (is.vector(x) && self$D==1) {
@@ -2982,12 +2996,14 @@ GauPro_kernel_model <- R6::R6Class(
         stopifnot(is.numeric(f), length(f) == 1)
       }
 
+      minmult <- if (minimize) {1} else {-1}
+      # Adjust target by eps
+      f <- f - minmult * eps
+
       predx <- self$pred(x, se=T)
       y <- predx$mean
       s <- predx$se
       s2 <- predx$s2
-
-      minmult <- if (minimize) {1} else {-1}
 
       z <- (f - y) / s * minmult
       EI <- (f - y) * minmult * pnorm(z) + s * dnorm(z)
@@ -3064,16 +3080,15 @@ GauPro_kernel_model <- R6::R6Class(
       }
       stopifnot(is.numeric(f), length(f) == 1)
 
-
+      minmult <- if (minimize) {1} else {-1}
+      # Adjust target by eps
+      f <- f - minmult * eps
 
       # predx <- self$pred(x, se=T)
       # y <- predx$mean
       # s <- predx$se
       # s2 <- predx$s2
 
-      minmult <- if (minimize) {1} else {-1}
-
-      # x <- matrix(seq(0,1,l=131), ncol=1)
       u <- x
       X <- self$X
       mu_u <- self$trend$Z(u)

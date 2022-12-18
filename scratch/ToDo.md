@@ -35,7 +35,7 @@ an error the user should know. Like when I test useCM.
 * Knowledge gradient: multiple starts for optim
 
 * When giving in formula/data
-  * fix plot for 1D, 2D, marginal, marginal random, kernel
+  * fix plot for 2D
   * add to doc
   * message what chosen kernel is
 
@@ -47,9 +47,9 @@ an error the user should know. Like when I test useCM.
     * test, doc.
     * CL or pred?
 
-* Corrected EI: eps, tdf
+* Corrected EI: tdf
 
-* Augmented EI: eps, tdf
+* Augmented EI: tdf
 
 * Optimize any function. Avoid reimplementing maxEI, maxAugEI, max___.
   * Can use gr or fngr
@@ -62,8 +62,6 @@ that initial optim values should be large.
 * Add deprecated for old model: lifecycle::
 
 * Check kernel start par outside of bounds set by user. Test if it gives all errors.
-
-* Noisy EI?
 
 * Make gpkm doc look good. Look into R7.
 

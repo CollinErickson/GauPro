@@ -340,7 +340,6 @@ test_that("Cts kernels 2D", {
     expect_is(gp, "R6")
 
     # Check kernel properties
-
     expect_equal(GauPro:::find_kernel_cts_dims(gp$kernel),
                  if (kern_char == "White") {NULL}
                  else if (kern_char=="Ignore") {1}
@@ -429,6 +428,28 @@ test_that("Cts kernels 2D", {
       expect_no_error(s2 <- gp$sample(XX=matrix(runif(d*5), ncol=d), 30))
       expect_true(is.matrix(s2))
       expect_equal(dim(s2), c(30, 5))
+    }
+
+    # Check some advanced stuff only for Gaussian
+    if (j==1) {
+      stop('adfasdf')
+      # Covmat
+      expect_no_error(gp$predict(matrix(runif(2*d), ncol=2), covmat = T))
+      # Split speed, large matrix
+      expect_no_error(gp$predict(matrix(runif(9000*d), ncol=2), split_speed = T))
+      # Fails on range length
+      expect_error(gp$predict(runif(3)))
+      expect_no_error(gp$pred_var_after_adding_points(add_points = runif(d),
+                                                      pred_points = runif(d)))
+      expect_no_error(gp$pred_var_after_adding_points(
+        add_points = matrix(runif(2*d), ncol=d), pred_points = runif(d)))
+      expect_no_error(gp$pred_var_reductions(
+        add_points = matrix(runif(2*d), ncol=d), pred_points = runif(d)))
+      expect_no_error(gp$grad_dist(matrix(runif(d), ncol=d)))
+      expect_no_error(gp$grad_sample(matrix(runif(d), ncol=d), n=10))
+      expect_no_error(gp$grad_norm2_mean(matrix(runif(d), ncol=d)))
+      expect_no_error(gp$hessian(matrix(runif(d), ncol=d)))
+
     }
 
     # Summary
@@ -892,7 +913,8 @@ test_that("Formula/data input", {
   tdf <- data.frame(a=runif(n), b=runif(n), c=factor(sample(5:6,n,T)),
                     d=runif(n), e=sample(letters[1:3], n,T))
   tdf$z <- with(tdf, a+a*b+b^2)
-  gpf <- GauPro_kernel_model$new(X=tdf, Z=z ~ a + b + c + e, kernel='gauss')
+  expect_no_error({
+    gpf <- GauPro_kernel_model$new(X=tdf, Z=z ~ a + b + c + e, kernel='gauss')})
   expect_true("GauPro" %in% class(gpf))
   expect_equal(ncol(gpf$X), 4)
   expect_true(is.matrix(gpf$X))
@@ -901,6 +923,7 @@ test_that("Formula/data input", {
   expect_no_error(printout <- capture.output(print(gpf)))
   expect_true(is.character(printout))
   expect_equal(printout[1], "GauPro kernel model object")
+  # Plot
 })
 
 test_that("Formula/data input 2", {
@@ -1027,15 +1050,16 @@ test_that("EI with cts", {
   y <- apply(x, 1, f) + rnorm(n,0,1e-2) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
   p1 <- GauPro_kernel_model$new(x, y)
   # Grid of inputs to test
-  ei_grid <- expand.grid(minim=c(T, F), method=1:3, matr=c(T,F))
-  for (igrid in 1:nrow(ei_grid)) {
+  ei_grid <- expand.grid(minim=c(T, F), method=1:3, matr=c(T,F), eps=c(0, 1e-3))
+  for (igrid in rev(1:nrow(ei_grid))) {
     # print(ei_grid[igrid,])
     minim <- ei_grid$minim[igrid]
     maxEI_par <- p1$maxEI(minimize = minim)$par # + rnorm(d, 0, .05)
     meth <- ei_grid$method[igrid]
-    eifunc <- if (meth == 1) {p1$EI} else if (meth==2) {p1$AugmentedEI} else {p1$CorrectedEI}
-    # eifunc <- if (meth == 1) {p1$EI} else if (meth==2) {p1$AugmentedEI} else {CorrectedEI}
+    eifunc <- if (meth == 1) {p1$EI} else if (meth==2) {
+      p1$AugmentedEI} else {p1$CorrectedEI}
     matr <- ei_grid$matr[igrid]
+    i_eps <- ei_grid$eps[igrid]
     xx <- if (matr) {
       matrix(maxEI_par, ncol=d, nrow=7, byrow=T) + matrix(rnorm(d*7,0,.05), ncol=d)
     } else {
@@ -1045,14 +1069,21 @@ test_that("EI with cts", {
       matrix(
         unlist(
           lapply(1:nrow(xx),
-                 function(i) {numDeriv::grad(function(h) {eifunc(x=h, minimize=minim)}, x=xx[i,])})
+                 function(i) {
+                   numDeriv::grad(
+                     function(h) {eifunc(x=h, minimize=minim, eps=i_eps)},
+                     x=xx[i,])})
         ), byrow=T, ncol=d
       )
     } else {
-      numDeriv::grad(function(h) {eifunc(x=h, minimize=minim)}, x=xx)
+      numDeriv::grad(function(h) {eifunc(x=h, minimize=minim, eps=i_eps)}, x=xx)
     }
-    analyticgrad <- eifunc(x=xx, minimize=minim, return_grad = T)$grad
+    analyticgrad <- eifunc(x=xx, minimize=minim, return_grad = T, eps=i_eps)$grad
     expect_equal(c(einumgrad),   c(analyticgrad), tolerance = 1e-4)
+    if (F) {
+      curve(sapply(x, function(xxx) {
+        eifunc(x=xx, minimize=minim, return_grad = F, eps=xxx)}), 0, .2)
+    }
   }
 })
 test_that("EI with mixopt", {
@@ -1150,12 +1181,20 @@ test_that("Wide range", {
   expect_no_error(e1 <- GauPro_kernel_model$new(
     x, y,
     kernel="gauss",#Gaussian$new(D=3, s2=3e7, s2_lower=1e7),
+    track=T,
     verbose=0, restarts=25))
   # e1$plotLOO(); print(e1$s2_hat); print(e1$nug)
+  expect_no_error(e1$plot_track_optim())
   expect_no_error(e1$summary())
   expect_no_error(e1$plotLOO())
   expect_no_error(e1$plotmarginalrandom())
+  expect_no_error(e1$plotmarginal())
+  expect_no_error(plot(e1))
+  expect_error(e1$plot1D())
+  expect_error(e1$plot2D())
+  expect_error(e1$cool1Dplot())
   expect_true(mean(abs((e1$Z-e1$pred(e1$X)) / e1$Z)) < 1e-2)
+  e1$update_fast(Xnew=.5*x[1,,drop=F] + .5*x[2,], .5*(y[1]+y[2]))
 })
 
 # Bad kernels ----
