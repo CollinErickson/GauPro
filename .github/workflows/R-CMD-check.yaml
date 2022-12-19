@@ -29,7 +29,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          devtools::install_github("collinerickson/mixopt")
+          install.packages(c("remotes"),dependencies=TRUE)
+          remotes::install_github("collinerickson/mixopt")
         shell: Rscript {0}
 
       - uses: r-lib/actions/check-r-package@v2
