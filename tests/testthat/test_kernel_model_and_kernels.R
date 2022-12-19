@@ -432,7 +432,7 @@ test_that("Cts kernels 2D", {
 
     # Check some advanced stuff only for Gaussian
     if (j==1) {
-      stop('adfasdf')
+      # stop('adfasdf')
       # Covmat
       expect_no_error(gp$predict(matrix(runif(2*d), ncol=2), covmat = T))
       # Split speed, large matrix
