@@ -43,6 +43,11 @@ trend_c <- R6::R6Class(
     #' @param m_upper trend upper bounds
     #' @param m_est Logical of whether each param should be estimated
     initialize = function(m = 0, m_lower=-Inf, m_upper=Inf, m_est=TRUE, D=NA) {
+      stopifnot(is.numeric(m), length(m)==1)
+      stopifnot(is.numeric(m_lower), length(m_lower)==1)
+      stopifnot(is.numeric(m_upper), length(m_upper)==1)
+      stopifnot(m_lower <= m_upper)
+      stopifnot(is.logical(m_est), length(m_est)==1, m_est || !m_est)
       self$m <- m
       self$m_lower <- m_lower
       self$m_upper <- m_upper

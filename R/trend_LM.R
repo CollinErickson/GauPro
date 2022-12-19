@@ -58,6 +58,17 @@ trend_LM <- R6::R6Class(
     initialize = function(D, m = rep(0,D), m_lower=rep(-Inf,D),
                           m_upper=rep(Inf,D), m_est=rep(TRUE,D),
                           b = 0, b_lower=-Inf, b_upper=Inf, b_est=TRUE) {
+      stopifnot(is.numeric(D), length(D)==1)
+      stopifnot(is.numeric(m), length(m)==D)
+      stopifnot(is.numeric(m_lower), length(m_lower)==D)
+      stopifnot(is.numeric(m_upper), length(m_upper)==D)
+      stopifnot(m_lower <= m_upper)
+      stopifnot(is.logical(m_est), length(m_est)==D, m_est | !m_est)
+      stopifnot(is.numeric(b), length(b)==1)
+      stopifnot(is.numeric(b_lower), length(b_lower)==1)
+      stopifnot(is.numeric(b_upper), length(b_upper)==1)
+      stopifnot(b_lower <= b_upper)
+      stopifnot(is.logical(b_est), length(b_est)==1, b_est || !b_est)
       self$D <- D
       self$m <- m
       self$m_lower <- m_lower

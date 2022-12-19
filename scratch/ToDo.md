@@ -4,33 +4,15 @@
   * Use t-dist
   * Use dEI_dx in maxEI
 
-* With many points, just estimate param from subset of data, but use all data
-at end for K/Kinv so predictions are good. Didn't seem to help at all...
-
-* fastfit: with large data, fit on subset of data first, then go to all data
-
 * Add documentation for kernels, esp. factor ones
 
 * Better handling of ignore input when using factors?
 
-* Transform inputs
-
 * Speed up Cubic, triangle, ratquad, periodic, powerexp k/grad
-
-* no param est gave error, dC_dparam can't be calculated
-
-* estimate_run_time(). Run it when creating object. Give estimated time if long.
 
 * factor trend, LM ignore inds
 
-* transform X, Z
-
-* penalties in optim, on trend/kernels
-
 * Clean up trend. b_est/m_est, jitter, aren't used
-
-* All restarts had error: doesn't say what error is, so sometimes it's
-an error the user should know. Like when I test useCM.
 
 * Knowledge gradient: multiple starts for optim
 
@@ -71,3 +53,6 @@ that initial optim values should be large.
 deviance, etc.
 
 * Student-t process: Inherit, change pred and deviance.
+
+* kernel should take in X, Z and set params based on that. E.g., s2 max is
+diff(range(Z))^2. Or else give message to normalize.
