@@ -1239,7 +1239,7 @@ test_that("Normalize Z", {
     y <- (x[,1]^.7 + x[,2]^1.4 * (x[,3]^.8*2))*1e6 + rnorm(n, 0, 1e2)
   }
   expect_no_error({
-    gp <- GauPro_kernel_model$new(x, y, normalize = T)
+    gp <- GauPro_kernel_model$new(x, y, normalize = T, trend=trend_c)
   })
   # plot(predict(gp, x), y)
   expect_no_error(pred <- predict(gp, x))

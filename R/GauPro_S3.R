@@ -79,6 +79,9 @@ print.summary.GauPro <- function(x, ...) {
   cat("Formula:\n")
   cat("\t", x$formula, "\n\n")
 
+  # AIC
+  cat("AIC:", x$AIC, "\n\n")
+
   # Residuals
   cat("Residuals:\n")
   print(summary(x$residualsLOO))

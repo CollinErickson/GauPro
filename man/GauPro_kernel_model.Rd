@@ -160,6 +160,7 @@ using the formula}
 \item \href{#method-GauPro-plotLOO}{\code{GauPro_kernel_model$plotLOO()}}
 \item \href{#method-GauPro-plot_track_optim}{\code{GauPro_kernel_model$plot_track_optim()}}
 \item \href{#method-GauPro-loglikelihood}{\code{GauPro_kernel_model$loglikelihood()}}
+\item \href{#method-GauPro-AIC}{\code{GauPro_kernel_model$AIC()}}
 \item \href{#method-GauPro-get_optim_functions}{\code{GauPro_kernel_model$get_optim_functions()}}
 \item \href{#method-GauPro-param_optim_lower}{\code{GauPro_kernel_model$param_optim_lower()}}
 \item \href{#method-GauPro-param_optim_upper}{\code{GauPro_kernel_model$param_optim_upper()}}
@@ -800,6 +801,16 @@ Calculate loglikelihood of parameters
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-GauPro-AIC"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro-AIC}{}}}
+\subsection{Method \code{AIC()}}{
+AIC (Akaike information criterion)
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$AIC()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GauPro-get_optim_functions"></a>}}

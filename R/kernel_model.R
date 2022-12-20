@@ -1410,10 +1410,15 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param mu Mean parameters
     #' @param s2 Variance parameter
     loglikelihood = function(mu=self$mu_hatX, s2=self$s2_hat) {
-      -.5 * (self$N*log(s2) +
-               as.numeric(determinant(self$K,logarithm=TRUE)$modulus) +
-               #log(det(self$K)) +
-               t(self$Z - mu)%*%self$Kinv%*%(self$Z - mu)/s2)
+      # Last two terms are -2*deviance
+      -self$N/2*log(2*pi) +
+        -.5*as.numeric(determinant(self$K,logarithm=TRUE)$modulus) +
+        -.5*c(t(self$Z - self$mu_hatX)%*%self$Kinv%*%(self$Z - self$mu_hatX))
+    },
+    #' @description AIC (Akaike information criterion)
+    AIC = function() {
+      2 * length(self$param_optim_start(nug.update = self$nug.est, jitter=F)) -
+        2 * self$loglikelihood()
     },
     #' @description Get optimization functions
     #' @param param_update Should parameters be updated?
@@ -3314,6 +3319,9 @@ GauPro_kernel_model <- R6::R6Class(
 
       ans$D <- self$D
       ans$N <- self$N
+
+      # AIC
+      ans$AIC <- self$AIC()
 
       # Use LOO predictions
       ploo <- self$pred_LOO(se.fit = T)
