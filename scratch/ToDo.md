@@ -10,10 +10,6 @@
 
 * Speed up Cubic, triangle, ratquad, periodic, powerexp k/grad
 
-* factor trend, LM ignore inds
-
-* Clean up trend. b_est/m_est, jitter, aren't used
-
 * Knowledge gradient: multiple starts for optim
 
 * When giving in formula/data

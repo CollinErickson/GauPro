@@ -1565,7 +1565,7 @@ GauPro_kernel_model <- R6::R6Class(
         nug_start <- c()
       }
 
-      trend_start <- self$trend$param_optim_start()
+      trend_start <- self$trend$param_optim_start(jitter=jitter)
       kern_start <- self$kernel$param_optim_start(jitter=jitter)
       # nug_start <- Inf
       c(trend_start, kern_start, nug_start)
@@ -1586,7 +1586,7 @@ GauPro_kernel_model <- R6::R6Class(
         # param_start
         nug_start <- c()
       }
-      trend_start <- self$trend$param_optim_start()
+      trend_start <- self$trend$param_optim_start(jitter=jitter)
       kern_start <- self$kernel$param_optim_start(jitter=jitter)
       # nug_start <- Inf
       c(trend_start, kern_start, nug_start)

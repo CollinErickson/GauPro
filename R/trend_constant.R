@@ -87,9 +87,9 @@ trend_c <- R6::R6Class(
     },
     #' @description Get parameter initial point for optimization
     #' @param jitter Not used
-    #' @param trend_est If the trend should be estimate.
-    param_optim_start = function(jitter=F, trend_est=self$m_est) {
-      if (trend_est) {
+    #' @param m_est If the trend should be estimate.
+    param_optim_start = function(jitter=F, m_est=self$m_est) {
+      if (m_est) {
         self$m + if (jitter) {rnorm(1)} else {0}
       } else {
         numeric(0)
@@ -97,29 +97,29 @@ trend_c <- R6::R6Class(
     },
     #' @description Get parameter initial point for optimization
     #' @param jitter Not used
-    #' @param trend_est If the trend should be estimate.
-    param_optim_start0 = function(jitter=F, trend_est=self$m_est) {
-      if (trend_est) {
+    #' @param m_est If the trend should be estimate.
+    param_optim_start0 = function(jitter=F, m_est=self$m_est) {
+      if (m_est) {
         0 + if (jitter) {rnorm(1)} else {0}
       } else {
         numeric(0)
       }
     },
     #' @description Get parameter lower bounds for optimization
-    #' @param trend_est If the trend should be estimate.
-    param_optim_lower = function(trend_est=self$m_est) {
+    #' @param m_est If the trend should be estimate.
+    param_optim_lower = function(m_est=self$m_est) {
       # -Inf
-      if (trend_est) {
+      if (m_est) {
         -Inf
       } else {
         numeric(0)
       }
     },
     #' @description Get parameter upper bounds for optimization
-    #' @param trend_est If the trend should be estimate.
-    param_optim_upper = function(trend_est=self$m_est) {
+    #' @param m_est If the trend should be estimate.
+    param_optim_upper = function(m_est=self$m_est) {
       # Inf
-      if (trend_est) {
+      if (m_est) {
         Inf
       } else {
         numeric(0)

@@ -1079,7 +1079,7 @@ test_that("EI with cts", {
       numDeriv::grad(function(h) {eifunc(x=h, minimize=minim, eps=i_eps)}, x=xx)
     }
     analyticgrad <- eifunc(x=xx, minimize=minim, return_grad = T, eps=i_eps)$grad
-    expect_equal(c(einumgrad),   c(analyticgrad), tolerance = 1e-4)
+    expect_equal(c(einumgrad),   c(analyticgrad), tolerance = 1e-2)
     if (F) {
       curve(sapply(x, function(xxx) {
         eifunc(x=xx, minimize=minim, return_grad = F, eps=xxx)}), 0, .2)
