@@ -37,6 +37,10 @@
 * Large Z variance is bad. Extend range of s2. Warning to rescale. Tell kernel
 that initial optim values should be large.
 
+* Plot2D: add axis names, either X1/X2 or colnames
+
+* Cool1DPlot: gg
+
 * Add deprecated for old model: lifecycle::
 
 * Check kernel start par outside of bounds set by user. Test if it gives all errors.

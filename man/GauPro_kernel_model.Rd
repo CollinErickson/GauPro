@@ -188,6 +188,7 @@ using the formula}
 \item \href{#method-GauPro-hessian}{\code{GauPro_kernel_model$hessian()}}
 \item \href{#method-GauPro-gradpredvar}{\code{GauPro_kernel_model$gradpredvar()}}
 \item \href{#method-GauPro-sample}{\code{GauPro_kernel_model$sample()}}
+\item \href{#method-GauPro-optimize_fn}{\code{GauPro_kernel_model$optimize_fn()}}
 \item \href{#method-GauPro-EI}{\code{GauPro_kernel_model$EI()}}
 \item \href{#method-GauPro-maxEI}{\code{GauPro_kernel_model$maxEI()}}
 \item \href{#method-GauPro-maxqEI}{\code{GauPro_kernel_model$maxqEI()}}
@@ -1446,6 +1447,25 @@ Sample at rows of XX
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-GauPro-optimize_fn"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro-optimize_fn}{}}}
+\subsection{Method \code{optimize_fn()}}{
+Optimize any function of the GP prediction over the
+valid input space.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$optimize_fn(
+  fn,
+  lower = apply(self$X, 2, min),
+  upper = apply(self$X, 2, max),
+  n0 = 100,
+  minimize = FALSE,
+  fn_args = NULL,
+  mopar = NULL
+)}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GauPro-EI"></a>}}

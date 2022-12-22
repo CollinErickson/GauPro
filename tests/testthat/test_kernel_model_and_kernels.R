@@ -432,13 +432,14 @@ test_that("Cts kernels 2D", {
 
     # Check some advanced stuff only for Gaussian
     if (j==1) {
-      # stop('adfasdf')
       # Covmat
       expect_no_error(gp$predict(matrix(runif(2*d), ncol=2), covmat = T))
       # Split speed, large matrix
       expect_no_error(gp$predict(matrix(runif(9000*d), ncol=2), split_speed = T))
       # Fails on range length
       expect_error(gp$predict(runif(3)))
+
+      # Various grad/var stuff
       expect_no_error(gp$pred_var_after_adding_points(add_points = runif(d),
                                                       pred_points = runif(d)))
       expect_no_error(gp$pred_var_after_adding_points(
@@ -450,6 +451,13 @@ test_that("Cts kernels 2D", {
       expect_no_error(gp$grad_norm2_mean(matrix(runif(d), ncol=d)))
       expect_no_error(gp$hessian(matrix(runif(d), ncol=d)))
 
+      # optimize_fn
+      expect_no_error(gp$optimize_fn(function(x) {gp$predict(x)}, minimize = FALSE))
+      expect_no_error(gp$optimize_fn(function(x) {gp$predict(x)}, minimize = TRUE))
+      expect_no_error(gp$optimize_fn(function(x) {
+        p <- gp$predict(x, T)
+        p$mean + p$se
+        }, minimize = FALSE))
     }
 
     # Summary

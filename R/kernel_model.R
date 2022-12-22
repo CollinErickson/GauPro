@@ -2653,6 +2653,103 @@ GauPro_kernel_model <- R6::R6Class(
       }
       newy # Not transposing matrix since it gives var a problem
     },
+    #' @description Optimize any function of the GP prediction over the
+    #' valid input space.
+    optimize_fn = function(fn,
+                           lower=apply(self$X, 2, min),
+                           upper=apply(self$X, 2, max),
+                           n0=100, minimize=FALSE,
+                           fn_args=NULL,
+                           mopar=NULL) {
+      stopifnot(all(lower < upper))
+      stopifnot(length(n0)==1, is.numeric(n0), n0>=1)
+
+      # if (exists("meif") && isTRUE(meif)) {
+      # browser("exists/debug")
+
+      # If any inputs are factors but mopar is not given, create mopar
+      if (is.null(mopar)) {
+        # print('fixing maxEI with factors')
+        # browser()
+        fkfd <- GauPro:::find_kernel_factor_dims2(self$kernel)
+        fkcd <- GauPro:::find_kernel_cts_dims(self$kernel)
+        factorinds <- if (is.null(fkfd)) {
+          c()
+        } else {
+          fkfd[seq(1, length(fkfd), 3)]
+        }
+        ctsinds <- setdiff(1:self$D, factorinds)
+        mopar <- list()
+        for (i in 1:self$D) {
+          if (i %in% ctsinds) {
+            mopar[[i]] <- mixopt::mopar_cts(lower=lower[i],
+                                            upper=upper[i])
+          } else {
+            stopifnot(length(fkfd) > .5, i %in% factorinds)
+            fkfdind <- which(fkfd[(which(seq_along(fkfd) %% 3 == 1))] == i)
+            nlev <- fkfd[(fkfdind-1)*3 + 2]
+            isordered <- fkfd[(fkfdind-1)*3 + 3] > .5
+            if (isordered) {
+              mopar[[i]] <- mixopt::mopar_ordered(values=1:nlev)
+            } else {
+              mopar[[i]] <- mixopt::mopar_unordered(values=1:nlev)
+            }
+          }
+        }
+        attr(mopar, "converted") <- TRUE
+      }
+
+      # Pass this in to EI so it doesn't recalculate it unnecessarily every time
+      # selfXmeanpred <- self$pred(self$X, se.fit=F, mean_dist=T)
+      minmult <- if (minimize) {1} else {-1}
+
+      # if (!is.null(mopar)) {
+      # Use mixopt, allows for factor/discrete/integer inputs
+      stopifnot(self$D == length(mopar))
+      moout <- mixopt::mixopt_multistart(
+        par=mopar,
+        n0=n0,
+        fn=function(xx){
+          if (is.null(self$formula) || !is.null(attr(mopar, "converted"))) {
+            xx2 <- unlist(xx)
+            # -self$EI(unlist(xx), minimize = minimize,
+            #          selfXmeanpred=selfXmeanpred)
+          } else {
+            # Convert to data frame since it will convert to formula.
+            # This way is probably slow.
+            # Alternatively, convert to all numeric, no df/formula
+            xx2 <- as.data.frame(xx)
+            colnames(xx2) <- colnames(self$X)
+            # -self$EI(xx2, minimize = minimize,
+            #          selfXmeanpred=selfXmeanpred)
+          }
+
+          # Eval fn
+          if (is.null(fn_args)) {
+            fn(xx2) * minmult
+          } else {
+            stopifnot(is.list(fn_args))
+            do.call(fn, c(list(xx2), fn_args)) * minmult
+          }
+        }
+      )
+      if (is.null(self$formula)) {
+        # Convert list to numeric
+        moout_par <- unlist(moout$par)
+      } else if (!is.null(attr(mopar, "converted"))) {
+        # Convert numericback to named to data.frame
+        moout_par <- GauPro:::convert_X_with_formula_back(self, moout$par)
+        colnames(moout_par) <- colnames(self$X)
+      } else {
+        # Convert list to data frame
+        moout_par <- as.data.frame(moout$par)
+        colnames(moout_par) <- colnames(self$X)
+      }
+      return(list(
+        par=moout_par,
+        value=moout$val * minmult
+      ))
+    },
     #' @description Calculate expected improvement
     #' @param x Vector to calculate EI of, or matrix for whose rows it should
     #' be calculated
@@ -2801,17 +2898,17 @@ GauPro_kernel_model <- R6::R6Class(
         par=mopar,
         fn=function(xx){
           if (is.null(self$formula) || !is.null(attr(mopar, "converted"))) {
-            -self$EI(unlist(xx), minimize = minimize,
-                     selfXmeanpred=selfXmeanpred)
+            xx2 <- unlist(xx)
           } else {
             # Convert to data frame since it will convert to formula.
             # This way is probably slow.
             # Alternatively, convert to all numeric, no df/formula
             xx2 <- as.data.frame(xx)
             colnames(xx2) <- colnames(self$X)
-            -self$EI(xx2, minimize = minimize,
-                     selfXmeanpred=selfXmeanpred)
           }
+          -self$EI(xx2, minimize = minimize,
+                   selfXmeanpred=selfXmeanpred)
+
         }
       )
       if (is.null(self$formula)) {

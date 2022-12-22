@@ -75,6 +75,7 @@ gp <- GauPro_kernel_model_LOO$new(X=x, Z=y, kernel=Matern52)
 <li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="maxqEI"><a href='../../GauPro/html/GauPro.html#method-GauPro-maxqEI'><code>GauPro::GauPro$maxqEI()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="optim"><a href='../../GauPro/html/GauPro.html#method-GauPro-optim'><code>GauPro::GauPro$optim()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="optimRestart"><a href='../../GauPro/html/GauPro.html#method-GauPro-optimRestart'><code>GauPro::GauPro$optimRestart()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="optimize_fn"><a href='../../GauPro/html/GauPro.html#method-GauPro-optimize_fn'><code>GauPro::GauPro$optimize_fn()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="param_optim_lower"><a href='../../GauPro/html/GauPro.html#method-GauPro-param_optim_lower'><code>GauPro::GauPro$param_optim_lower()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="param_optim_start"><a href='../../GauPro/html/GauPro.html#method-GauPro-param_optim_start'><code>GauPro::GauPro$param_optim_start()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="param_optim_start0"><a href='../../GauPro/html/GauPro.html#method-GauPro-param_optim_start0'><code>GauPro::GauPro$param_optim_start0()</code></a></span></li>

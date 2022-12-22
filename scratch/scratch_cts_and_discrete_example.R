@@ -27,7 +27,7 @@ gp1
 summary(gp1)
 gp1$pred(c(7,-4, 1, 1), se.fit = T)
 gp1$nug
-gp1$kernel$k(Xmat)
+# gp1$kernel$k(Xmat)
 gp1$kernel$plot(gp1$X)
 
 # With 0 restarts
