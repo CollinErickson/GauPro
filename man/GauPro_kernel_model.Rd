@@ -596,13 +596,14 @@ Make cool 1D plot
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$cool1Dplot(
   n2 = 20,
   nn = 201,
-  col2 = "gray",
+  col2 = "green",
   xlab = "x",
   ylab = "y",
   xmin = NULL,
   xmax = NULL,
   ymin = NULL,
-  ymax = NULL
+  ymax = NULL,
+  gg = TRUE
 )}\if{html}{\out{</div>}}
 }
 
@@ -626,6 +627,8 @@ Make cool 1D plot
 \item{\code{ymin}}{ymin}
 
 \item{\code{ymax}}{ymax}
+
+\item{\code{gg}}{Should ggplot2 be used to make plot?}
 }
 \if{html}{\out{</div>}}
 }

@@ -142,6 +142,8 @@ test_that("Cts kernels 1D", {
       # plot1D
       expect_error(gp$plot1D(), NA)
       expect_error(gp$plot1D(gg=FALSE), NA)
+      expect_no_error(gp$cool1Dplot(gg=T))
+      expect_no_error(gp$cool1Dplot(gg=F))
       # Should call plot2D
       expect_error(plot(gp), NA)
     }
@@ -1203,7 +1205,7 @@ test_that("Wide range", {
   expect_error(e1$plot1D())
   expect_error(e1$plot2D())
   expect_error(e1$cool1Dplot())
-  expect_true(mean(abs((e1$Z-e1$pred(e1$X)) / e1$Z)) < 1e-1)
+  expect_lt(mean(abs((e1$Z-e1$pred(e1$X)) / e1$Z)), 1e-1)
   e1$update_fast(Xnew=.5*x[1,,drop=F] + .5*x[2,], .5*(y[1]+y[2]))
 })
 

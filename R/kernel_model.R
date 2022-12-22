@@ -980,10 +980,12 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param xmax xmax
     #' @param ymax ymax
     #' @param ymin ymin
-    cool1Dplot = function (n2=20, nn=201, col2="gray",
+    #' @param gg Should ggplot2 be used to make plot?
+    cool1Dplot = function (n2=20, nn=201, col2="green",
                            xlab='x', ylab='y',
                            xmin=NULL, xmax=NULL,
-                           ymin=NULL, ymax=NULL
+                           ymin=NULL, ymax=NULL,
+                           gg=TRUE
     ) {
       if (self$D != 1) stop('Must be 1D')
       if (length(find_kernel_factor_dims(self$kernel)) > 0) {
@@ -1050,23 +1052,37 @@ GauPro_kernel_model <- R6::R6Class(
         maxy <- ymax
       }
 
-      # Redo to put gray lines on bottom
-      for (i in 1:n2) {
-        if (i == 1) {
-          plot(x, newy[i,], type='l', col=col2,
-               # ylim=c(min(newy),max(newy)),
-               ylim=c(miny,maxy),
-               xlab=xlab, ylab=ylab)
-        } else {
-          points(x, newy[i,], type='l', col=col2)
+      if (gg) {
+        xdf <- as.data.frame(cbind(x=x, newy=t(newy)))
+        xdf2 <- tidyr::pivot_longer(xdf, 1 + 1:n2)
+        # xdf2 %>% str
+        ggplot() +
+          geom_line(data=xdf2, aes(x, value, group=name), alpha=1, color=col2) +
+          geom_line(aes(x, px$mean), linewidth=2) +
+          geom_point(aes(self$X, if (self$normalize) {
+            self$Z * self$normalize_sd + self$normalize_mean
+          } else {self$Z}), size=4, pch=21, color='white', fill='black', stroke=1) +
+          ggplot2::xlab(NULL) +
+          ggplot2::ylab(NULL)
+      } else {
+        # Redo to put gray lines on bottom
+        for (i in 1:n2) {
+          if (i == 1) {
+            plot(x, newy[i,], type='l', col=col2,
+                 # ylim=c(min(newy),max(newy)),
+                 ylim=c(miny,maxy),
+                 xlab=xlab, ylab=ylab)
+          } else {
+            points(x, newy[i,], type='l', col=col2)
+          }
         }
+        points(x,px$me, type='l', lwd=4)
+        points(self$X,
+               if (self$normalize) {
+                 self$Z * self$normalize_sd + self$normalize_mean
+               } else {self$Z},
+               pch=19, col=1, cex=2)
       }
-      points(x,px$me, type='l', lwd=4)
-      points(self$X,
-             if (self$normalize) {
-               self$Z * self$normalize_sd + self$normalize_mean
-             } else {self$Z},
-             pch=19, col=1, cex=2)
     },
     #' @description Make 1D plot
     #' @param n2 Number of things to plot
