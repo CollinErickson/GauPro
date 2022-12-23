@@ -57,3 +57,5 @@ deviance, etc.
 diff(range(Z))^2. Or else give message to normalize.
 
 * Check maxqEI for different EI type, see if different
+
+* plotmarginal w/ factors needs level names

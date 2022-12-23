@@ -484,14 +484,17 @@ test_that("Cts kernels 2D", {
     # Check EI for some kernels
     if (j<2.5) {
       for (EItype in c("ei", "aug", "cor")) {
-        expect_error(mei1 <- gp$maxEI(EItype = EItype), NA)
+        expect_no_error(mei1 <- gp$maxEI(EItype = EItype),
+                        message=paste("EI", EItype, kern_char))
         expect_is(mei1, "list")
         expect_equal(length(mei1), 2)
         expect_equal(length(mei1$par), 2)
         expect_equal(length(mei1$val), 1)
       }
-      expect_error(gp$maxqEI(npoints=1), NA)
-      expect_error(mei2 <- gp$maxqEI(npoints=2), NA)
+      expect_no_error(gp$maxqEI(npoints=1),
+                      message=paste("maxqEI1", EItype, kern_char))
+      expect_no_error(mei2 <- gp$maxqEI(npoints=2),
+                      message=paste("maxqEI2", EItype, kern_char))
       expect_is(mei2, "list")
       expect_equal(length(mei2), 2)
       expect_is(mei2$par, "matrix")

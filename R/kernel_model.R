@@ -2880,44 +2880,6 @@ GauPro_kernel_model <- R6::R6Class(
                      dontconvertback=FALSE,
                      EItype="corrected",
                      mopar=NULL) {
-      stopifnot(all(lower < upper))
-      stopifnot(length(n0)==1, is.numeric(n0), n0>=1)
-
-      # if (exists("meif") && isTRUE(meif)) {
-      # browser("exists/debug")
-
-      # If any inputs are factors but mopar is not given, create mopar
-      if (is.null(mopar)) {
-        # print('fixing maxEI with factors')
-        # browser()
-        fkfd <- find_kernel_factor_dims2(self$kernel)
-        fkcd <- find_kernel_cts_dims(self$kernel)
-        factorinds <- if (is.null(fkfd)) {
-          c()
-        } else {
-          fkfd[seq(1, length(fkfd), 3)]
-        }
-        ctsinds <- setdiff(1:self$D, factorinds)
-        mopar <- list()
-        for (i in 1:self$D) {
-          if (i %in% ctsinds) {
-            mopar[[i]] <- mixopt::mopar_cts(lower=lower[i],
-                                            upper=upper[i])
-          } else {
-            stopifnot(length(fkfd) > .5, i %in% factorinds)
-            fkfdind <- which(fkfd[(which(seq_along(fkfd) %% 3 == 1))] == i)
-            nlev <- fkfd[(fkfdind-1)*3 + 2]
-            isordered <- fkfd[(fkfdind-1)*3 + 3] > .5
-            if (isordered) {
-              mopar[[i]] <- mixopt::mopar_ordered(values=1:nlev)
-            } else {
-              mopar[[i]] <- mixopt::mopar_unordered(values=1:nlev)
-            }
-          }
-        }
-        attr(mopar, "converted") <- TRUE
-      }
-
       # Pass this in to EI so it doesn't recalculate it unnecessarily every time
       selfXmeanpred <- self$pred(self$X, se.fit=F, mean_dist=T)
 
@@ -2935,42 +2897,17 @@ GauPro_kernel_model <- R6::R6Class(
         stop("Bad EItype given to maxEI")
       }
 
-      # if (!is.null(mopar)) {
-      # Use mixopt, allows for factor/discrete/integer inputs
-      stopifnot(self$D == length(mopar))
-      moout <- mixopt::mixopt_multistart(
-        par=mopar,
-        fn=function(xx){
-          if (is.null(self$formula) || !is.null(attr(mopar, "converted"))) {
-            xx2 <- unlist(xx)
-          } else {
-            # Convert to data frame since it will convert to formula.
-            # This way is probably slow.
-            # Alternatively, convert to all numeric, no df/formula
-            xx2 <- as.data.frame(xx)
-            colnames(xx2) <- colnames(self$X)
-          }
-          -EIfunc(xx2, minimize = minimize, eps=eps,
-                  selfXmeanpred=selfXmeanpred)
+      # -EIfunc(xx2, minimize = minimize, eps=eps,
+      #         selfXmeanpred=selfXmeanpred)
 
-        }
-      )
-      if (is.null(self$formula)) {
-        # Convert list to numeric
-        moout_par <- unlist(moout$par)
-      } else if (!is.null(attr(mopar, "converted"))) {
-        # Convert numericback to named to data.frame
-        moout_par <- convert_X_with_formula_back(self, moout$par)
-        colnames(moout_par) <- colnames(self$X)
-      } else {
-        # Convert list to data frame
-        moout_par <- as.data.frame(moout$par)
-        colnames(moout_par) <- colnames(self$X)
+      fn <- function(xx2) {
+        EIfunc(xx2, minimize = minimize, eps=eps,
+                selfXmeanpred=selfXmeanpred)
       }
-      return(list(
-        par=moout_par,
-        value=-moout$val
-      ))
+
+      self$optimize_fn(fn, minimize=FALSE,
+                       lower=lower, upper=upper,
+                       mopar=mopar, n0=n0)
     },
     #' @description Find the multiple points that maximize the expected
     #' improvement. Currently only implements the constant liar method.

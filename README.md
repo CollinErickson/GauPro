@@ -17,21 +17,15 @@ downloads](https://cranlogs.r-pkg.org/badges/last-month/GauPro?color=blue)](http
 
 ## Overview
 
-This package allows you to fit a Gaussian process to a dataset. A
-Gaussian process is a commonly used model in computer simulation. It
-assumes that the distribution of any set of points is multivariate
-normal with a constant mean and a correlation function.
-
-The newest release allows you to use different kernel and trend
-functions, instead of just a squared exponential covariance.
-
-You should probably use a different package for your modeling, such as
-laGP, mlegp, or GPfit if you are using R, or GPy if you are using
-Python.
+This package allows you to fit a Gaussian process regression model to a
+dataset. A Gaussian process (GP) is a commonly used model in computer
+simulation. It assumes that the distribution of any set of points is
+multivariate normal. A major benefit of GP models is that they provide
+uncertainty estimates along with their predictions.
 
 ## Installation
 
-You can install like any other package
+You can install like any other package through CRAN.
 
     install.packages('GauPro')
 
@@ -40,112 +34,102 @@ The most up-to-date version can be downloaded from my Github account.
     # install.packages("devtools")
     devtools::install_github("CollinErickson/GauPro")
 
-## Examples in 1-Dimension
+## Example in 1-Dimension
 
-Fit a sine curve with noise.
-
-``` r
-n <- 12
-x <- matrix(seq(0,1,length.out = n), ncol=1)
-y <- sin(2*pi*x) + rnorm(n,0,1e-1)
-gp <- GauPro::GauPro(X=x, Z=y)
-curve(gp$pred(x));points(x,y)
-curve(gp$pred(x)+2*gp$pred(x,T)$se,col=2,add=T);curve(gp$pred(x)-2*gp$pred(x,T)$se,col=2,add=T)
-```
-
-![](tools/README-plotsine-1.png)<!-- -->
-
-This is the likelihood as a function of the log of theta. It is not
-convex and is difficult to optimize in general.
-
-``` r
-curve(sapply(x, gp$deviance_theta_log),-10,10, n = 300) # deviance profile
-```
-
-![](tools/README-plotdeviance-1.png)<!-- -->
-
-Fit a sawtooth function with no noise.
-
-``` r
-n <- 12
-x <- matrix(seq(0,1,length.out = n), ncol=1)
-y <- (2*x) %%1
-gp <- GauPro::GauPro(X=x, Z=y)
-curve(gp$pred(x));points(x,y)
-curve(gp$pred(x)+2*gp$pred(x,T)$se,col=2,add=T);curve(gp$pred(x)-2*gp$pred(x,T)$se,col=2,add=T)
-```
-
-![](tools/README-plotsawtooth-1.png)<!-- -->
-
-``` r
-curve(sapply(x, gp$deviance_theta_log),-10,10, n = 300) # deviance profile
-```
-
-![](tools/README-plotsawtooth-2.png)<!-- -->
-
-## Using kernels
+This simple shows how to fit the Gaussian process regression model to
+data.
 
 ``` r
 library(GauPro)
 ```
 
-The kernel, or covariance function, has a large effect on the Gaussian
-process being estimated. The function `GauPro` uses the squared
-exponential, or Gaussian, covariance function. The newer version of
-GauPro has a new function that will fit a model using whichever kernel
-is specified.
-
-To do this a kernel must be specified, then passed to
-`GauPro_kernel_model$new`. The example below shows what the Matern 5/2
-kernel gives.
-
 ``` r
-kern <- Matern52$new(0)
-gpk <- GauPro_kernel_model$new(matrix(x, ncol=1), y, kernel=kern, parallel=FALSE)
-if (requireNamespace("MASS", quietly = TRUE)) {
-  plot(gpk)
-}
+n <- 12
+x <- seq(0, 1, length.out = n)
+y <- sin(6*x^.8) + rnorm(n,0,1e-1)
+gp <- gpkm(x, y)
+#> Argument 'kernel' is missing. It has been set to 'matern52'. See documentation for more details.
 ```
 
-![](tools/README-kernelmatern52-1.png)<!-- -->
-
-The exponential kernel is shown below. You can see that it has a huge
-effect on the model fit. The exponential kernel assumes the correlation
-between points dies off very quickly, so there is much more uncertainty
-and variation in the predictions and sample paths.
+Plotting the model helps us understand how accurate the model is and how
+much uncertainty it has in its predictions. The green and red lines are
+the 95% intervals for the mean and for samples, respectively.
 
 ``` r
-kern.exp <- Exponential$new(0)
-gpk.exp <- GauPro_kernel_model$new(matrix(x, ncol=1), y, kernel=kern.exp, parallel=FALSE)
-if (requireNamespace("MASS", quietly = TRUE)) {
-  plot(gpk.exp)
-}
+gp$plot1D()
 ```
 
-![](tools/README-kernelexponential-1.png)<!-- -->
+![](tools/README-plotsine-1.png)<!-- -->
 
-### Trends
+## Factor data: fitting the `diamonds` dataset
 
-Along with the kernel the trend can also be set. The trend determines
-what the mean of a point is without any information from the other
-points. I call it a trend instead of mean because I refer to the
-posterior mean as the mean, whereas the trend is the mean of the normal
-distribution. Currently the three options are to have a mean 0, a
-constant mean (default and recommended), or a linear model.
+The model fit using `gpkm` can also be used with data/formula input and
+can properly handle factor data.
 
-With the exponential kernel above we see some regression to the mean.
-Between points the prediction reverts towards the mean of 0.4006961.
-Also far away from any data the prediction will near this value.
-
-Below when we use a mean of 0 we do not see this same reversion.
+In this example, the `diamonds` data set is fit by specifying the
+formula and passing a data frame with the appropriate columns.
 
 ``` r
-kern.exp <- Exponential$new(0)
-trend.0 <- trend_0$new()
-gpk.exp <- GauPro_kernel_model$new(matrix(x, ncol=1), y, kernel=kern.exp, trend=trend.0, parallel=FALSE)
-if (requireNamespace("MASS", quietly = TRUE)) {
-  plot(gpk.exp)
-}
+library(ggplot2)
+diamonds_subset <- diamonds[sample(1:nrow(diamonds), 60), ]
+dm <- gpkm(price ~ carat + cut + color + clarity + depth,
+           diamonds_subset)
+#> Argument 'kernel' is missing. It has been set to 'matern52'. See documentation for more details.
 ```
 
-![](tools/README-trends-1.png)<!-- -->
+Calling `summary` on the model gives details about the model, including
+diagnostics about the model fit and the relative importance of the
+features.
+
+``` r
+summary(dm)
+#> Formula:
+#>   price ~ carat + cut + color + clarity + depth 
+#> 
+#> AIC: 1029.11 
+#> 
+#> Residuals:
+#>     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+#> -5535.94  -254.50    26.44  -125.67   207.52  2639.85 
+#> 
+#> Feature importance:
+#>   carat     cut   color clarity   depth 
+#>  1.5095  0.2436  0.2823  0.3365  0.0529 
+#> 
+#> Pseudo leave-one-out R-squared:
+#>   0.8905862 
+#> 
+#> Leave-one-out coverage on 60 samples (small p-value implies bad fit):
+#>  68%:    0.7333        p-value:   0.4096 
+#>  95%:    0.9667        p-value:   0.7702
+```
+
+We can also plot the model to get a visual idea of how each input
+affects the output.
+
+``` r
+plot(dm)
+```
+
+![](tools/README-plot_dm-1.png)<!-- -->
+
+## Using kernels
+
+A key modeling decision for Gaussian process models is the choice of
+kernel. The kernel determines the covariance and the behavior of the
+model. The default kernel is the Matern 5/2 kernel (`Matern52`), and is
+a good choice for most cases. The Gaussian, or squared exponential,
+kernel (`Gaussian`) is a common choice but often leads to a bad fit
+since it assumes the process the data comes from is infinitely
+differentiable. Other common choices that are available include the
+`Exponential`, Matern 3/2 (`Matern32`), Power Exponential (`PowerExp`),
+`Cubic`, Rational Quadratic (`RatQuad`), and Triangle (`Triangle`).
+
+These kernels only work on numeric data. For factor data, the kernel
+will default to a Latent Factor Kernel (`LatentFactorKernel`) for
+character and unordered factors, or an Ordered Factor Kernel
+(`OrderedFactorKernel`) for ordered factors. As long as the input is
+given in as a data frame and the columns have the proper types, then the
+default kernel will properly handle it by applying the numeric kernel to
+the numeric inputs and the factor kernel to the factor and character
+inputs.
