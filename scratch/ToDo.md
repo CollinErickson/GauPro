@@ -13,7 +13,6 @@
 * Knowledge gradient: multiple starts for optim
 
 * When giving in formula/data
-  * fix plot for 2D
   * add to doc
   * message what chosen kernel is
 
@@ -37,9 +36,9 @@
 * Large Z variance is bad. Extend range of s2. Warning to rescale. Tell kernel
 that initial optim values should be large.
 
-* Plot2D: add axis names, either X1/X2 or colnames
-
-* Cool1DPlot: gg
+* Plot2D:
+  add axis names, either X1/X2 or colnames
+  fix for factors
 
 * Add deprecated for old model: lifecycle::
 
@@ -56,3 +55,5 @@ deviance, etc.
 
 * kernel should take in X, Z and set params based on that. E.g., s2 max is
 diff(range(Z))^2. Or else give message to normalize.
+
+* Check maxqEI for different EI type, see if different

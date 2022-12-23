@@ -307,8 +307,8 @@ test_that("Cts kernels 2D", {
   d <- 2
   x <- matrix(runif(n*d), ncol=d)
   x <- lhs::maximinLHS(n, d) # Better spacing might avoid grad issues?
-  x <- rbind(x, x[1,]) # Add repeated x since that could cause issues
-  n <- nrow(x)
+  # x <- rbind(x, x[1,]) # Add repeated x since that could cause issues
+  # n <- nrow(x)
   f <- function(x) {abs(sin(x[1]^.8*6))^1.2 + log(1+(x[2]-.3)^2) + x[1]*x[2]}
   y <- apply(x, 1, f) + rnorm(n,0,1e-2) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
   kern_chars <- c('Gaussian', 'Matern32', 'Matern52',
@@ -459,7 +459,7 @@ test_that("Cts kernels 2D", {
       expect_no_error(gp$optimize_fn(function(x) {
         p <- gp$predict(x, T)
         p$mean + p$se
-        }, minimize = FALSE))
+      }, minimize = FALSE))
     }
 
     # Summary
@@ -483,11 +483,13 @@ test_that("Cts kernels 2D", {
 
     # Check EI for some kernels
     if (j<2.5) {
-      expect_error(mei1 <- gp$maxEI(), NA)
-      expect_is(mei1, "list")
-      expect_equal(length(mei1), 2)
-      expect_equal(length(mei1$par), 2)
-      expect_equal(length(mei1$val), 1)
+      for (EItype in c("ei", "aug", "cor")) {
+        expect_error(mei1 <- gp$maxEI(EItype = EItype), NA)
+        expect_is(mei1, "list")
+        expect_equal(length(mei1), 2)
+        expect_equal(length(mei1$par), 2)
+        expect_equal(length(mei1$val), 1)
+      }
       expect_error(gp$maxqEI(npoints=1), NA)
       expect_error(mei2 <- gp$maxqEI(npoints=2), NA)
       expect_is(mei2, "list")
@@ -975,6 +977,8 @@ test_that("Formula/data input 2", {
   expect_no_warning(
     expect_error(capture.output(summary(gpdf)), NA)
   )
+  # Optimize
+  expect_no_error(gpdf$optimize_fn(function(x) {gpdf$predict(x)}))
   # Test EI
   expect_no_error(gpdf$EI(xdf[1,]))
   # Test maxEI
@@ -984,33 +988,27 @@ test_that("Formula/data input 2", {
   expect_equal(colnames(dfEI$par), colnames(xdf)[1:5])
   expect_equal(dim(dfEI$par), c(1,5))
   rm(dfEI)
-  # maxEI with mopar
-  expect_error(dfEI2 <- gpdf$maxEI(
-    mopar = c(mixopt::mopar_cts(-3,3),
-              mixopt::mopar_cts(0,1),
-              mixopt::mopar_unordered(letters[1:5]),
-              mixopt::mopar_unordered(letters[6:9]),
-              mixopt::mopar_cts(0,4)
-    )
-  ), NA)
-  expect_true(is.data.frame(dfEI2$par))
-  expect_equal(colnames(dfEI2$par), colnames(xdf)[1:5])
-  expect_equal(dim(dfEI2$par), c(1,5))
-  rm(dfEI2)
+  # maxEI with mopar, each of EI, AugmentedEI, and CorrectedEI
+  mopar <- c(mixopt::mopar_cts(-3,3),
+             mixopt::mopar_cts(0,1),
+             mixopt::mopar_unordered(letters[1:5]),
+             mixopt::mopar_unordered(letters[6:9]),
+             mixopt::mopar_cts(0,4)
+  )
+  for (eitype in c("Ei", "cOR", "augmentedEI")) {
+    expect_no_error(dfEI2 <- gpdf$maxEI(mopar = mopar, EItype = eitype))
+    expect_true(is.data.frame(dfEI2$par))
+    expect_equal(colnames(dfEI2$par), colnames(xdf)[1:5])
+    expect_equal(dim(dfEI2$par), c(1,5))
+    rm(dfEI2)
+  }
+
   # Test qEI with mopar
-  expect_error(dfqEI <- gpdf$maxqEI(
-    npoints = 2,
-    mopar = c(mixopt::mopar_cts(-3,3),
-              mixopt::mopar_cts(0,1),
-              mixopt::mopar_unordered(letters[1:5]),
-              mixopt::mopar_unordered(letters[6:9]),
-              mixopt::mopar_cts(0,4)
-    )
-  ), NA)
+  expect_no_error(dfqEI <- gpdf$maxqEI(npoints = 2,mopar = mopar))
+  expect_true(is.data.frame(dfqEI$par))
+  expect_equal(colnames(dfqEI$par), colnames(xdf)[1:5])
+  expect_equal(dim(dfqEI$par), c(2,5))
   rm(dfqEI)
-  # expect_true(is.data.frame(dfqEI$par))
-  # expect_equal(colnames(dfqEI$par), colnames(xdf)[1:5])
-  # expect_equal(dim(dfqEI$par), c(2,5))
 
 
   # Try other arg names

@@ -1457,6 +1457,9 @@ Sample at rows of XX
 \subsection{Method \code{optimize_fn()}}{
 Optimize any function of the GP prediction over the
 valid input space.
+If there are inputs that should only be optimized over a discrete set
+of values, specify `mopar` for all parameters.
+Factor inputs will be handled automatically.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$optimize_fn(
   fn,
@@ -1469,6 +1472,25 @@ valid input space.
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{fn}}{Function to optimize}
+
+\item{\code{lower}}{Lower bounds to search within}
+
+\item{\code{upper}}{Upper bounds to search within}
+
+\item{\code{n0}}{Number of points to evaluate in initial stage}
+
+\item{\code{minimize}}{Are you trying to minimize the output?}
+
+\item{\code{fn_args}}{Arguments to pass to the function fn.}
+
+\item{\code{mopar}}{List of parameters using mixopt}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GauPro-EI"></a>}}
@@ -1511,6 +1533,7 @@ of values, specify `mopar` for all parameters.
   minimize = FALSE,
   eps = 0,
   dontconvertback = FALSE,
+  EItype = "corrected",
   mopar = NULL
 )}\if{html}{\out{</div>}}
 }
@@ -1530,6 +1553,9 @@ of values, specify `mopar` for all parameters.
 
 \item{\code{dontconvertback}}{If data was given in with a formula, should
 it converted back to the original scale?}
+
+\item{\code{EItype}}{Type of EI to calculate. One of "EI", "Augmented",
+or "Corrected"}
 
 \item{\code{mopar}}{List of parameters using mixopt}
 }
@@ -1551,6 +1577,7 @@ improvement. Currently only implements the constant liar method.
   n0 = 100,
   minimize = FALSE,
   eps = 0,
+  EItype = "corrected",
   dontconvertback = FALSE,
   mopar = NULL
 )}\if{html}{\out{</div>}}
@@ -1572,6 +1599,9 @@ improvement. Currently only implements the constant liar method.
 \item{\code{minimize}}{Are you trying to minimize the output?}
 
 \item{\code{eps}}{Exploration parameter}
+
+\item{\code{EItype}}{Type of EI to calculate. One of "EI", "Augmented",
+or "Corrected"}
 
 \item{\code{dontconvertback}}{If data was given in with a formula, should
 it converted back to the original scale?}
@@ -1615,7 +1645,7 @@ Calculated Augmented EI
   minimize = FALSE,
   eps = 0,
   return_grad = F,
-  f = NULL
+  ...
 )}\if{html}{\out{</div>}}
 }
 
@@ -1630,6 +1660,8 @@ be calculated}
 \item{\code{eps}}{Exploration parameter}
 
 \item{\code{return_grad}}{Should the gradient be returned?}
+
+\item{\code{...}}{Additional args}
 
 \item{\code{f}}{The reference max, user shouldn't change this.}
 }
@@ -1647,7 +1679,7 @@ Calculated Augmented EI
   minimize = FALSE,
   eps = 0,
   return_grad = F,
-  f = NULL
+  ...
 )}\if{html}{\out{</div>}}
 }
 
@@ -1663,7 +1695,7 @@ be calculated}
 
 \item{\code{return_grad}}{Should the gradient be returned?}
 
-\item{\code{f}}{The reference max, user shouldn't change this.}
+\item{\code{...}}{Additional args}
 }
 \if{html}{\out{</div>}}
 }

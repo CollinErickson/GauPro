@@ -1056,12 +1056,15 @@ GauPro_kernel_model <- R6::R6Class(
         xdf <- as.data.frame(cbind(x=x, newy=t(newy)))
         xdf2 <- tidyr::pivot_longer(xdf, 1 + 1:n2)
         # xdf2 %>% str
-        ggplot() +
-          geom_line(data=xdf2, aes(x, value, group=name), alpha=1, color=col2) +
-          geom_line(aes(x, px$mean), linewidth=2) +
-          geom_point(aes(self$X, if (self$normalize) {
+        ggplot2::ggplot() +
+          ggplot2::geom_line(data=xdf2,
+                             ggplot2::aes(x, value, group=name),
+                             alpha=1, color=col2) +
+          ggplot2::geom_line(ggplot2::aes(x, px$mean), linewidth=2) +
+          ggplot2::geom_point(ggplot2::aes(self$X, if (self$normalize) {
             self$Z * self$normalize_sd + self$normalize_mean
-          } else {self$Z}), size=4, pch=21, color='white', fill='black', stroke=1) +
+          } else {self$Z}),
+          size=4, pch=21, color='white', fill='black', stroke=1) +
           ggplot2::xlab(NULL) +
           ggplot2::ylab(NULL)
       } else {
@@ -2671,6 +2674,16 @@ GauPro_kernel_model <- R6::R6Class(
     },
     #' @description Optimize any function of the GP prediction over the
     #' valid input space.
+    #' If there are inputs that should only be optimized over a discrete set
+    #' of values, specify `mopar` for all parameters.
+    #' Factor inputs will be handled automatically.
+    #' @param fn Function to optimize
+    #' @param lower Lower bounds to search within
+    #' @param upper Upper bounds to search within
+    #' @param n0 Number of points to evaluate in initial stage
+    #' @param minimize Are you trying to minimize the output?
+    #' @param fn_args Arguments to pass to the function fn.
+    #' @param mopar List of parameters using mixopt
     optimize_fn = function(fn,
                            lower=apply(self$X, 2, min),
                            upper=apply(self$X, 2, max),
@@ -2777,9 +2790,7 @@ GauPro_kernel_model <- R6::R6Class(
       stopifnot(length(minimize)==1, is.logical(minimize))
       stopifnot(length(eps)==1, is.numeric(eps), eps >= 0)
       dots <- list(...)
-      # if (minimize) {
-      #   stop('can only max for EI, not min')
-      # }
+
       if (is.matrix(x)) {
         stopifnot(ncol(x) == ncol(self$X))
       } else if (is.vector(x) && self$D==1) {
@@ -2861,10 +2872,13 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param mopar List of parameters using mixopt
     #' @param dontconvertback If data was given in with a formula, should
     #' it converted back to the original scale?
+    #' @param EItype Type of EI to calculate. One of "EI", "Augmented",
+    #' or "Corrected"
     maxEI = function(lower=apply(self$X, 2, min),
                      upper=apply(self$X, 2, max),
                      n0=100, minimize=FALSE, eps=0,
                      dontconvertback=FALSE,
+                     EItype="corrected",
                      mopar=NULL) {
       stopifnot(all(lower < upper))
       stopifnot(length(n0)==1, is.numeric(n0), n0>=1)
@@ -2907,6 +2921,20 @@ GauPro_kernel_model <- R6::R6Class(
       # Pass this in to EI so it doesn't recalculate it unnecessarily every time
       selfXmeanpred <- self$pred(self$X, se.fit=F, mean_dist=T)
 
+      stopifnot(is.character(EItype), length(EItype)==1)
+      EItype <- tolower(EItype)
+      EIfunc <- if (EItype %in% c("ei")) {
+        self$EI
+      } else if (EItype %in% c("augmented", "aug", "augmentedei")) {
+        # Aug needs se
+        selfXmeanpred <- self$pred(self$X, se.fit=T, mean_dist=T)
+        self$AugmentedEI
+      } else if (EItype %in% c("corrected", "cor", "correctedei")) {
+        self$CorrectedEI
+      } else {
+        stop("Bad EItype given to maxEI")
+      }
+
       # if (!is.null(mopar)) {
       # Use mixopt, allows for factor/discrete/integer inputs
       stopifnot(self$D == length(mopar))
@@ -2922,8 +2950,8 @@ GauPro_kernel_model <- R6::R6Class(
             xx2 <- as.data.frame(xx)
             colnames(xx2) <- colnames(self$X)
           }
-          -self$EI(xx2, minimize = minimize,
-                   selfXmeanpred=selfXmeanpred)
+          -EIfunc(xx2, minimize = minimize, eps=eps,
+                  selfXmeanpred=selfXmeanpred)
 
         }
       )
@@ -2956,17 +2984,21 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param mopar List of parameters using mixopt
     #' @param dontconvertback If data was given in with a formula, should
     #' it converted back to the original scale?
+    #' @param EItype Type of EI to calculate. One of "EI", "Augmented",
+    #' or "Corrected"
     maxqEI = function(npoints, method="CL",
                       lower=apply(self$X, 2, min),
                       upper=apply(self$X, 2, max),
                       n0=100, minimize=FALSE, eps=0,
+                      EItype="corrected",
                       dontconvertback=FALSE,
                       mopar=NULL) {
       stopifnot(is.numeric(npoints), length(npoints)==1, npoints >= 1)
       if (npoints==1) {
         # For single point, use proper function
         return(self$maxEI(lower=lower, upper=upper, n0=n0,
-                          minimize=minimize, eps=eps, mopar=mopar,
+                          minimize=minimize, eps=eps, EItype=EItype,
+                          mopar=mopar,
                           dontconvertback=dontconvertback))
       }
       stopifnot(method %in% c("CL", "pred"))
@@ -2986,8 +3018,10 @@ GauPro_kernel_model <- R6::R6Class(
       Zimpute <- if (minimize) {min(Xmeanpred)} else {max(Xmeanpred)}
       for (i in 1:npoints) {
         # Find and store point that maximizes EI
-        maxEI_i <- gpclone$maxEI(lower=lower, upper=upper, n0=n0, eps=eps,
-                                 minimize=minimize, mopar=mopar,
+        maxEI_i <- gpclone$maxEI(lower=lower, upper=upper,
+                                 n0=n0, eps=eps,
+                                 minimize=minimize, EItype=EItype,
+                                 mopar=mopar,
                                  dontconvertback=TRUE)
         xi <- maxEI_i$par
         # mixopt could return data frame. Need to convert it to numeric since
@@ -3081,11 +3115,13 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param eps Exploration parameter
     #' @param return_grad Should the gradient be returned?
     #' @param f The reference max, user shouldn't change this.
+    #' @param ... Additional args
     AugmentedEI = function(x, minimize=FALSE, eps=0,
-                           return_grad=F, f=NULL) {
+                           return_grad=F, ...) {
       stopifnot(length(minimize)==1, is.logical(minimize))
       stopifnot(length(eps)==1, is.numeric(eps), eps >= 0)
-      # stopifnot(eps == 0)
+      dots <- list(...)
+
       if (is.matrix(x)) {
         stopifnot(ncol(x) == ncol(self$X))
       } else if (is.vector(x) && self$D==1) {
@@ -3098,9 +3134,17 @@ GauPro_kernel_model <- R6::R6Class(
         stop(paste0("bad x in EI, class is: ", class(x)))
       }
 
-      if (is.null(f)) {
+      if (is.null(dots$f)) {
+        if (is.null(dots$selfXmeanpred)) {
+          selfXmeanpred <- self$pred(self$X, se.fit=T, mean_dist=T)
+        } else {
+          selfXmeanpred <- dots$selfXmeanpred
+          stopifnot(is.list(selfXmeanpred),
+                    length(selfXmeanpred$mean) == length(self$Z))
+        }
         # Get preds at existing points, calculate best
-        pred_X <- self$predict(self$X, se.fit = T)
+        # pred_X <- self$predict(self$X, se.fit = T)
+        pred_X <- selfXmeanpred
         if (minimize) {
           u_X <- -pred_X$mean - pred_X$se
           star_star_index <- which.max(u_X)
@@ -3111,8 +3155,9 @@ GauPro_kernel_model <- R6::R6Class(
         }
         f <- pred_X$mean[star_star_index]
       } else {
-        stopifnot(is.numeric(f), length(f) == 1)
+        f <- dots$f
       }
+      stopifnot(is.numeric(f), length(f) == 1)
 
       minmult <- if (minimize) {1} else {-1}
       # Adjust target by eps
@@ -3162,11 +3207,13 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param minimize Are you trying to minimize the output?
     #' @param eps Exploration parameter
     #' @param return_grad Should the gradient be returned?
-    #' @param f The reference max, user shouldn't change this.
+    #' @param ... Additional args
     CorrectedEI = function(x, minimize=FALSE, eps=0,
-                           return_grad=F, f=NULL) {
+                           return_grad=F, ...) {
       stopifnot(length(minimize)==1, is.logical(minimize))
       stopifnot(length(eps)==1, is.numeric(eps), eps >= 0)
+      dots <- list(...)
+
       if (is.matrix(x)) {
         stopifnot(ncol(x) == ncol(self$X))
       } else if (is.vector(x) && self$D == 1) {
@@ -3176,14 +3223,27 @@ GauPro_kernel_model <- R6::R6Class(
         stopifnot(length(x) == ncol(self$X))
         x <- matrix(x, nrow=1)
       } else if (is.data.frame(x) && !is.null(self$formula)) {
-        # Fine here, will get converted in predict
+        # Need to convert here
+        x <- convert_X_with_formula(x, self$convert_formula_data,
+                                    self$formula)
+      }
+      else if (is.data.frame(x)) {
+        x <- as.matrix(x)
       } else {
         stop(paste0("bad x in EI, class is: ", class(x)))
       }
 
-      if (is.null(f)) {
+      if (is.null(dots$f)) {
+        if (is.null(dots$selfXmeanpred)) {
+          selfXmeanpred <- self$pred(self$X, se.fit=F, mean_dist=T)
+        } else {
+          selfXmeanpred <- dots$selfXmeanpred
+          stopifnot(is.numeric(selfXmeanpred),
+                    length(selfXmeanpred) == length(self$Z))
+        }
         # Get preds at existing points, calculate best
-        pred_X <- self$predict(self$X, se.fit = F)
+        # pred_X <- self$predict(self$X, se.fit = F)
+        pred_X <- selfXmeanpred
         if (minimize) {
           # u_X <- -pred_X$mean - pred_X$se
           star_star_index <- which.min(pred_X)
@@ -3194,7 +3254,8 @@ GauPro_kernel_model <- R6::R6Class(
         }
 
         f <- pred_X[star_star_index]
-
+      } else {
+        f <- dots$f
       }
       stopifnot(is.numeric(f), length(f) == 1)
 
