@@ -3205,6 +3205,8 @@ GauPro_kernel_model <- R6::R6Class(
       # s <- predx$se
       # s2 <- predx$s2
 
+      # u represents the point measured with noise
+      # a represents the point (same as u) but measured without noise (mean)
       u <- x
       X <- self$X
       mu_u <- self$trend$Z(u)
@@ -3213,9 +3215,12 @@ GauPro_kernel_model <- R6::R6Class(
       Ka <- self$kernel$k(u)
       Ku <- Ka + self$nug * self$s2_hat
       Ku_given_X <- Ku - Ku.X %*% self$Kinv %*% t(Ku.X)
+      # Need to fix negative variances that show up
+      Ku_given_X <- pmax(Ku_given_X, self$nug * self$s2_hat)
 
       y <- c(mu_u + Ku.X %*% self$Kinv %*% (self$Z - mu_X))
       s2 <- diag((Ku_given_X - self$nug*self$s2_hat) ^ 2 / (Ku_given_X))
+      s2 <- pmax(s2, 0)
       # if (ncol(s2) > 1.5) {s2 <- diag(s2)}
       s <- sqrt(s2)
 
