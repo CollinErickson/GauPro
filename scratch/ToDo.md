@@ -8,7 +8,7 @@
 
 * Better handling of ignore input when using factors?
 
-* Speed up Cubic, triangle, ratquad, periodic, powerexp k/grad
+* Speed up triangle, ratquad, periodic, powerexp k/grad
 
 * Knowledge gradient: multiple starts for optim
 
@@ -59,3 +59,8 @@ diff(range(Z))^2. Or else give message to normalize.
 * Check maxqEI for different EI type, see if different
 
 * plotmarginal w/ factors needs level names
+
+* GowerFactorKernel: 1 if equal, s_i if not. Param for each dim
+* HammingFactorKernel: 1 if equal, s if not, single param?
+
+* pseudo r-sq should use df

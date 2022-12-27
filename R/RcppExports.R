@@ -68,6 +68,40 @@ solveC <- function(A, b) {
     .Call(`_GauPro_solveC`, A, b)
 }
 
+corr_cubic_matrixC <- function(x, y, theta) {
+    .Call(`_GauPro_corr_cubic_matrixC`, x, y, theta)
+}
+
+#' Correlation Cubic matrix in C (symmetric)
+#' @param x Matrix x
+#' @param theta Theta vector
+#' @return Correlation matrix
+#' @export
+#' @examples
+#' corr_cubic_matrix_symC(matrix(c(1,0,0,1),2,2),c(1,1))
+corr_cubic_matrix_symC <- function(x, theta) {
+    .Call(`_GauPro_corr_cubic_matrix_symC`, x, theta)
+}
+
+corr_cubic_matrixvecC <- function(x, y, theta) {
+    .Call(`_GauPro_corr_cubic_matrixvecC`, x, y, theta)
+}
+
+#' Derivative of cubic kernel covariance matrix in C
+#' @param x Matrix x
+#' @param theta Theta vector
+#' @param C_nonug cov mat without nugget
+#' @param s2_est whether s2 is being estimated
+#' @param beta_est Whether theta/beta is being estimated
+#' @param lenparams_D Number of parameters the derivative is being calculated for
+#' @param s2_nug s2 times the nug
+#' @param s2 s2
+#' @return Correlation matrix
+#' @export
+kernel_cubic_dC <- function(x, theta, C_nonug, s2_est, beta_est, lenparams_D, s2_nug, s2) {
+    .Call(`_GauPro_kernel_cubic_dC`, x, theta, C_nonug, s2_est, beta_est, lenparams_D, s2_nug, s2)
+}
+
 corr_exponential_matrixC <- function(x, y, theta) {
     .Call(`_GauPro_corr_exponential_matrixC`, x, y, theta)
 }

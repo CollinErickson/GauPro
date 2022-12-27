@@ -1272,3 +1272,38 @@ test_that("Diamonds", {
     summary(dm)
   })
 })
+
+# Kernels useC ----
+test_that("Kernels useC", {
+  d <- 4
+  n <- 11
+  X1 <- matrix(runif(n*d), ncol=d)
+  X2 <- matrix(runif(2*n*d), ncol=d)
+  V1 <- runif(d)
+  kern_chars <- c('Gaussian', 'Matern32', 'Matern52',
+                  'Triangle', 'Cubic', 'White',
+                  'PowerExp', 'Periodic', "Exponential", "RatQuad")
+  kernlist <- list(Gaussian, Matern32, Matern52,
+                   Triangle, Cubic, White,
+                   PowerExp, Periodic, Exponential, RatQuad)
+  for (i in seq_along(kern_chars)) {
+    # Make kernel and clone it, set that one to use R
+    expect_no_error({
+      kC <- kernlist[[i]]$new(D=d)
+      kC$set_params_from_optim(kC$param_optim_start(jitter=T))
+      kR <- kC$clone(T)
+      kR$useC <- F
+    })
+    # Make sure it matches
+    expect_equal(kC$k(X1), kR$k(X1))
+    expect_equal(kC$k(X1, X2), kR$k(X1, X2))
+
+    expect_equal(kC$k(X1, V1), kR$k(X1, V1))
+    expect_equal(kC$k(V1, X1), kR$k(V1, X1))
+
+    expect_equal(kC$k(V1), kR$k(V1))
+
+    expect_equal(kC$C_dC_dparams(X=X1, nug=1e-4)$d,
+                 kR$C_dC_dparams(X=X1, nug=1e-4)$d)
+  }
+})

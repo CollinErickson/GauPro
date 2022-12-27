@@ -2074,13 +2074,13 @@ GauPro_kernel_model <- R6::R6Class(
         self$nug <- optim_out$par[ni] # optim already does 10^
 
         # Give message if it's at a boundary
-        if (self$nug <= self$nug.min) {
+        if (self$nug <= self$nug.min && self$verbose>=0) {
           message(paste0("nug is at minimum value after optimizing. ",
                          "Check the fit to see it this caused a bad fit. ",
                          "Consider changing nug.min. ",
                          "This is probably fine for noiseless data."))
         }
-        if (self$nug >= self$nug.max) {
+        if (self$nug >= self$nug.max && self$verbose>=0) {
           message(paste0("nug is at maximum value after optimizing. ",
                          "Check the fit to see it this caused a bad fit. ",
                          "Consider changing nug.max or checking for ",
