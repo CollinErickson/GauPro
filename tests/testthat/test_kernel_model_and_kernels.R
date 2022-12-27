@@ -652,12 +652,14 @@ test_that("Factor kernels", {
   f <- function(x) {x[1]^.7}
   y <- apply(x, 1, f) + rnorm(n,0,1e-1) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
   kern_chars <- c('FactorKernel', 'OrderedFactorKernel',
-                  'LatentFactorKernel', 'LatentFactorKernel')
+                  'LatentFactorKernel', 'LatentFactorKernel',
+                  'GowerFactorKernel')
   kern_list <- list(
     FactorKernel$new(D=1, nlevels=3, xindex=1),
     OrderedFactorKernel$new(D=1, nlevels=3, xindex=1),
     LatentFactorKernel$new(D=1, nlevels=3, xindex=1, latentdim = 1, s2_est=F, s2=.3),
-    LatentFactorKernel$new(D=1, nlevels=3, xindex=1, latentdim = 2)
+    LatentFactorKernel$new(D=1, nlevels=3, xindex=1, latentdim = 2),
+    GowerFactorKernel$new(D=1, nlevels=3, xindex=1)
   )
   for (j in 1:length(kern_chars)) {
     kern_char <- kern_chars[j]
@@ -701,7 +703,7 @@ test_that("Factor kernels", {
 
     # Kernel plot
     expect_error(plot(gp$kernel), NA)
-    if (j > 1.5) {
+    if (j > 1.5 && j < 4.5) {
       expect_no_error(gp$kernel$plotLatent())
     }
 
@@ -776,12 +778,14 @@ test_that("Factor kernels in product", {
   f <- function(x) {abs(sin(x[1]^.8*6))^1.2 + log(1+x[2]) + x[1]*x[2]}
   y <- apply(x, 1, f) + rnorm(n,0,1e-2) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
   kern_chars <- c('FactorKernel', 'OrderedFactorKernel',
-                  'LatentFactorKernel1', 'LatentFactorKernel2')
+                  'LatentFactorKernel1', 'LatentFactorKernel2',
+                  'GowerFactorKernel')
   kern_list <- list(
     FactorKernel$new(D=2, nlevels=nlev, xindex=2),
     OrderedFactorKernel$new(D=2, nlevels=nlev, xindex=2),
     LatentFactorKernel$new(D=2, nlevels=nlev, xindex=2, latentdim = 1),
-    LatentFactorKernel$new(D=2, nlevels=nlev, xindex=2, latentdim = 2)
+    LatentFactorKernel$new(D=2, nlevels=nlev, xindex=2, latentdim = 2),
+    GowerFactorKernel$new(D=2, nlevels=nlev, xindex=2)
   )
   for (j in 1:length(kern_chars)) {
     kern_char <- kern_chars[j]
@@ -1303,6 +1307,7 @@ test_that("Kernels useC", {
 
     expect_equal(kC$k(V1), kR$k(V1))
 
+    cat(kern_chars[i], length(kC$C_dC_dparams(X=X1, nug=1e-4)$d), "\n")
     expect_equal(kC$C_dC_dparams(X=X1, nug=1e-4)$d,
                  kR$C_dC_dparams(X=X1, nug=1e-4)$d)
   }

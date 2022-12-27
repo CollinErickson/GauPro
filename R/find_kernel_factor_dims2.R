@@ -6,7 +6,8 @@ find_kernel_factor_dims2 <- function (kern) {
              find_kernel_factor_dims2(kern$k2)))
   }
   if (("GauPro_kernel_FactorKernel" %in% class(kern)) ||
-      ("GauPro_kernel_LatentFactorKernel" %in% class(kern))) {
+      ("GauPro_kernel_LatentFactorKernel" %in% class(kern)) ||
+      ("GauPro_kernel_GowerFactorKernel" %in% class(kern))) {
     return((c(kern$xindex, kern$nlevels, 0)))
   }
   if (("GauPro_kernel_OrderedFactorKernel" %in% class(kern))) {

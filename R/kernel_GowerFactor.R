@@ -1,22 +1,4 @@
-# Kernels should implement:
-# k kernel function for two vectors
-# update_params
-# get_optim_functions: return optim.func, optim.grad, optim.fngr
-# param_optim_lower - lower bound of params
-# param_optim_upper - upper
-# param_optim_start - current param values
-# param_optim_start0 - some central param values that can be used for optimization restarts
-# param_optim_jitter - how to jitter params in optimization
-
-# Suggested
-# deviance
-# deviance_grad
-# deviance_fngr
-# grad
-
-
-
-#' Factor Kernel R6 class
+#' Gower factor Kernel R6 class
 #'
 #' For a factor that has been converted to its indices.
 #' Each factor will need a separate kernel.
@@ -35,7 +17,6 @@
 #' @field p_est Should p be estimated?
 #' @field p_lower Lower bound of logp
 #' @field p_upper Upper bound of logp
-#' @field p_length length of p
 #' @field s2 variance
 #' @field s2_est Is s2 estimated?
 #' @field logs2 Log of s2
@@ -44,8 +25,7 @@
 #' @field xindex Index of the factor (which column of X)
 #' @field nlevels Number of levels for the factor
 #' @examples
-#' kk <- FactorKernel$new(D=1, nlevels=5, xindex=1)
-#' kk$p <- (1:10)/100
+#' kk <- GowerFactorKernel$new(D=1, nlevels=5, xindex=1, p=.2)
 #' kmat <- outer(1:5, 1:5, Vectorize(kk$k))
 #' kmat
 #' kk$plot()
@@ -61,7 +41,7 @@
 #' Z <- X[,1] - (X[,2]-1.8)^2 + rnorm(n,0,.1)
 #' tibble(X=X, Z) %>% arrange(X,Z)
 #' k2a <- IgnoreIndsKernel$new(k=Gaussian$new(D=1), ignoreinds = 2)
-#' k2b <- FactorKernel$new(D=2, nlevels=3, xind=2)
+#' k2b <- GowerFactorKernel$new(D=2, nlevels=3, xind=2)
 #' k2 <- k2a * k2b
 #' k2b$p_upper <- .65*k2b$p_upper
 #' gp <- GauPro_kernel_model$new(X=X, Z=Z, kernel = k2, verbose = 5,
@@ -83,17 +63,16 @@
 #' plot(k2b)
 #'
 #'
-# FactorKernel ----
-FactorKernel <- R6::R6Class(
-  classname = "GauPro_kernel_FactorKernel",
-  inherit = GauPro_kernel,
+# GowerFactorKernel ----
+GowerFactorKernel <- R6::R6Class(
+  classname = "GauPro_kernel_GowerFactorKernel",
+  inherit = GauPro:::GauPro_kernel,
   public = list(
     p = NULL, # vector of correlations
     p_est = NULL,
     # logp = NULL,
     p_lower = NULL,
     p_upper = NULL,
-    p_length = NULL,
     s2 = NULL, # variance coefficient to scale correlation matrix to covariance
     s2_est = NULL,
     logs2 = NULL,
@@ -116,7 +95,7 @@ FactorKernel <- R6::R6Class(
     #' @param nlevels Number of levels for the factor
     #' @param useC Should C code used? Not implemented for FactorKernel yet.
     initialize = function(s2=1, D, nlevels, xindex,
-                          p_lower=0, p_upper=1, p_est=TRUE,
+                          p_lower=0, p_upper=.9, p_est=TRUE,
                           s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE,
                           p, useC=TRUE
     ) {
@@ -128,29 +107,14 @@ FactorKernel <- R6::R6Class(
       self$xindex <- xindex
 
       if (missing(p)) {
-        p <- rep(0, nlevels * (nlevels-1) / 2)
+        p <- 0
       } else {
-        stopifnot(length(p) == (nlevels * (nlevels-1) / 2))
+        stopifnot(is.numeric(p), length(p) == 1, p>=0, p<=1)
       }
       self$p <- p
-      self$p_length <- length(p)
-      self$p_lower <-rep(0, self$p_length)
+      self$p_lower <- p_lower
       # Don't give upper 1 since it will give optimization error
-      self$p_upper <-rep(.9, self$p_length)
-      # self$logp <- log(p, 10)
-
-      # Now set upper and lower so they have correct length
-      # self$logp_lower <- log(p_lower, 10)
-      # self$logp_upper <- log(p_upper, 10)
-      # Setting logp_lower so dimensions are right
-      # logp_lower <- log(p_lower, 10)
-      # logp_upper <- log(p_upper, 10)
-      # self$logp_lower <- if (length(logp_lower) == self$p_length) {logp_lower}
-      # else if (length(logp_lower)==1) {rep(logp_lower, self$p_length)}
-      # else {stop("Error for kernel_Periodic logp_lower")}
-      # self$logp_upper <- if (length(logp_upper) == self$p_length) {logp_upper}
-      # else if (length(logp_upper)==1) {rep(logp_upper, self$p_length)}
-      # else {stop("Error for kernel_Periodic logp_upper")}
+      self$p_upper <-p_upper
 
       self$p_est <- p_est
       self$s2 <- s2
@@ -175,7 +139,7 @@ FactorKernel <- R6::R6Class(
         # logs2 <- params[lenpar]
 
         if (self$p_est) {
-          p <- params[1:self$p_length]
+          p <- params[1]
         } else {
           p <- self$p
         }
@@ -189,9 +153,6 @@ FactorKernel <- R6::R6Class(
         } else {
           logs2 <- self$logs2
         }
-
-
-
 
         s2 <- 10^logs2
       } else {
@@ -252,15 +213,9 @@ FactorKernel <- R6::R6Class(
           out <- s2 * offdiagequal
         }
       } else {
-        # i <- x-1
-        # j <- y-1
-        i <- min(x-1, y-1)
-        j <- max(x-1, y-1)
-        n <- self$nlevels
-        ind <- (n*(n-1)/2) - (n-i)*((n-i)-1)/2 + j - i #- 1
-        out <- s2 * p[ind]
+        out <- s2 * p
       }
-      if (any(is.nan(out))) {stop("Error #928341")}
+      if (any(is.nan(out))) {stop("Error #9228878341")}
       out
     },
     #' @description Derivative of covariance with respect to parameters
@@ -277,7 +232,7 @@ FactorKernel <- R6::R6Class(
 
       if (lenparams > 0) {
         if (self$p_est) {
-          p <- params[1:self$p_length]
+          p <- params[1]
         } else {
           p <- self$p
         }
@@ -299,7 +254,7 @@ FactorKernel <- R6::R6Class(
         C <- C_nonug + diag(nug*s2, nrow(C_nonug))
       }
 
-      lenparams_D <- self$p_length*self$p_est + self$s2_est
+      lenparams_D <- as.integer(self$p_est + self$s2_est)
       dC_dparams <- array(dim=c(lenparams_D, n, n), data=0)
       if (self$s2_est) {
         dC_dparams[lenparams_D,,] <- C * log10
@@ -313,17 +268,8 @@ FactorKernel <- R6::R6Class(
               if (xx == yy) {
                 # Corr is just 1, parameter has no effect
               } else {
-                ii <- min(xx-1, yy-1)
-                jj <- max(xx-1, yy-1)
-                nn <- self$nlevels
-                ind <- (nn*(nn-1)/2) - (nn-ii)*((nn-ii)-1)/2 + jj - ii #- 1
-                # print(c(k, i, j, xx, yy, ii, jj, ind, nn))
-                if (ind == k) { # Does correspond to the correct parameter
-                  dC_dparams[k,i,j] <- 1 * s2
-                  dC_dparams[k,j,i] <- dC_dparams[k,i,j]
-                } else {
-                  # Parameter has no effect
-                }
+                dC_dparams[k,i,j] <- 1 * s2
+                dC_dparams[k,j,i] <- dC_dparams[k,i,j]
               }
               #
               # r2 <- sum(p * (X[i,]-X[j,])^2)
@@ -390,7 +336,7 @@ FactorKernel <- R6::R6Class(
     #' @param s2_est Is s2 being estimated?
     param_optim_start0 = function(jitter=F, y, p_est=self$p_est,
                                   s2_est=self$s2_est) {
-      if (p_est) {vec <- rep(0, self$p_length)} else {vec <- c()}
+      if (p_est) {vec <- 0} else {vec <- c()}
       if (s2_est) {vec <- c(vec, 0)} else {}
       if (jitter && p_est) {
         vec[1:length(self$p)] = vec[1:length(self$p)] +
@@ -428,7 +374,7 @@ FactorKernel <- R6::R6Class(
                                      s2_est=self$s2_est) {
       loo <- length(optim_out)
       if (p_est) {
-        self$p <- optim_out[1:(self$p_length)]
+        self$p <- optim_out[1]
         # self$p <- 10 ^ self$logp
       }
       if (s2_est) {
@@ -449,7 +395,7 @@ FactorKernel <- R6::R6Class(
     },
     #' @description Print this object
     print = function() {
-      cat('GauPro kernel: Factor\n')
+      cat('GauPro kernel: Gower Factor\n')
       cat('\tD  =', self$D, '\n')
       cat('\ts2 =', self$s2, '\n')
       cat('\ton x-index', self$xindex, 'with', self$nlevels, 'levels\n')

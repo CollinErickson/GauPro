@@ -64,3 +64,5 @@ diff(range(Z))^2. Or else give message to normalize.
 * HammingFactorKernel: 1 if equal, s if not, single param?
 
 * pseudo r-sq should use df
+
+* factor kernel: clean up logp, offdiagequal, jitter/start
