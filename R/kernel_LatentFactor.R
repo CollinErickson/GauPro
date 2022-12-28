@@ -15,8 +15,8 @@
 #' @format \code{\link{R6Class}} object.
 #' @field p Parameter for correlation
 #' @field p_est Should p be estimated?
-#' @field p_lower Lower bound of logp
-#' @field p_upper Upper bound of logp
+#' @field p_lower Lower bound of p
+#' @field p_upper Upper bound of p
 #' @field p_length length of p
 #' @field s2 variance
 #' @field s2_est Is s2 estimated?
@@ -28,6 +28,9 @@
 #' @field latentdim Dimension of embedding space
 #' @field pf_to_p_log Logical vector used to convert pf to p
 #' @field p_to_pf_inds Vector of indexes used to convert p to pf
+#' @field offdiagequal What should offdiagonal values be set to when the
+#' indices are the same? Use to avoid decomposition errors, similar to
+#' adding a nugget.
 #' @examples
 #' # Create a new kernel for a single factor with 5 levels,
 #' #  mapped into two latent dimensions.
@@ -93,7 +96,6 @@ LatentFactorKernel <- R6::R6Class(
   public = list(
     p = NULL, # vector
     p_est = NULL,
-    # logp = NULL,
     p_lower = NULL,
     p_upper = NULL,
     p_length = NULL,
@@ -107,6 +109,7 @@ LatentFactorKernel <- R6::R6Class(
     xindex = NULL,
     pf_to_p_log = NULL,
     p_to_pf_inds = NULL,
+    offdiagequal = NULL,
     #' @description Initialize kernel object
     #' @param p Vector of latent variables
     #' @param s2 Initial variance
@@ -121,11 +124,14 @@ LatentFactorKernel <- R6::R6Class(
     #' @param nlevels Number of levels for the factor
     #' @param latentdim Dimension of embedding space
     #' @param useC Should C code used? Much faster.
+    #' @param offdiagequal What should offdiagonal values be set to when the
+    #' indices are the same? Use to avoid decomposition errors, similar to
+    #' adding a nugget.
     initialize = function(s2=1, D, nlevels, xindex,
                           latentdim,
                           p_lower=0, p_upper=1, p_est=TRUE,
                           s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE,
-                          useC=TRUE
+                          useC=TRUE, offdiagequal=1-1e-6
     ) {
       # Must give in D
       if (missing(D)) {stop("Must give Index kernel D")}
@@ -160,10 +166,6 @@ LatentFactorKernel <- R6::R6Class(
       self$p_to_pf_inds <- pf_to_p
       self$pf_to_p_log  <- p_to_pf
       self$useC <- useC
-
-
-      # p <- rep(0, D * (D-1) / 2)
-      # p <- rep(1, nlevels - 1)
       # Latent vars for first dim will be pinned to 0
       # p <- rnorm(latentdim*(nlevels - 1))
       # Now pinning more to 0, more complex conversions
@@ -174,20 +176,6 @@ LatentFactorKernel <- R6::R6Class(
       self$p_lower <- rep(-25, self$p_length)
       # Don't give upper 1 since it will give optimization error
       self$p_upper <- rep(25, self$p_length)
-      # self$logp <- log(p, 10)
-
-      # Now set upper and lower so they have correct length
-      # self$logp_lower <- log(p_lower, 10)
-      # self$logp_upper <- log(p_upper, 10)
-      # Setting logp_lower so dimensions are right
-      # logp_lower <- log(p_lower, 10)
-      # logp_upper <- log(p_upper, 10)
-      # self$logp_lower <- if (length(logp_lower) == self$p_length) {logp_lower}
-      # else if (length(logp_lower)==1) {rep(logp_lower, self$p_length)}
-      # else {stop("Error for kernel_Periodic logp_lower")}
-      # self$logp_upper <- if (length(logp_upper) == self$p_length) {logp_upper}
-      # else if (length(logp_upper)==1) {rep(logp_upper, self$p_length)}
-      # else {stop("Error for kernel_Periodic logp_upper")}
 
       self$p_est <- p_est
       self$s2 <- s2
@@ -196,6 +184,7 @@ LatentFactorKernel <- R6::R6Class(
       self$logs2_upper <- log(s2_upper, 10)
       self$s2_est <- s2_est
 
+      self$offdiagequal <- offdiagequal
     },
     #' @description Calculate covariance between two points
     #' @param x vector.
@@ -207,28 +196,17 @@ LatentFactorKernel <- R6::R6Class(
     k = function(x, y=NULL, p=self$p, s2=self$s2, params=NULL) {
       if (!is.null(params)) {
         lenparams <- length(params)
-        # logp <- params[1:(lenpar-2)]
-        # logalpha <- params[lenpar-1]
-        # logs2 <- params[lenpar]
 
         if (self$p_est) {
           p <- params[1:self$p_length]
         } else {
           p <- self$p
         }
-        # if (self$alpha_est) {
-        #   logalpha <- params[1 + as.integer(self$p_est) * self$p_length]
-        # } else {
-        #   logalpha <- self$logalpha
-        # }
         if (self$s2_est) {
           logs2 <- params[lenparams]
         } else {
           logs2 <- self$logs2
         }
-
-
-
 
         s2 <- 10^logs2
       } else {
@@ -237,17 +215,12 @@ LatentFactorKernel <- R6::R6Class(
       }
 
       pf <- self$p_to_pf(p)
-      # p <- 10^logp
-      # alpha <- 10^logalpha
       if (is.null(y)) {
         if (is.matrix(x)) {
-          # val <- outer(1:nrow(x), 1:nrow(x),
-          #              Vectorize(function(i,j){
-          #                self$kone(x[i,],x[j,],p=p, s2=s2)
-          #              }))
           if (self$useC) {
-            val <- s2 * corr_latentfactor_matrix_symC((x), pf, self$xindex,
-                                                      self$latentdim, 1-1e-6)
+            val <- s2 * corr_latentfactor_matrix_symC(x, pf, self$xindex,
+                                                      self$latentdim,
+                                                      self$offdiagequal)
           } else {
             val <- outer(1:nrow(x), 1:nrow(x),
                          Vectorize(function(i,j){
@@ -264,7 +237,7 @@ LatentFactorKernel <- R6::R6Class(
         if (self$useC) { # Way faster
           s2 * corr_latentfactor_matrixmatrixC(
             x=x, y=y, theta=pf, xindex=self$xindex,
-            latentdim = self$latentdim, offdiagequal=1-1e-6)
+            latentdim = self$latentdim, offdiagequal=self$offdiagequal)
         } else {
           outer(1:nrow(x), 1:nrow(y),
                 Vectorize(function(i,j){self$kone(x[i,],y[j,],
@@ -289,7 +262,7 @@ LatentFactorKernel <- R6::R6Class(
     #' indices are the same? Use to avoid decomposition errors, similar to
     #' adding a nugget.
     #' @references https://stackoverflow.com/questions/27086195/linear-index-upper-triangular-matrix
-    kone = function(x, y, pf, s2, isdiag=TRUE, offdiagequal=1-1e-6) {
+    kone = function(x, y, pf, s2, isdiag=TRUE, offdiagequal=self$offdiagequal) {
       x <- x[self$xindex]
       y <- y[self$xindex]
       stopifnot(x>=1, y>=1, x<=self$nlevels, y<=self$nlevels,
@@ -337,11 +310,6 @@ LatentFactorKernel <- R6::R6Class(
         } else {
           p <- self$p
         }
-        # if (self$alpha_est) {
-        #   logalpha <- params[1 + as.integer(self$p_est) * self$p_length]
-        # } else {
-        #   logalpha <- self$logalpha
-        # }
         if (self$s2_est) {
           logs2 <- params[lenparams]
         } else {
@@ -349,20 +317,12 @@ LatentFactorKernel <- R6::R6Class(
         }
       } else {
         p <- self$p
-        # logalpha <- self$logalpha
         logs2 <- self$logs2
       }
 
-      # lenparams <- length(params)
-      # logp <- params[1:(lenparams - 2)]
-      # p <- 10^logp
-      # logalpha <- params[lenparams-1]
-      # alpha <- 10^logalpha
       log10 <- log(10)
-      # logs2 <- params[lenparams]
       s2 <- 10 ^ logs2
 
-      # if (is.null(params)) {params <- c(self$logp, self$logalpha, self$logs2)}
       if (missing(C_nonug)) { # Assume C missing too, must have nug
         C_nonug <- self$k(x=X, params=params)
         C <- C_nonug + diag(nug*s2, nrow(C_nonug))
@@ -382,7 +342,6 @@ LatentFactorKernel <- R6::R6Class(
         if (self$s2_est) {
           dC_dparams[lenparams_D,,] <- C * log10
         }
-
 
         # Repeatedly calling self$ attributes is slow,
         # it's faster to just store as new variable
@@ -439,24 +398,6 @@ LatentFactorKernel <- R6::R6Class(
           }
         }
       }
-      # # Grad for logalpha
-      # if (self$alpha_est) {
-      #   alph_ind <- lenparams_D - as.integer(self$s2_est)
-      #   for (i in seq(1, n-1, 1)) {
-      #     for (j in seq(i+1, n, 1)) {
-      #       r2 <- -sum(sin(p * (X[i,]-X[j,]))^2)
-      #       dC_dparams[alph_ind, i,j] <- C_nonug[i,j] * r2 * alpha * log10
-      #       dC_dparams[alph_ind, j,i] <- dC_dparams[alph_ind, i,j]
-      #     }
-      #   }
-      #   for (i in seq(1, n, 1)) {
-      #     dC_dparams[alph_ind, i,i] <- 0
-      #   }
-      # }
-      # cout <- kernel_latentFactor_dC(X, pf, C_nonug, self$s2_est,
-      #                                self$p_est, lenparams_D, s2*nug,
-      #                                self$latentdim, self$xindex-1,
-      #                                self$nlevels, s2)
       return(dC_dparams)
     },
     #' @description Calculate covariance matrix and its derivative
@@ -489,7 +430,6 @@ LatentFactorKernel <- R6::R6Class(
     #' @param jitter Should there be a jitter?
     #' @param y Output
     #' @param p_est Is p being estimated?
-    #' @param alpha_est Is alpha being estimated?
     #' @param s2_est Is s2 being estimated?
     param_optim_start = function(jitter=F, y, p_est=self$p_est,
                                  s2_est=self$s2_est) {
@@ -504,20 +444,19 @@ LatentFactorKernel <- R6::R6Class(
     #' @param jitter Should there be a jitter?
     #' @param y Output
     #' @param p_est Is p being estimated?
-    #' @param alpha_est Is alpha being estimated?
     #' @param s2_est Is s2 being estimated?
     param_optim_start0 = function(jitter=F, y, p_est=self$p_est,
                                   s2_est=self$s2_est) {
       if (p_est) {vec <- rnorm(self$p_length)} else {vec <- c()}
       if (s2_est) {vec <- c(vec, 0)} else {}
       if (jitter && p_est) {
-        vec[1:length(self$p)] = vec[1:length(self$logp)] + rnorm(length(self$p), 0, 1)
+        vec[1:length(self$p)] = vec[1:length(self$p)] +
+          rnorm(length(self$p), 0, 1)
       }
       vec
     },
     #' @description Lower bounds of parameters for optimization
     #' @param p_est Is p being estimated?
-    #' @param alpha_est Is alpha being estimated?
     #' @param s2_est Is s2 being estimated?
     param_optim_lower = function(p_est=self$p_est,
                                  s2_est=self$s2_est) {
@@ -527,7 +466,6 @@ LatentFactorKernel <- R6::R6Class(
     },
     #' @description Upper bounds of parameters for optimization
     #' @param p_est Is p being estimated?
-    #' @param alpha_est Is alpha being estimated?
     #' @param s2_est Is s2 being estimated?
     param_optim_upper = function(p_est=self$p_est,
                                  s2_est=self$s2_est) {
@@ -538,7 +476,6 @@ LatentFactorKernel <- R6::R6Class(
     #' @description Set parameters from optimization output
     #' @param optim_out Output from optimization
     #' @param p_est Is p being estimated?
-    #' @param alpha_est Is alpha being estimated?
     #' @param s2_est Is s2 being estimated?
     set_params_from_optim = function(optim_out, p_est=self$p_est,
                                      s2_est=self$s2_est) {

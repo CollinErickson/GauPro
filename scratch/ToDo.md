@@ -60,9 +60,6 @@ diff(range(Z))^2. Or else give message to normalize.
 
 * plotmarginal w/ factors needs level names
 
-* GowerFactorKernel: 1 if equal, s_i if not. Param for each dim
-* HammingFactorKernel: 1 if equal, s if not, single param?
+* factor kernel: clean up logp, jitter/start
 
-* pseudo r-sq should use df
-
-* factor kernel: clean up logp, offdiagequal, jitter/start
+* Fix GHA/Linux bug with cubic

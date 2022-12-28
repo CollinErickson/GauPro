@@ -70,9 +70,9 @@ plot(k2b)
 
 \item{\code{p_est}}{Should p be estimated?}
 
-\item{\code{p_lower}}{Lower bound of logp}
+\item{\code{p_lower}}{Lower bound of p}
 
-\item{\code{p_upper}}{Upper bound of logp}
+\item{\code{p_upper}}{Upper bound of p}
 
 \item{\code{p_length}}{length of p}
 
@@ -89,6 +89,10 @@ plot(k2b)
 \item{\code{xindex}}{Index of the factor (which column of X)}
 
 \item{\code{nlevels}}{Number of levels for the factor}
+
+\item{\code{offdiagequal}}{What should offdiagonal values be set to when the
+indices are the same? Use to avoid decomposition errors, similar to
+adding a nugget.}
 }
 \if{html}{\out{</div>}}
 }
@@ -130,13 +134,14 @@ Initialize kernel object
   nlevels,
   xindex,
   p_lower = 0,
-  p_upper = 1,
+  p_upper = 0.9,
   p_est = TRUE,
   s2_lower = 1e-08,
   s2_upper = 1e+08,
   s2_est = TRUE,
   p,
-  useC = TRUE
+  useC = TRUE,
+  offdiagequal = 1 - 1e-06
 )}\if{html}{\out{</div>}}
 }
 
@@ -167,7 +172,9 @@ Initialize kernel object
 
 \item{\code{useC}}{Should C code used? Not implemented for FactorKernel yet.}
 
-\item{\code{alpha}}{Periodic parameter}
+\item{\code{offdiagequal}}{What should offdiagonal values be set to when the
+indices are the same? Use to avoid decomposition errors, similar to
+adding a nugget.}
 }
 \if{html}{\out{</div>}}
 }
@@ -204,7 +211,7 @@ of x with itself.}
 \subsection{Method \code{kone()}}{
 Find covariance of two points
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FactorKernel$kone(x, y, p, s2, isdiag = TRUE, offdiagequal = 1 - 1e-06)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{FactorKernel$kone(x, y, p, s2, isdiag = TRUE, offdiagequal = self$offdiagequal)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

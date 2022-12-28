@@ -33,8 +33,8 @@
 #' @format \code{\link{R6Class}} object.
 #' @field p Parameter for correlation
 #' @field p_est Should p be estimated?
-#' @field p_lower Lower bound of logp
-#' @field p_upper Upper bound of logp
+#' @field p_lower Lower bound of p
+#' @field p_upper Upper bound of p
 #' @field p_length length of p
 #' @field s2 variance
 #' @field s2_est Is s2 estimated?
@@ -43,6 +43,9 @@
 #' @field logs2_upper Upper bound of logs2
 #' @field xindex Index of the factor (which column of X)
 #' @field nlevels Number of levels for the factor
+#' @field offdiagequal What should offdiagonal values be set to when the
+#' indices are the same? Use to avoid decomposition errors, similar to
+#' adding a nugget.
 #' @examples
 #' kk <- FactorKernel$new(D=1, nlevels=5, xindex=1)
 #' kk$p <- (1:10)/100
@@ -90,7 +93,6 @@ FactorKernel <- R6::R6Class(
   public = list(
     p = NULL, # vector of correlations
     p_est = NULL,
-    # logp = NULL,
     p_lower = NULL,
     p_upper = NULL,
     p_length = NULL,
@@ -101,8 +103,8 @@ FactorKernel <- R6::R6Class(
     logs2_upper = NULL,
     nlevels = NULL,
     xindex = NULL,
+    offdiagequal = NULL,
     #' @description Initialize kernel object
-    #' @param alpha Periodic parameter
     #' @param s2 Initial variance
     #' @param D Number of input dimensions of data
     #' @param p_lower Lower bound for p
@@ -115,10 +117,13 @@ FactorKernel <- R6::R6Class(
     #' @param xindex Index of the factor (which column of X)
     #' @param nlevels Number of levels for the factor
     #' @param useC Should C code used? Not implemented for FactorKernel yet.
+    #' @param offdiagequal What should offdiagonal values be set to when the
+    #' indices are the same? Use to avoid decomposition errors, similar to
+    #' adding a nugget.
     initialize = function(s2=1, D, nlevels, xindex,
-                          p_lower=0, p_upper=1, p_est=TRUE,
+                          p_lower=0, p_upper=.9, p_est=TRUE,
                           s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE,
-                          p, useC=TRUE
+                          p, useC=TRUE, offdiagequal=1-1e-6
     ) {
       # Must give in D
       if (missing(D)) {stop("Must give Index kernel D")}
@@ -136,21 +141,7 @@ FactorKernel <- R6::R6Class(
       self$p_length <- length(p)
       self$p_lower <-rep(0, self$p_length)
       # Don't give upper 1 since it will give optimization error
-      self$p_upper <-rep(.9, self$p_length)
-      # self$logp <- log(p, 10)
-
-      # Now set upper and lower so they have correct length
-      # self$logp_lower <- log(p_lower, 10)
-      # self$logp_upper <- log(p_upper, 10)
-      # Setting logp_lower so dimensions are right
-      # logp_lower <- log(p_lower, 10)
-      # logp_upper <- log(p_upper, 10)
-      # self$logp_lower <- if (length(logp_lower) == self$p_length) {logp_lower}
-      # else if (length(logp_lower)==1) {rep(logp_lower, self$p_length)}
-      # else {stop("Error for kernel_Periodic logp_lower")}
-      # self$logp_upper <- if (length(logp_upper) == self$p_length) {logp_upper}
-      # else if (length(logp_upper)==1) {rep(logp_upper, self$p_length)}
-      # else {stop("Error for kernel_Periodic logp_upper")}
+      self$p_upper <-rep(p_upper, self$p_length)
 
       self$p_est <- p_est
       self$s2 <- s2
@@ -159,6 +150,8 @@ FactorKernel <- R6::R6Class(
       self$logs2_upper <- log(s2_upper, 10)
       self$s2_est <- s2_est
       self$useC <- useC
+
+      self$offdiagequal <- offdiagequal
     },
     #' @description Calculate covariance between two points
     #' @param x vector.
@@ -170,20 +163,12 @@ FactorKernel <- R6::R6Class(
     k = function(x, y=NULL, p=self$p, s2=self$s2, params=NULL) {
       if (!is.null(params)) {
         lenparams <- length(params)
-        # logp <- params[1:(lenpar-2)]
-        # logalpha <- params[lenpar-1]
-        # logs2 <- params[lenpar]
 
         if (self$p_est) {
           p <- params[1:self$p_length]
         } else {
           p <- self$p
         }
-        # if (self$alpha_est) {
-        #   logalpha <- params[1 + as.integer(self$p_est) * self$p_length]
-        # } else {
-        #   logalpha <- self$logalpha
-        # }
         if (self$s2_est) {
           logs2 <- params[lenparams]
         } else {
@@ -196,17 +181,10 @@ FactorKernel <- R6::R6Class(
         s2 <- 10^logs2
       } else {
         if (is.null(p)) {p <- self$p}
-        # if (is.null(logalpha)) {logalpha <- self$logalpha}
         if (is.null(s2)) {s2 <- self$s2}
       }
-      # p <- 10^logp
-      # alpha <- 10^logalpha
       if (is.null(y)) {
         if (is.matrix(x)) {
-          # val <- outer(1:nrow(x), 1:nrow(x),
-          #              Vectorize(function(i,j){
-          #                self$kone(x[i,],x[j,],p=p, s2=s2)
-          #              }))
           val <- outer(1:nrow(x), 1:nrow(x),
                        Vectorize(function(i,j){
                          self$kone(x[i,],x[j,],p=p, s2=s2, isdiag=i==j)
@@ -236,15 +214,12 @@ FactorKernel <- R6::R6Class(
     #' @param offdiagequal What should offdiagonal values be set to when the
     #' indices are the same? Use to avoid decomposition errors, similar to
     #' adding a nugget.
-    kone = function(x, y, p, s2, isdiag=TRUE, offdiagequal=1-1e-6) {
-      # if (missing(p)) {p <- 10^logp}
-      # out <- s2 * exp(-sum(alpha*sin(p * (x-y))^2))
+    kone = function(x, y, p, s2, isdiag=TRUE, offdiagequal=self$offdiagequal) {
       x <- x[self$xindex]
       y <- y[self$xindex]
       stopifnot(x>=1, y>=1, x<=self$nlevels, y<=self$nlevels,
                 abs(x-as.integer(x)) < 1e-8, abs(y-as.integer(y)) < 1e-8)
       if (x==y) {
-        # out <- s2 * 1
         # Trying to avoid singular values
         if (isdiag) {
           out <- s2 * 1
@@ -429,7 +404,6 @@ FactorKernel <- R6::R6Class(
       loo <- length(optim_out)
       if (p_est) {
         self$p <- optim_out[1:(self$p_length)]
-        # self$p <- 10 ^ self$logp
       }
       if (s2_est) {
         self$logs2 <- optim_out[loo]

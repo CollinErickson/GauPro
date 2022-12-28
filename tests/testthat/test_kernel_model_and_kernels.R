@@ -57,11 +57,11 @@ test_that("Cts kernels 1D", {
     }
 
     expect_no_warning({
-      expect_error({
+      expect_no_error({
         gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=kern, parallel=FALSE,
                                       verbose=0, nug.est=T, restarts=0)
-      }, NA)
-    })
+      }, message=paste0("Cts 1D", j, kern_char, "failed fitting no error"))
+    }, message=paste0("Cts 1D", j, kern_char, "failed fitting no warning"))
     expect_is(gp, "GauPro")
     expect_is(gp, "R6")
 
@@ -1309,6 +1309,7 @@ test_that("Kernels useC", {
 
     cat(kern_chars[i], length(kC$C_dC_dparams(X=X1, nug=1e-4)$d), "\n")
     expect_equal(kC$C_dC_dparams(X=X1, nug=1e-4)$d,
-                 kR$C_dC_dparams(X=X1, nug=1e-4)$d)
+                 kR$C_dC_dparams(X=X1, nug=1e-4)$d,
+                 label=paste("useC", i, kern_chars[i], "C_dC_dparams"))
   }
 })

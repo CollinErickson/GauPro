@@ -32,8 +32,8 @@
 #' @format \code{\link{R6Class}} object.
 #' @field p Parameter for correlation
 #' @field p_est Should p be estimated?
-#' @field p_lower Lower bound of logp
-#' @field p_upper Upper bound of logp
+#' @field p_lower Lower bound of p
+#' @field p_upper Upper bound of p
 #' @field p_length length of p
 #' @field s2 variance
 #' @field s2_est Is s2 estimated?
@@ -42,6 +42,9 @@
 #' @field logs2_upper Upper bound of logs2
 #' @field xindex Index of the factor (which column of X)
 #' @field nlevels Number of levels for the factor
+#' @field offdiagequal What should offdiagonal values be set to when the
+#' indices are the same? Use to avoid decomposition errors, similar to
+#' adding a nugget.
 #' @examples
 #' kk <- OrderedFactorKernel$new(D=1, nlevels=5, xindex=1)
 #' kk$p <- (1:10)/100
@@ -85,9 +88,8 @@ OrderedFactorKernel <- R6::R6Class(
   classname = "GauPro_kernel_OrderedFactorKernel",
   inherit = GauPro_kernel,
   public = list(
-    p = NULL, # Period
+    p = NULL,
     p_est = NULL,
-    # logp = NULL,
     p_lower = NULL,
     p_upper = NULL,
     p_length = NULL,
@@ -98,6 +100,7 @@ OrderedFactorKernel <- R6::R6Class(
     logs2_upper = NULL,
     nlevels = NULL,
     xindex = NULL,
+    offdiagequal = NULL,
     #' @description Initialize kernel object
     #' @param p Vector of distances in latent space
     #' @param s2 Initial variance
@@ -111,10 +114,13 @@ OrderedFactorKernel <- R6::R6Class(
     #' @param xindex Index of X to use the kernel on
     #' @param nlevels Number of levels for the factor
     #' @param useC Should C code used? Much faster.
+    #' @param offdiagequal What should offdiagonal values be set to when the
+    #' indices are the same? Use to avoid decomposition errors, similar to
+    #' adding a nugget.
     initialize = function(s2=1, D, nlevels, xindex,
                           p_lower=0, p_upper=1, p_est=TRUE,
                           s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE,
-                          useC=TRUE
+                          useC=TRUE, offdiagequal=1-1e-6
     ) {
       # Must give in D
       if (missing(D)) {stop("Must give Index kernel D")}
@@ -131,20 +137,6 @@ OrderedFactorKernel <- R6::R6Class(
       self$p_lower <- rep(1e-1, self$p_length)
       # Don't give upper 1 since it will give optimization error
       self$p_upper <- rep(5, self$p_length)
-      # self$logp <- log(p, 10)
-
-      # Now set upper and lower so they have correct length
-      # self$logp_lower <- log(p_lower, 10)
-      # self$logp_upper <- log(p_upper, 10)
-      # Setting logp_lower so dimensions are right
-      # logp_lower <- log(p_lower, 10)
-      # logp_upper <- log(p_upper, 10)
-      # self$logp_lower <- if (length(logp_lower) == self$p_length) {logp_lower}
-      # else if (length(logp_lower)==1) {rep(logp_lower, self$p_length)}
-      # else {stop("Error for kernel_Periodic logp_lower")}
-      # self$logp_upper <- if (length(logp_upper) == self$p_length) {logp_upper}
-      # else if (length(logp_upper)==1) {rep(logp_upper, self$p_length)}
-      # else {stop("Error for kernel_Periodic logp_upper")}
 
       self$p_est <- p_est
       self$s2 <- s2
@@ -153,6 +145,8 @@ OrderedFactorKernel <- R6::R6Class(
       self$logs2_upper <- log(s2_upper, 10)
       self$s2_est <- s2_est
       self$useC <- useC
+
+      self$offdiagequal <- offdiagequal
     },
     #' @description Calculate covariance between two points
     #' @param x vector.
@@ -164,20 +158,12 @@ OrderedFactorKernel <- R6::R6Class(
     k = function(x, y=NULL, p=self$p, s2=self$s2, params=NULL) {
       if (!is.null(params)) {
         lenparams <- length(params)
-        # logp <- params[1:(lenpar-2)]
-        # logalpha <- params[lenpar-1]
-        # logs2 <- params[lenpar]
 
         if (self$p_est) {
           p <- params[1:self$p_length]
         } else {
           p <- self$p
         }
-        # if (self$alpha_est) {
-        #   logalpha <- params[1 + as.integer(self$p_est) * self$p_length]
-        # } else {
-        #   logalpha <- self$logalpha
-        # }
         if (self$s2_est) {
           logs2 <- params[lenparams]
         } else {
@@ -190,20 +176,13 @@ OrderedFactorKernel <- R6::R6Class(
         s2 <- 10^logs2
       } else {
         if (is.null(p)) {p <- self$p}
-        # if (is.null(logalpha)) {logalpha <- self$logalpha}
         if (is.null(s2)) {s2 <- self$s2}
       }
-      # p <- 10^logp
-      # alpha <- 10^logalpha
       if (is.null(y)) {
         if (is.matrix(x)) {
-          # val <- outer(1:nrow(x), 1:nrow(x),
-          #              Vectorize(function(i,j){
-          #                self$kone(x[i,],x[j,],p=p, s2=s2)
-          #              }))
           if (self$useC) {
             val <- s2 * corr_orderedfactor_matrix_symC(x, p, self$xindex,
-                                                       1-1e-6)
+                                                       self$offdiagequal)
           } else {
             val <- outer(1:nrow(x), 1:nrow(x),
                          Vectorize(function(i,j){
@@ -219,7 +198,7 @@ OrderedFactorKernel <- R6::R6Class(
         if (self$useC) { # Way faster
           s2 * corr_orderedfactor_matrixmatrixC(
             x=x, y=y, theta=p, xindex=self$xindex,
-            offdiagequal=1-1e-6)
+            offdiagequal=self$offdiagequal)
         } else {
           outer(1:nrow(x), 1:nrow(y),
                 Vectorize(function(i,j){self$kone(x[i,],y[j,],p=p, s2=s2)}))
@@ -243,9 +222,7 @@ OrderedFactorKernel <- R6::R6Class(
     #' adding a nugget.
     #' @references
     #' https://stackoverflow.com/questions/27086195/linear-index-upper-triangular-matrix
-    kone = function(x, y, p, s2, isdiag=TRUE, offdiagequal=1-1e-6) {
-      # if (missing(p)) {p <- 10^logp}
-      # out <- s2 * exp(-sum(alpha*sin(p * (x-y))^2))
+    kone = function(x, y, p, s2, isdiag=TRUE, offdiagequal=self$offdiagequal) {
       x <- x[self$xindex]
       y <- y[self$xindex]
       stopifnot(x>=1, y>=1, x<=self$nlevels, y<=self$nlevels,
@@ -287,11 +264,6 @@ OrderedFactorKernel <- R6::R6Class(
         } else {
           p <- self$p
         }
-        # if (self$alpha_est) {
-        #   logalpha <- params[1 + as.integer(self$p_est) * self$p_length]
-        # } else {
-        #   logalpha <- self$logalpha
-        # }
         if (self$s2_est) {
           logs2 <- params[lenparams]
         } else {
@@ -299,20 +271,11 @@ OrderedFactorKernel <- R6::R6Class(
         }
       } else {
         p <- self$p
-        # logalpha <- self$logalpha
         logs2 <- self$logs2
       }
-
-      # lenparams <- length(params)
-      # logp <- params[1:(lenparams - 2)]
-      # p <- 10^logp
-      # logalpha <- params[lenparams-1]
-      # alpha <- 10^logalpha
       log10 <- log(10)
-      # logs2 <- params[lenparams]
       s2 <- 10 ^ logs2
 
-      # if (is.null(params)) {params <- c(self$logp, self$logalpha, self$logs2)}
       if (missing(C_nonug)) { # Assume C missing too, must have nug
         C_nonug <- self$k(x=X, params=params)
         C <- C_nonug + diag(nug*s2, nrow(C_nonug))
@@ -362,11 +325,6 @@ OrderedFactorKernel <- R6::R6Class(
                     # Parameter has no effect
                   }
                 }
-                #
-                # r2 <- sum(p * (X[i,]-X[j,])^2)
-                # dC_dparams[k,i,j] <- -C_nonug[i,j] * alpha * sin(2*p[k]*(X[i,k]
-                #  - X[j,k])) * (X[i,k] - X[j,k]) * p[k] * log10
-                # dC_dparams[k,j,i] <- dC_dparams[k,i,j]
               }
             }
             for (i in seq(1, n, 1)) { # Get diagonal set to zero
@@ -375,20 +333,6 @@ OrderedFactorKernel <- R6::R6Class(
           }
         }
       }
-      # # Grad for logalpha
-      # if (self$alpha_est) {
-      #   alph_ind <- lenparams_D - as.integer(self$s2_est)
-      #   for (i in seq(1, n-1, 1)) {
-      #     for (j in seq(i+1, n, 1)) {
-      #       r2 <- -sum(sin(p * (X[i,]-X[j,]))^2)
-      #       dC_dparams[alph_ind, i,j] <- C_nonug[i,j] * r2 * alpha * log10
-      #       dC_dparams[alph_ind, j,i] <- dC_dparams[alph_ind, i,j]
-      #     }
-      #   }
-      #   for (i in seq(1, n, 1)) {
-      #     dC_dparams[alph_ind, i,i] <- 0
-      #   }
-      # }
       return(dC_dparams)
     },
     #' @description Calculate covariance matrix and its derivative
@@ -422,7 +366,6 @@ OrderedFactorKernel <- R6::R6Class(
     #' @param jitter Should there be a jitter?
     #' @param y Output
     #' @param p_est Is p being estimated?
-    #' @param alpha_est Is alpha being estimated?
     #' @param s2_est Is s2 being estimated?
     param_optim_start = function(jitter=F, y, p_est=self$p_est,
                                  s2_est=self$s2_est) {
@@ -439,61 +382,47 @@ OrderedFactorKernel <- R6::R6Class(
     #' @param jitter Should there be a jitter?
     #' @param y Output
     #' @param p_est Is p being estimated?
-    #' @param alpha_est Is alpha being estimated?
     #' @param s2_est Is s2 being estimated?
     param_optim_start0 = function(jitter=F, y, p_est=self$p_est,
                                   s2_est=self$s2_est) {
       if (p_est) {vec <- rep(0, self$p_length)} else {vec <- c()}
       if (s2_est) {vec <- c(vec, 0)} else {}
       if (jitter && p_est) {
-        vec[1:length(self$p)] = vec[1:length(self$logp)] +
+        vec[1:length(self$p)] = vec[1:length(self$p)] +
           rnorm(length(self$p), 0, 1)
       }
       vec
     },
     #' @description Lower bounds of parameters for optimization
     #' @param p_est Is p being estimated?
-    #' @param alpha_est Is alpha being estimated?
     #' @param s2_est Is s2 being estimated?
     param_optim_lower = function(p_est=self$p_est,
-                                 # alpha_est=self$alpha_est,
                                  s2_est=self$s2_est) {
       # c(self$logp_lower, self$logs2_lower)
       if (p_est) {vec <- c(self$p_lower)} else {vec <- c()}
-      # if (alpha_est) {vec <- c(vec, self$logalpha_lower)} else {}
       if (s2_est) {vec <- c(vec, self$logs2_lower)} else {}
       vec
     },
     #' @description Upper bounds of parameters for optimization
     #' @param p_est Is p being estimated?
-    #' @param alpha_est Is alpha being estimated?
     #' @param s2_est Is s2 being estimated?
     param_optim_upper = function(p_est=self$p_est,
-                                 # alpha_est=self$alpha_est,
                                  s2_est=self$s2_est) {
       # c(self$logp_upper, self$logs2_upper)
       if (p_est) {vec <- c(self$p_upper)} else {vec <- c()}
-      # if (alpha_est) {vec <- c(vec, self$logalpha_upper)} else {}
       if (s2_est) {vec <- c(vec, self$logs2_upper)} else {}
       vec
     },
     #' @description Set parameters from optimization output
     #' @param optim_out Output from optimization
     #' @param p_est Is p being estimated?
-    #' @param alpha_est Is alpha being estimated?
     #' @param s2_est Is s2 being estimated?
     set_params_from_optim = function(optim_out, p_est=self$p_est,
-                                     # alpha_est=self$alpha_est,
                                      s2_est=self$s2_est) {
       loo <- length(optim_out)
       if (p_est) {
         self$p <- optim_out[1:(self$p_length)]
-        # self$p <- 10 ^ self$logp
       }
-      # if (alpha_est) {
-      #   self$logalpha <- optim_out[(1 + p_est * self$p_length)]
-      #   self$alpha <- 10 ^ self$logalpha
-      # }
       if (s2_est) {
         self$logs2 <- optim_out[loo]
         self$s2 <- 10 ^ self$logs2

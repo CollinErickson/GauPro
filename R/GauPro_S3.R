@@ -93,6 +93,8 @@ print.summary.GauPro <- function(x, ...) {
   # R-squared, Adj R-squared
   cat("\nPseudo leave-one-out R-squared:\n")
   cat("\t", x$r.squaredLOO, "\n")
+  cat("\nPseudo leave-one-out R-squared (adj.):\n")
+  cat("\t", x$r.squared.adjLOO, "\n")
 
   # Coverage
   pval68 <- signif(binom.test(x$coverage68LOO*x$N, x$N, .68)$p.value, 4)

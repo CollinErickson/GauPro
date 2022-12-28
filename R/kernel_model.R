@@ -22,8 +22,7 @@
 #' n <- 12
 #' x <- matrix(seq(0,1,length.out = n), ncol=1)
 #' y <- sin(2*pi*x) + rnorm(n,0,1e-1)
-#' gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=Gaussian$new(1),
-#'                               parallel=FALSE)
+#' gp <- GauPro_kernel_model$new(X=x, Z=y, kernel="gauss")
 #' gp$predict(.454)
 #' gp$plot1D()
 #' gp$cool1Dplot()
@@ -2902,7 +2901,7 @@ GauPro_kernel_model <- R6::R6Class(
 
       fn <- function(xx2) {
         EIfunc(xx2, minimize = minimize, eps=eps,
-                selfXmeanpred=selfXmeanpred)
+               selfXmeanpred=selfXmeanpred)
       }
 
       self$optimize_fn(fn, minimize=FALSE,
@@ -3457,6 +3456,11 @@ GauPro_kernel_model <- R6::R6Class(
       ans$coverage68LOO <- coverage68
       rsq <- with(loodf, 1 - (sum((fit-Z)^2)) / (sum((mean(Z)-Z)^2)))
       ans$r.squaredLOO <- rsq
+      ans$r.squared.adjLOO <- (
+        1 - ((1-rsq)*(self$N-1) /
+               (self$N-1-length(self$param_optim_start(nug.update=self$nug.est,
+                                                       jitter=F))))
+      )
 
       # Feature importance
       ans$importance <- self$importance(plot=FALSE, print_bars=FALSE)

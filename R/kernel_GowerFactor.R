@@ -15,8 +15,8 @@
 #' @format \code{\link{R6Class}} object.
 #' @field p Parameter for correlation
 #' @field p_est Should p be estimated?
-#' @field p_lower Lower bound of logp
-#' @field p_upper Upper bound of logp
+#' @field p_lower Lower bound of p
+#' @field p_upper Upper bound of p
 #' @field s2 variance
 #' @field s2_est Is s2 estimated?
 #' @field logs2 Log of s2
@@ -24,6 +24,9 @@
 #' @field logs2_upper Upper bound of logs2
 #' @field xindex Index of the factor (which column of X)
 #' @field nlevels Number of levels for the factor
+#' @field offdiagequal What should offdiagonal values be set to when the
+#' indices are the same? Use to avoid decomposition errors, similar to
+#' adding a nugget.
 #' @examples
 #' kk <- GowerFactorKernel$new(D=1, nlevels=5, xindex=1, p=.2)
 #' kmat <- outer(1:5, 1:5, Vectorize(kk$k))
@@ -66,11 +69,10 @@
 # GowerFactorKernel ----
 GowerFactorKernel <- R6::R6Class(
   classname = "GauPro_kernel_GowerFactorKernel",
-  inherit = GauPro:::GauPro_kernel,
+  inherit = GauPro_kernel,
   public = list(
     p = NULL, # vector of correlations
     p_est = NULL,
-    # logp = NULL,
     p_lower = NULL,
     p_upper = NULL,
     s2 = NULL, # variance coefficient to scale correlation matrix to covariance
@@ -80,8 +82,8 @@ GowerFactorKernel <- R6::R6Class(
     logs2_upper = NULL,
     nlevels = NULL,
     xindex = NULL,
+    offdiagequal = NULL,
     #' @description Initialize kernel object
-    #' @param alpha Periodic parameter
     #' @param s2 Initial variance
     #' @param D Number of input dimensions of data
     #' @param p_lower Lower bound for p
@@ -94,10 +96,13 @@ GowerFactorKernel <- R6::R6Class(
     #' @param xindex Index of the factor (which column of X)
     #' @param nlevels Number of levels for the factor
     #' @param useC Should C code used? Not implemented for FactorKernel yet.
+    #' @param offdiagequal What should offdiagonal values be set to when the
+    #' indices are the same? Use to avoid decomposition errors, similar to
+    #' adding a nugget.
     initialize = function(s2=1, D, nlevels, xindex,
                           p_lower=0, p_upper=.9, p_est=TRUE,
                           s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE,
-                          p, useC=TRUE
+                          p, useC=TRUE, offdiagequal=1-1e-6
     ) {
       # Must give in D
       if (missing(D)) {stop("Must give Index kernel D")}
@@ -123,6 +128,8 @@ GowerFactorKernel <- R6::R6Class(
       self$logs2_upper <- log(s2_upper, 10)
       self$s2_est <- s2_est
       self$useC <- useC
+
+      self$offdiagequal <- offdiagequal
     },
     #' @description Calculate covariance between two points
     #' @param x vector.
@@ -134,9 +141,6 @@ GowerFactorKernel <- R6::R6Class(
     k = function(x, y=NULL, p=self$p, s2=self$s2, params=NULL) {
       if (!is.null(params)) {
         lenparams <- length(params)
-        # logp <- params[1:(lenpar-2)]
-        # logalpha <- params[lenpar-1]
-        # logs2 <- params[lenpar]
 
         if (self$p_est) {
           p <- params[1]
@@ -157,17 +161,10 @@ GowerFactorKernel <- R6::R6Class(
         s2 <- 10^logs2
       } else {
         if (is.null(p)) {p <- self$p}
-        # if (is.null(logalpha)) {logalpha <- self$logalpha}
         if (is.null(s2)) {s2 <- self$s2}
       }
-      # p <- 10^logp
-      # alpha <- 10^logalpha
       if (is.null(y)) {
         if (is.matrix(x)) {
-          # val <- outer(1:nrow(x), 1:nrow(x),
-          #              Vectorize(function(i,j){
-          #                self$kone(x[i,],x[j,],p=p, s2=s2)
-          #              }))
           val <- outer(1:nrow(x), 1:nrow(x),
                        Vectorize(function(i,j){
                          self$kone(x[i,],x[j,],p=p, s2=s2, isdiag=i==j)
@@ -197,9 +194,7 @@ GowerFactorKernel <- R6::R6Class(
     #' @param offdiagequal What should offdiagonal values be set to when the
     #' indices are the same? Use to avoid decomposition errors, similar to
     #' adding a nugget.
-    kone = function(x, y, p, s2, isdiag=TRUE, offdiagequal=1-1e-6) {
-      # if (missing(p)) {p <- 10^logp}
-      # out <- s2 * exp(-sum(alpha*sin(p * (x-y))^2))
+    kone = function(x, y, p, s2, isdiag=TRUE, offdiagequal=self$offdiagequal) {
       x <- x[self$xindex]
       y <- y[self$xindex]
       stopifnot(x>=1, y>=1, x<=self$nlevels, y<=self$nlevels,
@@ -375,7 +370,6 @@ GowerFactorKernel <- R6::R6Class(
       loo <- length(optim_out)
       if (p_est) {
         self$p <- optim_out[1]
-        # self$p <- 10 ^ self$logp
       }
       if (s2_est) {
         self$logs2 <- optim_out[loo]

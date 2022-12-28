@@ -36,4 +36,4 @@ VignetteBuilder: knitr
 URL: https://github.com/CollinErickson/GauPro
 BugReports: https://github.com/CollinErickson/GauPro/issues
 Encoding: UTF-8
-Remotes: collinerickson/mixopt
+Remotes: collinerickson/mixopt@main
