@@ -300,10 +300,6 @@ FactorKernel <- R6::R6Class(
                   # Parameter has no effect
                 }
               }
-              #
-              # r2 <- sum(p * (X[i,]-X[j,])^2)
-              # dC_dparams[k,i,j] <- -C_nonug[i,j] * alpha *
-              # dC_dparams[k,j,i] <- dC_dparams[k,i,j]
             }
           }
           for (i in seq(1, n, 1)) { # Get diagonal set to zero
@@ -344,38 +340,40 @@ FactorKernel <- R6::R6Class(
     #' @param jitter Should there be a jitter?
     #' @param y Output
     #' @param p_est Is p being estimated?
-    #' @param alpha_est Is alpha being estimated?
     #' @param s2_est Is s2 being estimated?
     param_optim_start = function(jitter=F, y, p_est=self$p_est,
                                  s2_est=self$s2_est) {
-      if (p_est) {vec <- c(self$p)} else {vec <- c()}
-      if (s2_est) {vec <- c(vec, self$logs2)} else {}
-      # if (jitter && p_est) {
-      #   # vec <- vec + c(self$logp_optim_jitter,  0)
-      #   vec[1:length(self$p)] = vec[1:length(self$p)] +
-      #  rnorm(length(self$p), 0, 1)
-      # }
+      if (p_est) {
+        vec <- pmin(pmax(self$p + jitter*rnorm(length(self$p), 0, .1),
+                         self$p_lower), self$p_upper)
+      } else {
+        vec <- c()
+      }
+      if (s2_est) {
+        vec <- c(vec, self$logs2 + jitter*rnorm(1))
+      }
       vec
     },
     #' @description Starting point for parameters for optimization
     #' @param jitter Should there be a jitter?
     #' @param y Output
     #' @param p_est Is p being estimated?
-    #' @param alpha_est Is alpha being estimated?
     #' @param s2_est Is s2 being estimated?
     param_optim_start0 = function(jitter=F, y, p_est=self$p_est,
                                   s2_est=self$s2_est) {
-      if (p_est) {vec <- rep(0, self$p_length)} else {vec <- c()}
-      if (s2_est) {vec <- c(vec, 0)} else {}
-      if (jitter && p_est) {
-        vec[1:length(self$p)] = vec[1:length(self$p)] +
-          rnorm(length(self$p), 0, 1)
+      if (p_est) {
+        vec <- pmin(pmax(rep(0, length(self$p)) + jitter*rnorm(length(self$p), 0, .1),
+                         self$p_lower), self$p_upper)
+      } else {
+        vec <- c()
+      }
+      if (s2_est) {
+        vec <- c(vec, self$logs2 + jitter*rnorm(1))
       }
       vec
     },
     #' @description Lower bounds of parameters for optimization
     #' @param p_est Is p being estimated?
-    #' @param alpha_est Is alpha being estimated?
     #' @param s2_est Is s2 being estimated?
     param_optim_lower = function(p_est=self$p_est,
                                  s2_est=self$s2_est) {
@@ -385,10 +383,8 @@ FactorKernel <- R6::R6Class(
     },
     #' @description Upper bounds of parameters for optimization
     #' @param p_est Is p being estimated?
-    #' @param alpha_est Is alpha being estimated?
     #' @param s2_est Is s2 being estimated?
     param_optim_upper = function(p_est=self$p_est,
-                                 # alpha_est=self$alpha_est,
                                  s2_est=self$s2_est) {
       if (p_est) {vec <- c(self$p_upper)} else {vec <- c()}
       if (s2_est) {vec <- c(vec, self$logs2_upper)} else {}
@@ -397,7 +393,6 @@ FactorKernel <- R6::R6Class(
     #' @description Set parameters from optimization output
     #' @param optim_out Output from optimization
     #' @param p_est Is p being estimated?
-    #' @param alpha_est Is alpha being estimated?
     #' @param s2_est Is s2 being estimated?
     set_params_from_optim = function(optim_out, p_est=self$p_est,
                                      s2_est=self$s2_est) {

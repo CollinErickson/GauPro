@@ -60,6 +60,6 @@ diff(range(Z))^2. Or else give message to normalize.
 
 * plotmarginal w/ factors needs level names
 
-* factor kernel: clean up logp, jitter/start
+* factor kernel: clean up jitter/start
 
 * Fix GHA/Linux bug with cubic

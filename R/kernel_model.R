@@ -283,7 +283,11 @@ GauPro_kernel_model <- R6::R6Class(
       if (is.data.frame(X)) {
         X <- as.matrix(X)
       }
-      stopifnot(is.numeric(X))
+      # Make sure numeric, no NA/NaN
+      stopifnot(is.numeric(X), !any(is.na(X)),
+                !any(is.nan(X)), all(is.finite(X)))
+      stopifnot(is.numeric(Z), !any(is.na(Z)),
+                !any(is.nan(Z)), all(is.finite(Z)))
       self$X <- X
       self$Z <- matrix(Z, ncol=1)
       self$normalize <- normalize

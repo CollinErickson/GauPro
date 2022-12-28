@@ -117,7 +117,13 @@ GowerFactorKernel <- R6::R6Class(
         stopifnot(is.numeric(p), length(p) == 1, p>=0, p<=1)
       }
       self$p <- p
+
+      stopifnot(is.numeric(p_lower), length(p_lower) == 1,
+                p_lower>=0, p_lower<=1)
       self$p_lower <- p_lower
+      stopifnot(is.numeric(p_upper), length(p_upper) == 1,
+                p_upper>=0, p_upper<=1,
+                p_lower <= p_upper)
       # Don't give upper 1 since it will give optimization error
       self$p_upper <-p_upper
 
@@ -314,13 +320,15 @@ GowerFactorKernel <- R6::R6Class(
     #' @param s2_est Is s2 being estimated?
     param_optim_start = function(jitter=F, y, p_est=self$p_est,
                                  s2_est=self$s2_est) {
-      if (p_est) {vec <- c(self$p)} else {vec <- c()}
-      if (s2_est) {vec <- c(vec, self$logs2)} else {}
-      # if (jitter && p_est) {
-      #   # vec <- vec + c(self$logp_optim_jitter,  0)
-      #   vec[1:length(self$p)] = vec[1:length(self$p)] +
-      #  rnorm(length(self$p), 0, 1)
-      # }
+      if (p_est) {
+        vec <- min(max(self$p + jitter*rnorm(1, 0, .1),
+                         self$p_lower), self$p_upper)
+      } else {
+        vec <- c()
+      }
+      if (s2_est) {
+        vec <- c(vec, self$logs2 + jitter*rnorm(1))
+      }
       vec
     },
     #' @description Starting point for parameters for optimization
@@ -331,11 +339,14 @@ GowerFactorKernel <- R6::R6Class(
     #' @param s2_est Is s2 being estimated?
     param_optim_start0 = function(jitter=F, y, p_est=self$p_est,
                                   s2_est=self$s2_est) {
-      if (p_est) {vec <- 0} else {vec <- c()}
-      if (s2_est) {vec <- c(vec, 0)} else {}
-      if (jitter && p_est) {
-        vec[1:length(self$p)] = vec[1:length(self$p)] +
-          rnorm(length(self$p), 0, 1)
+      if (p_est) {
+        vec <- min(max(0 + jitter*rnorm(1, 0, .1),
+                       self$p_lower), self$p_upper)
+      } else {
+        vec <- c()
+      }
+      if (s2_est) {
+        vec <- c(vec, self$logs2 + jitter*rnorm(1))
       }
       vec
     },

@@ -326,8 +326,6 @@ Starting point for parameters for optimization
 \item{\code{p_est}}{Is p being estimated?}
 
 \item{\code{s2_est}}{Is s2 being estimated?}
-
-\item{\code{alpha_est}}{Is alpha being estimated?}
 }
 \if{html}{\out{</div>}}
 }
@@ -356,8 +354,6 @@ Starting point for parameters for optimization
 \item{\code{p_est}}{Is p being estimated?}
 
 \item{\code{s2_est}}{Is s2 being estimated?}
-
-\item{\code{alpha_est}}{Is alpha being estimated?}
 }
 \if{html}{\out{</div>}}
 }
@@ -377,8 +373,6 @@ Lower bounds of parameters for optimization
 \item{\code{p_est}}{Is p being estimated?}
 
 \item{\code{s2_est}}{Is s2 being estimated?}
-
-\item{\code{alpha_est}}{Is alpha being estimated?}
 }
 \if{html}{\out{</div>}}
 }
@@ -398,8 +392,6 @@ Upper bounds of parameters for optimization
 \item{\code{p_est}}{Is p being estimated?}
 
 \item{\code{s2_est}}{Is s2 being estimated?}
-
-\item{\code{alpha_est}}{Is alpha being estimated?}
 }
 \if{html}{\out{</div>}}
 }
@@ -425,8 +417,6 @@ Set parameters from optimization output
 \item{\code{p_est}}{Is p being estimated?}
 
 \item{\code{s2_est}}{Is s2 being estimated?}
-
-\item{\code{alpha_est}}{Is alpha being estimated?}
 }
 \if{html}{\out{</div>}}
 }

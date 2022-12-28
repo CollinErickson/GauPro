@@ -433,10 +433,14 @@ LatentFactorKernel <- R6::R6Class(
     #' @param s2_est Is s2 being estimated?
     param_optim_start = function(jitter=F, y, p_est=self$p_est,
                                  s2_est=self$s2_est) {
-      if (p_est) {vec <- c(self$p)} else {vec <- c()}
-      if (s2_est) {vec <- c(vec, self$logs2)} else {}
-      if (jitter && p_est) {
-        vec[1:length(self$p)] = vec[1:length(self$p)] + rnorm(length(self$p), 0, 1)
+      if (p_est) {
+        vec <- pmin(pmax(self$p + jitter*rnorm(length(self$p), 0, 1),
+                         self$p_lower), self$p_upper)
+      } else {
+        vec <- c()
+      }
+      if (s2_est) {
+        vec <- c(vec, self$logs2 + jitter*rnorm(1))
       }
       vec
     },
@@ -447,11 +451,14 @@ LatentFactorKernel <- R6::R6Class(
     #' @param s2_est Is s2 being estimated?
     param_optim_start0 = function(jitter=F, y, p_est=self$p_est,
                                   s2_est=self$s2_est) {
-      if (p_est) {vec <- rnorm(self$p_length)} else {vec <- c()}
-      if (s2_est) {vec <- c(vec, 0)} else {}
-      if (jitter && p_est) {
-        vec[1:length(self$p)] = vec[1:length(self$p)] +
-          rnorm(length(self$p), 0, 1)
+      if (p_est) {
+        vec <- pmin(pmax(jitter*rnorm(length(self$p), 0, 1),
+                         self$p_lower), self$p_upper)
+      } else {
+        vec <- c()
+      }
+      if (s2_est) {
+        vec <- c(vec, self$logs2 + jitter*rnorm(1))
       }
       vec
     },

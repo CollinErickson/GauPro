@@ -1184,7 +1184,7 @@ test_that("IgnoreInds", {
   expect_error(r2 <- IgnoreIndsKernel$new(k=r1, ignoreinds = list(2)))
   expect_error(IgnoreIndsKernel$new(k=r1, ignoreinds=1.00001))
 })
-test_that("Wide range", {
+test_that("Wide range Z", {
   d <- 3
   n <- 40
   x <- cbind(runif(n, 50, 150),
@@ -1211,6 +1211,41 @@ test_that("Wide range", {
   expect_error(e1$plot2D())
   expect_error(e1$cool1Dplot())
   expect_lt(mean(abs((e1$Z-e1$pred(e1$X)) / e1$Z)), 1e-1)
+  e1$update_fast(Xnew=.5*x[1,,drop=F] + .5*x[2,], .5*(y[1]+y[2]))
+})
+test_that("Wide range X", {
+  d <- 3
+  n <- 40
+  x <- cbind(runif(n, 1e8, 2e8),
+             runif(n, 1e-8, 2e-8),
+             runif(n, -1e12, 1e12))
+  # f <- function(x) {1e3*(x[1] + 14* x[2]^2 + x[3])} # Often gets stuck
+  f <- function(x) {1e2*(x[1]^1.2 + 14* x[2]^2 + abs(x[3])^.9)} # Reliable
+  y <- apply(x, 1, f)
+  y <- y + rnorm(n)*.01*diff(range(y))
+  # Error for bad X/Z
+  expect_error(gpkm(x, c(NaN, y[-1])))
+  expect_error(gpkm(x, c(NA, y[-1])))
+  expect_error(gpkm(x, c(Inf, y[-1])))
+  expect_error(gpkm(rbind(NA, x[-1,]), y))
+  expect_error(gpkm(rbind(NaN, x[-1,]), y))
+  expect_error(gpkm(rbind(Inf, x[-1,]), y))
+  # Actual fit
+  expect_no_error(e1 <- GauPro_kernel_model$new(
+    x, y,
+    # kernel="gauss",#Gaussian$new(D=3, s2=3e7, s2_lower=1e7),
+    kernel=Gaussian$new(D=ncol(x), s2=3e7, s2_lower=1e7, s2_upper=1e20),
+    verbose=0, restarts=25))
+  # e1$plotLOO(); print(e1$s2_hat); print(e1$nug)
+  expect_no_error(e1$summary())
+  expect_no_error(e1$plotLOO())
+  expect_no_error(e1$plotmarginalrandom())
+  expect_no_error(e1$plotmarginal())
+  expect_no_error(plot(e1))
+  expect_error(e1$plot1D())
+  expect_error(e1$plot2D())
+  expect_error(e1$cool1Dplot())
+  # expect_lt(mean(abs((e1$Z-e1$pred(e1$X)) / e1$Z)), 1e-1)
   e1$update_fast(Xnew=.5*x[1,,drop=F] + .5*x[2,], .5*(y[1]+y[2]))
 })
 
