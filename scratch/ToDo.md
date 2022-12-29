@@ -29,9 +29,7 @@
 * Augmented EI: tdf
 
 * Optimize any function. Avoid reimplementing maxEI, maxAugEI, max___.
-  * Can use gr or fngr
   * Can do matrix eval
-  * mopar or mopar converted
 
 * Large Z variance is bad. Extend range of s2. Warning to rescale. Tell kernel
 that initial optim values should be large.
@@ -55,6 +53,8 @@ deviance, etc.
 
 * kernel should take in X, Z and set params based on that. E.g., s2 max is
 diff(range(Z))^2. Or else give message to normalize.
+
+* Standardize for X.
 
 * Check maxqEI for different EI type, see if different
 

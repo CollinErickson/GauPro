@@ -460,6 +460,15 @@ test_that("Cts kernels 2D", {
         p <- gp$predict(x, T)
         p$mean + p$se
       }, minimize = FALSE))
+      expect_no_error(gp$optimize_fn(function(x) {gp$predict(x)},
+                                     gr=function(x) {gp$grad(x)}, minimize = FALSE))
+      expect_no_error(gp$optimize_fn(fn=function(x) {gp$predict(x)},
+                                     fngr=function(x) {
+                                       list(fn=gp$predict(x), gr=gp$grad(x))
+                                     }, minimize = FALSE))
+      print("add test with fn_args")
+      expect_no_error(gp$optimize_fn(function(x, a) {a+gp$predict(x)},
+                                     fn_args=list(a=100)))
     }
 
     # Summary

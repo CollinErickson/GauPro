@@ -30,6 +30,7 @@ Suggests: testthat,
     gridExtra,
     lhs,
     mixopt (> 0.1.0),
+    splitfngr,
     tidyr,
     MASS
 VignetteBuilder: knitr

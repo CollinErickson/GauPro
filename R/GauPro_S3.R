@@ -79,9 +79,6 @@ print.summary.GauPro <- function(x, ...) {
   cat("Formula:\n")
   cat("\t", x$formula, "\n\n")
 
-  # AIC
-  cat("AIC:", x$AIC, "\n\n")
-
   # Residuals
   cat("Residuals:\n")
   print(summary(x$residualsLOO))
@@ -90,11 +87,14 @@ print.summary.GauPro <- function(x, ...) {
   cat("\nFeature importance:\n")
   print(x$importance)
 
+  # AIC
+  cat("\nAIC:", x$AIC, "\n")
+
   # R-squared, Adj R-squared
-  cat("\nPseudo leave-one-out R-squared:\n")
-  cat("\t", x$r.squaredLOO, "\n")
-  cat("\nPseudo leave-one-out R-squared (adj.):\n")
-  cat("\t", x$r.squared.adjLOO, "\n")
+  cat("\nPseudo leave-one-out R-squared       :")
+  cat("  ", x$r.squaredLOO, "\n")
+  cat("Pseudo leave-one-out R-squared (adj.):")
+  cat("  ", x$r.squared.adjLOO, "\n")
 
   # Coverage
   pval68 <- signif(binom.test(x$coverage68LOO*x$N, x$N, .68)$p.value, 4)

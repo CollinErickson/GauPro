@@ -2686,12 +2686,17 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param n0 Number of points to evaluate in initial stage
     #' @param minimize Are you trying to minimize the output?
     #' @param fn_args Arguments to pass to the function fn.
+    #' @param gr Gradient of function to optimize.
+    #' @param fngr Function that returns list with names elements "fn" for the
+    #' function value and "gr" for the gradient. Useful when it is slow to
+    #' evaluate and fn/gr would duplicate calculations if done separately.
     #' @param mopar List of parameters using mixopt
-    optimize_fn = function(fn,
+    optimize_fn = function(fn=NULL,
                            lower=apply(self$X, 2, min),
                            upper=apply(self$X, 2, max),
                            n0=100, minimize=FALSE,
                            fn_args=NULL,
+                           gr=NULL, fngr=NULL,
                            mopar=NULL) {
       stopifnot(all(lower < upper))
       stopifnot(length(n0)==1, is.numeric(n0), n0>=1)
@@ -2735,36 +2740,53 @@ GauPro_kernel_model <- R6::R6Class(
       # selfXmeanpred <- self$pred(self$X, se.fit=F, mean_dist=T)
       minmult <- if (minimize) {1} else {-1}
 
-      # if (!is.null(mopar)) {
-      # Use mixopt, allows for factor/discrete/integer inputs
-      stopifnot(self$D == length(mopar))
-      moout <- mixopt::mixopt_multistart(
-        par=mopar,
-        n0=n0,
-        fn=function(xx){
+      # Convert functions
+      convert_function_with_inputs <- function(fn, is_fngr=FALSE) {
+        if (is.null(fn)) {
+          return(NULL)
+        }
+        function(xx){
           if (is.null(self$formula) || !is.null(attr(mopar, "converted"))) {
             xx2 <- unlist(xx)
-            # -self$EI(unlist(xx), minimize = minimize,
-            #          selfXmeanpred=selfXmeanpred)
           } else {
             # Convert to data frame since it will convert to formula.
             # This way is probably slow.
             # Alternatively, convert to all numeric, no df/formula
             xx2 <- as.data.frame(xx)
             colnames(xx2) <- colnames(self$X)
-            # -self$EI(xx2, minimize = minimize,
-            #          selfXmeanpred=selfXmeanpred)
           }
 
           # Eval fn
           if (is.null(fn_args)) {
-            fn(xx2) * minmult
+            fnout <- fn(xx2)
           } else {
             stopifnot(is.list(fn_args))
-            do.call(fn, c(list(xx2), fn_args)) * minmult
+            fnout <- do.call(fn, c(list(xx2), fn_args))
           }
+          if (is_fngr) {
+            fnout$fn <- fnout$fn * minmult
+            fnout$gr <- fnout$gr * minmult
+          } else {
+            fnout <- fnout * minmult
+          }
+          fnout
         }
-      )
+      }
+      opt_fn <- convert_function_with_inputs(fn)
+      opt_gr <- convert_function_with_inputs(gr)
+      opt_fngr <- convert_function_with_inputs(fngr, is_fngr=TRUE)
+
+
+      # if (!is.null(mopar)) {
+      # Use mixopt, allows for factor/discrete/integer inputs
+      stopifnot(self$D == length(mopar))
+      moout <- mixopt::mixopt_multistart(
+        par=mopar,
+        n0=n0,
+        fn=opt_fn, gr=opt_gr, fngr=opt_fngr
+      ) # End mixopt
+
+      # Convert output back to input scale
       if (is.null(self$formula)) {
         # Convert list to numeric
         moout_par <- unlist(moout$par)

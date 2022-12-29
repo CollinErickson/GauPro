@@ -1461,12 +1461,14 @@ of values, specify `mopar` for all parameters.
 Factor inputs will be handled automatically.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$optimize_fn(
-  fn,
+  fn = NULL,
   lower = apply(self$X, 2, min),
   upper = apply(self$X, 2, max),
   n0 = 100,
   minimize = FALSE,
   fn_args = NULL,
+  gr = NULL,
+  fngr = NULL,
   mopar = NULL
 )}\if{html}{\out{</div>}}
 }
@@ -1485,6 +1487,12 @@ Factor inputs will be handled automatically.
 \item{\code{minimize}}{Are you trying to minimize the output?}
 
 \item{\code{fn_args}}{Arguments to pass to the function fn.}
+
+\item{\code{gr}}{Gradient of function to optimize.}
+
+\item{\code{fngr}}{Function that returns list with names elements "fn" for the
+function value and "gr" for the gradient. Useful when it is slow to
+evaluate and fn/gr would duplicate calculations if done separately.}
 
 \item{\code{mopar}}{List of parameters using mixopt}
 }
