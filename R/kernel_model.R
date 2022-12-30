@@ -2691,13 +2691,16 @@ GauPro_kernel_model <- R6::R6Class(
     #' function value and "gr" for the gradient. Useful when it is slow to
     #' evaluate and fn/gr would duplicate calculations if done separately.
     #' @param mopar List of parameters using mixopt
+    #' @param groupeval Can a matrix of points be evaluated? Otherwise just
+    #' a single point at a time.
     optimize_fn = function(fn=NULL,
                            lower=apply(self$X, 2, min),
                            upper=apply(self$X, 2, max),
                            n0=100, minimize=FALSE,
                            fn_args=NULL,
                            gr=NULL, fngr=NULL,
-                           mopar=NULL) {
+                           mopar=NULL,
+                           groupeval=FALSE) {
       stopifnot(all(lower < upper))
       stopifnot(length(n0)==1, is.numeric(n0), n0>=1)
 
@@ -2783,7 +2786,8 @@ GauPro_kernel_model <- R6::R6Class(
       moout <- mixopt::mixopt_multistart(
         par=mopar,
         n0=n0,
-        fn=opt_fn, gr=opt_gr, fngr=opt_fngr
+        fn=opt_fn, gr=opt_gr, fngr=opt_fngr,
+        groupeval=groupeval
       ) # End mixopt
 
       # Convert output back to input scale
@@ -2904,7 +2908,8 @@ GauPro_kernel_model <- R6::R6Class(
                      n0=100, minimize=FALSE, eps=0,
                      dontconvertback=FALSE,
                      EItype="corrected",
-                     mopar=NULL) {
+                     mopar=NULL,
+                     usegrad=FALSE) {
       # Pass this in to EI so it doesn't recalculate it unnecessarily every time
       selfXmeanpred <- self$pred(self$X, se.fit=F, mean_dist=T)
 
@@ -2930,14 +2935,30 @@ GauPro_kernel_model <- R6::R6Class(
                selfXmeanpred=selfXmeanpred)
       }
 
+      if (usegrad) {
+        fngr <- function(xx2) {
+          out <- EIfunc(xx2, minimize = minimize, eps=eps,
+                        selfXmeanpred=selfXmeanpred, return_grad=TRUE)
+          names(out) <- c("fn", "gr")
+          out
+        }
+      } else {
+        fngr <- NULL
+      }
+
       self$optimize_fn(fn, minimize=FALSE,
+                       fngr=fngr,
                        lower=lower, upper=upper,
                        mopar=mopar, n0=n0)
     },
     #' @description Find the multiple points that maximize the expected
     #' improvement. Currently only implements the constant liar method.
     #' @param npoints Number of points to add
-    #' @param method Method to use. Can only be "CL" for constant liar.
+    #' @param method Method to use for setting the output value for the points
+    #' chosen as a placeholder.
+    #' Can be one of: "CL" for constant liar,
+    #' which uses the best value seen yet; or "pred", which uses the predicted
+    #' value, also called the Believer method in literature.
     #' @param lower Lower bounds to search within
     #' @param upper Upper bounds to search within
     #' @param n0 Number of points to evaluate in initial stage
@@ -2948,7 +2969,7 @@ GauPro_kernel_model <- R6::R6Class(
     #' it converted back to the original scale?
     #' @param EItype Type of EI to calculate. One of "EI", "Augmented",
     #' or "Corrected"
-    maxqEI = function(npoints, method="CL",
+    maxqEI = function(npoints, method="pred",
                       lower=apply(self$X, 2, min),
                       upper=apply(self$X, 2, max),
                       n0=100, minimize=FALSE, eps=0,
@@ -2963,7 +2984,7 @@ GauPro_kernel_model <- R6::R6Class(
                           mopar=mopar,
                           dontconvertback=dontconvertback))
       }
-      stopifnot(method %in% c("CL", "pred"))
+      stopifnot(length(method)==1, method %in% c("CL", "pred"))
       # If factor dims in kernel, make sure mopar is given
       if (length(find_kernel_factor_dims(self$kernel)) > 0 && is.null(mopar)) {
         warning("maxqEI wasn't given mopar but kernel has factor dimensions")

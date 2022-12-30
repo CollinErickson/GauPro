@@ -77,5 +77,16 @@ while optimizing?}
 \item{...}{Not used}
 }
 \description{
-Fits a Gaussian process model to data.
+Fits a Gaussian process regression model to data.
+
+An R6 object is returned with many methods.
+
+`gpkm()` is an alias for `GauPro_kernel_model$new()`.
+For full documentation, see documentation for `GauPro_kernel_model`.
+
+Standard methods that work include `plot()`, `summary()`, and `predict()`.
+}
+\details{
+The default kernel is a Matern 5/2 kernel, but factor/character inputs
+will be given factor kernels.
 }

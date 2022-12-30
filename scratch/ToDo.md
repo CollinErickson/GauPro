@@ -1,12 +1,9 @@
 # GauPro to do
 
-* EI: nopt, test, doc
+* EI/CorEI/AugEI/qEI: nopt, test, doc
   * Use t-dist
-  * Use dEI_dx in maxEI
 
 * Add documentation for kernels, esp. factor ones
-
-* Better handling of ignore input when using factors?
 
 * Speed up triangle, ratquad, periodic, powerexp k/grad
 
@@ -15,21 +12,6 @@
 * When giving in formula/data
   * add to doc
   * message what chosen kernel is
-
-* qEI with mixopt:
-    * picks same point multiple times b/c of mean uncertainty
-    * error converting mopar back and forth. mopar_converted?
-    * Slow to convert to df each time. Convert mopar to mopar_converted.
-    * doesn't spread out much. Better with AugEI or CorEI?
-    * test, doc.
-    * CL or pred?
-
-* Corrected EI: tdf
-
-* Augmented EI: tdf
-
-* Optimize any function. Avoid reimplementing maxEI, maxAugEI, max___.
-  * Can do matrix eval
 
 * Large Z variance is bad. Extend range of s2. Warning to rescale. Tell kernel
 that initial optim values should be large.
@@ -55,8 +37,6 @@ deviance, etc.
 diff(range(Z))^2. Or else give message to normalize.
 
 * Standardize for X.
-
-* Check maxqEI for different EI type, see if different
 
 * plotmarginal w/ factors needs level names
 

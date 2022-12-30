@@ -1469,7 +1469,8 @@ Factor inputs will be handled automatically.
   fn_args = NULL,
   gr = NULL,
   fngr = NULL,
-  mopar = NULL
+  mopar = NULL,
+  groupeval = FALSE
 )}\if{html}{\out{</div>}}
 }
 
@@ -1495,6 +1496,9 @@ function value and "gr" for the gradient. Useful when it is slow to
 evaluate and fn/gr would duplicate calculations if done separately.}
 
 \item{\code{mopar}}{List of parameters using mixopt}
+
+\item{\code{groupeval}}{Can a matrix of points be evaluated? Otherwise just
+a single point at a time.}
 }
 \if{html}{\out{</div>}}
 }
@@ -1541,7 +1545,8 @@ of values, specify `mopar` for all parameters.
   eps = 0,
   dontconvertback = FALSE,
   EItype = "corrected",
-  mopar = NULL
+  mopar = NULL,
+  usegrad = FALSE
 )}\if{html}{\out{</div>}}
 }
 
@@ -1578,7 +1583,7 @@ improvement. Currently only implements the constant liar method.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$maxqEI(
   npoints,
-  method = "CL",
+  method = "pred",
   lower = apply(self$X, 2, min),
   upper = apply(self$X, 2, max),
   n0 = 100,
@@ -1595,7 +1600,11 @@ improvement. Currently only implements the constant liar method.
 \describe{
 \item{\code{npoints}}{Number of points to add}
 
-\item{\code{method}}{Method to use. Can only be "CL" for constant liar.}
+\item{\code{method}}{Method to use for setting the output value for the points
+chosen as a placeholder.
+Can be one of: "CL" for constant liar,
+which uses the best value seen yet; or "pred", which uses the predicted
+value, also called the Believer method in literature.}
 
 \item{\code{lower}}{Lower bounds to search within}
 
