@@ -478,16 +478,8 @@ GauPro_kernel_model <- R6::R6Class(
       stopifnot(length(track_optim) == 1, is.logical(track_optim))
       self$track_optim <- track_optim
 
-      # self$mu_hat <- mean(Z)
-      # if (exists("dbfastfit") && isTRUE(dbfastfit)) {
-      #   browser("exists/debug")
-      # }
-      # if (exists("fastfit") && is.function(fastfit)) {
-      #   fastfit(self)
-      # } else {
       self$update_K_and_estimates() # Need to get mu_hat before starting
       self$fit()
-      # }
       invisible(self)
     },
     # initialize_GauPr = function() {
@@ -1270,7 +1262,8 @@ GauPro_kernel_model <- R6::R6Class(
     #' value and adjust it along it's range to see how the prediction changes.
     #' @param npt Number of lines to make. Each line represents changing a
     #' single variable while holding the others at the same values.
-    plotmarginal = function(npt=5) {
+    #' @param ncol Number of columnsfor the plot
+    plotmarginal = function(npt=5, ncol=NULL) {
       # pt <- colMeans(self$X)
       # pt
       pt <- lhs::maximinLHS(n=npt, k=self$D)
@@ -1305,8 +1298,8 @@ GauPro_kernel_model <- R6::R6Class(
           }
           Xmat <- matrix(pt[j,], byrow=T, ncol=ncol(pt), nrow=length(xseq))
           Xmat[, i] <- xseq
-          pX <- self$pred(Xmat, se.fit = T)
-          pXm <- self$pred(Xmat, se.fit = T, mean_dist=T)
+          pX <- suppressWarnings(self$pred(Xmat, se.fit = T))
+          pXm <- suppressWarnings(self$pred(Xmat, se.fit = T, mean_dist=T))
           pts <- rbind(pts,
                        data.frame(pred=pX$mean, predse=pX$se, predmeanse=pXm$se,
                                   xi=xseq, i=i, j=j, icolname=icolnames[i]))
@@ -1320,15 +1313,70 @@ GauPro_kernel_model <- R6::R6Class(
       pts2$predlower <- pts2$pred - 2*pts2$predse
       pts2$predmeanupper <- pts2$pred + 2*pts2$predmeanse
       pts2$predmeanlower <- pts2$pred - 2*pts2$predmeanse
-      ggplot2::ggplot(data=pts2, ggplot2::aes(xi, pred, group=j)) +
-        ggplot2::facet_wrap(.~icolname, scales = "free_x") +
-        ggplot2::geom_line(ggplot2::aes(y=predmeanupper), color="orange") +
-        ggplot2::geom_line(ggplot2::aes(y=predmeanlower), color="orange") +
-        ggplot2::geom_line(ggplot2::aes(y=predupper), color="green") +
-        ggplot2::geom_line(ggplot2::aes(y=predlower), color="green") +
-        ggplot2::geom_line(linewidth=1) +
-        ggplot2::ylab("Predicted Z (95% interval)") +
-        ggplot2::xlab("x along dimension i")
+      if (length(factorindexes) < .5) {
+        ggplot2::ggplot(data=pts2, ggplot2::aes(xi, pred, group=j)) +
+          ggplot2::facet_wrap(.~icolname, scales = "free_x") +
+          ggplot2::geom_line(ggplot2::aes(y=predmeanupper), color="orange") +
+          ggplot2::geom_line(ggplot2::aes(y=predmeanlower), color="orange") +
+          ggplot2::geom_line(ggplot2::aes(y=predupper), color="green") +
+          ggplot2::geom_line(ggplot2::aes(y=predlower), color="green") +
+          ggplot2::geom_line(linewidth=1) +
+          ggplot2::ylab("Predicted Z (95% interval)") +
+          ggplot2::xlab("x along dimension i")
+      } else {
+        # Has at least one factor.
+        # Convert factor/char back from int
+        plots <- list()
+        # ncol <- floor(sqrt(self$D))
+        # Pick ncol based on plot size/shape and num dims
+        if (is.null(ncol)) {
+          ncol <- min(self$D,
+                      max(1,
+                          round(sqrt(self$D)*dev.size()[1]/dev.size()[2])))
+        }
+        stopifnot(is.numeric(ncol), length(ncol)==1, ncol>=1, ncol<=self$D)
+
+        ylim <- c(min(pts2$predlower), max(pts2$predupper))
+        for (iii in 1:self$D) {
+          pts2_iii <- dplyr::filter(pts2, i==iii)
+          if (iii %in% factorindexes && !is.null(self$convert_formula_data)) {
+            for (jjj in seq_along(self$convert_formula_data$factors)) {
+              if (iii == self$convert_formula_data$factors[[jjj]]$index) {
+                pts2_iii$xi <-
+                  self$convert_formula_data$factors[[jjj]]$levels[pts2_iii$xi]
+              }
+            }
+            for (jjj in seq_along(self$convert_formula_data$chars)) {
+              if (iii == self$convert_formula_data$chars[[jjj]]$index) {
+                pts2_iii$xi <-
+                  self$convert_formula_data$chars[[jjj]]$vals[pts2_iii$xi]
+              }
+            }
+          }
+          stopifnot(is.data.frame(pts2_iii))
+          plt <- ggplot2::ggplot(data=pts2_iii,
+                                 mapping=ggplot2::aes(xi, pred, group=j)) +
+            ggplot2::facet_wrap(.~icolname, scales = "free_x") +
+            ggplot2::geom_line(ggplot2::aes(y=predmeanupper), color="orange") +
+            ggplot2::geom_line(ggplot2::aes(y=predmeanlower), color="orange") +
+            ggplot2::geom_line(ggplot2::aes(y=predupper), color="green") +
+            ggplot2::geom_line(ggplot2::aes(y=predlower), color="green") +
+            ggplot2::geom_line(linewidth=1) +
+            ggplot2::ylab(NULL) +
+            ggplot2::xlab(NULL) +
+            ggplot2::coord_cartesian(ylim=ylim)
+          if (iii%%ncol != 1) {
+            plt <- plt +
+              ggplot2::theme(axis.title.y=ggplot2::element_blank(),
+                             axis.text.y=ggplot2::element_blank(),
+                             axis.ticks.y=ggplot2::element_blank())
+          }
+          plots[[iii]] <- plt
+        }
+        gridExtra::grid.arrange(grobs=plots,
+                                left="Predicted Z (95% interval)",
+                                bottom='x along dimension i', ncol=ncol)
+      }
     },
     #' @description Plot marginal prediction for random sample of inputs
     #' @param n Number of random points to evaluate
@@ -1351,7 +1399,7 @@ GauPro_kernel_model <- R6::R6Class(
                                             replace=T)
         }
       }
-      X3pred <- self$pred(X3, se.fit = T)
+      X3pred <- suppressWarnings(self$pred(X3, se.fit = T))
       X3pred$irow <- 1:nrow(X3pred)
       X4 <- dplyr::inner_join(
         X3pred,
@@ -2704,9 +2752,6 @@ GauPro_kernel_model <- R6::R6Class(
       stopifnot(all(lower < upper))
       stopifnot(length(n0)==1, is.numeric(n0), n0>=1)
 
-      # if (exists("meif") && isTRUE(meif)) {
-      # browser("exists/debug")
-
       # If any inputs are factors but mopar is not given, create mopar
       if (is.null(mopar)) {
         # print('fixing maxEI with factors')
@@ -2903,6 +2948,8 @@ GauPro_kernel_model <- R6::R6Class(
     #' it converted back to the original scale?
     #' @param EItype Type of EI to calculate. One of "EI", "Augmented",
     #' or "Corrected"
+    #' @param usegrad Should the gradient be used when optimizing?
+    #' Can make it faster.
     maxEI = function(lower=apply(self$X, 2, min),
                      upper=apply(self$X, 2, max),
                      n0=100, minimize=FALSE, eps=0,

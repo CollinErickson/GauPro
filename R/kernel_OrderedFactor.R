@@ -117,14 +117,19 @@ OrderedFactorKernel <- R6::R6Class(
     #' @param offdiagequal What should offdiagonal values be set to when the
     #' indices are the same? Use to avoid decomposition errors, similar to
     #' adding a nugget.
-    initialize = function(s2=1, D, nlevels, xindex,
-                          p_lower=0, p_upper=1, p_est=TRUE,
+    initialize = function(s2=1, D=NULL, nlevels, xindex,
+                          p_lower=1e-8, p_upper=5, p_est=TRUE,
                           s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE,
                           useC=TRUE, offdiagequal=1-1e-6
     ) {
-      # Must give in D
-      if (missing(D)) {stop("Must give Index kernel D")}
+      # Don't require giving in D since it doesn't matter
 
+      # stopifnot(is.numeric(D), length(D)==1, D>=1, abs(D-round(D))<1e-16)
+      stopifnot(is.numeric(nlevels), length(nlevels)==1, nlevels>=2,
+                abs(nlevels-round(nlevels))<1e-16)
+      stopifnot(is.numeric(xindex), length(xindex)==1, xindex>=1,
+                abs(xindex-round(xindex))<1e-16)
+      # stopifnot(xindex <= D)
       self$D <- D
       self$nlevels <- nlevels
       self$xindex <- xindex
@@ -133,10 +138,14 @@ OrderedFactorKernel <- R6::R6Class(
       p <- rep(1, nlevels - 1)
       self$p <- p
       self$p_length <- length(p)
+
+      stopifnot(is.numeric(p_lower), length(p_lower)==1, p_lower>=0)
+      stopifnot(is.numeric(p_upper), length(p_upper)==1, p_upper>=0)
+      stopifnot(p_lower <= p_upper)
       # Ensure separation between levels to avoid instability
-      self$p_lower <- rep(1e-1, self$p_length)
+      self$p_lower <- rep(p_lower, self$p_length)
       # Don't give upper 1 since it will give optimization error
-      self$p_upper <- rep(5, self$p_length)
+      self$p_upper <- rep(p_upper, self$p_length)
 
       self$p_est <- p_est
       self$s2 <- s2

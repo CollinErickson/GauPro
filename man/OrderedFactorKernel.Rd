@@ -130,11 +130,11 @@ Initialize kernel object
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{OrderedFactorKernel$new(
   s2 = 1,
-  D,
+  D = NULL,
   nlevels,
   xindex,
-  p_lower = 0,
-  p_upper = 1,
+  p_lower = 1e-08,
+  p_upper = 5,
   p_est = TRUE,
   s2_lower = 1e-08,
   s2_upper = 1e+08,

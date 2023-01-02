@@ -712,7 +712,7 @@ other?}
 Plot marginal. For each input, hold all others at a constant
 value and adjust it along it's range to see how the prediction changes.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$plotmarginal(npt = 5)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$plotmarginal(npt = 5, ncol = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -720,6 +720,8 @@ value and adjust it along it's range to see how the prediction changes.
 \describe{
 \item{\code{npt}}{Number of lines to make. Each line represents changing a
 single variable while holding the others at the same values.}
+
+\item{\code{ncol}}{Number of columnsfor the plot}
 }
 \if{html}{\out{</div>}}
 }
@@ -1570,6 +1572,9 @@ it converted back to the original scale?}
 or "Corrected"}
 
 \item{\code{mopar}}{List of parameters using mixopt}
+
+\item{\code{usegrad}}{Should the gradient be used when optimizing?
+Can make it faster.}
 }
 \if{html}{\out{</div>}}
 }

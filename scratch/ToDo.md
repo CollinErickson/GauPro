@@ -26,8 +26,6 @@ that initial optim values should be large.
 
 * Make gpkm doc look good. Look into R7.
 
-* mixopt needs to be able to eval all at once in multistart
-
 * sparse pseudo-input GP. See Snelson 2006. Inherit. Change pred_one_matrix,
 deviance, etc.
 

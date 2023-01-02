@@ -466,7 +466,6 @@ test_that("Cts kernels 2D", {
                                      fngr=function(x) {
                                        list(fn=gp$predict(x), gr=gp$grad(x))
                                      }, minimize = FALSE))
-      print("add test with fn_args")
       expect_no_error(gp$optimize_fn(function(x, a) {a+gp$predict(x)},
                                      fn_args=list(a=100)))
     }
@@ -952,6 +951,8 @@ test_that("Formula/data input", {
   expect_true(is.character(printout))
   expect_equal(printout[1], "GauPro kernel model object")
   # Plot
+  expect_no_error(gpf$plotmarginal())
+  expect_no_error(gpf$plotmarginalrandom())
 })
 
 test_that("Formula/data input 2", {
@@ -993,6 +994,9 @@ test_that("Formula/data input 2", {
   expect_no_warning(
     expect_error(capture.output(summary(gpdf)), NA)
   )
+  # Plot
+  expect_no_error(gpdf$plotmarginal())
+  expect_no_error(gpdf$plotmarginalrandom())
   # Optimize
   expect_no_error(gpdf$optimize_fn(function(x) {gpdf$predict(x)}))
   # Test EI
@@ -1319,6 +1323,8 @@ test_that("Diamonds", {
                  ), ])})
     summary(dm)
   })
+  expect_no_error(dm$plotmarginal())
+  expect_no_error(dm$plotmarginalrandom())
 })
 
 # Kernels useC ----
