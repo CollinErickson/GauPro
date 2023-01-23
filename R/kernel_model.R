@@ -1379,44 +1379,129 @@ GauPro_kernel_model <- R6::R6Class(
       }
     },
     #' @description Plot marginal prediction for random sample of inputs
-    #' @param n Number of random points to evaluate
-    plotmarginalrandom = function(n=100) {
-      # Plot marginal random averages
-      # Get random matrix, scale to proper lower/upper
-      X <- lhs::randomLHS(n=n, k=ncol(self$X))
-      X2 <- sweep(X, 2, apply(self$X, 2, max) - apply(self$X, 2, min), "*")
-      X3 <- sweep(X2, 2, apply(self$X, 2, min), "+")
-      if (is.null(colnames(self$X))) {
-        colnames(X3) <- paste0("X", 1:ncol(X3))
-      } else {
-        colnames(X3) <- colnames(self$X)
-      }
-      # Factor columns shouldn't interpolate
-      factorinfo <- find_kernel_factor_dims(self$kernel)
-      if (length(factorinfo) > 0) {
-        for (i in 1:(length(factorinfo)/2)) {
-          X3[, factorinfo[i*2-1]] <- sample(1:factorinfo[i*2], size=n,
-                                            replace=T)
+    #' @param npt Number of random points to evaluate
+    #' @param ncol Number of columns in the plot
+    plotmarginalrandom = function(npt=100, ncol=NULL) {
+
+      pt <- lhs::maximinLHS(n=npt, k=self$D)
+      pt <- sweep(pt, 2, apply(self$X, 2, max) - apply(self$X, 2, min), "*")
+      pt <- sweep(pt, 2, apply(self$X, 2, min), "+")
+
+      factorinfo <- GauPro:::find_kernel_factor_dims(self$kernel)
+      if (length(factorinfo > 0)) {
+        factorindexes <- factorinfo[2*(1:(length(factorinfo)/2))-1]
+        factornlevels <- factorinfo[2*(1:(length(factorinfo)/2))]
+        for (i in 1:length(factorindexes)) {
+          if (!(pt[factorindexes[i]] %in% 1:factornlevels[i])) {
+            pt[, factorindexes[i]] <- sample(1:factornlevels[i], npt, replace=T)
+          }
         }
+      } else {
+        factorindexes <- c()
       }
-      X3pred <- suppressWarnings(self$pred(X3, se.fit = T))
-      X3pred$irow <- 1:nrow(X3pred)
-      X4 <- dplyr::inner_join(
-        X3pred,
-        tidyr::pivot_longer(cbind(as.data.frame(X3),irow=1:nrow(X)),
-                            cols=1:ncol(self$X)),
-        "irow")
-      # head(X4)
-      X4$upper <- X4$mean + 2*X4$se
-      X4$lower <- X4$mean - 2*X4$se
-      ggplot2::ggplot(X4, ggplot2::aes(value, mean)) +
-        ggplot2::facet_wrap(.~name, scales="free_x") +
-        # geom_point(aes(y=upper), color="green") +
-        ggplot2::geom_segment(ggplot2::aes(y=upper, yend=lower, xend=value),
-                              color="green", linewidth=2) +
-        ggplot2::geom_point() +
-        ggplot2::ylab("Predicted Z (95% interval)") +
-        ggplot2::xlab("x along dimension i (other dims at random values)")
+      icolnames <- if (is.null(colnames(self$X))) {
+        paste0("X", 1:ncol(self$X))
+      } else {
+        colnames(self$X)
+      }
+
+      # browser()
+      pts <- as.data.frame(pt)
+      colnames(pts) <- icolnames
+      pred_pts <- suppressWarnings(self$predict(pt, se.fit=T))
+      predmean_pts <- suppressWarnings(self$predict(pt, se.fit=T, mean_dist=T))
+
+      # browser()
+      pts$pred <- pred_pts$mean
+      pts$predse <- pred_pts$se
+      pts$predmeanse <- predmean_pts$se
+
+
+      pts2 <- as.data.frame(pts)
+      # pts2 %>%
+      #   mutate(predupper=pred+2*predse,
+      #          predlower=pred-2*predse)
+      pts2$predupper <- pts2$pred + 2*pts2$predse
+      pts2$predlower <- pts2$pred - 2*pts2$predse
+      pts2$predmeanupper <- pts2$pred + 2*pts2$predmeanse
+      pts2$predmeanlower <- pts2$pred - 2*pts2$predmeanse
+
+      if (length(factorinfo) < .5) {
+        tidyr::pivot_longer(pts2, 1:self$D) %>%
+          ggplot2::ggplot(ggplot2::aes(value, pred)) +
+          ggplot2::geom_segment(ggplot2::aes(xend=value,
+                                             y=predlower, yend=predupper),
+                                color="green", linewidth=2) +
+          ggplot2::geom_point() +
+          ggplot2::facet_wrap(.~name, scales='free_x') +
+          ggplot2::ylab("Predicted Z (95% interval)") +
+          ggplot2::xlab(NULL)
+      } else {
+
+        # browser()
+        # Has at least one factor.
+        # Convert factor/char back from int
+        plots <- list()
+        # ncol <- floor(sqrt(self$D))
+        # Pick ncol based on plot size/shape and num dims
+        if (is.null(ncol)) {
+          ncol <- min(self$D,
+                      max(1,
+                          round(sqrt(self$D)*dev.size()[1]/dev.size()[2])))
+        }
+        stopifnot(is.numeric(ncol), length(ncol)==1, ncol>=1, ncol<=self$D)
+
+        ylim <- c(min(pts2$predlower), max(pts2$predupper))
+        # Do each separately since some may be converted to char/factor,
+        #  they can't be in same column as numeric
+        for (iii in 1:self$D) {
+          pts2_iii_inds <- c(iii, setdiff(1:ncol(pts2), 1:self$D))
+          pts2_iii <- pts2[, pts2_iii_inds]
+          colnames(pts2_iii)[1] <- "xi"
+          pts2_iii$icolname <- icolnames[iii]
+          #dplyr::filter(pts2, i==iii)
+          if (iii %in% factorindexes && !is.null(self$convert_formula_data)) {
+            for (jjj in seq_along(self$convert_formula_data$factors)) {
+              if (iii == self$convert_formula_data$factors[[jjj]]$index) {
+                pts2_iii$xi <-
+                  self$convert_formula_data$factors[[jjj]]$levels[pts2_iii$xi]
+              }
+            }
+            for (jjj in seq_along(self$convert_formula_data$chars)) {
+              if (iii == self$convert_formula_data$chars[[jjj]]$index) {
+                pts2_iii$xi <-
+                  self$convert_formula_data$chars[[jjj]]$vals[pts2_iii$xi]
+              }
+            }
+          }
+          stopifnot(is.data.frame(pts2_iii))
+          plt <- ggplot2::ggplot(data=pts2_iii,
+                                 mapping=ggplot2::aes(xi, pred)) +
+            ggplot2::facet_wrap(.~icolname, scales = "free_x") +
+            # ggplot2::geom_line(ggplot2::aes(y=predmeanupper), color="orange") +
+            # ggplot2::geom_line(ggplot2::aes(y=predmeanlower), color="orange") +
+            # ggplot2::geom_line(ggplot2::aes(y=predupper), color="green") +
+            # ggplot2::geom_line(ggplot2::aes(y=predlower), color="green") +
+            # ggplot2::geom_line(linewidth=1) +
+            ggplot2::geom_segment(ggplot2::aes(xend=xi,
+                                               y=predlower, yend=predupper),
+                                  color="green", linewidth=2) +
+            ggplot2::geom_point() +
+            ggplot2::ylab(NULL) +
+            ggplot2::xlab(NULL) +
+            ggplot2::coord_cartesian(ylim=ylim)
+          if (iii%%ncol != 1) {
+            plt <- plt +
+              ggplot2::theme(axis.title.y=ggplot2::element_blank(),
+                             axis.text.y=ggplot2::element_blank(),
+                             axis.ticks.y=ggplot2::element_blank())
+          }
+          plots[[iii]] <- plt
+        }
+        gridExtra::grid.arrange(grobs=plots,
+                                left="Predicted Z (95% interval)",
+                                bottom='x along dimension i', ncol=ncol)
+      }
     },
     #' @description Plot the kernel
     #' @param X X matrix for kernel plot

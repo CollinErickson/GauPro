@@ -1067,6 +1067,25 @@ test_that("Formula/data input 2", {
   # expect_equal(colnames(dfqEI$par), attr(gpdf$formula, "term.labels"))
   # expect_equal(dim(dfqEI$par), c(2,4))
 })
+test_that("Formula/data input 3", {
+  # Add ordered in autokernel
+  library(dplyr)
+  n <- 63
+  xdf <- tibble(
+    a=rnorm(n),
+    b=runif(n),
+    c=ordered(sample(letters[1:5], n, T)),
+    d=factor(sample(letters[6:9], n, T)),
+    z=a*b + a^2*ifelse(c %in% c('a', 'b'), 1, .5) +
+      ifelse(d %in% c('g','h'), 1, -1) +
+      ifelse(paste0(d) %in% c('a','c'),4,0) +
+      rnorm(n, 1e-3)
+  )
+
+  # Test fit
+  expect_error(gpdf <- GauPro_kernel_model$new(z ~ ., data=xdf, kernel='m32'), NA)
+
+})
 
 # EI ----
 test_that("EI with cts", {

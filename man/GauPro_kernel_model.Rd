@@ -732,13 +732,15 @@ single variable while holding the others at the same values.}
 \subsection{Method \code{plotmarginalrandom()}}{
 Plot marginal prediction for random sample of inputs
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$plotmarginalrandom(n = 100)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$plotmarginalrandom(npt = 100, ncol = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{n}}{Number of random points to evaluate}
+\item{\code{npt}}{Number of random points to evaluate}
+
+\item{\code{ncol}}{Number of columns in the plot}
 }
 \if{html}{\out{</div>}}
 }
