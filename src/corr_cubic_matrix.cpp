@@ -28,9 +28,9 @@ NumericMatrix corr_cubic_matrixC(NumericMatrix x, NumericMatrix y, NumericVector
         double d = abs(x(i,k) - y(j,k)) / theta[k];
         double r = 0;
         if (d <= .5) {
-          r = 1-6*pow(d, 2)+6*pow(d,3);
+          r = 1-6*pow(d, 2.0)+6*pow(d, 3.0);
         } else if (d <= 1) {
-          r = 2*pow(1-d,3);
+          r = 2*pow(1-d, 3.0);
         } else {
           r = 0;
         }
@@ -64,9 +64,9 @@ NumericMatrix corr_cubic_matrix_symC(NumericMatrix x, NumericVector theta) {
          double d = abs(x(i,k) - x(j,k)) / theta[k];
          double r = 0;
          if (d <= .5) {
-           r = 1-6*pow(d, 2)+6*pow(d,3);
+           r = 1-6*pow(d, 2.0) + 6*pow(d, 3.0);
          } else if (d <= 1) {
-           r = 2*pow(1-d,3);
+           r = 2*pow(1-d, 3.0);
          } else {
            r = 0;
          }
@@ -99,9 +99,9 @@ NumericVector corr_cubic_matrixvecC(NumericMatrix x, NumericVector y,
       double d = abs(x(i,k) - y(k)) / theta[k];
       double r = 0;
       if (d <= .5) {
-        r = 1-6*pow(d, 2)+6*pow(d,3);
+        r = 1-6*pow(d, 2.0)+6*pow(d, 3.0);
       } else if (d <= 1) {
-        r = 2*pow(1-d,3);
+        r = 2*pow(1-d, 3.0);
       } else {
         r = 0;
       }
@@ -157,9 +157,9 @@ arma::cube kernel_cubic_dC(arma::mat x, arma::vec theta, arma::mat C_nonug,
            dvec[k] = d;
            double r = 0;
            if (d <= .5) {
-             r = 1-6*pow(d, 2)+6*pow(d,3);
+             r = 1-6*pow(d, 2.0)+6*pow(d, 3.0);
            } else if (d <= 1) {
-             r = 2*pow(1-d,3);
+             r = 2*pow(1-d, 3.0);
            } else {
              r = 0;
            }
@@ -178,9 +178,9 @@ arma::cube kernel_cubic_dC(arma::mat x, arma::vec theta, arma::mat C_nonug,
            double dr = 0;
            if (d <= .5) {
              // tmp2 = 1-6*pow(d, 2)+6*pow(d,3);
-             dr = -12*d+18*pow(d,2);
+             dr = -12*d+18*pow(d, 2.0);
            } else if (d <= 1) {
-             dr = -6*pow(1-d,2);
+             dr = -6*pow(1-d, 2.0);
            } else {
              dr = 0;
            }
