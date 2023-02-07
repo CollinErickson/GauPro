@@ -2,7 +2,7 @@
 
 Improved summary, importance, plots.
 
-Added gradpredvar. AugEI?
+Added gradpredvar, AugmentedEI, CorrectedEI, optimize_fn.
 
 # GauPro 0.2.6
 

@@ -1,12 +1,6 @@
-This package was accepted to CRAN on 11/14/22.
-The next day I received an email saying I had until 11/29/22 to fix
-some build errors or the package will be removed from CRAN.
-
-The errors were from flaky tests that use randomness and fail a small portion
-of the time. I have rewritten these tests so that they will pass consistently.
-
-I also added a reference to a related paper of mine in the DESCRIPTION
-and made some other improvements.
+I got an email from Brian Ripley on Jan 11, 2023 saying that I needed to fix
+the issues online by Jan 25, 2023. I think I have fixed the issues because
+I don't see any problems on the following checks.
 
 
 ## Test environments
