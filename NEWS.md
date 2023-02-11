@@ -1,8 +1,10 @@
-# GauPro 0.2.6.9000
+# GauPro 0.2.7
 
 Improved summary, importance, plots.
 
 Added gradpredvar, AugmentedEI, CorrectedEI, optimize_fn.
+
+GauPro was removed from CRAN on 1/25/23, this puts it back on CRAN.
 
 # GauPro 0.2.6
 

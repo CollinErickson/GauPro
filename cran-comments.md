@@ -12,25 +12,25 @@ I don't see any problems on the following checks.
 
 ## R CMD check results
 
-* local Windows 11: no errors/warnings/notes
+* local Windows 11 (2/11/23): no errors/warnings/notes
 
-* Mac-builder: 1 NOTE for "sub-directories of 1Mb or more", but it is expected.
+* Mac-builder (2/11/23): 1 NOTE for "sub-directories of 1Mb or more", but it is expected.
 
-* GitHub Actions: 1 NOTE for large sub-directories, but no
+* GitHub  (2/11/23): 1 NOTE for large sub-directories, but no
 warnings/errors.
 
-* R-Hub Windows Server 2022: OK
+* R-Hub Windows Server 2022 (2/9/23): NOTE, none are real issues
 
-* R-hub Ubuntu Linux 20.04.1: NOTE for sub-directory size and another
-NOTE for a slow example.
+* R-hub Ubuntu Linux 20.04.1 (2/9/23): NOTE, none are real issues
 
-* R-Hub Fedora Linux: NOTE for sub-directory size. NOTE for a slow example.
-NOTE for the HTML version of the manual. There was an issue building a vignette,
-but I haven't seen this issue anywhere else.
+* R-Hub Fedora Linux (2/9/23): NOTE for sub-directory size. NOTE for a slow example.
+NOTE for the HTML version of the manual. NOTE for spelling, but it's correct.
 
-* R-Hub Debian Linux: OK
+* R-Hub Debian Linux (2/9/23): OK
 
-* Win-Builder: NOTE for incoming feasibility.
+* Win-Builder, devel (2/11/23): NOTE, not a real problem.
+
+* Win-Builder, release (2/11/23): NOTE, not a real problem
 
 ## Downstream dependencies
 
