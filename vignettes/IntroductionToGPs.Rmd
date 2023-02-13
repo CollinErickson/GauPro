@@ -76,7 +76,7 @@ $R$ is overloaded similarly to $Sigma$.
 
 ### Gaussian correlation
 
-The most commonly used correlation function is the Gausian.
+The most commonly used correlation function is the Gaussian.
 
 $$ R(\mathbf{u}, \mathbf{v}) = \exp \left( -\sum_{i=1}^d \theta_i (u_i - v_i)^2 \right)$$
 
