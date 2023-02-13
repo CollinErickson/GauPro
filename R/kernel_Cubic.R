@@ -56,7 +56,7 @@ Cubic <- R6::R6Class(
       theta <- 10^beta
       if (is.null(y)) {
         if (is.matrix(x)) {
-          if (self$useC && Sys.info()[['sysname']] == "Windows") {
+          if (self$useC) {
             val <- s2 * corr_cubic_matrix_symC(x, theta)
           } else {
             val <- outer(1:nrow(x), 1:nrow(x),
@@ -69,7 +69,7 @@ Cubic <- R6::R6Class(
         }
       }
       if (is.matrix(x) & is.matrix(y)) {
-        if (self$useC && Sys.info()[['sysname']] == "Windows") {
+        if (self$useC) {
           s2 * corr_cubic_matrixC(x, y, theta)
         } else {
           outer(1:nrow(x), 1:nrow(y),
@@ -77,13 +77,13 @@ Cubic <- R6::R6Class(
                                                   theta=theta, s2=s2)}))
         }
       } else if (is.matrix(x) & !is.matrix(y)) {
-        if (self$useC && Sys.info()[['sysname']] == "Windows") {
+        if (self$useC) {
           s2 * corr_cubic_matrixvecC(x, y, theta)
         } else {
           apply(x, 1, function(xx) {self$kone(xx, y, theta=theta, s2=s2)})
         }
       } else if (is.matrix(y)) {
-        if (self$useC && Sys.info()[['sysname']] == "Windows") {
+        if (self$useC) {
           s2 * corr_cubic_matrixvecC(y, x, theta)
         } else {
           apply(y, 1, function(yy) {self$kone(yy, x, theta=theta, s2=s2)})
@@ -150,7 +150,7 @@ Cubic <- R6::R6Class(
       }
 
       lenparams_D <- self$beta_length*self$beta_est + self$s2_est
-      if (self$useC && Sys.info()[['sysname']] == "Windows") {
+      if (self$useC) {
         dC_dparams <- kernel_cubic_dC(X, theta, C_nonug, self$s2_est,
                                          self$beta_est, lenparams_D, s2*nug, s2)
       } else {
