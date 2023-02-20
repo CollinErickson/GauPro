@@ -1,7 +1,9 @@
-I got an email from Brian Ripley on Jan 11, 2023 saying that I needed to fix
-the issues online by Jan 25, 2023. I think I have fixed the issues because
-I don't see any problems on the following checks.
+This package was reaccepted to CRAN on 2/12/23. I received an email from Brian
+Ripley on 2/15/23 telling me to correct the error on 
+https://cran.r-project.org/web/checks/check_results_GauPro.html.
 
+The error on that page was from a unreliable test. I have improved the test to
+make it much more reliable.
 
 ## Test environments
 * local Windows 11 install, R 4.2.2
@@ -12,7 +14,7 @@ I don't see any problems on the following checks.
 
 ## R CMD check results
 
-* local Windows 11 (2/11/23): no errors/warnings/notes
+* local Windows 11 (2/20/23): no errors/warnings/notes
 
 * Mac-builder (2/11/23): 1 NOTE for "sub-directories of 1Mb or more", but it is expected.
 

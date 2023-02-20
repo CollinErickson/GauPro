@@ -1,5 +1,7 @@
 # GauPro 0.2.7.9000
 
+Fixed unreliable test to keep it on CRAN.
+
 # GauPro 0.2.7
 
 Improved summary, importance, plots.
