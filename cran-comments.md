@@ -21,7 +21,7 @@ make it much more reliable.
 * GitHub  (2/11/23): 1 NOTE for large sub-directories, but no
 warnings/errors.
 
-* R-Hub Windows Server 2022 (2/9/23): NOTE, none are real issues
+* R-Hub Windows Server 2022 (2/20/23): 2 NOTEs, none are real issues
 
 * R-hub Ubuntu Linux 20.04.1 (2/9/23): NOTE, none are real issues
 
@@ -30,7 +30,7 @@ NOTE for the HTML version of the manual. NOTE for spelling, but it's correct.
 
 * R-Hub Debian Linux (2/9/23): OK
 
-* Win-Builder, devel (2/11/23): NOTE, not a real problem.
+* Win-Builder, devel (2/20/23): OK
 
 * Win-Builder, release (2/11/23): NOTE, not a real problem
 
