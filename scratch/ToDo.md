@@ -43,3 +43,5 @@ diff(range(Z))^2. Or else give message to normalize.
 * Fix GHA/Linux bug with cubic
 
 * increasing nugget to get invertibility, only print last
+
+* badger badges
