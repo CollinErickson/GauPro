@@ -79,7 +79,7 @@ cat("Total run   time is:", capture.output(timeend - timestart), '\n')
 cat("Prediction  time is:", capture.output(timepredend - timepredstart), '\n')
 cat("Fit time is:", capture.output(fittimeend - fittimestart), '\n')
 
-# if (T) { # Can Travis just skip this?
+# if (T) {
 #   di <- sample(1:nrow(SG$design), 100)
 #   Y0pred <- CGGPpred(SG$design[di,],CGGP=SG) #,Y,logtheta=logthetaest)
 #   plot(Yp, GP$mean, ylim=c(min(GP$mean, Y0pred$m),max(GP$mean, Y0pred$m))); points(Y[di], Y0pred$m,col=3,pch=2); abline(a=0,b=1,col=2)

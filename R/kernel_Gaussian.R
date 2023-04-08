@@ -100,7 +100,6 @@ Gaussian <- R6::R6Class(classname = "GauPro_kernel_Gaussian",
       }
       if (is.matrix(x) & is.matrix(y)) {
         s2 * corr_gauss_matrixC(x, y, theta)
-        # Using Rcppparallel can be 2x faster but fails Travis
         # if (self$D >= 12 || nrow(x) < 30) {
         #   s2 * corr_gauss_matrixC(x, y, theta)
         # } else { # parallel only faster for small D and many rows

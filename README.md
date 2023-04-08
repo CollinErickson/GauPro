@@ -5,8 +5,6 @@
 
 <!-- badges: start -->
 
-[![Travis-CI Build
-Status](https://travis-ci.org/CollinErickson/GauPro.svg?branch=master)](https://travis-ci.org/CollinErickson/GauPro)
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/GauPro)](https://cran.r-project.org/package=GauPro)
 [![codecov](https://codecov.io/gh/CollinErickson/GauPro/branch/master/graph/badge.svg)](https://app.codecov.io/gh/CollinErickson/GauPro)
 [![R-CMD-check](https://github.com/CollinErickson/GauPro/workflows/R-CMD-check/badge.svg)](https://github.com/CollinErickson/GauPro/actions)
@@ -86,22 +84,22 @@ summary(dm)
 #> Formula:
 #>   price ~ carat + cut + color + clarity + depth 
 #> 
-#> AIC: 1029.11 
-#> 
 #> Residuals:
 #>     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
-#> -5535.94  -254.50    26.44  -125.67   207.52  2639.85 
+#> -6589.09  -217.68    37.85  -165.28   181.42  1619.37 
 #> 
 #> Feature importance:
 #>   carat     cut   color clarity   depth 
-#>  1.5095  0.2436  0.2823  0.3365  0.0529 
+#>  1.5497  0.2130  0.3275  0.3358  0.0003 
 #> 
-#> Pseudo leave-one-out R-squared:
-#>   0.8905862 
+#> AIC: 1008.96 
+#> 
+#> Pseudo leave-one-out R-squared       :   0.901367 
+#> Pseudo leave-one-out R-squared (adj.):   0.8427204 
 #> 
 #> Leave-one-out coverage on 60 samples (small p-value implies bad fit):
-#>  68%:    0.7333        p-value:   0.4096 
-#>  95%:    0.9667        p-value:   0.7702
+#>  68%:     0.7        p-value:   0.7839 
+#>  95%:    0.95        p-value:   1
 ```
 
 We can also plot the model to get a visual idea of how each input

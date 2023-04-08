@@ -14,9 +14,9 @@ make it reliable.
 
 ## R CMD check results
 
-* local Windows 11 (4/3/23): no errors/warnings/notes
+* local Windows 11 (4/7/23): no errors/warnings/notes
 
-* Mac-builder (2/25/23): 1 NOTE for "sub-directories of 1Mb or more", but it is expected.
+* Mac-builder (4/7/23): 1 NOTE for "sub-directories of 1Mb or more", but it is expected.
 
 * GitHub  (2/25/23): 1 NOTE for large sub-directories, but no
 warnings/errors.
