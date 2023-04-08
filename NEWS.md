@@ -1,4 +1,6 @@
-# GauPro 0.2.8.9000
+# GauPro 0.2.9
+
+Fixed unreliable test to keep it on CRAN (again).
 
 # GauPro 0.2.8
 
