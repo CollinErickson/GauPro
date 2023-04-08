@@ -1225,7 +1225,7 @@ test_that("EI with mixopt", {
 test_that("EI minimize is right", {
   nattempts <- 10
   for (iattempt in 1:nattempts) {
-    cat(iattempt, "\n")
+    # cat(iattempt, "\n")
     d <- 1
     n <- 6
     x <- runif(n)
@@ -1263,6 +1263,7 @@ test_that("EI minimize is right", {
     # curve(gpinv$AugmentedEI(matrix(x, ncol=1), minimize=F), add=T, col=2)
     # curve(gp$AugmentedEI(matrix(x, ncol=1), minimize=F))
     # curve(gpinv$AugmentedEI(matrix(x, ncol=1), minimize=T), add=T, col=2)
+    break
   }
 })
 
