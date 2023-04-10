@@ -14,23 +14,25 @@ make it reliable.
 
 ## R CMD check results
 
-* local Windows 11 (4/7/23): no errors/warnings/notes
+* local Windows 11 (4/9/23): no errors/warnings/notes
 
-* Mac-builder (4/7/23): 1 NOTE for "sub-directories of 1Mb or more", but it is expected.
+* Mac-builder (4/10/23): 1 NOTE for "sub-directories of 1Mb or more", but it is expected.
 
-* GitHub (4/8/23): 1 NOTE for large sub-directories, but no
+* GitHub (4/9/23): 1 NOTE for large sub-directories, but no
 warnings/errors.
 
-* R-Hub Windows Server 2022 (failed 4/4/23 and 4/8): It had a problem loading
-standard packages, it's not the fault of my package.
+* R-Hub Windows Server 2022 (4/9/23): NOTE, it doesn't seem to be a problem
+with my package.
 
-* R-Hub Fedora Linux (4/8/23): NOTE for sub-directory size. NOTE for a slow example.
+* R-Hub Fedora Linux (4/10/23): NOTEs for sub-directory size and slow example.
 
-* R-Hub Debian Linux (4/8/23): PREPERROR
+* R-Hub Debian Linux (4/10/23): PREPERROR. It says:
+"ERROR: dependency ‘RcppArmadillo’ is not available for package ‘GauPro’".
+This isn't the fault of my package.
 
-* R-Hub Ubuntu Linux (4/8/23): NOTEs for sub-directory size and slow example.
+* R-Hub Ubuntu Linux (4/10/23): NOTEs for sub-directory size and slow example.
 
-* Win-Builder, devel (4/8/23): OK
+* Win-Builder, devel (4/10/23): OK
 
 * Win-Builder, release (4/8/23): NOTE for a slow example
 
