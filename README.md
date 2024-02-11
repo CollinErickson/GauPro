@@ -11,6 +11,8 @@
 [![R-CMD-check](https://github.com/CollinErickson/GauPro/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/CollinErickson/GauPro/actions/workflows/R-CMD-check.yaml)
 [![CRAN RStudio mirror
 downloads](https://cranlogs.r-pkg.org/badges/last-month/GauPro?color=blue)](https://r-pkg.org/pkg/GauPro)
+[![CRAN
+checks](https://badges.cranchecks.info/summary/GauPro.svg)](https://cran.r-project.org/web/checks/check_results_GauPro.html)
 <!-- badges: end -->
 
 ## Overview
@@ -131,3 +133,24 @@ given in as a data frame and the columns have the proper types, then the
 default kernel will properly handle it by applying the numeric kernel to
 the numeric inputs and the factor kernel to the factor and character
 inputs.
+
+## Combining kernels
+
+Kernels can be combined by multiplying or adding them directly.
+
+The following example uses the product of a periodic and a Matern 5/2
+kernel to fit periodic data.
+
+``` r
+set.seed(99)
+```
+
+``` r
+x <- 1:20
+y <- sin(x) + .1*x^1.3
+gp <- gpkm(x, y, kernel=Periodic$new(D=1)*Matern52$new(D=1), nug.min=1e-6)
+#> nug is at minimum value after optimizing. Check the fit to see it this caused a bad fit. Consider changing nug.min. This is probably fine for noiseless data.
+gp$plot()
+```
+
+![](tools/README-combine_periodic-1.png)<!-- -->

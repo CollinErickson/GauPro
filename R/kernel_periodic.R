@@ -1,24 +1,8 @@
-# Kernels should implement:
-# k kernel function for two vectors
-# update_params
-# get_optim_functions: return optim.func, optim.grad, optim.fngr
-# param_optim_lower - lower bound of params
-# param_optim_upper - upper
-# param_optim_start - current param values
-# param_optim_start0 - some central param values that can be used for optimization restarts
-# param_optim_jitter - how to jitter params in optimization
-
-# Suggested
-# deviance
-# deviance_grad
-# deviance_fngr
-# grad
-
-
-
 #' Periodic Kernel R6 class
 #'
 #' p is the period for each dimension, a is a single number for scaling
+#'
+#' \eqn{k(x, y) = s2 * exp(-sum(alpha*sin(p * (x-y))^2))}
 #'
 #' @docType class
 #' @importFrom R6 R6Class

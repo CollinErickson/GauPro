@@ -1,5 +1,9 @@
 # GauPro to do
 
+* readme should have list of all kernels
+
+* readme example of combining kernels
+
 * EI/CorEI/AugEI/qEI: nopt, test, doc
   * Use t-dist
 

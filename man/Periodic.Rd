@@ -17,6 +17,8 @@ Periodic Kernel R6 class
 }
 \details{
 p is the period for each dimension, a is a single number for scaling
+
+\eqn{k(x, y) = s2 * exp(-sum(alpha*sin(p * (x-y))^2))}
 }
 \examples{
 k1 <- Periodic$new(p=1, alpha=1)

@@ -175,7 +175,8 @@ test_that("Cts kernels 1D", {
       expect_no_error(gpgradX <- gp$grad(gp$X))
       # if (!(j %in% c(4,7,9))) {
       if (!(kern_char %in% c("Triangle", "Exponential", "PowerExp"))) {
-        expect_true(!any(is.na(gpgradX)))
+        expect_true(!any(is.na(gpgradX)),
+                    label=paste(j, kern_char, '!any(is.na(gpgradX))'))
       }
     } else {
       if (exists('printkern') && printkern) {
@@ -521,7 +522,8 @@ test_that("Cts kernels 2D", {
       # grad at self shouldn't be zero, except for Triangle, Exponential, PowerExp
       expect_no_error(gpgradX <- gp$grad(gp$X))
       if (!(j %in% c(4,7,9))) {
-        expect_true(!any(is.na(gpgradX)))
+        expect_true(!any(is.na(gpgradX)),
+                    label=paste(j, kern_char, '!any(is.na(gpgradX))'))
       }
     } else {
       if (exists('printkern') && printkern) {
