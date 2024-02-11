@@ -1,5 +1,6 @@
 # GauPro 0.2.11.9000
 
+Fixed CRAN warning.
 
 # GauPro 0.2.11
 

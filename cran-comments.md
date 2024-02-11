@@ -1,9 +1,4 @@
-I received an email from Brian
-Ripley on 3/29/23 telling me to correct the error on 
-https://cran.r-project.org/web/checks/check_results_GauPro.html.
-
-The error on that page was from a unreliable test. I have improved the test to
-make it reliable.
+I fixed the warning on CRAN.
 
 ## Test environments
 * local Windows 11 install, R 4.2.3

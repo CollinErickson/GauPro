@@ -25,7 +25,7 @@ NumericMatrix corr_cubic_matrixC(NumericMatrix x, NumericMatrix y, NumericVector
       double total = 1;
       for(int k = 0; k < nsum; ++k) {
         // total += theta[k] * pow((x(i,k) - y(j,k)), 2.0);
-        double d = abs(x(i,k) - y(j,k)) / theta[k];
+        double d = fabs(x(i,k) - y(j,k)) / theta[k];
         double r = 0;
         if (d <= .5) {
           r = 1-6*pow(d, 2.0)+6*pow(d, 3.0);
@@ -61,7 +61,7 @@ NumericMatrix corr_cubic_matrix_symC(NumericMatrix x, NumericVector theta) {
        double total = 1;
        for(int k = 0; k < nsum; ++k) {
          // total += theta[k] * pow((x(i,k) - x(j,k)), 2.0);
-         double d = abs(x(i,k) - x(j,k)) / theta[k];
+         double d = fabs(x(i,k) - x(j,k)) / theta[k];
          double r = 0;
          if (d <= .5) {
            r = 1-6*pow(d, 2.0) + 6*pow(d, 3.0);
@@ -96,7 +96,7 @@ NumericVector corr_cubic_matrixvecC(NumericMatrix x, NumericVector y,
     double total = 1;
     for(int k = 0; k < nsum; ++k) {
       // total += theta[k] * pow((x(i,k) - y(k)), 2.0);
-      double d = abs(x(i,k) - y(k)) / theta[k];
+      double d = fabs(x(i,k) - y(k)) / theta[k];
       double r = 0;
       if (d <= .5) {
         r = 1-6*pow(d, 2.0)+6*pow(d, 3.0);
@@ -153,7 +153,7 @@ arma::cube kernel_cubic_dC(arma::mat x, arma::vec theta, arma::mat C_nonug,
          NumericVector dvec(nsum), rvec(nsum);
          for(int k = 0; k < nsum; ++k) {
            // total += theta[k] * pow((x(i,k) - x(j,k)), 2.0);
-           double d = abs(x(i,k) - x(j,k)) / theta[k];
+           double d = fabs(x(i,k) - x(j,k)) / theta[k];
            dvec[k] = d;
            double r = 0;
            if (d <= .5) {
@@ -174,7 +174,7 @@ arma::cube kernel_cubic_dC(arma::mat x, arma::vec theta, arma::mat C_nonug,
            } else {
              grad = -1;
            }
-           double d = abs(x(i,k) - x(j,k)) / theta[k];
+           double d = fabs(x(i,k) - x(j,k)) / theta[k];
            double dr = 0;
            if (d <= .5) {
              // tmp2 = 1-6*pow(d, 2)+6*pow(d,3);
