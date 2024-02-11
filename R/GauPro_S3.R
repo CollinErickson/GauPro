@@ -23,38 +23,6 @@ predict.GauPro <- function(object, XX, se.fit=F, covmat=F, split_speed=T, ...) {
   object$predict(XX=XX, se.fit=se.fit, covmat=covmat, split_speed=split_speed)
 }
 
-#' if (F) {
-#'   # Plot is automatically dispatched, same with print and format
-#'   #' Plot for class GauPro
-#'   #'
-#'   #' @param x Object of class GauPro
-#'   #' @param ... Additional parameters
-#'   #'
-#'   #' @return Nothing
-#'   #' @export
-#'   #'
-#'   #' @examples
-#'   #' n <- 12
-#'   #' x <- matrix(seq(0,1,length.out = n), ncol=1)
-#'   #' y <- sin(2*pi*x) + rnorm(n,0,1e-1)
-#'   #' gp <- GauPro(X=x, Z=y, parallel=FALSE)
-#'   #' if (requireNamespace("MASS", quietly = TRUE)) {
-#'   #'   plot(gp)
-#'   #' }
-#'   #'
-#'   plot.GauPro <- function(x,  ...) {
-#'     x$plot(...)
-#'     # if (x$D == 1) {
-#'     #   x$cool1Dplot(...)
-#'     # } else if (x$D == 2) {
-#'     #   x$plot2D(...)
-#'     # } else {
-#'     #   # stop("No plot method for higher than 2 dimension")
-#'     #   x$plotmarginal()
-#'     # }
-#'   }
-#' }
-
 #' Summary for GauPro object
 #'
 #' @param object GauPro R6 object

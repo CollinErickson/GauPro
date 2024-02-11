@@ -495,14 +495,21 @@ GauPro_kernel_model <- R6::R6Class(
       # Update K, Kinv, mu_hat, and s2_hat, maybe nugget too
       self$K <- self$kernel$k(self$X) + diag(self$kernel$s2 * self$nug,
                                              self$N)
+      nugincreased <- FALSE
       while(T) {
         try.chol <- try(self$Kchol <- chol(self$K), silent = T)
         if (!inherits(try.chol, "try-error")) {break}
-        warning("Can't Cholesky, increasing nugget #7819553")
+        nugincreased <- TRUE
+        # warning("Can't Cholesky, increasing nugget #7819553")
         oldnug <- self$nug
         self$nug <- max(1e-8, 2 * self$nug)
         self$K <- self$K + diag(self$kernel$s2 * (self$nug - oldnug),
                                 self$N)
+        # cat("Increasing nugget to get invertibility from ", oldnug, ' to ',
+        #     self$nug, "\n")
+      }
+      if (nugincreased) {
+        warning("Can't Cholesky, increasing nugget #7819553")
         cat("Increasing nugget to get invertibility from ", oldnug, ' to ',
             self$nug, "\n")
       }

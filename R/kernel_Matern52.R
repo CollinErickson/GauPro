@@ -1,5 +1,10 @@
 #' Matern 5/2 Kernel R6 class
 #'
+#'
+#' \eqn{k(x, y) = s2 * (1 + t1 + t1^2 / 3) * exp(-t1) }
+#' where
+#' \eqn{t1 = sqrt(5) * sqrt(sum(theta * (x-y)^2))}
+#'
 #' @docType class
 #' @importFrom R6 R6Class
 #' @export

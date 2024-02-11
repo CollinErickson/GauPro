@@ -107,6 +107,39 @@ output.
 plot(dm)
 ```
 
+### Constructing a kernel
+
+In this case, the kernel was chosen automatically by looking at which dimensions
+were continuous and which were discrete, and then using a Matern 5/2 on the 
+continuous dimensions (1,5), and separate ordered factor kernels on the other
+dimensions since those columns in the data frame are all ordinal factors.
+We can construct our own kernel using products and sums of any kernels,
+making sure that the continuous kernels ignore the factor dimensions.
+
+Suppose we want to construct a kernel for this example that uses the power
+exponential kernel for the two continuous dimensions, ordered kernels on 
+`cut` and `color`, and a Gower kernel on `clarity`.
+First we construct the power exponential kernel that ignores the 3 factor
+dimensions.
+Then we construct 
+
+```{r diamond_construct_kernel}
+cts_kernel <- IgnoreIndsKernel$new(k=PowerExp$new(D=2), ignoreinds = c(2,3,4))
+factor_kernel2 <- OrderedFactorKernel$new(D=5, xindex=2, nlevels=nlevels(diamonds_subset[[2]]))
+factor_kernel3 <- OrderedFactorKernel$new(D=5, xindex=3, nlevels=nlevels(diamonds_subset[[3]]))
+factor_kernel4 <- GowerFactorKernel$new(D=5, xindex=4, nlevels=nlevels(diamonds_subset[[4]]))
+
+# Multiply them
+diamond_kernel <- cts_kernel * factor_kernel2 * factor_kernel3 * factor_kernel4
+```
+
+Now we can pass this kernel into `gpkm` and it will use it.
+
+```{r diamond_construct_kernel_fit}
+dm <- gpkm(price ~ carat + cut + color + clarity + depth,
+           diamonds_subset, kernel=diamond_kernel)
+dm$plotkernel()
+```
 
 
 
@@ -139,6 +172,27 @@ proper types, then the default kernel will properly handle it by applying
 the numeric kernel to the numeric inputs and
 the factor kernel to the factor and character inputs.
 
+| Kernel | Code | Continuous/<br />discrete | Equation | Notes |
+| --- | --- | --- | --- | --- |
+| Gaussian | `Gaussian` | cts |  | Often causes issues since it assumes infinite differentiability. Experts don't recommend using it. |
+| Matern 3/2 | `Matern32` | cts | | Assumes one time differentiability. This is often too low of an assumption. |
+| Matern 5/2 | `Matern52` | cts | | Assumes two time differentiability. Generally the best. |
+| Exponential | `Exponential` | cts | |  Equivalent to Matern 1/2. Assumes no differentiability. |
+| Triangle | `Triangle` | cts | | |
+| Power exponential | `PowerExp` | cts | | |
+| Periodic | `Periodic` | cts | $k(x, y) = \sigma^2 * \exp(-\sum(\alpha_i*sin(p * (x_i-y_i))^2))$ | The only kernel that takes advantage of periodic data. But there is often incoherance far apart, so you will likely want to multiply by one of the standard kernels. |
+| Cubic | `Cubic` | cts | | |
+| Rational quadratic | `RatQuad` | cts | | |
+| Latent factor kernel | `LatentFactorKernel` | factor | | This embeds each discrete value into a low dimensional space and calculates the distances in that space. This works well when there are many discrete values. |
+| Ordered factor kernel | `OrderedFactorKernel` | factor | | This maintains the order of the discrete values. E.g., if there are 3 levels, it will ensure that 1 and 2 have a higher correlation than 1 and 3. This is similar to embedding into a latent space with 1 dimension and requiring the values to be kept in numerical order. |
+| Factor kernel | `FactorKernel` | factor | | This fits a parameter for every pair of possible values. E.g., if there are 4 discrete values, it will fit 6 (4 choose 2) values. This doesn't scale well. When there are many discrete values, use any of the other factor kernels. |
+| Gower factor kernel | `GowerFactorKernel` | factor | $k(x,y) = \begin{cases} 1,  & \text{if } x=y \\ p, & \text{if } x \neq y  \end{cases}$ | This is a very simple factor kernel. For the relevant dimension, the correlation will either be 1 if the value are the same, or $p$ if they are different. |
+| Ignore indices | `IgnoreInds` | N/A | | Use this to create a kernel that ignores certain dimensions. Useful when you want to fit different kernel types to different dimensions or when there is a mix of continuous and discrete dimensions. |
+
+Factor kernels: note that these all only work on a single dimension. If there
+are multiple factor dimensions in your input, then they each will be given a
+different factor kernel.
+
 ## Combining kernels
 
 Kernels can be combined by multiplying or adding them directly.
@@ -146,7 +200,7 @@ Kernels can be combined by multiplying or adding them directly.
 The following example uses the product of a periodic and a Matern 5/2 kernel
 to fit periodic data.
 
-```{r combine seed}
+```{r combine seed, include=F}
 set.seed(99)
 ```
 
@@ -157,5 +211,8 @@ y <- sin(x) + .1*x^1.3
 gp <- gpkm(x, y, kernel=Periodic$new(D=1)*Matern52$new(D=1), nug.min=1e-6)
 gp$plot()
 ```
+
+For an example of a more complex kernel being constructed,
+see the diamonds section above.
 
 

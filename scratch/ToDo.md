@@ -1,13 +1,11 @@
 # GauPro to do
 
-* readme should have list of all kernels
-
-* readme example of combining kernels
-
 * EI/CorEI/AugEI/qEI: nopt, test, doc
   * Use t-dist
 
 * Add documentation for kernels, esp. factor ones
+
+* Add readme/documentation for trends
 
 * Speed up triangle, ratquad, periodic, powerexp k/grad
 
@@ -40,10 +38,4 @@ diff(range(Z))^2. Or else give message to normalize.
 
 * Standardize for X.
 
-* plotmarginal w/ factors needs level names
-
 * factor kernel: clean up jitter/start
-
-* Fix GHA/Linux bug with cubic
-
-* increasing nugget to get invertibility, only print last
