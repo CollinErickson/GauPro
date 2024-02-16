@@ -1,3 +1,10 @@
+test_that("GauPro_Gauss will give deprecation warning on first time", {
+  n <- 12
+  x <- matrix(seq(0,1,length.out = n), ncol=1)
+  y <- sin(2*pi*x) + rnorm(n,0,1e-1)
+  expect_no_error({expect_warning({gp <- GauPro_Gauss$new(X=x, Z=y, parallel=FALSE)})})
+})
+
 test_that("1D data works", {
 
   n <- 12

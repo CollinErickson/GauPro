@@ -1,22 +1,3 @@
-# correlation function should implement:
-# corr: name of correlation
-# corr_func
-# update_params
-# get_optim_functions: return optim.func, optim.grad, optim.fngr
-# param_optim_lower - lower bound of params
-# param_optim_upper - upper
-# param_optim_start - current param values
-# param_optim_start0 - some central param values that can be used for optimization restarts
-# param_optim_jitter - how to jitter params in optimization
-
-# Suggested
-# deviance
-# deviance_grad
-# deviance_fngr
-# grad
-
-
-
 #' Corr Gauss GP using inherited optim
 #'
 #' @docType class
@@ -75,12 +56,14 @@ GauPro_Gauss <- R6::R6Class(
                           theta = NULL, theta_short = NULL, theta_map = NULL,
                           ...) {
       # This doesn't work inside R6 init as of now.
-      # # Deprecating, haven't used in years. Use kernel model instead.
-      # lifecycle::deprecate_soft(
-      #   when = "0.2.7",
-      #   what = "GauPro_Gauss$new()",
-      #   details = paste0("Please use GauPro::GauPro_kernel_model instead")
-      # )
+      # Deprecating, haven't used in years. Use kernel model instead.
+      # Can't use deprecate_soft:
+      #   https://github.com/r-lib/lifecycle/issues/149#issuecomment-1790953600
+      lifecycle::deprecate_warn(
+        when = "0.2.12",
+        what = "GauPro_Gauss$new()",
+        details = paste0("Please use GauPro::GauPro_kernel_model instead")
+      )
 
       super$initialize(X=X,Z=Z,verbose=verbose,useC=useC,useGrad=useGrad,
                        parallel=parallel,

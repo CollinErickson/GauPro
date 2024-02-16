@@ -11,18 +11,12 @@
 
 * Knowledge gradient: multiple starts for optim
 
-* When giving in formula/data
-  * add to doc
-  * message what chosen kernel is
-
 * Large Z variance is bad. Extend range of s2. Warning to rescale. Tell kernel
 that initial optim values should be large.
 
 * Plot2D:
-  add axis names, either X1/X2 or colnames
+  add axis names, either X1/X2 or colnames (need to add option to CF::gcf_grid)
   fix for factors
-
-* Add deprecated for old model: lifecycle::
 
 * Check kernel start par outside of bounds set by user. Test if it gives all errors.
 
