@@ -385,7 +385,10 @@ OrderedFactorKernel <- R6::R6Class(
         vec <- c()
       }
       if (s2_est) {
-        vec <- c(vec, self$logs2 + jitter*rnorm(1))
+        vec <- c(vec,
+                 max(min(self$logs2 + jitter * rnorm(1),
+                         self$logs2_upper),
+                     self$logs2_lower))
       }
       vec
     },
@@ -404,7 +407,9 @@ OrderedFactorKernel <- R6::R6Class(
         vec <- c()
       }
       if (s2_est) {
-        vec <- c(vec, self$logs2 + jitter*rnorm(1))
+        vec <- c(vec, max(min(self$logs2 + jitter * rnorm(1),
+                              self$logs2_upper),
+                          self$logs2_lower))
       }
       vec
     },

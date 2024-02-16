@@ -350,7 +350,10 @@ FactorKernel <- R6::R6Class(
         vec <- c()
       }
       if (s2_est) {
-        vec <- c(vec, self$logs2 + jitter*rnorm(1))
+        vec <- c(vec, max(min(self$logs2 + jitter * rnorm(1),
+                              self$logs2_upper),
+                          self$logs2_lower)
+        )
       }
       vec
     },
@@ -362,13 +365,16 @@ FactorKernel <- R6::R6Class(
     param_optim_start0 = function(jitter=F, y, p_est=self$p_est,
                                   s2_est=self$s2_est) {
       if (p_est) {
-        vec <- pmin(pmax(rep(0, length(self$p)) + jitter*rnorm(length(self$p), 0, .1),
-                         self$p_lower), self$p_upper)
+        vec <- pmin(
+          pmax(rep(0, length(self$p)) + jitter*rnorm(length(self$p), 0, .1),
+               self$p_lower), self$p_upper)
       } else {
         vec <- c()
       }
       if (s2_est) {
-        vec <- c(vec, self$logs2 + jitter*rnorm(1))
+        vec <- c(vec, max(min(self$logs2 + jitter * rnorm(1),
+                              self$logs2_upper),
+                          self$logs2_lower))
       }
       vec
     },

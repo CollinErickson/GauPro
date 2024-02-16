@@ -227,3 +227,39 @@ if (F) {
     expect_equal(fk, c(4,4,1,11,3,3,5,5))
   })
 }
+
+
+#
+test_that("param_optim_start s2 falls within range", {
+
+  kern_chars <- c("gauss", "exp", "m32", "m52",
+                  "ratquad", "periodic", "cubic",
+                  "triangle", "white",
+                  "factor", "orderedfactor", "latentfactor", "gowerfactor")
+  D <- 3
+  s2_lower <- 7.2
+  s2_upper <- 8.2
+  s2 <- 7.4
+  kernels <- list(Gaussian$new(D=D, s2_lower=s2_lower, s2_upper=s2_upper, s2=s2),
+                  Exponential$new(D=D, s2_lower=s2_lower, s2_upper=s2_upper, s2=s2),
+                  Matern32$new(D=D, s2_lower=s2_lower, s2_upper=s2_upper, s2=s2),
+                  Matern52$new(D=D, s2_lower=s2_lower, s2_upper=s2_upper, s2=s2),
+                  RatQuad$new(D=D, s2_lower=s2_lower, s2_upper=s2_upper, s2=s2),
+                  Periodic$new(D=D, s2_lower=s2_lower, s2_upper=s2_upper, s2=s2),
+                  Cubic$new(D=D, s2_lower=s2_lower, s2_upper=s2_upper, s2=s2),
+                  Triangle$new(D=D, s2_lower=s2_lower, s2_upper=s2_upper, s2=s2),
+                  White$new(D=D, s2_lower=s2_lower, s2_upper=s2_upper, s2=s2),
+                  FactorKernel$new(D=D, s2_lower=s2_lower, s2_upper=s2_upper, s2=s2, nlevels=3, xindex=2),
+                  OrderedFactorKernel$new(D=D, s2_lower=s2_lower, s2_upper=s2_upper, s2=s2, nlevels=3, xindex=2),
+                  LatentFactorKernel$new(D=D, s2_lower=s2_lower, s2_upper=s2_upper, s2=s2, nlevels=3, xindex=2),
+                  GowerFactorKernel$new(D=D, s2_lower=s2_lower, s2_upper=s2_upper, s2=s2, nlevels=3, xindex=2))
+
+  for (ikern in seq_along(kernels)) {
+    kern_char <- kern_chars[ikern]
+    kernel <- kernels[[ikern]]
+
+    par1 <- kernel$param_optim_start(jitter=T)
+    expect_true(par1[length(par1)] >= log(s2_lower, 10))
+    expect_true(par1[length(par1)] <= log(s2_upper, 10))
+  }
+})

@@ -71,11 +71,13 @@ GowerFactorKernel <- R6::R6Class(
   classname = "GauPro_kernel_GowerFactorKernel",
   inherit = GauPro_kernel,
   public = list(
-    p = NULL, # vector of correlations
+    p = NULL,
+    # vector of correlations
     p_est = NULL,
     p_lower = NULL,
     p_upper = NULL,
-    s2 = NULL, # variance coefficient to scale correlation matrix to covariance
+    s2 = NULL,
+    # variance coefficient to scale correlation matrix to covariance
     s2_est = NULL,
     logs2 = NULL,
     logs2_lower = NULL,
@@ -99,13 +101,23 @@ GowerFactorKernel <- R6::R6Class(
     #' @param offdiagequal What should offdiagonal values be set to when the
     #' indices are the same? Use to avoid decomposition errors, similar to
     #' adding a nugget.
-    initialize = function(s2=1, D, nlevels, xindex,
-                          p_lower=0, p_upper=.9, p_est=TRUE,
-                          s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE,
-                          p, useC=TRUE, offdiagequal=1-1e-6
-    ) {
+    initialize = function(s2 = 1,
+                          D,
+                          nlevels,
+                          xindex,
+                          p_lower = 0,
+                          p_upper = .9,
+                          p_est = TRUE,
+                          s2_lower = 1e-8,
+                          s2_upper = 1e8,
+                          s2_est = TRUE,
+                          p,
+                          useC = TRUE,
+                          offdiagequal = 1 - 1e-6) {
       # Must give in D
-      if (missing(D)) {stop("Must give Index kernel D")}
+      if (missing(D)) {
+        stop("Must give Index kernel D")
+      }
 
       self$D <- D
       self$nlevels <- nlevels
@@ -114,18 +126,24 @@ GowerFactorKernel <- R6::R6Class(
       if (missing(p)) {
         p <- 0
       } else {
-        stopifnot(is.numeric(p), length(p) == 1, p>=0, p<=1)
+        stopifnot(is.numeric(p), length(p) == 1, p >= 0, p <= 1)
       }
       self$p <- p
 
-      stopifnot(is.numeric(p_lower), length(p_lower) == 1,
-                p_lower>=0, p_lower<=1)
+      stopifnot(is.numeric(p_lower),
+                length(p_lower) == 1,
+                p_lower >= 0,
+                p_lower <= 1)
       self$p_lower <- p_lower
-      stopifnot(is.numeric(p_upper), length(p_upper) == 1,
-                p_upper>=0, p_upper<=1,
-                p_lower <= p_upper)
+      stopifnot(
+        is.numeric(p_upper),
+        length(p_upper) == 1,
+        p_upper >= 0,
+        p_upper <= 1,
+        p_lower <= p_upper
+      )
       # Don't give upper 1 since it will give optimization error
-      self$p_upper <-p_upper
+      self$p_upper <- p_upper
 
       self$p_est <- p_est
       self$s2 <- s2
@@ -144,7 +162,11 @@ GowerFactorKernel <- R6::R6Class(
     #' @param p Correlation parameters.
     #' @param s2 Variance parameter.
     #' @param params parameters to use instead of beta and s2.
-    k = function(x, y=NULL, p=self$p, s2=self$s2, params=NULL) {
+    k = function(x,
+                 y = NULL,
+                 p = self$p,
+                 s2 = self$s2,
+                 params = NULL) {
       if (!is.null(params)) {
         lenparams <- length(params)
 
@@ -164,16 +186,24 @@ GowerFactorKernel <- R6::R6Class(
           logs2 <- self$logs2
         }
 
-        s2 <- 10^logs2
+        s2 <- 10 ^ logs2
       } else {
-        if (is.null(p)) {p <- self$p}
-        if (is.null(s2)) {s2 <- self$s2}
+        if (is.null(p)) {
+          p <- self$p
+        }
+        if (is.null(s2)) {
+          s2 <- self$s2
+        }
       }
       if (is.null(y)) {
         if (is.matrix(x)) {
           val <- outer(1:nrow(x), 1:nrow(x),
-                       Vectorize(function(i,j){
-                         self$kone(x[i,],x[j,],p=p, s2=s2, isdiag=i==j)
+                       Vectorize(function(i, j) {
+                         self$kone(x[i, ],
+                                   x[j, ],
+                                   p = p,
+                                   s2 = s2,
+                                   isdiag = i == j)
                        }))
           return(val)
         } else {
@@ -182,13 +212,19 @@ GowerFactorKernel <- R6::R6Class(
       }
       if (is.matrix(x) & is.matrix(y)) {
         outer(1:nrow(x), 1:nrow(y),
-              Vectorize(function(i,j){self$kone(x[i,],y[j,],p=p, s2=s2)}))
+              Vectorize(function(i, j) {
+                self$kone(x[i, ], y[j, ], p = p, s2 = s2)
+              }))
       } else if (is.matrix(x) & !is.matrix(y)) {
-        apply(x, 1, function(xx) {self$kone(xx, y, p=p, s2=s2)})
+        apply(x, 1, function(xx) {
+          self$kone(xx, y, p = p, s2 = s2)
+        })
       } else if (is.matrix(y)) {
-        apply(y, 1, function(yy) {self$kone(yy, x, p=p, s2=s2)})
+        apply(y, 1, function(yy) {
+          self$kone(yy, x, p = p, s2 = s2)
+        })
       } else {
-        self$kone(x, y, p=p, s2=s2)
+        self$kone(x, y, p = p, s2 = s2)
       }
     },
     #' @description Find covariance of two points
@@ -200,12 +236,23 @@ GowerFactorKernel <- R6::R6Class(
     #' @param offdiagequal What should offdiagonal values be set to when the
     #' indices are the same? Use to avoid decomposition errors, similar to
     #' adding a nugget.
-    kone = function(x, y, p, s2, isdiag=TRUE, offdiagequal=self$offdiagequal) {
+    kone = function(x,
+                    y,
+                    p,
+                    s2,
+                    isdiag = TRUE,
+                    offdiagequal = self$offdiagequal) {
       x <- x[self$xindex]
       y <- y[self$xindex]
-      stopifnot(x>=1, y>=1, x<=self$nlevels, y<=self$nlevels,
-                abs(x-as.integer(x)) < 1e-8, abs(y-as.integer(y)) < 1e-8)
-      if (x==y) {
+      stopifnot(
+        x >= 1,
+        y >= 1,
+        x <= self$nlevels,
+        y <= self$nlevels,
+        abs(x - as.integer(x)) < 1e-8,
+        abs(y - as.integer(y)) < 1e-8
+      )
+      if (x == y) {
         # out <- s2 * 1
         # Trying to avoid singular values
         if (isdiag) {
@@ -216,7 +263,9 @@ GowerFactorKernel <- R6::R6Class(
       } else {
         out <- s2 * p
       }
-      if (any(is.nan(out))) {stop("Error #9228878341")}
+      if (any(is.nan(out))) {
+        stop("Error #9228878341")
+      }
       out
     },
     #' @description Derivative of covariance with respect to parameters
@@ -225,7 +274,7 @@ GowerFactorKernel <- R6::R6Class(
     #' @param C_nonug Covariance without nugget added to diagonal
     #' @param C Covariance with nugget
     #' @param nug Value of nugget
-    dC_dparams = function(params=NULL, X, C_nonug, C, nug) {
+    dC_dparams = function(params = NULL, X, C_nonug, C, nug) {
       # stop("not implemented, kernel index, dC_dp")
       n <- nrow(X)
 
@@ -250,27 +299,29 @@ GowerFactorKernel <- R6::R6Class(
       log10 <- log(10)
       s2 <- 10 ^ logs2
 
-      if (missing(C_nonug)) { # Assume C missing too, must have nug
-        C_nonug <- self$k(x=X, params=params)
-        C <- C_nonug + diag(nug*s2, nrow(C_nonug))
+      if (missing(C_nonug)) {
+        # Assume C missing too, must have nug
+        C_nonug <- self$k(x = X, params = params)
+        C <- C_nonug + diag(nug * s2, nrow(C_nonug))
       }
 
       lenparams_D <- as.integer(self$p_est + self$s2_est)
-      dC_dparams <- array(dim=c(lenparams_D, n, n), data=0)
+      dC_dparams <- array(dim = c(lenparams_D, n, n), data = 0)
       if (self$s2_est) {
-        dC_dparams[lenparams_D,,] <- C * log10
+        dC_dparams[lenparams_D, , ] <- C * log10
       }
       if (self$p_est) {
-        for (k in 1:length(p)) { # k is index of parameter
-          for (i in seq(1, n-1, 1)) {
+        for (k in 1:length(p)) {
+          # k is index of parameter
+          for (i in seq(1, n - 1, 1)) {
             xx <- X[i, self$xindex]
-            for (j in seq(i+1, n, 1)) {
+            for (j in seq(i + 1, n, 1)) {
               yy <- X[j, self$xindex]
               if (xx == yy) {
                 # Corr is just 1, parameter has no effect
               } else {
-                dC_dparams[k,i,j] <- 1 * s2
-                dC_dparams[k,j,i] <- dC_dparams[k,i,j]
+                dC_dparams[k, i, j] <- 1 * s2
+                dC_dparams[k, j, i] <- dC_dparams[k, i, j]
               }
               #
               # r2 <- sum(p * (X[i,]-X[j,])^2)
@@ -278,8 +329,9 @@ GowerFactorKernel <- R6::R6Class(
               # dC_dparams[k,j,i] <- dC_dparams[k,i,j]
             }
           }
-          for (i in seq(1, n, 1)) { # Get diagonal set to zero
-            dC_dparams[k,i,i] <- 0
+          for (i in seq(1, n, 1)) {
+            # Get diagonal set to zero
+            dC_dparams[k, i, i] <- 0
           }
         }
       }
@@ -290,26 +342,36 @@ GowerFactorKernel <- R6::R6Class(
     #' @param params Kernel parameters
     #' @param X matrix of points in rows
     #' @param nug Value of nugget
-    C_dC_dparams = function(params=NULL, X, nug) {
+    C_dC_dparams = function(params = NULL, X, nug) {
       s2 <- self$s2_from_params(params)
-      C_nonug <- self$k(x=X, params=params)
-      C <- C_nonug + diag(s2*nug, nrow(X))
-      dC_dparams <- self$dC_dparams(params=params, X=X, C_nonug=C_nonug,
-                                    C=C, nug=nug)
-      list(C=C, dC_dparams=dC_dparams)
+      C_nonug <- self$k(x = X, params = params)
+      C <- C_nonug + diag(s2 * nug, nrow(X))
+      dC_dparams <-
+        self$dC_dparams(
+          params = params,
+          X = X,
+          C_nonug = C_nonug,
+          C = C,
+          nug = nug
+        )
+      list(C = C, dC_dparams = dC_dparams)
     },
     #' @description Derivative of covariance with respect to X
     #' @param XX matrix of points
     #' @param X matrix of points to take derivative with respect to
     #' @param ... Additional args, not used
     dC_dx = function(XX, X, ...) {
-      if (!is.matrix(XX)) {stop()}
+      if (!is.matrix(XX)) {
+        stop()
+      }
       d <- ncol(XX)
-      if (ncol(X) != d) {stop()}
+      if (ncol(X) != d) {
+        stop()
+      }
       n <- nrow(X)
       nn <- nrow(XX)
-      dC_dx <- array(0, dim=c(nn, d, n))
-      dC_dx[, self$xindex, ] <- NA
+      dC_dx <- array(0, dim = c(nn, d, n))
+      dC_dx[, self$xindex,] <- NA
       dC_dx
     },
     #' @description Starting point for parameters for optimization
@@ -318,16 +380,20 @@ GowerFactorKernel <- R6::R6Class(
     #' @param p_est Is p being estimated?
     #' @param alpha_est Is alpha being estimated?
     #' @param s2_est Is s2 being estimated?
-    param_optim_start = function(jitter=F, y, p_est=self$p_est,
-                                 s2_est=self$s2_est) {
+    param_optim_start = function(jitter = F,
+                                 y,
+                                 p_est = self$p_est,
+                                 s2_est = self$s2_est) {
       if (p_est) {
-        vec <- min(max(self$p + jitter*rnorm(1, 0, .1),
-                         self$p_lower), self$p_upper)
+        vec <- min(max(self$p + jitter * rnorm(1, 0, .1),
+                       self$p_lower), self$p_upper)
       } else {
         vec <- c()
       }
       if (s2_est) {
-        vec <- c(vec, self$logs2 + jitter*rnorm(1))
+        vec <- c(vec, max(min(self$logs2 + jitter * rnorm(1),
+                              self$logs2_upper),
+                          self$logs2_lower))
       }
       vec
     },
@@ -337,16 +403,23 @@ GowerFactorKernel <- R6::R6Class(
     #' @param p_est Is p being estimated?
     #' @param alpha_est Is alpha being estimated?
     #' @param s2_est Is s2 being estimated?
-    param_optim_start0 = function(jitter=F, y, p_est=self$p_est,
-                                  s2_est=self$s2_est) {
+    param_optim_start0 = function(jitter = F,
+                                  y,
+                                  p_est = self$p_est,
+                                  s2_est = self$s2_est) {
       if (p_est) {
-        vec <- min(max(0 + jitter*rnorm(1, 0, .1),
+        vec <- min(max(0 + jitter * rnorm(1, 0, .1),
                        self$p_lower), self$p_upper)
       } else {
         vec <- c()
       }
       if (s2_est) {
-        vec <- c(vec, self$logs2 + jitter*rnorm(1))
+        vec <- c(vec,
+                 min(
+                   max(self$logs2 + jitter * rnorm(1),
+                       self$logs2_lower),
+                   self$logs2_upper
+                 ))
       }
       vec
     },
@@ -354,21 +427,37 @@ GowerFactorKernel <- R6::R6Class(
     #' @param p_est Is p being estimated?
     #' @param alpha_est Is alpha being estimated?
     #' @param s2_est Is s2 being estimated?
-    param_optim_lower = function(p_est=self$p_est,
-                                 s2_est=self$s2_est) {
-      if (p_est) {vec <- c(self$p_lower)} else {vec <- c()}
-      if (s2_est) {vec <- c(vec, self$logs2_lower)} else {}
+    param_optim_lower = function(p_est = self$p_est,
+                                 s2_est = self$s2_est) {
+      if (p_est) {
+        vec <- c(self$p_lower)
+      } else {
+        vec <- c()
+      }
+      if (s2_est) {
+        vec <- c(vec, self$logs2_lower)
+      } else {
+
+      }
       vec
     },
     #' @description Upper bounds of parameters for optimization
     #' @param p_est Is p being estimated?
     #' @param alpha_est Is alpha being estimated?
     #' @param s2_est Is s2 being estimated?
-    param_optim_upper = function(p_est=self$p_est,
+    param_optim_upper = function(p_est = self$p_est,
                                  # alpha_est=self$alpha_est,
-                                 s2_est=self$s2_est) {
-      if (p_est) {vec <- c(self$p_upper)} else {vec <- c()}
-      if (s2_est) {vec <- c(vec, self$logs2_upper)} else {}
+                                 s2_est = self$s2_est) {
+      if (p_est) {
+        vec <- c(self$p_upper)
+      } else {
+        vec <- c()
+      }
+      if (s2_est) {
+        vec <- c(vec, self$logs2_upper)
+      } else {
+
+      }
       vec
     },
     #' @description Set parameters from optimization output
@@ -376,8 +465,9 @@ GowerFactorKernel <- R6::R6Class(
     #' @param p_est Is p being estimated?
     #' @param alpha_est Is alpha being estimated?
     #' @param s2_est Is s2 being estimated?
-    set_params_from_optim = function(optim_out, p_est=self$p_est,
-                                     s2_est=self$s2_est) {
+    set_params_from_optim = function(optim_out,
+                                     p_est = self$p_est,
+                                     s2_est = self$s2_est) {
       loo <- length(optim_out)
       if (p_est) {
         self$p <- optim_out[1]
@@ -390,11 +480,13 @@ GowerFactorKernel <- R6::R6Class(
     #' @description Get s2 from params vector
     #' @param params parameter vector
     #' @param s2_est Is s2 being estimated?
-    s2_from_params = function(params, s2_est=self$s2_est) {
+    s2_from_params = function(params, s2_est = self$s2_est) {
       # 10 ^ params[length(params)]
-      if (s2_est && !is.null(params)) { # Is last if in params
+      if (s2_est && !is.null(params)) {
+        # Is last if in params
         10 ^ params[length(params)]
-      } else { # Else it is just using set value, not being estimated
+      } else {
+        # Else it is just using set value, not being estimated
         self$s2
       }
     },
