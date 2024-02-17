@@ -32,6 +32,4 @@ diff(range(Z))^2. Or else give message to normalize.
 
 * Standardize for X.
 
-* factor kernel: clean up jitter/start
-
-* param_optim_start/0 need to be within lower and upper
+* change kernels/trends from R6 to function

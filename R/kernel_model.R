@@ -307,6 +307,20 @@ GauPro_kernel_model <- R6::R6Class(
       self$N <- nrow(self$X)
       self$D <- ncol(self$X)
 
+      # If ranges are too big/small, give message
+      if ((diff(range(self$Z[,1])) < 1e-5) &&
+        self$verbose >= 0) {
+        message(paste0("* Range of Z is small (< 1e-5): transform to",
+                       " reasonable",
+                       " scale (e.g., 0 to 1) to avoid bad fit"))
+      }
+      if ((diff(range(self$Z[,1])) > 1e5) &&
+          self$verbose >= 0) {
+        message(paste0("* Range of Z is large (> 1e5): transform to",
+                       " reasonable",
+                       " scale (e.g., 0 to 1) to avoid bad fit"))
+      }
+
       # Expected run time
       expruntime <- (.0581 + .00394*self$N + .0230*self$D) ^ 3
       if (expruntime > 5 && self$verbose >= 0) {
@@ -324,7 +338,7 @@ GauPro_kernel_model <- R6::R6Class(
         # Set to matern52 by default
         kernel <- "matern52"
         message(paste0(
-          "Argument 'kernel' is missing. ",
+          "* Argument 'kernel' is missing. ",
           "It has been set to 'matern52'.",
           " See documentation for more details."
         ))
@@ -2218,13 +2232,13 @@ GauPro_kernel_model <- R6::R6Class(
 
         # Give message if it's at a boundary
         if (self$nug <= self$nug.min && self$verbose>=0) {
-          message(paste0("nug is at minimum value after optimizing. ",
+          message(paste0("* nug is at minimum value after optimizing. ",
                          "Check the fit to see it this caused a bad fit. ",
                          "Consider changing nug.min. ",
                          "This is probably fine for noiseless data."))
         }
         if (self$nug >= self$nug.max && self$verbose>=0) {
-          message(paste0("nug is at maximum value after optimizing. ",
+          message(paste0("* nug is at maximum value after optimizing. ",
                          "Check the fit to see it this caused a bad fit. ",
                          "Consider changing nug.max or checking for ",
                          "other problems with the data/model."))

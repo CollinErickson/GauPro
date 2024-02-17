@@ -1,22 +1,3 @@
-# Kernels should implement:
-# k kernel function for two vectors
-# update_params
-# get_optim_functions: return optim.func, optim.grad, optim.fngr
-# param_optim_lower - lower bound of params
-# param_optim_upper - upper
-# param_optim_start - current param values
-# param_optim_start0 - some central param values that can be used for
-#  optimization restarts
-# param_optim_jitter - how to jitter params in optimization
-
-# Suggested
-# deviance
-# deviance_grad
-# deviance_fngr
-# grad
-
-
-
 #' Beta Kernel R6 class
 #'
 #' This is the base structure for a kernel that uses beta = log10(theta)
@@ -275,13 +256,13 @@ GauPro_kernel_beta <- R6::R6Class(
         self$logs2 <- optim_out[loo]
         self$s2 <- 10 ^ self$logs2
         if (self$logs2 >= self$logs2_upper) {
-          message(paste0("s2 is at maximum value after optimizing. ",
+          message(paste0("* s2 is at maximum value after optimizing. ",
                          "Check the fit to see it this caused a bad fit. ",
                          "Consider changing the kernel s2_upper ",
                          " or rescaling the data."))
         }
         if (self$logs2 <= self$logs2_lower) {
-          message(paste0("s2 is at minimum value after optimizing. ",
+          message(paste0("* s2 is at minimum value after optimizing. ",
                          "Check the fit to see it this caused a bad fit. ",
                          "Consider changing the kernel s2_lower ",
                          " or rescaling the data."))

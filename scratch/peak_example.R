@@ -1,6 +1,13 @@
 # Read in data
 df <- read.csv("C:\\Users\\colli\\Downloads\\peak_example.csv")
 
+# Try untransformed first
+# Fit model
+gp <- gpkm(df, y ~ x)
+
+# Check fit, make sure it looks reasonable
+gp$plot()
+
 # Transform into reasonable ranges
 df$y2 <- df$y/max(df$y)
 df$x2 <- (df$x - min(df$x)) / (max(df$x) - min(df$x))

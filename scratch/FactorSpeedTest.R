@@ -31,6 +31,7 @@ xdf <- tibble(
 
 # Time fit
 system.time(expect_error(gpdf <- GauPro_kernel_model$new(z ~ ., data=xdf, kernel='gauss'), NA))
+# system.time(expect_error(gpdf <- GauPro_kernel_model$new(z ~ ., data=xdf, kernel='matern52'), NA))
 
 # Latent
 # .83, 1.11
