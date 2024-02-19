@@ -27,4 +27,6 @@ diff(range(Z))^2. Or else give message to normalize.
 
 * Standardize for X.
 
-* change kernels/trends from R6 to function
+* change kernels to functions k_: documentation, tests, examples, readme
+
+* change trends from R6 to function t_

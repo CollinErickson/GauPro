@@ -111,7 +111,7 @@ LatentFactorKernel <- R6::R6Class(
     p_to_pf_inds = NULL,
     offdiagequal = NULL,
     #' @description Initialize kernel object
-    #' @param p Vector of latent variables
+    # @param p Vector of latent variables
     #' @param s2 Initial variance
     #' @param D Number of input dimensions of data
     #' @param p_lower Lower bound for p
@@ -548,3 +548,43 @@ LatentFactorKernel <- R6::R6Class(
   )
 )
 
+
+#' @rdname LatentFactorKernel
+#' @export
+# @param p Vector of latent variables
+#' @param s2 Initial variance
+#' @param D Number of input dimensions of data
+#' @param p_lower Lower bound for p
+#' @param p_upper Upper bound for p
+#' @param p_est Should p be estimated?
+#' @param s2_lower Lower bound for s2
+#' @param s2_upper Upper bound for s2
+#' @param s2_est Should s2 be estimated?
+#' @param xindex Index of X to use the kernel on
+#' @param nlevels Number of levels for the factor
+#' @param latentdim Dimension of embedding space
+#' @param useC Should C code used? Much faster.
+#' @param offdiagequal What should offdiagonal values be set to when the
+#' indices are the same? Use to avoid decomposition errors, similar to
+#' adding a nugget.
+k_LatentFactorKernel <- function(s2=1, D, nlevels, xindex,
+                                 latentdim,
+                                 p_lower=0, p_upper=1, p_est=TRUE,
+                                 s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE,
+                                 useC=TRUE, offdiagequal=1-1e-6) {
+  LatentFactorKernel$new(
+    s2=s2,
+    D=D,
+    nlevels=nlevels,
+    xindex=xindex,
+    latentdim=latentdim,
+    p_lower=p_lower,
+    p_upper=p_upper,
+    p_est=p_est,
+    s2_lower=s2_lower,
+    s2_upper=s2_upper,
+    s2_est=s2_est,
+    useC=useC,
+    offdiagequal=offdiagequal
+  )
+}

@@ -3,9 +3,56 @@
 \docType{class}
 \name{LatentFactorKernel}
 \alias{LatentFactorKernel}
+\alias{k_LatentFactorKernel}
 \title{Latent Factor Kernel R6 class}
 \format{
 \code{\link{R6Class}} object.
+}
+\usage{
+k_LatentFactorKernel(
+  s2 = 1,
+  D,
+  nlevels,
+  xindex,
+  latentdim,
+  p_lower = 0,
+  p_upper = 1,
+  p_est = TRUE,
+  s2_lower = 1e-08,
+  s2_upper = 1e+08,
+  s2_est = TRUE,
+  useC = TRUE,
+  offdiagequal = 1 - 1e-06
+)
+}
+\arguments{
+\item{s2}{Initial variance}
+
+\item{D}{Number of input dimensions of data}
+
+\item{nlevels}{Number of levels for the factor}
+
+\item{xindex}{Index of X to use the kernel on}
+
+\item{latentdim}{Dimension of embedding space}
+
+\item{p_lower}{Lower bound for p}
+
+\item{p_upper}{Upper bound for p}
+
+\item{p_est}{Should p be estimated?}
+
+\item{s2_lower}{Lower bound for s2}
+
+\item{s2_upper}{Upper bound for s2}
+
+\item{s2_est}{Should s2 be estimated?}
+
+\item{useC}{Should C code used? Much faster.}
+
+\item{offdiagequal}{What should offdiagonal values be set to when the
+indices are the same? Use to avoid decomposition errors, similar to
+adding a nugget.}
 }
 \value{
 Object of \code{\link{R6Class}} with methods for fitting GP model.
@@ -200,8 +247,6 @@ Initialize kernel object
 \item{\code{offdiagequal}}{What should offdiagonal values be set to when the
 indices are the same? Use to avoid decomposition errors, similar to
 adding a nugget.}
-
-\item{\code{p}}{Vector of latent variables}
 }
 \if{html}{\out{</div>}}
 }
