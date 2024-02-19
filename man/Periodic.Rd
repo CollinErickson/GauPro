@@ -3,9 +3,57 @@
 \docType{class}
 \name{Periodic}
 \alias{Periodic}
+\alias{k_Periodic}
 \title{Periodic Kernel R6 class}
 \format{
 \code{\link{R6Class}} object.
+}
+\usage{
+k_Periodic(
+  p,
+  alpha = 1,
+  s2 = 1,
+  D,
+  p_lower = 0,
+  p_upper = 100,
+  p_est = TRUE,
+  alpha_lower = 0,
+  alpha_upper = 100,
+  alpha_est = TRUE,
+  s2_lower = 1e-08,
+  s2_upper = 1e+08,
+  s2_est = TRUE,
+  useC = TRUE
+)
+}
+\arguments{
+\item{p}{Periodic parameter}
+
+\item{alpha}{Periodic parameter}
+
+\item{s2}{Initial variance}
+
+\item{D}{Number of input dimensions of data}
+
+\item{p_lower}{Lower bound for p}
+
+\item{p_upper}{Upper bound for p}
+
+\item{p_est}{Should p be estimated?}
+
+\item{alpha_lower}{Lower bound for alpha}
+
+\item{alpha_upper}{Upper bound for alpha}
+
+\item{alpha_est}{Should alpha be estimated?}
+
+\item{s2_lower}{Lower bound for s2}
+
+\item{s2_upper}{Upper bound for s2}
+
+\item{s2_est}{Should s2 be estimated?}
+
+\item{useC}{Should C code used? Much faster if implemented.}
 }
 \value{
 Object of \code{\link{R6Class}} with methods for fitting GP model.
@@ -19,6 +67,8 @@ Periodic Kernel R6 class
 p is the period for each dimension, a is a single number for scaling
 
 \eqn{k(x, y) = s2 * exp(-sum(alpha*sin(p * (x-y))^2))}
+
+\eqn{$k(x, y) = \sigma^2 * \exp(-\sum(\alpha_i*sin(p * (x_i-y_i))^2))}
 }
 \examples{
 k1 <- Periodic$new(p=1, alpha=1)

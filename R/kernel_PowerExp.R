@@ -388,3 +388,44 @@ PowerExp <- R6::R6Class(
     }
   )
 )
+
+
+#' @rdname PowerExp
+#' @export
+#' @param alpha Initial alpha value (the exponent). Between 0 and 2.
+#' @param beta Initial beta value
+#' @param s2 Initial variance
+#' @param D Number of input dimensions of data
+#' @param beta_lower Lower bound for beta
+#' @param beta_upper Upper bound for beta
+#' @param beta_est Should beta be estimated?
+#' @param alpha_lower Lower bound for alpha
+#' @param alpha_upper Upper bound for alpha
+#' @param alpha_est Should alpha be estimated?
+#' @param s2_lower Lower bound for s2
+#' @param s2_upper Upper bound for s2
+#' @param s2_est Should s2 be estimated?
+#' @param useC Should C code used? Much faster if implemented.
+k_PowerExp <- function(alpha=1.95, beta, s2=1, D,
+                       beta_lower=-8, beta_upper=6, beta_est=TRUE,
+                       alpha_lower=1e-8, alpha_upper=2, alpha_est=TRUE,
+                       s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE,
+                       useC=TRUE) {
+  PowerExp$new(
+    alpha=alpha,
+    beta=beta,
+    s2=s2,
+    D=D,
+    beta_lower=beta_lower,
+    beta_upper=beta_upper,
+    beta_est=beta_est,
+    alpha_lower=alpha_lower,
+    alpha_upper=alpha_upper,
+    alpha_est=alpha_est,
+    s2_lower=s2_lower,
+    s2_upper=s2_upper,
+    s2_est=s2_est,
+    useC=useC
+  )
+}
+

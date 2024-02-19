@@ -11,14 +11,9 @@
 
 * Knowledge gradient: multiple starts for optim
 
-* Large Z variance is bad. Extend range of s2. Warning to rescale. Tell kernel
-that initial optim values should be large.
-
 * Plot2D:
   add axis names, either X1/X2 or colnames (need to add option to CF::gcf_grid)
   fix for factors
-
-* Check kernel start par outside of bounds set by user. Test if it gives all errors.
 
 * Make gpkm doc look good. Look into R7.
 

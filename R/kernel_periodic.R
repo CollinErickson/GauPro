@@ -436,3 +436,42 @@ Periodic <- R6::R6Class(
     }
   )
 )
+
+#' @rdname Periodic
+#' @export
+#' @param p Periodic parameter
+#' @param alpha Periodic parameter
+#' @param s2 Initial variance
+#' @param D Number of input dimensions of data
+#' @param p_lower Lower bound for p
+#' @param p_upper Upper bound for p
+#' @param p_est Should p be estimated?
+#' @param alpha_lower Lower bound for alpha
+#' @param alpha_upper Upper bound for alpha
+#' @param alpha_est Should alpha be estimated?
+#' @param s2_lower Lower bound for s2
+#' @param s2_upper Upper bound for s2
+#' @param s2_est Should s2 be estimated?
+#' @param useC Should C code used? Much faster if implemented.
+k_Periodic <- function(p, alpha=1, s2=1, D,
+                       p_lower=0, p_upper=1e2, p_est=TRUE,
+                       alpha_lower=0, alpha_upper=1e2, alpha_est=TRUE,
+                       s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE,
+                       useC=TRUE) {
+  Periodic$new(
+    p=p,
+    alpha=alpha,
+    s2=s2,
+    D=D,
+    p_lower=p_lower,
+    p_upper=p_upper,
+    p_est=p_est,
+    alpha_lower=alpha_lower,
+    alpha_upper=alpha_upper,
+    alpha_est=alpha_est,
+    s2_lower=s2_lower,
+    s2_upper=s2_upper,
+    s2_est=s2_est,
+    useC=useC
+  )
+}

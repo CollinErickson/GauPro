@@ -3,17 +3,39 @@
 \docType{class}
 \name{White}
 \alias{White}
+\alias{k_White}
 \title{White noise Kernel R6 class}
 \format{
 \code{\link{R6Class}} object.
+}
+\usage{
+k_White(
+  s2 = 1,
+  D,
+  s2_lower = 1e-08,
+  s2_upper = 1e+08,
+  s2_est = TRUE,
+  useC = TRUE
+)
+}
+\arguments{
+\item{s2}{Initial variance}
+
+\item{D}{Number of input dimensions of data}
+
+\item{s2_lower}{Lower bound for s2}
+
+\item{s2_upper}{Upper bound for s2}
+
+\item{s2_est}{Should s2 be estimated?}
+
+\item{useC}{Should C code used? Not implemented for White.}
 }
 \value{
 Object of \code{\link{R6Class}} with methods for fitting GP model.
 }
 \description{
-White noise Kernel R6 class
-
-White noise Kernel R6 class
+Initialize kernel object
 }
 \examples{
 k1 <- White$new(s2=1e-8)

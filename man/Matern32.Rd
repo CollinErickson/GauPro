@@ -3,9 +3,45 @@
 \docType{class}
 \name{Matern32}
 \alias{Matern32}
+\alias{k_Matern32}
 \title{Matern 3/2 Kernel R6 class}
 \format{
 \code{\link{R6Class}} object.
+}
+\usage{
+k_Matern32(
+  beta,
+  s2 = 1,
+  D,
+  beta_lower = -8,
+  beta_upper = 6,
+  beta_est = TRUE,
+  s2_lower = 1e-08,
+  s2_upper = 1e+08,
+  s2_est = TRUE,
+  useC = TRUE
+)
+}
+\arguments{
+\item{beta}{Initial beta value}
+
+\item{s2}{Initial variance}
+
+\item{D}{Number of input dimensions of data}
+
+\item{beta_lower}{Lower bound for beta}
+
+\item{beta_upper}{Upper bound for beta}
+
+\item{beta_est}{Should beta be estimated?}
+
+\item{s2_lower}{Lower bound for s2}
+
+\item{s2_upper}{Upper bound for s2}
+
+\item{s2_est}{Should s2 be estimated?}
+
+\item{useC}{Should C code used? Much faster.}
 }
 \value{
 Object of \code{\link{R6Class}} with methods for fitting GP model.

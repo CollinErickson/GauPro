@@ -3,9 +3,45 @@
 \docType{class}
 \name{Matern52}
 \alias{Matern52}
+\alias{k_Matern52}
 \title{Matern 5/2 Kernel R6 class}
 \format{
 \code{\link{R6Class}} object.
+}
+\usage{
+k_Matern52(
+  beta,
+  s2 = 1,
+  D,
+  beta_lower = -8,
+  beta_upper = 6,
+  beta_est = TRUE,
+  s2_lower = 1e-08,
+  s2_upper = 1e+08,
+  s2_est = TRUE,
+  useC = TRUE
+)
+}
+\arguments{
+\item{beta}{Initial beta value}
+
+\item{s2}{Initial variance}
+
+\item{D}{Number of input dimensions of data}
+
+\item{beta_lower}{Lower bound for beta}
+
+\item{beta_upper}{Upper bound for beta}
+
+\item{beta_est}{Should beta be estimated?}
+
+\item{s2_lower}{Lower bound for s2}
+
+\item{s2_upper}{Upper bound for s2}
+
+\item{s2_est}{Should s2 be estimated?}
+
+\item{useC}{Should C code used? Much faster.}
 }
 \value{
 Object of \code{\link{R6Class}} with methods for fitting GP model.
@@ -14,6 +50,11 @@ Object of \code{\link{R6Class}} with methods for fitting GP model.
 Matern 5/2 Kernel R6 class
 
 Matern 5/2 Kernel R6 class
+}
+\details{
+\eqn{k(x, y) = s2 * (1 + t1 + t1^2 / 3) * exp(-t1) }
+where
+\eqn{t1 = sqrt(5) * sqrt(sum(theta * (x-y)^2))}
 }
 \examples{
 k1 <- Matern52$new(beta=0)

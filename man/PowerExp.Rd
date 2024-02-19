@@ -3,9 +3,57 @@
 \docType{class}
 \name{PowerExp}
 \alias{PowerExp}
+\alias{k_PowerExp}
 \title{Power Exponential Kernel R6 class}
 \format{
 \code{\link{R6Class}} object.
+}
+\usage{
+k_PowerExp(
+  alpha = 1.95,
+  beta,
+  s2 = 1,
+  D,
+  beta_lower = -8,
+  beta_upper = 6,
+  beta_est = TRUE,
+  alpha_lower = 1e-08,
+  alpha_upper = 2,
+  alpha_est = TRUE,
+  s2_lower = 1e-08,
+  s2_upper = 1e+08,
+  s2_est = TRUE,
+  useC = TRUE
+)
+}
+\arguments{
+\item{alpha}{Initial alpha value (the exponent). Between 0 and 2.}
+
+\item{beta}{Initial beta value}
+
+\item{s2}{Initial variance}
+
+\item{D}{Number of input dimensions of data}
+
+\item{beta_lower}{Lower bound for beta}
+
+\item{beta_upper}{Upper bound for beta}
+
+\item{beta_est}{Should beta be estimated?}
+
+\item{alpha_lower}{Lower bound for alpha}
+
+\item{alpha_upper}{Upper bound for alpha}
+
+\item{alpha_est}{Should alpha be estimated?}
+
+\item{s2_lower}{Lower bound for s2}
+
+\item{s2_upper}{Upper bound for s2}
+
+\item{s2_est}{Should s2 be estimated?}
+
+\item{useC}{Should C code used? Much faster if implemented.}
 }
 \value{
 Object of \code{\link{R6Class}} with methods for fitting GP model.

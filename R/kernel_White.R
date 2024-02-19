@@ -204,3 +204,24 @@ White <- R6::R6Class(
     }
   )
 )
+
+#' @rdname White
+#' @export
+#' @description Initialize kernel object
+#' @param s2 Initial variance
+#' @param D Number of input dimensions of data
+#' @param s2_lower Lower bound for s2
+#' @param s2_upper Upper bound for s2
+#' @param s2_est Should s2 be estimated?
+#' @param useC Should C code used? Not implemented for White.
+k_White <- function(s2=1, D, s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE,
+                    useC=TRUE) {
+  White$new(
+    s2=s2,
+    D=D,
+    s2_lower=s2_lower,
+    s2_upper=s2_upper,
+    s2_est=s2_est,
+    useC=useC
+  )
+}
