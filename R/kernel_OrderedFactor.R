@@ -466,7 +466,6 @@ OrderedFactorKernel <- R6::R6Class(
 #' @param p_lower Lower bound for p
 #' @param p_upper Upper bound for p
 #' @param p_est Should p be estimated?
-#' @param p Vector of correlations
 #' @param s2_lower Lower bound for s2
 #' @param s2_upper Upper bound for s2
 #' @param s2_est Should s2 be estimated?
@@ -479,7 +478,7 @@ OrderedFactorKernel <- R6::R6Class(
 k_OrderedFactorKernel <- function(s2=1, D, nlevels, xindex,
                                   p_lower=1e-8, p_upper=5, p_est=TRUE,
                                   s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE,
-                                  p, useC=TRUE, offdiagequal=1-1e-6) {
+                                  useC=TRUE, offdiagequal=1-1e-6) {
   OrderedFactorKernel$new(
     s2=s2,
     D=D,
@@ -491,7 +490,6 @@ k_OrderedFactorKernel <- function(s2=1, D, nlevels, xindex,
     s2_lower=s2_lower,
     s2_upper=s2_upper,
     s2_est=s2_est,
-    p=p,
     useC=useC,
     offdiagequal=offdiagequal
   )

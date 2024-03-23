@@ -3,9 +3,20 @@
 \docType{class}
 \name{IgnoreIndsKernel}
 \alias{IgnoreIndsKernel}
+\alias{k_IgnoreIndsKernel}
 \title{Kernel R6 class}
 \format{
 \code{\link{R6Class}} object.
+}
+\usage{
+k_IgnoreIndsKernel(k, ignoreinds, useC = TRUE)
+}
+\arguments{
+\item{k}{Kernel to use on the non-ignored indices}
+
+\item{ignoreinds}{Indices of columns of X to ignore.}
+
+\item{useC}{Should C code used? Not implemented for IgnoreInds.}
 }
 \value{
 Object of \code{\link{R6Class}} with methods for fitting GP model.

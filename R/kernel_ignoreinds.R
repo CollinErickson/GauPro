@@ -174,3 +174,19 @@ IgnoreIndsKernel <- R6::R6Class(
 
   )
 )
+
+
+#' @rdname IgnoreIndsKernel
+#' @export
+# @description Initialize kernel object
+#' @param k Kernel to use on the non-ignored indices
+#' @param ignoreinds Indices of columns of X to ignore.
+#' @param useC Should C code used? Not implemented for IgnoreInds.
+k_IgnoreIndsKernel <- function(k, ignoreinds, useC=TRUE) {
+  IgnoreIndsKernel$new(
+    k=k,
+    ignoreinds=ignoreinds,
+    useC=useC
+  )
+}
+

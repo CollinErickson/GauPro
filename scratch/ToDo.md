@@ -30,3 +30,5 @@ diff(range(Z))^2. Or else give message to normalize.
 * change kernels to functions k_: documentation, tests, examples, readme
 
 * change trends from R6 to function t_
+
+* gpk$plot1D(ymax=1000) doesn't use ymax?

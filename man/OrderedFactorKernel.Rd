@@ -20,7 +20,6 @@ k_OrderedFactorKernel(
   s2_lower = 1e-08,
   s2_upper = 1e+08,
   s2_est = TRUE,
-  p,
   useC = TRUE,
   offdiagequal = 1 - 1e-06
 )
@@ -45,8 +44,6 @@ k_OrderedFactorKernel(
 \item{s2_upper}{Upper bound for s2}
 
 \item{s2_est}{Should s2 be estimated?}
-
-\item{p}{Vector of correlations}
 
 \item{useC}{Should C code used? Not implemented for FactorKernel yet.}
 
