@@ -193,7 +193,7 @@ The following table shows details on all the kernels available.
 | Exponential | `k_Exponential` | cts | |  Equivalent to Matern 1/2. Assumes no differentiability. |
 | Triangle | `k_Triangle` | cts | | |
 | Power exponential | `k_PowerExp` | cts | | |
-| Periodic | `k_Periodic` | cts | $k(x, y) = \sigma^2 * \exp(-\sum(\alpha_i*sin(p * (x_i-y_i))^2))$ | The only kernel that takes advantage of periodic data. But there is often incoherance far apart, so you will likely want to multiply by one of the standard kernels. |
+| Periodic | `k_Periodic` | cts | $k(x, y) = \sigma^2 * \exp(-\sum(\alpha_i*sin(p * (x_i-y_i))^2))$ | The only kernel that takes advantage of periodic data. But there is often incoherence far apart, so you will likely want to multiply by one of the standard kernels. |
 | Cubic | `k_Cubic` | cts | | |
 | Rational quadratic | `k_RatQuad` | cts | | |
 | Latent factor kernel | `k_LatentFactorKernel` | factor | | This embeds each discrete value into a low dimensional space and calculates the distances in that space. This works well when there are many discrete values. |

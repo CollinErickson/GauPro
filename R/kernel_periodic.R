@@ -4,7 +4,7 @@
 #'
 #' \eqn{k(x, y) = s2 * exp(-sum(alpha*sin(p * (x-y))^2))}
 #'
-#' \eqn{$k(x, y) = \sigma^2 * \exp(-\sum(\alpha_i*sin(p * (x_i-y_i))^2))}
+#' \eqn{k(x, y) = \sigma^2 * \exp(-\sum(\alpha_i*sin(p * (x_i-y_i))^2))}
 #'
 #' @docType class
 #' @importFrom R6 R6Class
