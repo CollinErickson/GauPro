@@ -1,19 +1,21 @@
 I fixed the warning on CRAN.
+I received an email that I had to fix these issues by 5/28 or it would be
+removed from CRAN.
 
 ## Test environments
-* local Windows 11 install, R 4.2.3
+* local Windows 11 install, R 4.4.0
 * R-hub builder
-* Ubuntu 22.04.2 via GitHub Actions
+* Ubuntu 22.04.4 via GitHub Actions
 * Win-builder
 * Mac-builder
 
 ## R CMD check results
 
-* local Windows 11 (4/9/23): no errors/warnings/notes
+* local Windows 11 (6/2/24): no errors/warnings/notes
 
 * Mac-builder (4/10/23): 1 NOTE for "sub-directories of 1Mb or more", but it is expected.
 
-* GitHub (4/9/23): 1 NOTE for large sub-directories, but no
+* GitHub (6/2/24): 1 NOTE for large sub-directories, but no
 warnings/errors.
 
 * R-Hub Windows Server 2022 (4/9/23): NOTE, it doesn't seem to be a problem
@@ -27,9 +29,11 @@ This isn't the fault of my package.
 
 * R-Hub Ubuntu Linux (4/10/23): NOTEs for sub-directory size and slow example.
 
-* Win-Builder, devel (4/10/23): OK
+* Win-Builder, devel (6/3/24): 1 NOTE for a possibly invalid URL, but the URL
+is fine.
 
-* Win-Builder, release (4/8/23): NOTE for a slow example
+* Win-Builder, release (6/4/24): 1 NOTE for a possibly invalid URL, but the URL
+is fine.
 
 ## Downstream dependencies
 
