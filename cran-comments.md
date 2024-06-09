@@ -1,13 +1,20 @@
 I fixed the warning on CRAN.
 I received an email that I had to fix these issues by 5/28 or it would be
-removed from CRAN.
+removed from CRAN, and then another email last saying that I had until 6/20.
+
+I'm not sure I'm using the R-Hub checks the right way now that there are 24
+choices. I picked a handful on a variety of platforms, I hope that is good enough.
+
+Mac builder (`devtools::check_mac_release()`) didn't work for me, but I ran both
+of the MacOS options in R-Hub with no issues. The Mac build link just gives
+a 404 error.
 
 ## Test environments
 * local Windows 11 install, R 4.4.0
 * R-hub builder
 * Ubuntu 22.04.4 via GitHub Actions
 * Win-builder
-* Mac-builder
+* (didn't work this time: Mac-builder)
 
 ## R CMD check results
 
@@ -18,16 +25,23 @@ removed from CRAN.
 * GitHub (6/2/24): 1 NOTE for large sub-directories, but no
 warnings/errors.
 
-* R-Hub Windows Server 2022 (4/9/23): NOTE, it doesn't seem to be a problem
+* R-Hub linux (ubuntu-latest on GitHub) (6/7/24): 1 NOTE for sub-directory size.
 with my package.
 
-* R-Hub Fedora Linux (4/10/23): NOTEs for sub-directory size and slow example.
+* R-Hub atlas (Fedora Linux 38) (6/7/24): OK
 
-* R-Hub Debian Linux (4/10/23): PREPERROR. It says:
-"ERROR: dependency ‘RcppArmadillo’ is not available for package ‘GauPro’".
-This isn't the fault of my package.
+* R-Hub clang19 (Ubuntu 22.04.4 LTS) (6/9/24): 1 NOTE for
+  Compilation used the following non-portable flag(s):
+    ‘-Wp,-D_FORTIFY_SOURCE=3’
 
-* R-Hub Ubuntu Linux (4/10/23): NOTEs for sub-directory size and slow example.
+* R-Hub gcc14 (Fedora Linux 40) (6/9/24): OK
+
+* R-Hub ubuntu release (Ubuntu 22.04.4 LTS) (6/9/24): 1 NOTE for
+"Running R code in ‘testthat.R’ had CPU time 3 times elapsed time"
+
+* R-Hub macOS (macos-13 on GitHub) (6/9/24): OK
+
+* R-Hub macOS-arm64 (macos-latest on GitHub) (6/9/24): OK
 
 * Win-Builder, devel (6/3/24): 1 NOTE for a possibly invalid URL, but the URL
 is fine.
