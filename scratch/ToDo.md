@@ -1,5 +1,7 @@
 # GauPro to do
 
+* Fix lost braces note
+
 * EI/CorEI/AugEI/qEI: nopt, test, doc
   * Use t-dist
 
