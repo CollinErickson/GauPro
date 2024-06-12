@@ -72,7 +72,7 @@ The correlation for any point with itself should be 1, i.e. $R(\mathbf{x}, \math
 When a correlation function is used, a variance parameter $\sigma^2$ must be estimated to scale
 the correlation matrix into a covariance matrix. 
 Thus the covariance matrix is $C(X) = \hat{\sigma}^2 R(X)$.
-$R$ is overloaded similarly to $Sigma$.
+$R$ is overloaded similarly to $\Sigma$.
 
 ### Gaussian correlation
 
