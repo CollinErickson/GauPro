@@ -307,7 +307,7 @@ test_that("Cts kernels 2D", {
   n <- 20
   d <- 2
   x <- matrix(runif(n*d), ncol=d)
-  x <- lhs::maximinLHS(n, d) # Better spacing might avoid grad issues?
+  x <- lhs_maximinLHS(n, d) # Better spacing might avoid grad issues?
   # x <- rbind(x, x[1,]) # Add repeated x since that could cause issues
   # n <- nrow(x)
   f <- function(x) {abs(sin(x[1]^.8*6))^1.2 + log(1+(x[2]-.3)^2) + x[1]*x[2]}
@@ -1160,7 +1160,7 @@ test_that("Formula/data input 3", {
 test_that("EI with cts", {
   n <- 20
   d <- 2
-  x <- lhs::maximinLHS(n, d) # Better spacing might avoid grad issues?
+  x <- lhs_maximinLHS(n, d) # Better spacing might avoid grad issues?
   n <- nrow(x)
   f <- function(x) {abs(sin(x[1]^.8*6))^1.2 + log(1+(x[2]-.3)^2) + x[1]*x[2]}
   y <- apply(x, 1, f) + rnorm(n,0,1e-2) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)

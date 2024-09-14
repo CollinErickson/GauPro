@@ -11,6 +11,10 @@
 #' @docType class
 #' @importFrom R6 R6Class
 #' @importFrom stats model.frame
+#' @importFrom rmarkdown html_vignette
+#' @importFrom tidyr pivot_longer
+#' @importFrom mixopt mopar_cts
+#' @importFrom numDeriv grad
 #' @export
 #' @useDynLib GauPro
 #' @importFrom Rcpp evalCpp
@@ -309,7 +313,7 @@ GauPro_kernel_model <- R6::R6Class(
 
       # If ranges are too big/small, give message
       if ((diff(range(self$Z[,1])) < 1e-5) &&
-        self$verbose >= 0) {
+          self$verbose >= 0) {
         message(paste0("* Range of Z is small (< 1e-5): transform to",
                        " reasonable",
                        " scale (e.g., 0 to 1) to avoid bad fit"))
@@ -1252,7 +1256,7 @@ GauPro_kernel_model <- R6::R6Class(
       ymin <- mins[2] - .03 * (maxs[2] - mins[2])
       ymax <- maxs[2] + .03 * (maxs[2] - mins[2])
       if (mean) {
-        plotmean <- ContourFunctions::cf_func(self$predict, batchmax=Inf,
+        plotmean <- ContourFunctions_cf_func(self$predict, batchmax=Inf,
                                               xlim=c(xmin, xmax),
                                               ylim=c(ymin, ymax),
                                               pts=self$X,
@@ -1260,7 +1264,7 @@ GauPro_kernel_model <- R6::R6Class(
                                               gg=TRUE)
       }
       if (se) {
-        plotse <- ContourFunctions::cf_func(
+        plotse <- ContourFunctions_cf_func(
           function(X) {self$predict(X, se.fit=T)$se}, batchmax=Inf,
           xlim=c(xmin, xmax),
           ylim=c(ymin, ymax),
@@ -1268,9 +1272,15 @@ GauPro_kernel_model <- R6::R6Class(
           n=n,
           gg=TRUE)
       }
-      if (mean && se) {
-        gridExtra::grid.arrange(plotmean, plotse,
-                                nrow=if (horizontal) {1} else{2})
+      if (mean && se && requireNamespace("ContourFunctions", quietly = TRUE)) {
+        if (requireNamespace("gridExtra", quietly = TRUE)) {
+          gridExtra::grid.arrange(plotmean, plotse,
+                                  nrow=if (horizontal) {1} else{2})
+        } else {
+          message(paste0("Please install R package gridExtra to see all plots, ",
+                         "only showing the mean plot, not se"))
+          plotmean
+        }
       } else if (mean) {
         plotmean
       } else if (se) {
@@ -1287,7 +1297,8 @@ GauPro_kernel_model <- R6::R6Class(
     plotmarginal = function(npt=5, ncol=NULL) {
       # pt <- colMeans(self$X)
       # pt
-      pt <- lhs::maximinLHS(n=npt, k=self$D)
+      # pt <- lhs::maximinLHS(n=npt, k=self$D)
+      pt <- lhs_maximinLHS(n=npt, k=self$D)
       pt <- sweep(pt, 2, apply(self$X, 2, max) - apply(self$X, 2, min), "*")
       pt <- sweep(pt, 2, apply(self$X, 2, min), "+")
 
@@ -1359,7 +1370,8 @@ GauPro_kernel_model <- R6::R6Class(
 
         ylim <- c(min(pts2$predlower), max(pts2$predupper))
         for (iii in 1:self$D) {
-          pts2_iii <- dplyr::filter(pts2, i==iii)
+          # pts2_iii <- dplyr::filter(pts2, i==iii)
+          pts2_iii <- pts2[pts2$i == iii, ]
           if (iii %in% factorindexes && !is.null(self$convert_formula_data)) {
             for (jjj in seq_along(self$convert_formula_data$factors)) {
               if (iii == self$convert_formula_data$factors[[jjj]]$index) {
@@ -1394,9 +1406,16 @@ GauPro_kernel_model <- R6::R6Class(
           }
           plots[[iii]] <- plt
         }
-        gridExtra::grid.arrange(grobs=plots,
-                                left="Predicted Z (95% interval)",
-                                bottom='x along dimension i', ncol=ncol)
+
+        if (requireNamespace("gridExtra", quietly = TRUE)) {
+          gridExtra::grid.arrange(grobs=plots,
+                                  left="Predicted Z (95% interval)",
+                                  bottom='x along dimension i', ncol=ncol)
+        } else {
+          message(paste0("Please install R package gridExtra to see all plots, ",
+                         "only showing the first plot"))
+          plots[[1]]
+        }
       }
     },
     #' @description Plot marginal prediction for random sample of inputs
@@ -1404,7 +1423,9 @@ GauPro_kernel_model <- R6::R6Class(
     #' @param ncol Number of columns in the plot
     plotmarginalrandom = function(npt=100, ncol=NULL) {
 
-      pt <- lhs::maximinLHS(n=npt, k=self$D)
+      # pt <- lhs::maximinLHS(n=npt, k=self$D)
+      pt <- lhs_maximinLHS(n=npt, k=self$D)
+
       pt <- sweep(pt, 2, apply(self$X, 2, max) - apply(self$X, 2, min), "*")
       pt <- sweep(pt, 2, apply(self$X, 2, min), "+")
 
@@ -1519,9 +1540,16 @@ GauPro_kernel_model <- R6::R6Class(
           }
           plots[[iii]] <- plt
         }
-        gridExtra::grid.arrange(grobs=plots,
-                                left="Predicted Z (95% interval)",
-                                bottom='x along dimension i', ncol=ncol)
+
+        if (requireNamespace("gridExtra", quietly = TRUE)) {
+          gridExtra::grid.arrange(grobs=plots,
+                                  left="Predicted Z (95% interval)",
+                                  bottom='x along dimension i', ncol=ncol)
+        } else {
+          message(paste0("Please install R package gridExtra to see all plots, ",
+                         "only showing the first plot"))
+          plots[[1]]
+        }
       }
     },
     #' @description Plot the kernel

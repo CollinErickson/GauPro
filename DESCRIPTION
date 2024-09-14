@@ -14,26 +14,28 @@ Description: Fits a Gaussian process model to data. Gaussian processes
 License: GPL-3
 LinkingTo: Rcpp, RcppArmadillo
 Imports:
+    ggplot2,
     Rcpp,
     R6,
     lbfgs
 RoxygenNote: 7.3.1
-Suggests: testthat,
-    knitr,
-    rmarkdown,
-    microbenchmark,
+Depends:
+    mixopt (> 0.1.0),
     numDeriv,
+    rmarkdown,
+    tidyr
+Suggests:
     ContourFunctions,
     dplyr,
-    ggplot2,
     ggrepel,
     gridExtra,
+    knitr,
     lhs,
-    mixopt (> 0.1.0),
+    MASS,
+    microbenchmark,
     rlang,
     splitfngr,
-    tidyr,
-    MASS
+    testthat
 VignetteBuilder: knitr
 URL: https://github.com/CollinErickson/GauPro
 BugReports: https://github.com/CollinErickson/GauPro/issues

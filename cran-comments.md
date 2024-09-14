@@ -1,13 +1,9 @@
-I fixed the warning on CRAN.
-I received an email that I had to fix these issues by 5/28 or it would be
-removed from CRAN, and then another email last saying that I had until 6/20.
+I received an email from Brian Ripley on 8/27 that I needed to fix this package.
+One of my other packages, ContourFunctions, had been removed from CRAN,
+and this package was failing noSuggests. I have resubmitted ContourFunctions.
+I fixed this package so that everything in Suggests was moved to Depends
+or is only used within requireNamespace.
 
-I'm not sure I'm using the R-Hub checks the right way now that there are 24
-choices. I picked a handful on a variety of platforms, I hope that is good enough.
-
-Mac builder (`devtools::check_mac_release()`) didn't work for me, but I ran both
-of the MacOS options in R-Hub with no issues. The Mac build link just gives
-a 404 error.
 
 ## Test environments
 * local Windows 11 install, R 4.4.0

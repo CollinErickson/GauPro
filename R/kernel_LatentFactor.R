@@ -10,6 +10,7 @@
 #' @useDynLib GauPro, .registration = TRUE
 #' @importFrom Rcpp evalCpp
 #' @importFrom stats optim
+#' @importFrom ggplot2 ggplot
 # @keywords data, kriging, Gaussian process, regression
 #' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
 #' @format \code{\link{R6Class}} object.
@@ -59,6 +60,7 @@
 #' m5$kernel$plotLatent()
 #'
 # 2D, Gaussian on 1D, LatentFactor on 2nd dim
+#' if (requireNamespace("dplyr", quietly=TRUE)) {
 #' library(dplyr)
 #' n <- 20
 #' X <- cbind(matrix(runif(n,2,6), ncol=1),
@@ -89,6 +91,7 @@
 #' # See which points affect (5.5, 3 themost)
 #' data.frame(X, cov=gp$kernel$k(X, c(5.5,3))) %>% arrange(-cov)
 #' plot(k2b)
+#' }
 # LatentFactorKernel ----
 LatentFactorKernel <- R6::R6Class(
   classname = "GauPro_kernel_LatentFactorKernel",
@@ -524,15 +527,27 @@ LatentFactorKernel <- R6::R6Class(
       pdf <- as.data.frame(pmat)
       pdf$name <- paste0("x=",1:nrow(pdf))
       if (self$latentdim == 1) {
-        ggplot2::ggplot(pdf, ggplot2::aes(V1, 0, label=name)) +
+        p <- ggplot2::ggplot(pdf, ggplot2::aes(V1, 0, label=name)) +
           ggplot2::geom_point() +
           ggplot2::scale_y_continuous(breaks=NULL) +
-          ggrepel::geom_label_repel() +
           ggplot2::ylab(NULL)
+        if (requireNamespace("ggrepel", quietly = TRUE)) {
+          p <- p + ggrepel::geom_label_repel()
+        } else {
+          message("Install R package ggrepel for better label placement")
+          p <- p + ggplot2::geom_label()
+        }
+        p
       } else if (self$latentdim == 2) {
-        ggplot2::ggplot(pdf, ggplot2::aes(V1, V2, label=name)) +
-          ggplot2::geom_point() +
-          ggrepel::geom_label_repel()
+        p <- ggplot2::ggplot(pdf, ggplot2::aes(V1, V2, label=name)) +
+          ggplot2::geom_point()
+        if (requireNamespace("ggrepel", quietly = TRUE)) {
+          p <- p + ggrepel::geom_label_repel()
+        } else {
+          message("Install R package ggrepel for better label placement")
+          p <- p + ggplot2::geom_label()
+        }
+        p
       } else {
         stop("Can't plotLatent for latentdim > 2")
       }

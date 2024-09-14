@@ -162,8 +162,14 @@ GauPro_kernel <- R6::R6Class(
       if (length(plots) == 1) {
         plots[[1]]
       } else {
-        gridExtra::grid.arrange(grobs=plots,
-                                ncol=floor(sqrt(length(plots))))
+        if (requireNamespace("gridExtra", quietly = TRUE)) {
+          gridExtra::grid.arrange(grobs=plots,
+                                  ncol=floor(sqrt(length(plots))))
+        } else {
+          message(paste0("Please install R package gridExtra to see all plots, ",
+                         "only showing the first plot"))
+          plots[[1]]
+        }
       }
     },
     # Below only worked for cts, not factors.

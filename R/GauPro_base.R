@@ -33,6 +33,7 @@
 #' @field K Covariance matrix
 #' @field Kchol Cholesky factorization of K
 #' @field Kinv Inverse of K
+#' @importFrom stats runif
 #' @section Methods:
 #' \describe{
 #'   \item{\code{new(X, Z, corr="Gauss", verbose=0, separable=T, useC=F,useGrad=T,
@@ -433,7 +434,7 @@ GauPro_base <- R6::R6Class(
       xmax <- maxs[1] + .03 * (maxs[1] - mins[1])
       ymin <- mins[2] - .03 * (maxs[2] - mins[2])
       ymax <- maxs[2] + .03 * (maxs[2] - mins[2])
-      ContourFunctions::cf_func(self$predict, batchmax=Inf,
+      ContourFunctions_cf_func(self$predict, batchmax=Inf,
                                 xlim=c(xmin, xmax),
                                 ylim=c(ymin, ymax),
                                 pts=self$X)

@@ -34,6 +34,7 @@
 #'
 #'
 # 2D, Gaussian on 1D, OrderedFactor on 2nd dim
+#' if (requireNamespace("dplyr", quietly=TRUE)) {
 #' library(dplyr)
 #' n <- 20
 #' X <- cbind(matrix(runif(n,2,6), ncol=1),
@@ -64,6 +65,7 @@
 #' # See which points affect (5.5, 3 themost)
 #' data.frame(X, cov=gp$kernel$k(X, c(5.5,3))) %>% arrange(-cov)
 #' plot(k2b)
+#' }
 # OrderedFactorKernel ----
 OrderedFactorKernel <- R6::R6Class(
   classname = "GauPro_kernel_OrderedFactorKernel",
@@ -443,11 +445,16 @@ OrderedFactorKernel <- R6::R6Class(
       x <- c(0, cumsum(self$p))
       pdf <- data.frame(x=x, y=0)
       pdf$name <- paste0("x=",1:nrow(pdf))
-      ggplot2::ggplot(pdf, ggplot2::aes(x, 0, label=name)) +
+      p <- ggplot2::ggplot(pdf, ggplot2::aes(x, 0, label=name)) +
         ggplot2::geom_point() +
-        ggrepel::geom_label_repel() +
         ggplot2::scale_y_continuous(breaks=NULL) +
         ggplot2::ylab(NULL)
+      if (requireNamespace("ggrepel", quietly=TRUE)) {
+        p <- p + ggrepel::geom_label_repel()
+      } else {
+        message("Install R package ggrepel for better label placement")
+        p <- p + ggplot2::geom_label()
+      }
     },
     #' @description Print this object
     print = function() {

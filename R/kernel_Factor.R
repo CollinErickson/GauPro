@@ -37,6 +37,7 @@
 #'
 #'
 #' # 2D, Gaussian on 1D, index on 2nd dim
+#' if (requireNamespace("dplyr", quietly=TRUE)) {
 #' library(dplyr)
 #' n <- 20
 #' X <- cbind(matrix(runif(n,2,6), ncol=1),
@@ -66,7 +67,7 @@
 #' # See which points affect (5.5, 3 themost)
 #' data.frame(X, cov=gp$kernel$k(X, c(5.5,3))) %>% arrange(-cov)
 #' plot(k2b)
-#'
+#' }
 #'
 # FactorKernel ----
 FactorKernel <- R6::R6Class(
