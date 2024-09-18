@@ -1,0 +1,5 @@
+Sys.getenv("_R_CHECK_DEPENDS_ONLY_")
+Sys.setenv("_R_CHECK_DEPENDS_ONLY_"=TRUE)
+Sys.getenv("_R_CHECK_DEPENDS_ONLY_")
+Sys.setenv("_R_CHECK_DEPENDS_ONLY_"="")
+Sys.getenv("_R_CHECK_DEPENDS_ONLY_")
