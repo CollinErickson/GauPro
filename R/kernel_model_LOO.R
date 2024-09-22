@@ -7,8 +7,8 @@
 #' @importFrom Rcpp evalCpp
 #' @importFrom stats optim
 # @keywords data, kriging, Gaussian process, regression
-#' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
-#' @format \code{\link{R6Class}} object.
+#' @return Object of \code{\link[R6]{R6Class}} with methods for fitting GP model.
+#' @format \code{\link[R6]{R6Class}} object.
 #' @field tmod A second GP model for the t-values of leave-one-out predictions
 #' @field use_LOO Should the leave-one-out error corrections be used?
 #' @examples

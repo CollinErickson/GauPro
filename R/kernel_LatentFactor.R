@@ -12,8 +12,8 @@
 #' @importFrom stats optim
 #' @importFrom ggplot2 ggplot
 # @keywords data, kriging, Gaussian process, regression
-#' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
-#' @format \code{\link{R6Class}} object.
+#' @return Object of \code{\link[R6]{R6Class}} with methods for fitting GP model.
+#' @format \code{\link[R6]{R6Class}} object.
 #' @field p Parameter for correlation
 #' @field p_est Should p be estimated?
 #' @field p_lower Lower bound of p

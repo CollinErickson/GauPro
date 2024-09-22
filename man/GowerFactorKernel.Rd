@@ -6,7 +6,7 @@
 \alias{k_GowerFactorKernel}
 \title{Gower factor Kernel R6 class}
 \format{
-\code{\link{R6Class}} object.
+\code{\link[R6]{R6Class}} object.
 }
 \usage{
 k_GowerFactorKernel(
@@ -55,7 +55,7 @@ indices are the same? Use to avoid decomposition errors, similar to
 adding a nugget.}
 }
 \value{
-Object of \code{\link{R6Class}} with methods for fitting GP model.
+Object of \code{\link[R6]{R6Class}} with methods for fitting GP model.
 }
 \description{
 Gower factor Kernel R6 class

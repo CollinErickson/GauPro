@@ -6,7 +6,7 @@
 \alias{k_Matern32}
 \title{Matern 3/2 Kernel R6 class}
 \format{
-\code{\link{R6Class}} object.
+\code{\link[R6]{R6Class}} object.
 }
 \usage{
 k_Matern32(
@@ -44,7 +44,7 @@ k_Matern32(
 \item{useC}{Should C code used? Much faster.}
 }
 \value{
-Object of \code{\link{R6Class}} with methods for fitting GP model.
+Object of \code{\link[R6]{R6Class}} with methods for fitting GP model.
 }
 \description{
 Matern 3/2 Kernel R6 class

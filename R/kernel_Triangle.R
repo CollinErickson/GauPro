@@ -7,8 +7,8 @@
 #' @importFrom Rcpp evalCpp
 #' @importFrom stats optim
 # @keywords data, kriging, Gaussian process, regression
-#' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
-#' @format \code{\link{R6Class}} object.
+#' @return Object of \code{\link[R6]{R6Class}} with methods for fitting GP model.
+#' @format \code{\link[R6]{R6Class}} object.
 #' @examples
 #' k1 <- Triangle$new(beta=0)
 #' plot(k1)

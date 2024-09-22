@@ -7,8 +7,8 @@
 #' @importFrom Rcpp evalCpp
 #' @importFrom stats optim
 # @keywords data, kriging, Gaussian process, regression
-#' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
-#' @format \code{\link{R6Class}} object.
+#' @return Object of \code{\link[R6]{R6Class}} with methods for fitting GP model.
+#' @format \code{\link[R6]{R6Class}} object.
 #' @field k1 kernel 1
 #' @field k2 kernel 2
 # @field k1_param_length param length of kernel 1

@@ -7,8 +7,8 @@
 #' @importFrom Rcpp evalCpp
 #' @importFrom stats optim
 # @keywords data, kriging, Gaussian process, regression
-#' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
-#' @format \code{\link{R6Class}} object.
+#' @return Object of \code{\link[R6]{R6Class}} with methods for fitting GP model.
+#' @format \code{\link[R6]{R6Class}} object.
 #' @field D Number of input dimensions of data
 #' @field kernel Kernel to use on indices that aren't ignored
 #' @field ignoreinds Indices to ignore. For a matrix X, these are the columns

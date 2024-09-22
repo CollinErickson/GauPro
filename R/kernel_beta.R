@@ -13,8 +13,8 @@
 #' @importFrom Rcpp evalCpp
 #' @importFrom stats optim
 # @keywords data, kriging, Gaussian process, regression
-#' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
-#' @format \code{\link{R6Class}} object.
+#' @return Object of \code{\link[R6]{R6Class}} with methods for fitting GP model.
+#' @format \code{\link[R6]{R6Class}} object.
 #' @field beta Parameter for correlation. Log of theta.
 #' @field beta_est Should beta be estimated?
 #' @field beta_lower Lower bound of beta

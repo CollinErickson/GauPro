@@ -5,10 +5,10 @@
 \alias{GauPro_Gauss}
 \title{Corr Gauss GP using inherited optim}
 \format{
-\code{\link{R6Class}} object.
+\code{\link[R6]{R6Class}} object.
 }
 \value{
-Object of \code{\link{R6Class}} with methods for fitting GP model.
+Object of \code{\link[R6]{R6Class}} with methods for fitting GP model.
 }
 \description{
 Corr Gauss GP using inherited optim

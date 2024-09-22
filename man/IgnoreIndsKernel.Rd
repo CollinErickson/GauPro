@@ -6,7 +6,7 @@
 \alias{k_IgnoreIndsKernel}
 \title{Kernel R6 class}
 \format{
-\code{\link{R6Class}} object.
+\code{\link[R6]{R6Class}} object.
 }
 \usage{
 k_IgnoreIndsKernel(k, ignoreinds, useC = TRUE)
@@ -19,7 +19,7 @@ k_IgnoreIndsKernel(k, ignoreinds, useC = TRUE)
 \item{useC}{Should C code used? Not implemented for IgnoreInds.}
 }
 \value{
-Object of \code{\link{R6Class}} with methods for fitting GP model.
+Object of \code{\link[R6]{R6Class}} with methods for fitting GP model.
 }
 \description{
 Kernel R6 class

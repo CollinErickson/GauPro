@@ -7,8 +7,8 @@
 #' @importFrom Rcpp evalCpp
 #' @importFrom stats optim
 # @keywords optimization, Bayesian optimization
-#' @return Object of \code{\link{R6Class}} with methods for running EGO.
-#' @format \code{\link{R6Class}} object.
+#' @return Object of \code{\link[R6]{R6Class}} with methods for running EGO.
+#' @format \code{\link[R6]{R6Class}} object.
 #' @examples
 #' #e1 <- EGO$new(func=sin, n0=10, n=10, d=1)
 EGO <- R6::R6Class(

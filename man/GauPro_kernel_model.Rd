@@ -5,10 +5,10 @@
 \alias{GauPro_kernel_model}
 \title{Gaussian process model with kernel}
 \format{
-\code{\link{R6Class}} object.
+\code{\link[R6]{R6Class}} object.
 }
 \value{
-Object of \code{\link{R6Class}} with methods for fitting GP model.
+Object of \code{\link[R6]{R6Class}} with methods for fitting GP model.
 }
 \description{
 Class providing object with methods for fitting a GP model.

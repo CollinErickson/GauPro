@@ -7,12 +7,12 @@
 #' @importFrom Rcpp evalCpp
 #' @importFrom stats optim
 # @keywords data, kriging, Gaussian process, regression
-#' @return Object of \code{\link{R6Class}} with methods for fitting GP model.
+#' @return Object of \code{\link[R6]{R6Class}} with methods for fitting GP model.
 #' @field alpha alpha value (the exponent). Between 0 and 2.
 #' @field alpha_lower Lower bound for alpha
 #' @field alpha_upper Upper bound for alpha
 #' @field alpha_est Should alpha be estimated?
-#' @format \code{\link{R6Class}} object.
+#' @format \code{\link[R6]{R6Class}} object.
 #' @examples
 #' k1 <- PowerExp$new(beta=0, alpha=0)
 PowerExp <- R6::R6Class(

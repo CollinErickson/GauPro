@@ -6,7 +6,7 @@
 \alias{k_RatQuad}
 \title{Rational Quadratic Kernel R6 class}
 \format{
-\code{\link{R6Class}} object.
+\code{\link[R6]{R6Class}} object.
 }
 \usage{
 k_RatQuad(
@@ -56,7 +56,7 @@ k_RatQuad(
 \item{useC}{Should C code used? Much faster if implemented.}
 }
 \value{
-Object of \code{\link{R6Class}} with methods for fitting GP model.
+Object of \code{\link[R6]{R6Class}} with methods for fitting GP model.
 }
 \description{
 Rational Quadratic Kernel R6 class
