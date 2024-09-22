@@ -294,7 +294,7 @@ test_that("Cts kernels 1D", {
       }
     }
     # This is where it will fail if none succeeded
-    expect_true(alleq,
+    expect_true(isTRUE(alleq),
                 label=paste(kern_char,
                             'numgrad matches symbolic grad (failed on all',
                             maxattempts, "attempts)"))
