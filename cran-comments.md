@@ -1,16 +1,15 @@
-I received an email from Brian Ripley on 8/27 that I needed to fix this package.
-One of my other packages, ContourFunctions, had been removed from CRAN,
-and this package was failing noSuggests. I have resubmitted ContourFunctions.
+I received an email from Brian Ripley on 8/27 that I needed to fix this package
+due to the issue with Suggests.
 I fixed this package so that everything in Suggests was moved to Depends
 or is only used within requireNamespace.
 
 
 ## Test environments
-* local Windows 11 install, R 4.4.0
-* R-hub builder
+* local Windows 11 install, R 4.4.1
+* R-hub builder (multiple)
 * Ubuntu 22.04.5 via GitHub Actions
-* Win-builder
-* (didn't work this time: Mac-builder)
+* Win-builder (devel and release)
+* Mac-builder
 
 ## R CMD check results
 
@@ -22,36 +21,26 @@ or is only used within requireNamespace.
 1 NOTE for "sub-directories of 1Mb or more", but it is expected.
 1 WARNING for package ‘mixopt’ was built under R version 4.4.1. Not a real issue.
 
-* GitHub Actions, Ubuntu (9/21/24): 1 NOTE for large sub-directories, but no
+* GitHub Actions, Ubuntu (9/22/24): 1 NOTE for large sub-directories, but no
 warnings/errors.
 
-* R-Hub linux (ubuntu-latest on GitHub) (6/7/24): 1 WARNING, 1 NOTE
-1 NOTE for for sub-directory size.
-Warning: package ‘mixopt’ was built under R version 4.4.1
+* R-Hub ubuntu gcc-12 (9/22/24): 1 NOTE for a slow test
 
-* R-Hub atlas (Fedora Linux 38) (6/7/24): OK
+* R-Hub linux (R-devel) (9/22/24): 1 NOTE for a large sub-directory
 
-* R-Hub clang19 (Ubuntu 22.04.4 LTS) (6/9/24): 1 NOTE for
-  Compilation used the following non-portable flag(s):
-    ‘-Wp,-D_FORTIFY_SOURCE=3’
+* R-Hub macos (R-devel) (9/22/24): OK
 
-* R-Hub gcc14 (Fedora Linux 40) (6/9/24): OK
+* R-Hub windows (R-devel) (9/22/24): OK
 
-* R-Hub ubuntu release (Ubuntu 22.04.4 LTS) (6/9/24): 1 NOTE for
-"Running R code in ‘testthat.R’ had CPU time 3 times elapsed time"
+* Win-Builder, devel (9/22/24): 1 NOTE for "checking CRAN incoming feasibility".
+New submission, possibly misspelled words that are fine, possibly broken link
+that is fine.
 
-* R-Hub macOS (macos-13 on GitHub) (6/9/24): OK
-
-* R-Hub macOS-arm64 (macos-latest on GitHub) (6/9/24): OK
-
-* Win-Builder, devel (6/3/24): 1 NOTE for a possibly invalid URL, but the URL
-is fine.
-
-* Win-Builder, release (6/4/24): 1 NOTE for a possibly invalid URL, but the URL
-is fine.
+* Win-Builder, release (9/22/24):  1 NOTE for "checking CRAN incoming feasibility".
+New submission, possibly misspelled words that are fine, possibly broken link
+that is fine.
 
 ## Downstream dependencies
 
-* comparer: This is another one of my packages. The changes in this package
-won't affect it since I only changed the tests. I also ran R CMD CHECK on
-on comparer and it passed with no issues.
+* (formerly) comparer: This is another one of my packages, but it was also removed from 
+CRAN for the Suggests issue. I'll fix this next.
