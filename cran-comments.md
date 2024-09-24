@@ -1,7 +1,6 @@
-I received an email from Brian Ripley on 8/27 that I needed to fix this package
-due to the issue with Suggests.
-I fixed this package so that everything in Suggests was moved to Depends
-or is only used within requireNamespace.
+I submitted this yesterday (fixing Suggests issue). Uwe emailed me and asked
+me to change one of the links in a vignette. I have made that change and 
+nothing else.
 
 
 ## Test environments
