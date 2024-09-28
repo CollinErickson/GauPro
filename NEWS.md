@@ -1,7 +1,11 @@
+# GauPro 0.2.13.9000
+
 # GauPro 0.2.13
 
 Fixed Suggests issue to get back on CRAN. Packages in Suggests were moved
 to Depends, removed, or protected by requireNamespace.
+
+Accepted to CRAN on 9/26/24.
 
 # GauPro 0.2.12
 

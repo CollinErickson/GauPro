@@ -1,7 +1,7 @@
 Package: GauPro
 Type: Package
 Title: Gaussian Process Fitting
-Version: 0.2.13
+Version: 0.2.13.9000
 Authors@R: person(given = "Collin",
                   family = "Erickson",
                   role = c("aut", "cre"),
