@@ -1563,6 +1563,9 @@ GauPro_kernel_model <- R6::R6Class(
     plotLOO = function() {
       ploo <- self$pred_LOO(se.fit = T)
       loodf <- cbind(ploo, Z=self$Z)
+      if (self$normalize) {
+        loodf$Z <- loodf$Z * self$normalize_sd + self$normalize_mean
+      }
       loodf
       loodf$upper <- loodf$fit + 1.96 * loodf$se.fit
       loodf$lower <- loodf$fit - 1.96 * loodf$se.fit
