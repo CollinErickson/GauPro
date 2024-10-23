@@ -50,7 +50,7 @@ $y(x)$ is the random variable representing the output $Y_x$ corresponding to inp
 on the data $Y_X$.
 Thus $y(x) = Y_x | Y_X$, and $y(x)$ is a random variable with distribution
 
-$$ y(x) \sim N \left( \mu_x + \Sigma_{xX} \Sigma_x^{-1}(Y_X - \mu_X) , ~\Sigma_x + \Sigma_{xX} \Sigma_X^{-1} \Sigma_{Xx}\right)$$
+$$ y(x) \sim N \left( \mu_x + \Sigma_{xX} \Sigma_x^{-1}(Y_X - \mu_X) , ~\Sigma_x - \Sigma_{xX} \Sigma_X^{-1} \Sigma_{Xx}\right)$$
 
 
 # Gradient of mean function

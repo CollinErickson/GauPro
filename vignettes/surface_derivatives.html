@@ -12,7 +12,7 @@
 
 <meta name="author" content="Collin Erickson" />
 
-<meta name="date" content="2022-11-09" />
+<meta name="date" content="2024-10-22" />
 
 <title>Spatial derivatives of Gaussian process models</title>
 
@@ -49,6 +49,7 @@ ul.task-list{list-style: none;}
 div.csl-bib-body { }
 div.csl-entry {
 clear: both;
+margin-bottom: 0em;
 }
 .hanging div.csl-entry {
 margin-left:2em;
@@ -262,7 +263,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <h1 class="title toc-ignore">Spatial derivatives of Gaussian process
 models</h1>
 <h4 class="author">Collin Erickson</h4>
-<h4 class="date">2022-11-09</h4>
+<h4 class="date">2024-10-22</h4>
 
 
 
@@ -283,7 +284,7 @@ conditional on the data <span class="math inline">\(Y_X\)</span>. Thus
 <span class="math inline">\(y(x) = Y_x | Y_X\)</span>, and <span class="math inline">\(y(x)\)</span> is a random variable with
 distribution</p>
 <p><span class="math display">\[ y(x) \sim N \left( \mu_x + \Sigma_{xX}
-\Sigma_x^{-1}(Y_X - \mu_X) , ~\Sigma_x + \Sigma_{xX} \Sigma_X^{-1}
+\Sigma_x^{-1}(Y_X - \mu_X) , ~\Sigma_x - \Sigma_{xX} \Sigma_X^{-1}
 \Sigma_{Xx}\right)\]</span></p>
 <div id="gradient-of-mean-function" class="section level1">
 <h1>Gradient of mean function</h1>
@@ -570,7 +571,7 @@ are <span class="math display">\[
 <h3>Relating this back to <span class="math inline">\(||g||^2\)</span></h3>
 <p>For <span class="math inline">\(||g||^2\)</span> we had <span class="math inline">\(A=I\)</span>, <span class="math inline">\(\mu=\frac{\partial \Sigma_{x,X}}{\partial x}^T
 \Sigma_X^{-1} (Y_X - \mu_X)\)</span>, and <span class="math inline">\(\Sigma=\frac{\partial^2 \Sigma(x_1, x_2)}{\partial
-x_1 \partial x_2} + \frac{\partial \Sigma(x_1, X)}{\partial x_1}
+x_1 \partial x_2}  + \frac{\partial \Sigma(x_1, X)}{\partial x_1}
 \Sigma_x^{-1} \frac{\partial \Sigma(X, x_2)}{\partial x_2}\)</span></p>
 <p>Thus we need <span class="math inline">\(P\)</span> and <span class="math inline">\(\Lambda\)</span> from the eigendecomposition <span class="math inline">\(\Sigma = P^T \Lambda P\)</span>. <span class="math inline">\(\Lambda\)</span> will give the <span class="math inline">\(\lambda_j\)</span>.</p>
 <p>Then we need <span class="math inline">\(b = P \Sigma^{-1/2}
@@ -590,7 +591,7 @@ S W = W^T S S W = W^T D W = \Sigma^{-1}\]</span></p>
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1 class="unnumbered">References</h1>
-<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
 <div id="ref-halvorsen" class="csl-entry">
 halvorsen, kjetil b. 2015. <span>“Sum of Squares of Dependent Gaussian
 Random Variables.”</span> <em>Mathematics Stack Exchange</em>.
