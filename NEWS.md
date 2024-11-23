@@ -1,5 +1,7 @@
 # GauPro 0.2.13.9000
 
+Bug fix from predictions when there are no categorical predictors. 
+
 # GauPro 0.2.13
 
 Fixed Suggests issue to get back on CRAN. Packages in Suggests were moved

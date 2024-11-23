@@ -253,7 +253,7 @@ GowerFactorKernel <- R6::R6Class(
         abs(x - as.integer(x)) < 1e-8,
         abs(y - as.integer(y)) < 1e-8
       )
-      if (x == y) {
+      if (all(x == y)) {
         # out <- s2 * 1
         # Trying to avoid singular values
         if (isdiag) {
