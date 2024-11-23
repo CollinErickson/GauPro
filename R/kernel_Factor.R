@@ -202,7 +202,7 @@ FactorKernel <- R6::R6Class(
       y <- y[self$xindex]
       stopifnot(x>=1, y>=1, x<=self$nlevels, y<=self$nlevels,
                 abs(x-as.integer(x)) < 1e-8, abs(y-as.integer(y)) < 1e-8)
-      if (x==y) {
+      if (all(x == y)) {
         # Trying to avoid singular values
         if (isdiag) {
           out <- s2 * 1
