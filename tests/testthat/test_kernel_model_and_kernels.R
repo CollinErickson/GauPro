@@ -1146,6 +1146,7 @@ test_that("Formula/data input 2", {
   # expect_equal(colnames(dfqEI$par), attr(gpdf$formula, "term.labels"))
   # expect_equal(dim(dfqEI$par), c(2,4))
 })
+
 test_that("Formula/data input 3", {
   # Add ordered in autokernel
   library(dplyr)
@@ -1163,7 +1164,23 @@ test_that("Formula/data input 3", {
 
   # Test fit
   expect_error(gpdf <- GauPro_kernel_model$new(z ~ ., data=xdf, kernel='m32'), NA)
+})
 
+test_that("Formula/data input 4", {
+  # Only cts dimensions, no factor dimensions
+  library(dplyr)
+  n <- 63
+  xdf <- tibble(
+    a=rnorm(n),
+    b=runif(n),
+    z=a*b + a^2 + rnorm(n, 1e-3)
+  )
+
+  # Test fit
+  expect_error(gpdf <- GauPro_kernel_model$new(z ~ ., data=xdf, kernel='m32'), NA)
+
+  # Test predict (this gave error before)
+  expect_error(predict(gpdf, xdf), NA)
 })
 
 # EI ----
