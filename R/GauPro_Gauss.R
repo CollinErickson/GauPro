@@ -62,7 +62,7 @@ GauPro_Gauss <- R6::R6Class(
       lifecycle::deprecate_warn(
         when = "0.2.12",
         what = "GauPro_Gauss$new()",
-        details = paste0("Please use GauPro::GauPro_kernel_model instead")
+        details = paste0("Please use GauPro::gpkm(X, Z) instead")
       )
 
       super$initialize(X=X,Z=Z,verbose=verbose,useC=useC,useGrad=useGrad,
