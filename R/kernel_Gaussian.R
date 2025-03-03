@@ -69,6 +69,9 @@ Gaussian <- R6::R6Class(
         if (is.null(s2)) {s2 <- self$s2}
       }
       theta <- 10^beta
+      if (self$isotropic && length(theta) == self$beta_length) {
+        theta <- rep(theta, self$D)
+      }
       if (is.null(y)) {
         if (is.matrix(x)) {
           # cgmtry <- try(val <- s2 * corr_gauss_matrix_symC(x, theta))
@@ -135,6 +138,10 @@ Gaussian <- R6::R6Class(
       # lenparams <- length(params)
       # beta <- params[1:(lenparams - 1)]
       theta <- 10^beta
+      if (self$isotropic && length(theta) == self$beta_length) {
+        theta <- rep(theta, self$D)
+      }
+
       log10 <- log(10)
       # logs2 <- params[lenparams]
       s2 <- 10 ^ logs2
@@ -150,20 +157,25 @@ Gaussian <- R6::R6Class(
 
       # I wrote Rcpparmadillo function to speed this up a lot hopefully
       # useR <- FALSE
-      if (!self$useC) { # useR
+      if (!self$useC || self$isotropic) { # useR
         dC_dparams <- array(dim=c(lenparams_D, n, n), data=0)
         if (self$s2_est) {
           dC_dparams[lenparams_D,,] <- C * log10 #/ s2 * s2 *
         }
         # dC_dparams <- rep(list(C_nonug), length(beta))
         if (self$beta_est) {
-          for (k in 1:length(beta)) {
+          for (k in 1:self$beta_length) {
             for (i in seq(1, n-1, 1)) {
               for (j in seq(i+1, n, 1)) {
                 # if (inherits(try(C_nonug[i,j] * (X[i,k] - X[j,k])^2 *
                 #           theta[k] * log10), "try-error")) {browser()}
-                dC_dparams[k,i,j] <- - C_nonug[i,j] * (X[i,k] - X[j,k])^2 *
-                  theta[k] * log10
+                if (!self$isotropic) {
+                  dC_dparams[k,i,j] <- - C_nonug[i,j] * (X[i,k] - X[j,k])^2 *
+                    theta[k] * log10
+                } else {
+                  dC_dparams[k,i,j] <- - C_nonug[i,j] * sum((X[i,] - X[j,])^2) *
+                    theta[k] * log10
+                }
                 dC_dparams[k,j,i] <- dC_dparams[k,i,j]
               }
             }
@@ -207,6 +219,10 @@ Gaussian <- R6::R6Class(
       # if (is.null(params)) {params <- c(self$beta, self$logs2)}
       # beta <- params[1:(lenparams - 1)]
       theta <- 10^beta
+      # if (self$isotropic && length(theta) == self$beta_length) {
+      #   theta <- rep(theta, self$D)
+      # }
+
       log10 <- log(10)
       # logs2 <- params[lenparams]
       s2 <- 10 ^ logs2
@@ -218,7 +234,7 @@ Gaussian <- R6::R6Class(
 
       # I wrote Rcpparmadillo function to speed this up a lot hopefully
       # useR <- FALSE
-      if (!self$useC) { # useR
+      if (!self$useC || self$isotropic) { # useR
         dC_dparams <- array(dim=c(lenparams_D, n, n), data=0)
         if (self$s2_est) {
           dC_dparams[lenparams_D,,] <- C * log10 #/ s2 * s2 *
@@ -226,11 +242,16 @@ Gaussian <- R6::R6Class(
         # dC_dbetas <- rep(list(C_nonug), length(beta))
         # n <- nrow(X)
         if (self$beta_est) {
-          for (k in 1:length(beta)) {
+          for (k in 1:self$beta_length) {
             for (i in seq(1, n-1, 1)) {
               for (j in seq(i+1, n, 1)) {
-                dC_dparams[k,i,j] <- - C[i,j] * (X[i,k] - X[j,k])^2 *
-                  theta[k] * log10
+                if (!self$isotropic) {
+                  dC_dparams[k,i,j] <- - C[i,j] * (X[i,k] - X[j,k])^2 *
+                    theta[k] * log10
+                } else {
+                  dC_dparams[k,i,j] <- - C[i,j] * sum((X[i,] - X[j,])^2) *
+                    theta[k] * log10
+                }
                 dC_dparams[k,j,i] <- dC_dparams[k,i,j]
               }
             }
@@ -275,6 +296,9 @@ Gaussian <- R6::R6Class(
     #' @param s2 Variance parameter
     dC_dx = function(XX, X, theta, beta=self$beta, s2=self$s2) {
       if (missing(theta)) {theta <- 10^beta}
+      if (self$isotropic && length(theta) == self$beta_length) {
+        theta <- rep(theta, self$D)
+      }
       if (!is.matrix(XX)) {stop("XX must be matrix")}
       if (ncol(X) != ncol(XX)) {stop("XX and X must have same number of cols")}
       corr_gauss_dCdX(XX, X, theta, s2)
@@ -287,6 +311,9 @@ Gaussian <- R6::R6Class(
     #' @param s2 Variance parameter
     d2C_dx2 = function(XX, X, theta, beta=self$beta, s2=self$s2) {
       if (missing(theta)) {theta <- 10^beta}
+      if (self$isotropic && length(theta) == self$beta_length) {
+        theta <- rep(theta, self$D)
+      }
       if (!is.matrix(XX)) {stop("XX must be matrix")}
       d <- ncol(XX)
       if (ncol(X) != d) {stop("X and XX must have same # of columns")}
@@ -323,6 +350,9 @@ Gaussian <- R6::R6Class(
     #' @param s2 Variance parameter
     d2C_dudv = function(XX, X, theta, beta=self$beta, s2=self$s2) {
       if (missing(theta)) {theta <- 10^beta}
+      if (self$isotropic && length(theta) == self$beta_length) {
+        theta <- rep(theta, self$D)
+      }
       if (!is.matrix(XX)) {stop("XX must be matrix")}
       d <- ncol(XX)
       if (ncol(X) != d) {stop("X and XX must have same # of columns")}
@@ -367,6 +397,9 @@ Gaussian <- R6::R6Class(
       #                                           X = m1[i,,drop=F])[1,,,1]})
       # gp$kernel$d2C_dudv_ueqvrows(XX = m1)
       if (missing(theta)) {theta <- 10^beta}
+      if (self$isotropic && length(theta) == self$beta_length) {
+        theta <- rep(theta, self$D)
+      }
       if (!is.matrix(XX)) {stop("XX must be matrix")}
       d <- ncol(XX)
       nn <- nrow(XX)
@@ -399,10 +432,13 @@ Gaussian <- R6::R6Class(
 #' @param s2_upper Upper bound for s2
 #' @param s2_est Should s2 be estimated?
 #' @param useC Should C code used? Much faster.
+#' @param isotropic If isotropic then a single beta/theta is used for all
+#' dimensions. If not (anisotropic) then a separate beta/beta is used for
+#' each dimension.
 k_Gaussian <- function(beta, s2=1, D,
                        beta_lower=-8, beta_upper=6, beta_est=TRUE,
                        s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE,
-                       useC=TRUE) {
+                       useC=TRUE, isotropic=FALSE) {
   Gaussian$new(
     beta=beta,
     s2=s2,
@@ -413,6 +449,7 @@ k_Gaussian <- function(beta, s2=1, D,
     s2_lower=s2_lower,
     s2_upper=s2_upper,
     s2_est=s2_est,
-    useC=useC
+    useC=useC,
+    isotropic=isotropic
   )
 }

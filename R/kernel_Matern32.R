@@ -58,6 +58,9 @@ Matern32 <- R6::R6Class(
         if (is.null(s2)) {s2 <- self$s2}
       }
       theta <- 10^beta
+      if (self$isotropic && length(theta) == self$beta_length) {
+        theta <- rep(theta, self$D)
+      }
       if (is.null(y)) {
         if (is.matrix(x)) {
           # val <- outer(1:nrow(x), 1:nrow(x), Vectorize(function(i,j){self$kone(x[i,],x[j,],theta=theta, s2=s2)}))
@@ -121,6 +124,10 @@ Matern32 <- R6::R6Class(
       # lenparams <- length(params)
       # beta <- params[1:(lenparams - 1)]
       theta <- 10^beta
+      if (self$isotropic && length(theta) == self$beta_length) {
+        theta <- rep(theta, self$D)
+      }
+
       log10 <- log(10)
       # logs2 <- params[lenparams]
       s2 <- 10 ^ logs2
@@ -133,7 +140,7 @@ Matern32 <- R6::R6Class(
 
       lenparams_D <- self$beta_length*self$beta_est + self$s2_est
 
-      if (self$useC) {
+      if (self$useC && !self$isotropic) {
         dC_dparams <- kernel_matern32_dC(X, theta, C_nonug, self$s2_est,
                                          self$beta_est, lenparams_D, s2*nug)
       } else {
@@ -149,15 +156,21 @@ Matern32 <- R6::R6Class(
               tx2 <- sum(theta * (X[i,]-X[j,])^2)
               if (tx2 == 0) { # Avoid divide by 0 error
                 # When x are equal, changing param has no effect on correlation
-                dC_dparams[1:length(beta),i,j] <- dC_dparams[1:length(beta),j,i] <- 0
+                dC_dparams[1:length(beta),i,j] <-
+                  dC_dparams[1:length(beta),j,i] <- 0
               } else {
                 t1 <- sqrt(3 * tx2)
-                t3 <- C[i,j] * (1/(1+t1) - 1) * self$sqrt3 * log10
-                sqrttx2 <- sqrt(tx2)
-                for (k in 1:length(beta)) {
-                  dt1dbk <- .5 * (X[i,k] - X[j,k])^2 / sqrttx2
-                  dC_dparams[k,i,j] <- t3 * dt1dbk * theta[k]   #s2 * (1+t1) * exp(-t1) *-dt1dbk + s2 * dt1dbk * exp(-t1)
-                  dC_dparams[k,j,i] <- dC_dparams[k,i,j]
+                if (!self$isotropic) {
+                  t3 <- C[i,j] * (1/(1+t1) - 1) * self$sqrt3 * log10
+                  sqrttx2 <- sqrt(tx2)
+                  for (k in 1:length(beta)) {
+                    dt1dbk <- .5 * (X[i,k] - X[j,k])^2 / sqrttx2
+                    dC_dparams[k,i,j] <- t3 * dt1dbk * theta[k]   #s2 * (1+t1) * exp(-t1) *-dt1dbk + s2 * dt1dbk * exp(-t1)
+                    dC_dparams[k,j,i] <- dC_dparams[k,i,j]
+                  }
+                } else {
+                  dC_dparams[1,i,j] <- -.5 * log10 * t1^2 * exp(-t1) * s2
+                  dC_dparams[1,j,i] <- dC_dparams[1,i,j]
                 }
               }
             }
@@ -179,6 +192,9 @@ Matern32 <- R6::R6Class(
     #' @param s2 Variance parameter
     dC_dx = function(XX, X, theta, beta=self$beta, s2=self$s2) {
       if (missing(theta)) {theta <- 10^beta}
+      if (self$isotropic && length(theta) == self$beta_length) {
+        theta <- rep(theta, self$D)
+      }
       if (!is.matrix(XX)) {stop()}
       d <- ncol(XX)
       if (ncol(X) != d) {stop()}
@@ -218,10 +234,13 @@ Matern32 <- R6::R6Class(
 #' @param s2_upper Upper bound for s2
 #' @param s2_est Should s2 be estimated?
 #' @param useC Should C code used? Much faster.
+#' @param isotropic If isotropic then a single beta/theta is used for all
+#' dimensions. If not (anisotropic) then a separate beta/beta is used for
+#' each dimension.
 k_Matern32 <- function(beta, s2=1, D,
                        beta_lower=-8, beta_upper=6, beta_est=TRUE,
                        s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE,
-                       useC=TRUE) {
+                       useC=TRUE, isotropic=FALSE) {
   Matern32$new(
     beta=beta,
     s2=s2,
@@ -232,6 +251,7 @@ k_Matern32 <- function(beta, s2=1, D,
     s2_lower=s2_lower,
     s2_upper=s2_upper,
     s2_est=s2_est,
-    useC=useC
+    useC=useC,
+    isotropic=isotropic
   )
 }

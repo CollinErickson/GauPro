@@ -53,6 +53,9 @@ Triangle <- R6::R6Class(
         if (is.null(s2)) {s2 <- self$s2}
       }
       theta <- 10^beta
+      if (self$isotropic && length(theta) == self$beta_length) {
+        theta <- rep(theta, self$D)
+      }
       if (is.null(y)) {
         if (is.matrix(x)) {
           val <- outer(1:nrow(x), 1:nrow(x),
@@ -119,6 +122,10 @@ Triangle <- R6::R6Class(
       # lenparams <- length(params)
       # beta <- params[1:(lenparams - 1)]
       theta <- 10^beta
+      if (self$isotropic && length(theta) == self$beta_length) {
+        theta <- rep(theta, self$D)
+      }
+
       log10 <- log(10)
       # logs2 <- params[lenparams]
       s2 <- 10 ^ logs2
@@ -141,17 +148,26 @@ Triangle <- R6::R6Class(
           for (j in seq(i+1, n, 1)) {
             r2 <- sum(theta * (X[i,]-X[j,])^2)
             if (r2 == 0) { # Corr is 1, not continuous so no deriv
-              dC_dparams[1:length(beta),i,j] <-
-                dC_dparams[1:length(beta),j,i] <- 0
+              dC_dparams[1:self$beta_length,i,j] <-
+                dC_dparams[1:self$beta_length,j,i] <- 0
             } else {
               r <- sqrt(r2)
-              C <- max(1 - r, 0)
-              for (k in 1:length(beta)) {
-                if (C > 0) {
-                  dC_dparams[k,i,j] <- dC_dparams[k,j,i] <- (
-                    -1/2/r * (X[i,k]-X[j,k])^2 * s2 * theta[k] * log10)
+              # C <- max(1 - r, 0)
+              if (!self$isotropic) {
+                for (k in 1:length(beta)) {
+                  if (C[i,j] > 0) {
+                    dC_dparams[k,i,j] <- dC_dparams[k,j,i] <- (
+                      -1/2/r * (X[i,k]-X[j,k])^2 * s2 * theta[k] * log10)
+                  } else {
+                    dC_dparams[k,i,j] <- dC_dparams[k,j,i] <- 0
+                  }
+                }
+              } else {
+                if (C[i,j] > 0) {
+                  dC_dparams[1,i,j] <-
+                    dC_dparams[1,j,i] <- -.5 * r * log10 * s2
                 } else {
-                  dC_dparams[k,i,j] <- dC_dparams[k,j,i] <- 0
+                  dC_dparams[1,i,j] <- dC_dparams[1,j,i] <- 0
                 }
               }
             }
@@ -175,6 +191,9 @@ Triangle <- R6::R6Class(
     dC_dx = function(XX, X, theta, beta=self$beta, s2=self$s2) {
       # stop("dC_dx not implemented for triangle")
       if (missing(theta)) {theta <- 10^beta}
+      if (self$isotropic && length(theta) == self$beta_length) {
+        theta <- rep(theta, self$D)
+      }
       if (!is.matrix(XX)) {stop()}
       d <- ncol(XX)
       if (ncol(X) != d) {stop()}
@@ -216,10 +235,13 @@ Triangle <- R6::R6Class(
 #' @param s2_upper Upper bound for s2
 #' @param s2_est Should s2 be estimated?
 #' @param useC Should C code used? Much faster.
+#' @param isotropic If isotropic then a single beta/theta is used for all
+#' dimensions. If not (anisotropic) then a separate beta/beta is used for
+#' each dimension.
 k_Triangle <- function(beta, s2=1, D,
                        beta_lower=-8, beta_upper=6, beta_est=TRUE,
                        s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE,
-                       useC=TRUE) {
+                       useC=TRUE, isotropic=FALSE) {
   Triangle$new(
     beta=beta,
     s2=s2,
@@ -230,6 +252,7 @@ k_Triangle <- function(beta, s2=1, D,
     s2_lower=s2_lower,
     s2_upper=s2_upper,
     s2_est=s2_est,
-    useC=useC
+    useC=useC,
+    isotropic=isotropic
   )
 }

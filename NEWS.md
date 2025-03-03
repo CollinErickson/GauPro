@@ -1,5 +1,8 @@
 # GauPro 0.2.13.9000
 
+Added isotropic option for Gaussian, Exponential, Matern 3/2, Matern 5/2,
+and Triangle kernels.
+
 # GauPro 0.2.13
 
 Fixed Suggests issue to get back on CRAN. Packages in Suggests were moved

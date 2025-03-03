@@ -19,7 +19,8 @@ k_Cubic(
   s2_lower = 1e-08,
   s2_upper = 1e+08,
   s2_est = TRUE,
-  useC = TRUE
+  useC = TRUE,
+  isotropic = FALSE
 )
 }
 \arguments{
@@ -42,6 +43,10 @@ k_Cubic(
 \item{s2_est}{Should s2 be estimated?}
 
 \item{useC}{Should C code used? Much faster.}
+
+\item{isotropic}{If isotropic then a single beta/theta is used for all
+dimensions. If not (anisotropic) then a separate beta/beta is used for
+each dimension.}
 }
 \value{
 Object of \code{\link[R6]{R6Class}} with methods for fitting GP model.
