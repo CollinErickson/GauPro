@@ -62,7 +62,7 @@ convert_X_with_formula <- function(X, convert_formula_data, formula) {
     convert_formula_data$chars,
     function(li) {li$index}
   )
-  for (ind in 1:length(charinds)) {
+  for (ind in seq_along(charinds)) {
     i <- charinds[ind]
     # Check that levels match
     stopifnot(Xdf[[i]] %in% convert_formula_data$chars[[ind]]$vals)
