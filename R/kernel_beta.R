@@ -26,6 +26,9 @@
 #' @field logs2_upper Upper bound of logs2
 #' @field s2_est Should s2 be estimated?
 #' @field useC Should C code used? Much faster.
+#' @field isotropic If isotropic then a single beta/theta is used for all
+#' dimensions. If not (anisotropic) then a separate beta/beta is used for
+#' each dimension.
 #' @examples
 #' #k1 <- Matern52$new(beta=0)
 GauPro_kernel_beta <- R6::R6Class(
@@ -43,6 +46,7 @@ GauPro_kernel_beta <- R6::R6Class(
     logs2_upper = NULL,
     s2_est = NULL, # Should s2 be estimated?
     useC = NULL,
+    isotropic = NULL,
     #' @description Initialize kernel object
     #' @param beta Initial beta value
     #' @param s2 Initial variance
@@ -54,10 +58,13 @@ GauPro_kernel_beta <- R6::R6Class(
     #' @param s2_upper Upper bound for s2
     #' @param s2_est Should s2 be estimated?
     #' @param useC Should C code used? Much faster.
+    #' @param isotropic If isotropic then a single beta/theta is used for all
+    #' dimensions. If not (anisotropic) then a separate beta/beta is used for
+    #' each dimension.
     initialize = function(beta, s2=1, D,
                           beta_lower=-8, beta_upper=6, beta_est=TRUE,
                           s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE,
-                          useC=TRUE
+                          useC=TRUE, isotropic=FALSE
     ) {
       # Check beta and D
       missing_beta <- missing(beta)
@@ -89,6 +96,20 @@ GauPro_kernel_beta <- R6::R6Class(
         stop("Error for kernel_beta beta_upper")
       }
       stopifnot(self$beta_lower <= self$beta_upper)
+
+      stopifnot(is.logical(isotropic), length(isotropic) == 1)
+      self$isotropic <- isotropic
+      if (isotropic) {
+        self$beta <- self$beta[1]
+        self$beta_lower <- self$beta_lower[1]
+        self$beta_upper <- self$beta_upper[1]
+        self$beta_length <- 1
+      }
+
+      stopifnot(length(self$beta) == self$beta_length,
+                length(self$beta_lower) == self$beta_length,
+                length(self$beta_upper) == self$beta_length)
+
       self$beta_est <- beta_est
 
       self$s2 <- s2
@@ -118,6 +139,9 @@ GauPro_kernel_beta <- R6::R6Class(
         if (is.null(s2)) {s2 <- self$s2}
       }
       theta <- 10^beta
+      if (self$isotropic && length(theta) == self$beta_length) {
+        theta <- rep(theta, self$D)
+      }
       if (is.null(y)) {
         if (is.matrix(x)) {
           # cgmtry <- try(val <- s2 * corr_gauss_matrix_symC(x, theta))

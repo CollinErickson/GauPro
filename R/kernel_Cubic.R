@@ -54,6 +54,9 @@ Cubic <- R6::R6Class(
         if (is.null(s2)) {s2 <- self$s2}
       }
       theta <- 10^beta
+      if (self$isotropic && length(theta) == self$beta_length) {
+        theta <- rep(theta, self$D)
+      }
       if (is.null(y)) {
         if (is.matrix(x)) {
           if (self$useC && Sys.info()[['sysname']] == "Windows") {
@@ -139,6 +142,10 @@ Cubic <- R6::R6Class(
       # lenparams <- length(params)
       # beta <- params[1:(lenparams - 1)]
       theta <- 10^beta
+      if (self$isotropic && length(theta) == self$beta_length) {
+        theta <- rep(theta, self$D)
+      }
+
       log10 <- log(10)
       # logs2 <- params[lenparams]
       s2 <- 10 ^ logs2
@@ -150,7 +157,7 @@ Cubic <- R6::R6Class(
       }
 
       lenparams_D <- self$beta_length*self$beta_est + self$s2_est
-      if (self$useC && Sys.info()[['sysname']] == "Windows") {
+      if (self$useC && Sys.info()[['sysname']] == "Windows" && !self$isotropic) {
         dC_dparams <- kernel_cubic_dC(X, theta, C_nonug, self$s2_est,
                                       self$beta_est, lenparams_D, s2*nug, s2)
       } else {
@@ -174,14 +181,18 @@ Cubic <- R6::R6Class(
                                  2*(1-abs(d))^3,
                                  0))
               # prod(r)
-              for (k in 1:length(beta)) {
-                drk_ddk <- sign(d[k]) * ifelse(dabs[k] <= 0.5,
-                                               -12*dabs[k]+18*dabs[k]^2,
-                                               ifelse(dabs[k] <= 1,
-                                                      -6*(1-dabs[k])^2, 0))
-                dC_dparams[k,i,j] <- (s2 * log10 * (-h[k]) / theta[k] *
-                                        drk_ddk * prod(r[-k]))
-                dC_dparams[k,j,i] <- dC_dparams[k,i,j]
+              if (!self$isotropic) {
+                for (k in 1:length(beta)) {
+                  drk_ddk <- sign(d[k]) * ifelse(dabs[k] <= 0.5,
+                                                 -12*dabs[k]+18*dabs[k]^2,
+                                                 ifelse(dabs[k] <= 1,
+                                                        -6*(1-dabs[k])^2, 0))
+                  dC_dparams[k,i,j] <- (s2 * log10 * (-h[k]) / theta[k] *
+                                          drk_ddk * prod(r[-k]))
+                  dC_dparams[k,j,i] <- dC_dparams[k,i,j]
+                }
+              } else {
+                stop("cubic kernel does not work with isotropic=TRUE yet")
               }
             }
           }
@@ -203,6 +214,9 @@ Cubic <- R6::R6Class(
     dC_dx = function(XX, X, theta, beta=self$beta, s2=self$s2) {
       # stop("cubic dC_dparams not implemented")
       if (missing(theta)) {theta <- 10^beta}
+      if (self$isotropic && length(theta) == self$beta_length) {
+        theta <- rep(theta, self$D)
+      }
       if (!is.matrix(XX)) {stop()}
       D <- ncol(XX)
       if (ncol(X) != D) {stop()}
@@ -257,10 +271,13 @@ Cubic <- R6::R6Class(
 #' @param s2_upper Upper bound for s2
 #' @param s2_est Should s2 be estimated?
 #' @param useC Should C code used? Much faster.
+#' @param isotropic If isotropic then a single beta/theta is used for all
+#' dimensions. If not (anisotropic) then a separate beta/beta is used for
+#' each dimension.
 k_Cubic <- function(beta, s2=1, D,
                     beta_lower=-8, beta_upper=6, beta_est=TRUE,
                     s2_lower=1e-8, s2_upper=1e8, s2_est=TRUE,
-                    useC=TRUE) {
+                    useC=TRUE, isotropic=FALSE) {
   Cubic$new(
     beta=beta,
     s2=s2,
@@ -271,6 +288,7 @@ k_Cubic <- function(beta, s2=1, D,
     s2_lower=s2_lower,
     s2_upper=s2_upper,
     s2_est=s2_est,
-    useC=useC
+    useC=useC,
+    isotropic=isotropic
   )
 }

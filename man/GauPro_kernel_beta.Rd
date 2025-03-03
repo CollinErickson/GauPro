@@ -52,6 +52,10 @@ Kernels that inherit this only need to implement kone and dC_dparams.
 \item{\code{s2_est}}{Should s2 be estimated?}
 
 \item{\code{useC}}{Should C code used? Much faster.}
+
+\item{\code{isotropic}}{If isotropic then a single beta/theta is used for all
+dimensions. If not (anisotropic) then a separate beta/beta is used for
+each dimension.}
 }
 \if{html}{\out{</div>}}
 }
@@ -95,7 +99,8 @@ Initialize kernel object
   s2_lower = 1e-08,
   s2_upper = 1e+08,
   s2_est = TRUE,
-  useC = TRUE
+  useC = TRUE,
+  isotropic = FALSE
 )}\if{html}{\out{</div>}}
 }
 
@@ -121,6 +126,10 @@ Initialize kernel object
 \item{\code{s2_est}}{Should s2 be estimated?}
 
 \item{\code{useC}}{Should C code used? Much faster.}
+
+\item{\code{isotropic}}{If isotropic then a single beta/theta is used for all
+dimensions. If not (anisotropic) then a separate beta/beta is used for
+each dimension.}
 }
 \if{html}{\out{</div>}}
 }

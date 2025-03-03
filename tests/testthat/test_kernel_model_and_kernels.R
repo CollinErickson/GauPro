@@ -307,7 +307,7 @@ test_that("Cts kernels 2D", {
   n <- 20
   d <- 2
   x <- matrix(runif(n*d), ncol=d)
-  x <- lhs_maximinLHS(n, d) # Better spacing might avoid grad issues?
+  x <- GauPro:::lhs_maximinLHS(n, d) # Better spacing might avoid grad issues?
   # x <- rbind(x, x[1,]) # Add repeated x since that could cause issues
   # n <- nrow(x)
   f <- function(x) {abs(sin(x[1]^.8*6))^1.2 + log(1+(x[2]-.3)^2) + x[1]*x[2]}
@@ -315,12 +315,20 @@ test_that("Cts kernels 2D", {
   kern_chars <- c('Gaussian', 'Matern32', 'Matern52',
                   'Triangle', 'Cubic', 'White',
                   'PowerExp', 'Periodic', "Exponential", "RatQuad",
-                  "Ignore", "Product", "Sum")
+                  "Ignore", "Product", "Sum",
+                  "Gaussian_isotropic", "Matern52_isotropic",
+                  "Matern32_isotropic", "Exponential_isotropic",
+                  "Triangle_isotropic")
   kern_list <- list(0,0,0,0,0,0,
                     0,0,0,0,
                     IgnoreIndsKernel$new(Gaussian$new(D=1), 2),
                     Gaussian$new(D=2) * PowerExp$new(D=2),
-                    Matern52$new(D=2) + Matern32$new(D=2))
+                    Matern52$new(D=2) + Matern32$new(D=2),
+                    Gaussian$new(D=2, isotropic=T),
+                    Matern52$new(D=2, isotropic=T),
+                    Matern32$new(D=2, isotropic=T),
+                    Exponential$new(D=2, isotropic=T),
+                    Triangle$new(D=2, isotropic=T))
   stopifnot(length(kern_chars) == length(kern_list))
   for (j in 1:length(kern_chars)) {
     if (exists('seed')) {set.seed(seed)} else {seed <- runif(1)}
@@ -434,7 +442,7 @@ test_that("Cts kernels 2D", {
     }
 
     # Check some advanced stuff only for Gaussian
-    if (j==1) {
+    if (j %in% c(1, 14)) {
       # Covmat
       expect_no_error(gp$predict(matrix(runif(2*d), ncol=2), covmat = T))
       # Split speed, large matrix
@@ -511,7 +519,7 @@ test_that("Cts kernels 2D", {
       expect_equal(length(mei2$val), 1)
     }
 
-    # Test grad. Implicitly tests kernel$dC_dx.
+    # Test grad over X. Implicitly tests kernel$dC_dx.
     if (T) {
       xgrad <- runif(2) #matrix(runif(6), ncol=2)
       expect_no_error(symgrad <- gp$grad(xgrad))
@@ -521,7 +529,7 @@ test_that("Cts kernels 2D", {
                    label=paste(j, kern_char, 'gp$grad'))
       # grad at self shouldn't be zero, except for Triangle, Exponential, PowerExp
       expect_no_error(gpgradX <- gp$grad(gp$X))
-      if (!(j %in% c(4,7,9))) {
+      if (!(j %in% c(4,7,9, 17, 18))) {
         expect_true(!any(is.na(gpgradX)),
                     label=paste(j, kern_char, '!any(is.na(gpgradX))'))
       }
@@ -583,6 +591,7 @@ test_that("Cts kernels 2D", {
     dfg <- gp$deviance_fngr(nug.update = T)
     expect_equal(df, dfg$fn)
     expect_equal(dg, dfg$gr, tolerance = 1e-4)
+
     # Now check numeric gradient
     # Nugget gradient
     eps <- 1e-6 # 1e-8 was too small, caused errors
@@ -594,6 +603,7 @@ test_that("Cts kernels 2D", {
     actder <- gp$deviance_grad(nuglog=nuglog, params=kernpars, nug.update = T)
     expect_equal(numder, actder[length(actder)], 1e-3)
 
+    # Kernel param gradient
     # max attempts
     maxattempts <- 10
     numgradtol <- 1e-3
@@ -626,7 +636,7 @@ test_that("Cts kernels 2D", {
                        label=paste(j,kern_char,i, 'numgrad'))
         } else {
           if (exists('printkern') && printkern) {
-            cat("FAILURE", kern_char, iatt, i, alleq, "\n")
+            cat("FAILURE", kern_char, iatt, i, alleq, actgrad[1+i], numgrad, "\n")
           }
           goodsofar <- FALSE
         }
@@ -643,7 +653,7 @@ test_that("Cts kernels 2D", {
       }
     }
     # This is where it will fail if none succeeded
-    expect_true(alleq,
+    expect_true(goodsofar,
                 label=paste(kern_char,
                             'numgrad matches symbolic grad (failed on all',
                             maxattempts, "attempts)"))
@@ -1136,6 +1146,7 @@ test_that("Formula/data input 2", {
   # expect_equal(colnames(dfqEI$par), attr(gpdf$formula, "term.labels"))
   # expect_equal(dim(dfqEI$par), c(2,4))
 })
+
 test_that("Formula/data input 3", {
   # Add ordered in autokernel
   library(dplyr)
@@ -1153,14 +1164,30 @@ test_that("Formula/data input 3", {
 
   # Test fit
   expect_error(gpdf <- GauPro_kernel_model$new(z ~ ., data=xdf, kernel='m32'), NA)
+})
 
+test_that("Formula/data input 4", {
+  # Only cts dimensions, no factor dimensions
+  library(dplyr)
+  n <- 63
+  xdf <- tibble(
+    a=rnorm(n),
+    b=runif(n),
+    z=a*b + a^2 + rnorm(n, 1e-3)
+  )
+
+  # Test fit
+  expect_error(gpdf <- GauPro_kernel_model$new(z ~ ., data=xdf, kernel='m32'), NA)
+
+  # Test predict (this gave error before)
+  expect_error(predict(gpdf, xdf), NA)
 })
 
 # EI ----
 test_that("EI with cts", {
   n <- 20
   d <- 2
-  x <- lhs_maximinLHS(n, d) # Better spacing might avoid grad issues?
+  x <- GauPro:::lhs_maximinLHS(n, d) # Better spacing might avoid grad issues?
   n <- nrow(x)
   f <- function(x) {abs(sin(x[1]^.8*6))^1.2 + log(1+(x[2]-.3)^2) + x[1]*x[2]}
   y <- apply(x, 1, f) + rnorm(n,0,1e-2) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)

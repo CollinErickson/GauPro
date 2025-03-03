@@ -149,7 +149,7 @@ arma::cube kernel_cubic_dC(arma::mat x, arma::vec theta, arma::mat C_nonug,
    if (beta_est) {
      for (int i = 0; i < nrow - 1; i++) {
        for (int j = i + 1; j < nrow; j++) {
-         double total = 1;
+         // double total = 1;
          NumericVector dvec(nsum), rvec(nsum);
          for(int k = 0; k < nsum; ++k) {
            // total += theta[k] * pow((x(i,k) - x(j,k)), 2.0);
@@ -164,7 +164,7 @@ arma::cube kernel_cubic_dC(arma::mat x, arma::vec theta, arma::mat C_nonug,
              r = 0;
            }
            rvec[k] = r;
-           total *= r;
+           // total *= r;
          }
 
          for(int k = 0; k < nsum; ++k) {

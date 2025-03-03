@@ -1,5 +1,7 @@
 # GauPro to do
 
+* Replace main vignette GauPro() to gpkm(), follow GH doc
+
 * EI/CorEI/AugEI/qEI: nopt, test, doc
   * Use t-dist
 
