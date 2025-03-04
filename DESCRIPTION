@@ -21,7 +21,7 @@ Imports:
     Rcpp,
     R6,
     lbfgs
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Depends:
     mixopt (> 0.1.0),
     numDeriv,
