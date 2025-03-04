@@ -698,17 +698,26 @@ GauPro_kernel_model <- R6::R6Class(
         # #  NOT SURE I WANT THIS
         # se[s2>=0] <- sqrt(s2[s2>=0])
 
-        if (any(s2 < 0)) {
-          if (mean_dist) { # mean can have zero s2
-            min_s2 <- 0
-          } else { # pred var should always be at least this big
-            min_s2 <- max(.Machine$double.eps, self$s2_hat * self$nug *
-                            if (self$normalize) {self$normalize_sd} else {1})
+        # Fix if s2 is too small
+        if (mean_dist) { # mean can have zero s2
+          min_s2 <- 0
+          if (any(s2 < 0)) {
+            warning(paste0("Negative s2 predictions are being set to ",
+                           min_s2, " (", sum(s2<0)," values, min=",
+                           min(s2),").",
+                           " covmat is not being altered."))
+            s2 <- pmax(s2, min_s2)
           }
-          warning(paste0("Negative s2 predictions are being set to ",
-                         min_s2, " (", sum(s2<0)," values, min=", min(s2),").",
-                         " covmat is not being altered."))
-          s2 <- pmax(s2, min_s2)
+        } else { # pred var should always be at least this big
+          min_s2 <- max(.Machine$double.eps, self$s2_hat * self$nug *
+                          if (self$normalize) {self$normalize_sd} else {1})
+          if (any(s2 < 0)) {
+            warning(paste0("Too small s2 predictions are being set to ",
+                           min_s2, " (", sum(s2<0)," values, min=",
+                           min(s2),").",
+                           " covmat is not being altered."))
+            s2 <- pmax(s2, min_s2)
+          }
         }
         se <- sqrt(s2)
         return(list(mean=mn, s2=s2, se=se, cov=covmatdat))
@@ -745,16 +754,27 @@ GauPro_kernel_model <- R6::R6Class(
       # se <- rep(0, length(mn)) # NEG VARS will be 0 for se,
       # #   NOT SURE I WANT THIS
       # se[s2>=0] <- sqrt(s2[s2>=0])
-      if (any(s2 < 0)) {
-        if (mean_dist) { # mean can have zero s2
-          min_s2 <- 0
-        } else { # pred var should always be at least this big
-          min_s2 <- max(.Machine$double.eps, self$s2_hat * self$nug *
-                          if (self$normalize) {self$normalize_sd} else {1})
+
+      # Fix if s2 is too small
+      if (mean_dist) { # mean can have zero s2
+        min_s2 <- 0
+        if (any(s2 < 0)) {
+          warning(paste0("Negative s2 predictions are being set to ",
+                         min_s2, " (", sum(s2<0)," values, min=",
+                         min(s2),").",
+                         " covmat is not being altered."))
+          s2 <- pmax(s2, min_s2)
         }
-        warning(paste0("Negative s2 predictions are being set to ",
-                       min_s2, " (", sum(s2<0)," values, min=", min(s2),")"))
-        s2 <- pmax(s2, min_s2)
+      } else { # pred var should always be at least this big
+        min_s2 <- max(.Machine$double.eps, self$s2_hat * self$nug *
+                        if (self$normalize) {self$normalize_sd} else {1})
+        if (any(s2 < min_s2)) {
+          warning(paste0("Too small s2 predictions are being set to ",
+                         min_s2, " (", sum(s2<0)," values, min=",
+                         min(s2),").",
+                         " covmat is not being altered."))
+          s2 <- pmax(s2, min_s2)
+        }
       }
       se <- sqrt(s2)
 
@@ -1257,11 +1277,11 @@ GauPro_kernel_model <- R6::R6Class(
       ymax <- maxs[2] + .03 * (maxs[2] - mins[2])
       if (mean) {
         plotmean <- ContourFunctions_cf_func(self$predict, batchmax=Inf,
-                                              xlim=c(xmin, xmax),
-                                              ylim=c(ymin, ymax),
-                                              pts=self$X,
-                                              n=n,
-                                              gg=TRUE)
+                                             xlim=c(xmin, xmax),
+                                             ylim=c(ymin, ymax),
+                                             pts=self$X,
+                                             n=n,
+                                             gg=TRUE)
       }
       if (se) {
         plotse <- ContourFunctions_cf_func(

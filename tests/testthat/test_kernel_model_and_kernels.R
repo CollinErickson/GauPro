@@ -710,8 +710,9 @@ test_that("Factor kernels", {
     if (T || (j %in% 1:4)) {
       expect_error(predict(gp, 1:3, se.fit = T), NA,
                    info = paste("bad pred in", kern_char))
-      expect_warning(predict(gp, 1:3, se.fit = T), NA,
-                     info = paste("bad pred in", kern_char))
+      # Can get a warning if preds are too small
+      # expect_warning(predict(gp, 1:3, se.fit = T), NA,
+      #                info = paste("bad pred in", kern_char))
       # Test plot
       expect_no_error(pp <- gp$plot1D())
       expect_no_error(suppressMessages({pp <- plot(gp)}))
@@ -1396,6 +1397,18 @@ test_that("Wide range X", {
   expect_error(e1$cool1Dplot())
   # expect_lt(mean(abs((e1$Z-e1$pred(e1$X)) / e1$Z)), 1e-1)
   e1$update_fast(Xnew=.5*x[1,,drop=F] + .5*x[2,], .5*(y[1]+y[2]))
+})
+
+# Predictions are at least the minimum value
+test_that("Predictions are big enough", {
+  n <- 11
+  x <- seq(0,1,l=11)
+  y <- x
+  expect_error(suppressMessages(gp <- gpkm(y ~ x)), NA)
+  expect_error(suppressWarnings(pm <- gp$predict(x, se.fit=T, mean_dist=T)), NA)
+  expect_true(all(pm$s2 >= 0))
+  expect_error(suppressWarnings(p <- gp$predict(x, se.fit=T, mean_dist=F)), NA)
+  expect_true(all(p$s2 >= gp$nug * gp$s2_hat))
 })
 
 # Bad kernels ----

@@ -2,6 +2,10 @@
 
 * Replace main vignette GauPro() to gpkm(), follow GH doc
 
+* Fix preds negative: mean up to 0, preds up to nug*s2hat
+
+* Fix error from CRAN
+
 * EI/CorEI/AugEI/qEI: nopt, test, doc
   * Use t-dist
 
