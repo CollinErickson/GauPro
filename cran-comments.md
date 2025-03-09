@@ -1,10 +1,9 @@
-I submitted this yesterday (fixing Suggests issue). Uwe emailed me and asked
-me to change one of the links in a vignette. I have made that change and 
-nothing else.
+I made some updates to the package and I fixed a test that gave CRAN issues
+recently.
 
 
 ## Test environments
-* local Windows 11 install, R 4.4.1
+* local Windows 11 install, R 4.4.3
 * R-hub builder (multiple)
 * Ubuntu 22.04.5 via GitHub Actions
 * Win-builder (devel and release)
@@ -12,9 +11,9 @@ nothing else.
 
 ## R CMD check results
 
-* local Windows 11 (9/21/24): no errors/warnings/notes
+* local Windows 11 (3/9/25): no errors/warnings/notes
 
-* local Windows 11, _R_CHECK_DEPENDS_ONLY_=TRUE (9/22/24): no errors/warnings/notes
+* local Windows 11, _R_CHECK_DEPENDS_ONLY_=TRUE (3/9/25): no errors/warnings/notes
 
 * Mac-builder (9/22/24): 1 NOTE, 1 WARNING
 1 NOTE for "sub-directories of 1Mb or more", but it is expected.
