@@ -10,6 +10,9 @@ README
     - [Constructing a kernel](#constructing-a-kernel)
   - [Using kernels](#using-kernels)
   - [Combining kernels](#combining-kernels)
+  - [Intro to GPs](#intro-to-gps)
+    - [Using kernels](#using-kernels-1)
+    - [Trends](#trends)
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
@@ -54,6 +57,21 @@ the given data.
 
 ``` r
 library(GauPro)
+#> Loading required package: mixopt
+#> Loading required package: dplyr
+#> 
+#> Attaching package: 'dplyr'
+#> The following objects are masked from 'package:stats':
+#> 
+#>     filter, lag
+#> The following objects are masked from 'package:base':
+#> 
+#>     intersect, setdiff, setequal, union
+#> Loading required package: ggplot2
+#> Loading required package: splitfngr
+#> Loading required package: numDeriv
+#> Loading required package: rmarkdown
+#> Loading required package: tidyr
 ```
 
 ``` r
@@ -191,22 +209,22 @@ arguments and autocomplete.
 
 The following table shows details on all the kernels available.
 
-| Kernel                | Function                | Continuous/<br />discrete | Equation                                                                             | Notes                                                                                                                                                                                                                                                                       |
-|-----------------------|-------------------------|---------------------------|--------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Gaussian              | `k_Gaussian`            | cts                       |                                                                                      | Often causes issues since it assumes infinite differentiability. Experts don’t recommend using it.                                                                                                                                                                          |
-| Matern 3/2            | `k_Matern32`            | cts                       |                                                                                      | Assumes one time differentiability. This is often too low of an assumption.                                                                                                                                                                                                 |
-| Matern 5/2            | `k_Matern52`            | cts                       |                                                                                      | Assumes two time differentiability. Generally the best.                                                                                                                                                                                                                     |
-| Exponential           | `k_Exponential`         | cts                       |                                                                                      | Equivalent to Matern 1/2. Assumes no differentiability.                                                                                                                                                                                                                     |
-| Triangle              | `k_Triangle`            | cts                       |                                                                                      |                                                                                                                                                                                                                                                                             |
-| Power exponential     | `k_PowerExp`            | cts                       |                                                                                      |                                                                                                                                                                                                                                                                             |
-| Periodic              | `k_Periodic`            | cts                       | $k(x, y) = \sigma^2 * \exp(-\sum(\alpha_i*sin(p * (x_i-y_i))^2))$                    | The only kernel that takes advantage of periodic data. But there is often incoherance far apart, so you will likely want to multiply by one of the standard kernels.                                                                                                        |
-| Cubic                 | `k_Cubic`               | cts                       |                                                                                      |                                                                                                                                                                                                                                                                             |
-| Rational quadratic    | `k_RatQuad`             | cts                       |                                                                                      |                                                                                                                                                                                                                                                                             |
-| Latent factor kernel  | `k_LatentFactorKernel`  | factor                    |                                                                                      | This embeds each discrete value into a low dimensional space and calculates the distances in that space. This works well when there are many discrete values.                                                                                                               |
-| Ordered factor kernel | `k_OrderedFactorKernel` | factor                    |                                                                                      | This maintains the order of the discrete values. E.g., if there are 3 levels, it will ensure that 1 and 2 have a higher correlation than 1 and 3. This is similar to embedding into a latent space with 1 dimension and requiring the values to be kept in numerical order. |
-| Factor kernel         | `k_FactorKernel`        | factor                    |                                                                                      | This fits a parameter for every pair of possible values. E.g., if there are 4 discrete values, it will fit 6 (4 choose 2) values. This doesn’t scale well. When there are many discrete values, use any of the other factor kernels.                                        |
-| Gower factor kernel   | `k_GowerFactorKernel`   | factor                    | $k(x,y) = \begin{cases} 1, & \text{if } x=y \\ p, & \text{if } x \neq y \end{cases}$ | This is a very simple factor kernel. For the relevant dimension, the correlation will either be 1 if the value are the same, or $p$ if they are different.                                                                                                                  |
-| Ignore indices        | `k_IgnoreIndsKernel`    | N/A                       |                                                                                      | Use this to create a kernel that ignores certain dimensions. Useful when you want to fit different kernel types to different dimensions or when there is a mix of continuous and discrete dimensions.                                                                       |
+| Kernel                | Function                | Continuous/<br />discrete | Equation                                                                               | Notes                                                                                                                                                                                                                                                                       |
+|-----------------------|-------------------------|---------------------------|----------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Gaussian              | `k_Gaussian`            | cts                       |                                                                                        | Often causes issues since it assumes infinite differentiability. Experts don’t recommend using it.                                                                                                                                                                          |
+| Matern 3/2            | `k_Matern32`            | cts                       |                                                                                        | Assumes one time differentiability. This is often too low of an assumption.                                                                                                                                                                                                 |
+| Matern 5/2            | `k_Matern52`            | cts                       |                                                                                        | Assumes two time differentiability. Generally the best.                                                                                                                                                                                                                     |
+| Exponential           | `k_Exponential`         | cts                       |                                                                                        | Equivalent to Matern 1/2. Assumes no differentiability.                                                                                                                                                                                                                     |
+| Triangle              | `k_Triangle`            | cts                       |                                                                                        |                                                                                                                                                                                                                                                                             |
+| Power exponential     | `k_PowerExp`            | cts                       |                                                                                        |                                                                                                                                                                                                                                                                             |
+| Periodic              | `k_Periodic`            | cts                       | $k(x, y) = \sigma^2 * \exp(-\sum(\alpha_i*sin(p * (x_i-y_i))^2))$                      | The only kernel that takes advantage of periodic data. But there is often incoherence far apart, so you will likely want to multiply by one of the standard kernels.                                                                                                        |
+| Cubic                 | `k_Cubic`               | cts                       |                                                                                        |                                                                                                                                                                                                                                                                             |
+| Rational quadratic    | `k_RatQuad`             | cts                       |                                                                                        |                                                                                                                                                                                                                                                                             |
+| Latent factor kernel  | `k_LatentFactorKernel`  | factor                    |                                                                                        | This embeds each discrete value into a low dimensional space and calculates the distances in that space. This works well when there are many discrete values.                                                                                                               |
+| Ordered factor kernel | `k_OrderedFactorKernel` | factor                    |                                                                                        | This maintains the order of the discrete values. E.g., if there are 3 levels, it will ensure that 1 and 2 have a higher correlation than 1 and 3. This is similar to embedding into a latent space with 1 dimension and requiring the values to be kept in numerical order. |
+| Factor kernel         | `k_FactorKernel`        | factor                    |                                                                                        | This fits a parameter for every pair of possible values. E.g., if there are 4 discrete values, it will fit 6 (4 choose 2) values. This doesn’t scale well. When there are many discrete values, use any of the other factor kernels.                                        |
+| Gower factor kernel   | `k_GowerFactorKernel`   | factor                    | $k(x,y) = \begin{cases} 1,  & \text{if } x=y \\ p, & \text{if } x \neq y  \end{cases}$ | This is a very simple factor kernel. For the relevant dimension, the correlation will either be 1 if the value are the same, or $p$ if they are different.                                                                                                                  |
+| Ignore indices        | `k_IgnoreIndsKernel`    | N/A                       |                                                                                        | Use this to create a kernel that ignores certain dimensions. Useful when you want to fit different kernel types to different dimensions or when there is a mix of continuous and discrete dimensions.                                                                       |
 
 Factor kernels: note that these all only work on a single dimension. If
 there are multiple factor dimensions in your input, then they each will
@@ -232,3 +250,137 @@ gp$plot()
 
 For an example of a more complex kernel being constructed, see the
 diamonds section above.
+
+## Intro to GPs
+
+*(This section used to be the main vignette on CRAN for this package.)*
+
+This R package provides R code for fitting Gaussian process models to
+data. The code is created using the `R6` class structure, which is why
+`$` is used to access object methods.
+
+A Gaussian process fits a model to a dataset, which gives a function
+that gives a prediction for the mean at any point along with a variance
+of this prediction.
+
+Suppose we have the data below
+
+``` r
+x <- seq(0,1,l=10)
+y <- abs(sin(2*pi*x))^.8
+ggplot(aes(x,y), data=cbind(x,y)) +
+  geom_point()
+```
+
+![](tools/README-oldvignettedata-1.png)<!-- -->
+
+A linear model (LM) will fit a straight line through the data and
+clearly does not describe the underlying function producing the data.
+
+``` r
+ggplot(aes(x,y), data=cbind(x,y)) +
+    geom_point() +
+    stat_smooth(method='lm')
+#> `geom_smooth()` using formula = 'y ~ x'
+```
+
+![](tools/README-oldvignettedata_plot-1.png)<!-- -->
+
+A Gaussian process is a type of model that assumes that the distribution
+of points follows a multivariate distribution.
+
+In GauPro, we can fit a GP model with Gaussian correlation function
+using the function `gpkm`.
+
+``` r
+library(GauPro)
+gp <- gpkm(x, y, kernel=k_Gaussian(D=1), parallel=FALSE)
+```
+
+Now we can plot the predictions given by the model. Shown below, this
+model looks much better than a linear model.
+
+``` r
+gp$plot1D()
+```
+
+![](tools/README-oldvignettedata_plot1D-1.png)<!-- -->
+
+A very useful property of GP’s is that they give a predicted error. The
+red lines give an approximate 95% confidence interval for the value at
+each point (measure value, not the mean). The width of the prediction
+interval is largest between points and goes to zero near data points,
+which is what we would hope for.
+
+GP models give distributions for the predictions. Realizations from
+these distributions give an idea of what the true function may look
+like. Calling `$cool1Dplot()` on the 1-D gp object shows 20
+realizations. The realizations are most different away from the design
+points.
+
+``` r
+if (requireNamespace("MASS", quietly = TRUE)) {
+  gp$cool1Dplot()
+}
+```
+
+![](tools/README-oldvignettedata_cool1Dplot-1.png)<!-- -->
+
+### Using kernels
+
+The kernel, or covariance function, has a large effect on the Gaussian
+process being estimated. Many different kernels are available in the
+`gpkm()` function which creates the GP object.
+
+The example below shows what the Matern 5/2 kernel gives.
+
+``` r
+kern <- k_Matern52(D=1)
+gpk <- gpkm(matrix(x, ncol=1), y, kernel=kern, parallel=FALSE)
+if (requireNamespace("MASS", quietly = TRUE)) {
+  plot(gpk)
+}
+```
+
+![](tools/README-oldvignettedata_maternplot-1.png)<!-- -->
+
+The exponential kernel is shown below. You can see that it has a huge
+effect on the model fit. The exponential kernel assumes the correlation
+between points dies off very quickly, so there is much more uncertainty
+and variation in the predictions and sample paths.
+
+``` r
+kern.exp <- k_Exponential(D=1)
+gpk.exp <- gpkm(matrix(x, ncol=1), y, kernel=kern.exp, parallel=FALSE)
+if (requireNamespace("MASS", quietly = TRUE)) {
+  plot(gpk.exp)
+}
+```
+
+![](tools/README-oldvignettedata_exponentialplot-1.png)<!-- -->
+
+### Trends
+
+Along with the kernel the trend can also be set. The trend determines
+what the mean of a point is without any information from the other
+points. I call it a trend instead of mean because I refer to the
+posterior mean as the mean, whereas the trend is the mean of the normal
+distribution. Currently the three options are to have a mean 0, a
+constant mean (default and recommended), or a linear model.
+
+With the exponential kernel above we see some regression to the mean.
+Between points the prediction reverts towards the mean of 0.2986876.
+Also far away from any data the prediction will near this value.
+
+Below when we use a mean of 0 we do not see this same reversion.
+
+``` r
+kern.exp <- k_Exponential(D=1)
+trend.0 <- trend_0$new()
+gpk.exp <- gpkm(matrix(x, ncol=1), y, kernel=kern.exp, trend=trend.0, parallel=FALSE)
+if (requireNamespace("MASS", quietly = TRUE)) {
+  plot(gpk.exp)
+}
+```
+
+![](tools/README-oldvignettedata_trendplot-1.png)<!-- -->
