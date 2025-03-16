@@ -1,3 +1,5 @@
+# GauPro 0.2.14.9000
+
 # GauPro 0.2.14
 
 Bug fix from predictions when there are no categorical predictors and formula
@@ -7,6 +9,8 @@ Added isotropic option for Gaussian, Exponential, Matern 3/2, Matern 5/2,
 and Triangle kernels.
 
 Combined README and main vignette for better documentation.
+
+Accepted to CRAN on 3/9/25.
 
 # GauPro 0.2.13
 
