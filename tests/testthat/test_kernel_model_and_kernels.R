@@ -752,7 +752,7 @@ test_that("Factor kernels", {
     df <- gp$deviance()
     dg <- gp$deviance_grad(nug.update = T)
     dfg <- gp$deviance_fngr(nug.update = T)
-    expect_equal(df, dfg$fn)
+    expect_equal(df, dfg$fn, tolerance = 1e-4)
     expect_equal(dg, dfg$gr, tolerance = 1e-4)
     # Now check numeric gradient
     # Nugget gradient

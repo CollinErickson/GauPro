@@ -1,5 +1,6 @@
-I made some updates to the package.
-I fixed a test that gave CRAN issues recently.
+I received an email from Brian Ripley to fix the issues on
+https://cran.r-project.org/web/checks/check_results_GauPro.html.
+I made changes to avoid the error that caused the failure there.
 
 
 ## Test environments
@@ -11,11 +12,11 @@ I fixed a test that gave CRAN issues recently.
 
 ## R CMD check results
 
-* local Windows 11 (3/9/25): no errors/warnings/notes
+* local Windows 11 (4/6/25): no errors/warnings/notes
 
 * local Windows 11, _R_CHECK_DEPENDS_ONLY_=TRUE (3/9/25): no errors/warnings/notes
 
-* Mac-builder (3/9/25): 1 NOTE
+* Mac-builder (4/6/25): 1 NOTE
 1 NOTE for "sub-directories of 1Mb or more", but it is expected.
 
 * GitHub Actions, Ubuntu (3/9/25): 1 NOTE for large sub-directories, but no
@@ -31,7 +32,7 @@ warnings/errors.
 
 * R-Hub intel (3/9/25): OK
 
-* Win-Builder, devel (3/9/25): OK
+* Win-Builder, devel (4/6/25): OK
 
 * Win-Builder, release (3/9/25): OK
 

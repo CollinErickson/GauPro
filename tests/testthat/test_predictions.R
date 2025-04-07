@@ -42,7 +42,7 @@ test_that("prediction with only categorical predictors", {
 })
 
 test_that("prediction with mixed predictor types", {
-  skip("Appears to cause an inf loop of warnings")
+  # skip("Appears to cause an inf loop of warnings")
   # This runs fine interactively but, during testing, is issues infinite
   # warnings.
   set.seed(1)
