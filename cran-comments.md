@@ -19,7 +19,7 @@ I made changes to avoid the error that caused the failure there.
 * Mac-builder (4/6/25): 1 NOTE
 1 NOTE for "sub-directories of 1Mb or more", but it is expected.
 
-* GitHub Actions, Ubuntu (3/9/25): 1 NOTE for large sub-directories, but no
+* GitHub Actions, Ubuntu (4/6/25): 1 NOTE for large sub-directories, but no
 warnings/errors.
 
 * R-Hub ubuntu gcc-12 (3/9/25): 1 NOTE for slow tests
