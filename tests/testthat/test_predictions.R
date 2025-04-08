@@ -45,6 +45,8 @@ test_that("prediction with only categorical predictors", {
 #   # skip("Appears to cause an inf loop of warnings")
 #   # This runs fine interactively but, during testing, is issues infinite
 #   # warnings.
+#   # I found that it didn't give any warnings, but it did take way longer
+#   # for no apparent reason.
 #   set.seed(1)
 #   dat <- data.frame(x = runif(20), z = runif(20))
 #   dat$y <- rep(letters[1:2], 10)
