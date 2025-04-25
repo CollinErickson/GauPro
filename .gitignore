@@ -10,3 +10,5 @@ CRAN-RELEASE
 scratch/rm_Windows.R
 tests/testthat/Rplots.pdf
 CRAN-SUBMISSION
+/doc/
+/Meta/
