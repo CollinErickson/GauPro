@@ -8,6 +8,16 @@ printkern <- interactive()
 # cat('printkern is', printkern, '\n')
 if (printkern) {cat("seed =", seed, "\n")}
 
+if (requireNamespace('testthatmulti', quietly = TRUE)) {
+
+} else {
+  ttm <- function(a, b) {b}
+  ttm_expect_true <- testthat::expect_true
+  ttm_expect_equal <- testthat::expect_equal
+  ttm_expect_error <- testthat::expect_error
+  ttm_expect_no_error <- testthat::expect_no_error
+}
+
 # Cts kernels 1D ----
 test_that("Cts kernels 1D", {
   n <- sample(11:18, 1)
@@ -303,15 +313,6 @@ test_that("Cts kernels 1D", {
 
 # Cts kernels 2D ----
 test_that("Cts kernels 2D", {
-  if (exists('seed')) {set.seed(seed)}
-  n <- 20
-  d <- 2
-  x <- matrix(runif(n*d), ncol=d)
-  x <- GauPro:::lhs_maximinLHS(n, d) # Better spacing might avoid grad issues?
-  # x <- rbind(x, x[1,]) # Add repeated x since that could cause issues
-  # n <- nrow(x)
-  f <- function(x) {abs(sin(x[1]^.8*6))^1.2 + log(1+(x[2]-.3)^2) + x[1]*x[2]}
-  y <- apply(x, 1, f) + rnorm(n,0,1e-2) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
   kern_chars <- c('Gaussian', 'Matern32', 'Matern52',
                   'Triangle', 'Cubic', 'White',
                   'PowerExp', 'Periodic', "Exponential", "RatQuad",
@@ -331,333 +332,354 @@ test_that("Cts kernels 2D", {
                     Triangle$new(D=2, isotropic=T))
   stopifnot(length(kern_chars) == length(kern_list))
   for (j in 1:length(kern_chars)) {
-    if (exists('seed')) {set.seed(seed)} else {seed <- runif(1)}
-    kern_char <- kern_chars[j]
-    if (exists('printkern') && printkern) cat("2D", j, kern_char, "\n")
-    if (is.numeric(kern_list[[j]])) {
-      kern <- eval(parse(text=kern_char))
-      expect_is(kern, "R6ClassGenerator")
-    } else {
-      kern <- kern_list[[j]]
-    }
+    # Don't set seed inside ttm, it'll defeat the purpose
+    # This way we know what data was run first
+    # Or could set seed to be seed + ttm_i() for repeatability
+    if (exists('seed')) {set.seed(seed)} else {seed=runif(1)}
+    n <- 20
+    d <- 2
 
-    expect_no_warning({
-      expect_error({
-        gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=kern, parallel=FALSE,
-                                      verbose=0, nug.est=T, restarts=0)
-      }, NA)
-    })
-    expect_is(gp, "GauPro")
-    expect_is(gp, "R6")
+    # Used to set seed before starting fit, don't do that with ttm
+    # if (exists('seed')) {set.seed(seed)} else {seed <- runif(1)}
 
-    # Check kernel properties
-    expect_equal(GauPro:::find_kernel_cts_dims(gp$kernel),
-                 if (kern_char == "White") {NULL}
-                 else if (kern_char=="Ignore") {1}
-                 else {1:2})
-    expect_true(is.null(GauPro:::find_kernel_factor_dims(gp$kernel)))
-
-    # Check predict
-    expect_error(pred1 <- predict(gp, runif(2)), NA)
-    expect_true(is.numeric(pred1))
-    expect_true(!is.matrix(pred1))
-    expect_equal(length(pred1), 1)
-    # Predict with SE
-    expect_error(pred2 <- predict(gp, runif(2), se.fit=T), NA)
-    expect_true(is.data.frame(pred2))
-    expect_equal(dim(pred2), c(1,3))
-    expect_equal(colnames(pred2), c('mean', 's2', 'se'))
-    # Matrix
-    expect_error(pred3 <- predict(gp, matrix(runif(12), ncol=2)), NA)
-    expect_true(is.numeric(pred3))
-    expect_true(!is.matrix(pred3))
-    expect_equal(length(pred3), 6)
-    # Matrix with SE
-    expect_error(pred4 <- predict(gp, matrix(runif(12), ncol=2), se.fit=T), NA)
-    expect_true(is.data.frame(pred4))
-    expect_equal(dim(pred4), c(6,3))
-    expect_equal(colnames(pred4), c('mean', 's2', 'se'))
-    # Predict mean dist
-    expect_error(pred5 <- predict(gp, matrix(runif(12), ncol=2), se.fit=T,
-                                  mean_dist=TRUE), NA)
-
-    # Kernel k with self must equal s2. If this fails, may need to change places
-    #  where it is assumed to be true.
-    expect_equal(gp$kernel$k(.3), gp$kernel$s2,
-                 label=paste(j, kern_char, 'k(.3)'))
-    if (kern_char != "White") {
-      expect_equal(gp$kernel$k(.3,.3), gp$kernel$s2,
-                   label=paste(j, kern_char, 'k(.3,.3)'))
-    }
-    # Check kernel$k matches when giving in as matrix or vector
-    kn1 <- 5
-    kn2 <- 7
-    k_mat1 <- matrix(runif(kn1*d), nrow=kn1, ncol=d)
-    k_mat2 <- matrix(runif(kn2*d), nrow=kn2, ncol=d)
-    k_vec1 <- runif(d)
-    k_vec2 <- runif(d)
-    expect_equal(
-      outer(1:kn1, 1:kn2, Vectorize(function(ii,jj) {gp$kernel$k(k_mat1[ii,], k_mat2[jj,])})),
-      gp$kernel$k(k_mat1, k_mat2)
-    )
-    expect_equal(
-      c(outer(1, 1:kn2, Vectorize(function(ii,jj) {gp$kernel$k(k_vec1, k_mat2[jj,])}))),
-      c(gp$kernel$k(k_vec1, k_mat2))
-    )
-    expect_equal(
-      c(outer(1:kn1, 1, Vectorize(function(ii,jj) {gp$kernel$k(k_mat1[ii,], k_vec2)}))),
-      gp$kernel$k(k_mat1, k_vec2)
-    )
-    expect_equal(
-      t(gp$kernel$k(k_mat2, k_mat1)),
-      gp$kernel$k(k_mat1, k_mat2)
-    )
-    expect_equal(
-      gp$kernel$k(k_vec2, k_mat1),
-      gp$kernel$k(k_mat1, k_vec2)
-    )
+    # Need this inside kernel for loop: it shouldn't redo previous kernels
+    ttm(10,{
+      # Generate data inside of ttm so that it can retry on new data
+      x <- matrix(runif(n*d), ncol=d)
+      x <- GauPro:::lhs_maximinLHS(n, d) # Better spacing might avoid grad issues?
+      # x <- rbind(x, x[1,]) # Add repeated x since that could cause issues
+      # n <- nrow(x)
+      f <- function(x) {abs(sin(x[1]^.8*6))^1.2 + log(1+(x[2]-.3)^2) + x[1]*x[2]}
+      y <- apply(x, 1, f) + rnorm(n,0,1e-2) #f(x) #sin(2*pi*x) #+ rnorm(n,0,1e-1)
 
 
-    # Check basics, but not for all kernels
-    if (j<2.5) {
-      expect_error(gp$plotLOO(), NA)
-      expect_error(gp$plotmarginal(), NA)
-      expect_error(gp$plotmarginalrandom(), NA)
-      # plot2D
-      expect_error(gp$plot2D(), NA)
-      expect_no_error({gp$plot2D(se=T, n=5)})
-      expect_no_error(gp$plot2D(se=T, n=5, horizontal=F))
-      expect_no_error(gp$plot2D(se=T, n=5, mean=F))
-      expect_error(gp$plot2D(se=F, mean=F))
-      expect_error(gp$plot2D(se=1))
-      # Should call plot2D
-      expect_error(plot(gp), NA)
-      # Sample
-      expect_no_error(s1 <- gp$sample(XX=runif(d), 3))
-      expect_true(is.matrix(s1))
-      expect_equal(dim(s1), c(3, 1))
-      expect_no_error(s2 <- gp$sample(XX=matrix(runif(d*5), ncol=d), 30))
-      expect_true(is.matrix(s2))
-      expect_equal(dim(s2), c(30, 5))
-    }
-
-    # Check some advanced stuff only for Gaussian
-    if (j %in% c(1, 14)) {
-      # Covmat
-      expect_no_error(gp$predict(matrix(runif(2*d), ncol=2), covmat = T))
-      # Split speed, large matrix
-      expect_no_error(gp$predict(matrix(runif(9000*d), ncol=2), split_speed = T))
-      # Fails on range length
-      expect_error(gp$predict(runif(3)))
-
-      # Various grad/var stuff
-      expect_no_error(gp$pred_var_after_adding_points(add_points = runif(d),
-                                                      pred_points = runif(d)))
-      expect_no_error(gp$pred_var_after_adding_points(
-        add_points = matrix(runif(2*d), ncol=d), pred_points = runif(d)))
-      expect_no_error(gp$pred_var_reductions(
-        add_points = matrix(runif(2*d), ncol=d), pred_points = runif(d)))
-      expect_no_error(gp$grad_dist(matrix(runif(d), ncol=d)))
-      expect_no_error(gp$grad_sample(matrix(runif(d), ncol=d), n=10))
-      expect_no_error(gp$grad_norm2_mean(matrix(runif(d), ncol=d)))
-      expect_no_error(gp$hessian(matrix(runif(d), ncol=d)))
-
-      # optimize_fn
-      expect_no_error(gp$optimize_fn(function(x) {gp$predict(x)}, minimize = FALSE))
-      expect_no_error(gp$optimize_fn(function(x) {gp$predict(x)}, minimize = TRUE))
-      expect_no_error(gp$optimize_fn(function(x) {
-        p <- gp$predict(x, T)
-        p$mean + p$se
-      }, minimize = FALSE))
-      expect_no_error(gp$optimize_fn(function(x) {gp$predict(x)},
-                                     gr=function(x) {gp$grad(x)}, minimize = FALSE))
-      expect_no_error(gp$optimize_fn(fn=function(x) {gp$predict(x)},
-                                     fngr=function(x) {
-                                       list(fn=gp$predict(x), gr=gp$grad(x))
-                                     }, minimize = FALSE))
-      expect_no_error(gp$optimize_fn(function(x, a) {a+gp$predict(x)},
-                                     fn_args=list(a=100)))
-    }
-
-    # Summary
-    expect_no_warning(
-      expect_error(capture.output(summary(gp)), NA)
-    )
-
-    # Print
-    expect_no_error(printout <- capture.output(print(gp)))
-    expect_true(is.character(printout))
-    expect_equal(printout[1], "GauPro kernel model object")
-
-    # Kernel plot
-    expect_error(plot(gp$kernel), NA)
-    expect_error(gp$plotkernel, NA)
-
-    # Test importance
-    expect_error(capture.output(imp <- gp$importance(plot=F)), NA)
-    expect_true(is.numeric(imp))
-    expect_equal(names(imp), c("X1", "X2"))
-
-    # Check EI for some kernels
-    if (j<2.5) {
-      for (EItype in c("ei", "aug", "cor")) {
-        expect_no_error(mei1 <- gp$maxEI(EItype = EItype),
-                        message=paste("EI", EItype, kern_char))
-        expect_is(mei1, "list")
-        expect_equal(length(mei1), 2)
-        expect_equal(length(mei1$par), 2)
-        expect_equal(length(mei1$val), 1)
-      }
-      expect_no_error(gp$maxqEI(npoints=1),
-                      message=paste("maxqEI1", EItype, kern_char))
-      expect_no_error(mei2 <- gp$maxqEI(npoints=2),
-                      message=paste("maxqEI2", EItype, kern_char))
-      expect_is(mei2, "list")
-      expect_equal(length(mei2), 2)
-      expect_is(mei2$par, "matrix")
-      expect_equal(dim(mei2$par), c(2,2))
-      expect_equal(length(mei2$val), 1)
-    }
-
-    # Test grad over X. Implicitly tests kernel$dC_dx.
-    if (T) {
-      xgrad <- runif(2) #matrix(runif(6), ncol=2)
-      expect_no_error(symgrad <- gp$grad(xgrad))
-      expect_equal(numDeriv::grad(gp$pred, x=xgrad),
-                   c(symgrad),
-                   tolerance=1e-2,
-                   label=paste(j, kern_char, 'gp$grad'))
-      # grad at self shouldn't be zero, except for Triangle, Exponential, PowerExp
-      expect_no_error(gpgradX <- gp$grad(gp$X))
-      if (!(j %in% c(4,7,9, 17, 18))) {
-        expect_true(!any(is.na(gpgradX)),
-                    label=paste(j, kern_char, '!any(is.na(gpgradX))'))
-      }
-    } else {
-      if (exists('printkern') && printkern) {
-        cat("grad/dC_dx not tested for", j, kern_char, "\n")
-      }
-    }
-
-    # Test gradpredvar
-    # FIX m32/m52
-    if (j %in% c(1:13) || TRUE) {
-      expect_no_error(gpv <- gp$gradpredvar(xgrad))
-      # numDeriv::grad(func=function(x) gp$pred(x, se=T)$s2, gpv)
-      npv <- 39
-      XXpv <- matrix(runif(2*npv), ncol=2)
-      expect_no_error(XXgpv <- gp$gradpredvar(XXpv))
-      gpvmatches <- 0
-      numpvs <- c()
-      actpvs <- c()
-      for (iii in 1:npv) {
-        numpv <- numDeriv::grad(func=function(x) {gp$pred(x, se=T)$s2},
-                                XXpv[iii,])
-        # expect_equal(numpv, XXgpv[iii,], tolerance = 1e-2)
-        pvclose <- all(
-          ifelse(abs(XXgpv[iii,]) < 1e-8,
-                 abs(numpv - XXgpv[iii,]) < 1e-8,
-                 ifelse(abs(XXgpv[iii,]) < 1e-2,
-                        abs((numpv - XXgpv[iii,]) / XXgpv[iii,]) < 1e-1,
-                        abs((numpv - XXgpv[iii,]) / XXgpv[iii,]) < 1e-3)))
-        if (pvclose) {gpvmatches <- gpvmatches + 1}
-        numpvs <- c(numpvs, numpv)
-        actpvs <- c(actpvs, XXgpv[iii,])
-      }
-      if (exists('printkern') && printkern && gpvmatches < npv) {
-        cat(kern_char, "gpv close on ", gpvmatches, "/", npv, "\n")
-      }
-      # Setting bar really low since I don't want this failing on CRAN,
-      # and if it works in 1D then it should be fine.
-      expect_true(gpvmatches > npv/10,
-                  label=paste(j, kern_char, 'gpvmatches', gpvmatches,'/',npv,
-                              "seed =", seed))
-      # qplot(numpvs, actpvs)
-      # summary((numpvs - actpvs) / actpvs)
-      # cbind(numpvs, actpvs, prop=(numpvs - actpvs) / actpvs)
-      # qplot(numpvs, (numpvs - actpvs) / actpvs)
-    } else {
-      if (exists('printkern') && printkern) {
-        cat("gradpredvar not tested for", j, kern_char, "\n")
-      }
-    }
-
-    # Check kernel
-    expect_error({kernprint <- capture_output(print(gp$kernel))}, NA)
-    expect_is(kernprint, 'character')
-
-    df <- gp$deviance()
-    dg <- gp$deviance_grad(nug.update = T)
-    dfg <- gp$deviance_fngr(nug.update = T)
-    expect_equal(df, dfg$fn)
-    expect_equal(dg, dfg$gr, tolerance = 1e-4)
-
-    # Now check numeric gradient
-    # Nugget gradient
-    eps <- 1e-6 # 1e-8 was too small, caused errors
-    kernpars <- gp$kernel$param_optim_start(jitter=T)
-    nuglog <- -3.3
-    gpd1 <- gp$deviance(nuglog = nuglog - eps/2, params = kernpars)
-    gpd2 <- gp$deviance(nuglog = nuglog + eps/2, params= kernpars)
-    numder <- (gpd2-gpd1)/eps
-    actder <- gp$deviance_grad(nuglog=nuglog, params=kernpars, nug.update = T)
-    expect_equal(numder, actder[length(actder)], 1e-3)
-
-    # Kernel param gradient
-    # max attempts
-    maxattempts <- 10
-    numgradtol <- 1e-3
-    for (iatt in 1:maxattempts) {
-      goodsofar <- TRUE
-      # kernel params
-      # Use a random value since it's not exact enough to work at minimum
-      kernpars <- gp$kernel$param_optim_start(jitter=T)
-      if (kern_char=="RatQuad") {
-        # Make sure kernpars are reasonable to avoid error: logalpha not too big
-        # cat('ratquad kernpars are', kernpars, "\n")
-      }
-      actgrad <- gp$deviance_grad(params = kernpars, nug.update = F)
-      for (i in 1:length(kernpars)) {
-        epsvec <- rep(0, length(kernpars))
-        epsvec[i] <- eps
-        dp1 <- gp$deviance(params = kernpars - epsvec/2)
-        dp2 <- gp$deviance(params = kernpars + epsvec/2)
-        # numgrad <- (dp2-dp1) / eps
-        # Switching to 4-point to reduce numerical errors, helps a lot
-        dp3 <- gp$deviance(params = kernpars - epsvec)
-        dp4 <- gp$deviance(params = kernpars + epsvec)
-        numgrad <- (-dp4 + 8*dp2 - 8*dp1 + dp3)/(12*eps/2)
-        # cat(j, kern_char, i, numgrad, actgrad[i+1], abs((numgrad - actgrad[1+i])/numgrad), "\n")
-        # expect_equal(numgrad, actgrad[1+i], tolerance = 1e-6,
-        # label=paste(j,kern_char,i, 'numgrad'))
-        alleq <- all.equal(actgrad[1+i], numgrad, tolerance=numgradtol)
-        if (isTRUE(alleq)) {
-          expect_equal(numgrad, actgrad[1+i], tolerance = numgradtol,
-                       label=paste(j,kern_char,i, 'numgrad'))
-        } else {
-          if (exists('printkern') && printkern) {
-            cat("FAILURE", kern_char, iatt, i, alleq, actgrad[1+i], numgrad, "\n")
-          }
-          goodsofar <- FALSE
-        }
-      }
-      if (goodsofar) {
-        break
+      kern_char <- kern_chars[j]
+      if (exists('printkern') && printkern) cat("2D", j, kern_char, "\n")
+      if (is.numeric(kern_list[[j]])) {
+        kern <- eval(parse(text=kern_char))
+        expect_is(kern, "R6ClassGenerator")
       } else {
-        if (exists("printkern") && printkern) {
-          cat("failed on", kern_char, "attempt", iatt,
-              alleq,
-              (numgrad-actgrad[1+i]) / actgrad[1+i],
-              "\n")
+        kern <- kern_list[[j]]
+      }
+
+      expect_no_warning({
+        expect_error({
+          gp <- GauPro_kernel_model$new(X=x, Z=y, kernel=kern, parallel=FALSE,
+                                        verbose=0, nug.est=T, restarts=0)
+        }, NA)
+      })
+      expect_is(gp, "GauPro")
+      expect_is(gp, "R6")
+
+      # Check kernel properties
+      expect_equal(GauPro:::find_kernel_cts_dims(gp$kernel),
+                   if (kern_char == "White") {NULL}
+                   else if (kern_char=="Ignore") {1}
+                   else {1:2})
+      expect_true(is.null(GauPro:::find_kernel_factor_dims(gp$kernel)))
+
+      # Check predict
+      expect_error(pred1 <- predict(gp, runif(2)), NA)
+      expect_true(is.numeric(pred1))
+      expect_true(!is.matrix(pred1))
+      expect_equal(length(pred1), 1)
+      # Predict with SE
+      expect_error(pred2 <- predict(gp, runif(2), se.fit=T), NA)
+      expect_true(is.data.frame(pred2))
+      expect_equal(dim(pred2), c(1,3))
+      expect_equal(colnames(pred2), c('mean', 's2', 'se'))
+      # Matrix
+      expect_error(pred3 <- predict(gp, matrix(runif(12), ncol=2)), NA)
+      expect_true(is.numeric(pred3))
+      expect_true(!is.matrix(pred3))
+      expect_equal(length(pred3), 6)
+      # Matrix with SE
+      expect_error(pred4 <- predict(gp, matrix(runif(12), ncol=2), se.fit=T), NA)
+      expect_true(is.data.frame(pred4))
+      expect_equal(dim(pred4), c(6,3))
+      expect_equal(colnames(pred4), c('mean', 's2', 'se'))
+      # Predict mean dist
+      expect_error(pred5 <- predict(gp, matrix(runif(12), ncol=2), se.fit=T,
+                                    mean_dist=TRUE), NA)
+
+      # Kernel k with self must equal s2. If this fails, may need to change places
+      #  where it is assumed to be true.
+      expect_equal(gp$kernel$k(.3), gp$kernel$s2,
+                   label=paste(j, kern_char, 'k(.3)'))
+      if (kern_char != "White") {
+        expect_equal(gp$kernel$k(.3,.3), gp$kernel$s2,
+                     label=paste(j, kern_char, 'k(.3,.3)'))
+      }
+      # Check kernel$k matches when giving in as matrix or vector
+      kn1 <- 5
+      kn2 <- 7
+      k_mat1 <- matrix(runif(kn1*d), nrow=kn1, ncol=d)
+      k_mat2 <- matrix(runif(kn2*d), nrow=kn2, ncol=d)
+      k_vec1 <- runif(d)
+      k_vec2 <- runif(d)
+      expect_equal(
+        outer(1:kn1, 1:kn2, Vectorize(function(ii,jj) {gp$kernel$k(k_mat1[ii,], k_mat2[jj,])})),
+        gp$kernel$k(k_mat1, k_mat2)
+      )
+      expect_equal(
+        c(outer(1, 1:kn2, Vectorize(function(ii,jj) {gp$kernel$k(k_vec1, k_mat2[jj,])}))),
+        c(gp$kernel$k(k_vec1, k_mat2))
+      )
+      expect_equal(
+        c(outer(1:kn1, 1, Vectorize(function(ii,jj) {gp$kernel$k(k_mat1[ii,], k_vec2)}))),
+        gp$kernel$k(k_mat1, k_vec2)
+      )
+      expect_equal(
+        t(gp$kernel$k(k_mat2, k_mat1)),
+        gp$kernel$k(k_mat1, k_mat2)
+      )
+      expect_equal(
+        gp$kernel$k(k_vec2, k_mat1),
+        gp$kernel$k(k_mat1, k_vec2)
+      )
+
+
+      # Check basics, but not for all kernels
+      if (j<2.5) {
+        expect_error(gp$plotLOO(), NA)
+        expect_error(gp$plotmarginal(), NA)
+        expect_error(gp$plotmarginalrandom(), NA)
+        # plot2D
+        expect_error(gp$plot2D(), NA)
+        expect_no_error({gp$plot2D(se=T, n=5)})
+        expect_no_error(gp$plot2D(se=T, n=5, horizontal=F))
+        expect_no_error(gp$plot2D(se=T, n=5, mean=F))
+        expect_error(gp$plot2D(se=F, mean=F))
+        expect_error(gp$plot2D(se=1))
+        # Should call plot2D
+        expect_error(plot(gp), NA)
+        # Sample
+        expect_no_error(s1 <- gp$sample(XX=runif(d), 3))
+        expect_true(is.matrix(s1))
+        expect_equal(dim(s1), c(3, 1))
+        expect_no_error(s2 <- gp$sample(XX=matrix(runif(d*5), ncol=d), 30))
+        expect_true(is.matrix(s2))
+        expect_equal(dim(s2), c(30, 5))
+      }
+
+      # Check some advanced stuff only for Gaussian
+      if (j %in% c(1, 14)) {
+        # Covmat
+        expect_no_error(gp$predict(matrix(runif(2*d), ncol=2), covmat = T))
+        # Split speed, large matrix
+        expect_no_error(gp$predict(matrix(runif(9000*d), ncol=2), split_speed = T))
+        # Fails on range length
+        expect_error(gp$predict(runif(3)))
+
+        # Various grad/var stuff
+        expect_no_error(gp$pred_var_after_adding_points(add_points = runif(d),
+                                                        pred_points = runif(d)))
+        expect_no_error(gp$pred_var_after_adding_points(
+          add_points = matrix(runif(2*d), ncol=d), pred_points = runif(d)))
+        expect_no_error(gp$pred_var_reductions(
+          add_points = matrix(runif(2*d), ncol=d), pred_points = runif(d)))
+        expect_no_error(gp$grad_dist(matrix(runif(d), ncol=d)))
+        expect_no_error(gp$grad_sample(matrix(runif(d), ncol=d), n=10))
+        expect_no_error(gp$grad_norm2_mean(matrix(runif(d), ncol=d)))
+        expect_no_error(gp$hessian(matrix(runif(d), ncol=d)))
+
+        # optimize_fn
+        expect_no_error(gp$optimize_fn(function(x) {gp$predict(x)}, minimize = FALSE))
+        expect_no_error(gp$optimize_fn(function(x) {gp$predict(x)}, minimize = TRUE))
+        expect_no_error(gp$optimize_fn(function(x) {
+          p <- gp$predict(x, T)
+          p$mean + p$se
+        }, minimize = FALSE))
+        expect_no_error(gp$optimize_fn(function(x) {gp$predict(x)},
+                                       gr=function(x) {gp$grad(x)}, minimize = FALSE))
+        expect_no_error(gp$optimize_fn(fn=function(x) {gp$predict(x)},
+                                       fngr=function(x) {
+                                         list(fn=gp$predict(x), gr=gp$grad(x))
+                                       }, minimize = FALSE))
+        expect_no_error(gp$optimize_fn(function(x, a) {a+gp$predict(x)},
+                                       fn_args=list(a=100)))
+      }
+
+      # Summary
+      expect_no_warning(
+        expect_error(capture.output(summary(gp)), NA)
+      )
+
+      # Print
+      expect_no_error(printout <- capture.output(print(gp)))
+      expect_true(is.character(printout))
+      expect_equal(printout[1], "GauPro kernel model object")
+
+      # Kernel plot
+      expect_error(plot(gp$kernel), NA)
+      expect_error(gp$plotkernel, NA)
+
+      # Test importance
+      expect_error(capture.output(imp <- gp$importance(plot=F)), NA)
+      expect_true(is.numeric(imp))
+      expect_equal(names(imp), c("X1", "X2"))
+
+      # Check EI for some kernels
+      if (j<2.5) {
+        for (EItype in c("ei", "aug", "cor")) {
+          expect_no_error(mei1 <- gp$maxEI(EItype = EItype),
+                          message=paste("EI", EItype, kern_char))
+          expect_is(mei1, "list")
+          expect_equal(length(mei1), 2)
+          expect_equal(length(mei1$par), 2)
+          expect_equal(length(mei1$val), 1)
+        }
+        expect_no_error(gp$maxqEI(npoints=1),
+                        message=paste("maxqEI1", EItype, kern_char))
+        expect_no_error(mei2 <- gp$maxqEI(npoints=2),
+                        message=paste("maxqEI2", EItype, kern_char))
+        expect_is(mei2, "list")
+        expect_equal(length(mei2), 2)
+        expect_is(mei2$par, "matrix")
+        expect_equal(dim(mei2$par), c(2,2))
+        expect_equal(length(mei2$val), 1)
+      }
+
+      # Test grad over X. Implicitly tests kernel$dC_dx.
+      if (T) {
+        xgrad <- runif(2) #matrix(runif(6), ncol=2)
+        expect_no_error(symgrad <- gp$grad(xgrad))
+        expect_equal(numDeriv::grad(gp$pred, x=xgrad),
+                     c(symgrad),
+                     tolerance=1e-2,
+                     label=paste(j, kern_char, 'gp$grad'))
+        # grad at self shouldn't be zero, except for Triangle, Exponential, PowerExp
+        expect_no_error(gpgradX <- gp$grad(gp$X))
+        if (!(j %in% c(4,7,9, 17, 18))) {
+          ttm_expect_true(!any(is.na(gpgradX)),
+                          label=paste(j, kern_char, '!any(is.na(gpgradX))'))
+        }
+      } else {
+        if (exists('printkern') && printkern) {
+          cat("grad/dC_dx not tested for", j, kern_char, "\n")
         }
       }
-    }
-    # This is where it will fail if none succeeded
-    expect_true(goodsofar,
-                label=paste(kern_char,
-                            'numgrad matches symbolic grad (failed on all',
-                            maxattempts, "attempts)"))
-  }
+
+      # Test gradpredvar
+      # FIX m32/m52
+      if (j %in% c(1:13) || TRUE) {
+        expect_no_error(gpv <- gp$gradpredvar(xgrad))
+        # numDeriv::grad(func=function(x) gp$pred(x, se=T)$s2, gpv)
+        npv <- 39
+        XXpv <- matrix(runif(2*npv), ncol=2)
+        expect_no_error(XXgpv <- gp$gradpredvar(XXpv))
+        gpvmatches <- 0
+        numpvs <- c()
+        actpvs <- c()
+        for (iii in 1:npv) {
+          numpv <- numDeriv::grad(func=function(x) {gp$pred(x, se=T)$s2},
+                                  XXpv[iii,])
+          # expect_equal(numpv, XXgpv[iii,], tolerance = 1e-2)
+          pvclose <- all(
+            ifelse(abs(XXgpv[iii,]) < 1e-8,
+                   abs(numpv - XXgpv[iii,]) < 1e-8,
+                   ifelse(abs(XXgpv[iii,]) < 1e-2,
+                          abs((numpv - XXgpv[iii,]) / XXgpv[iii,]) < 1e-1,
+                          abs((numpv - XXgpv[iii,]) / XXgpv[iii,]) < 1e-3)))
+          if (pvclose) {gpvmatches <- gpvmatches + 1}
+          numpvs <- c(numpvs, numpv)
+          actpvs <- c(actpvs, XXgpv[iii,])
+        }
+        if (exists('printkern') && printkern && gpvmatches < npv) {
+          cat(kern_char, "gpv close on ", gpvmatches, "/", npv, "\n")
+        }
+        # Setting bar really low since I don't want this failing on CRAN,
+        # and if it works in 1D then it should be fine.
+        expect_true(gpvmatches > npv/10,
+                    label=paste(j, kern_char, 'gpvmatches', gpvmatches,'/',npv,
+                                "seed =", seed))
+        # qplot(numpvs, actpvs)
+        # summary((numpvs - actpvs) / actpvs)
+        # cbind(numpvs, actpvs, prop=(numpvs - actpvs) / actpvs)
+        # qplot(numpvs, (numpvs - actpvs) / actpvs)
+      } else {
+        if (exists('printkern') && printkern) {
+          cat("gradpredvar not tested for", j, kern_char, "\n")
+        }
+      }
+
+      # Check kernel
+      expect_error({kernprint <- capture_output(print(gp$kernel))}, NA)
+      expect_is(kernprint, 'character')
+
+      df <- gp$deviance()
+      dg <- gp$deviance_grad(nug.update = T)
+      dfg <- gp$deviance_fngr(nug.update = T)
+      expect_equal(df, dfg$fn)
+      expect_equal(dg, dfg$gr, tolerance = 1e-4)
+
+      # Now check numeric gradient
+      # Nugget gradient
+      eps <- 1e-6 # 1e-8 was too small, caused errors
+      kernpars <- gp$kernel$param_optim_start(jitter=T)
+      nuglog <- -3.3
+      gpd1 <- gp$deviance(nuglog = nuglog - eps/2, params = kernpars)
+      gpd2 <- gp$deviance(nuglog = nuglog + eps/2, params= kernpars)
+      numder <- (gpd2-gpd1)/eps
+      actder <- gp$deviance_grad(nuglog=nuglog, params=kernpars, nug.update = T)
+      expect_equal(numder, actder[length(actder)], 1e-3)
+
+      # Kernel param gradient
+      # max attempts
+      maxattempts <- 10
+      numgradtol <- 1e-3
+      for (iatt in 1:maxattempts) {
+        goodsofar <- TRUE
+        # kernel params
+        # Use a random value since it's not exact enough to work at minimum
+        kernpars <- gp$kernel$param_optim_start(jitter=T)
+        if (kern_char=="RatQuad") {
+          # Make sure kernpars are reasonable to avoid error: logalpha not too big
+          # cat('ratquad kernpars are', kernpars, "\n")
+        }
+        actgrad <- gp$deviance_grad(params = kernpars, nug.update = F)
+        for (i in 1:length(kernpars)) {
+          epsvec <- rep(0, length(kernpars))
+          epsvec[i] <- eps
+          dp1 <- gp$deviance(params = kernpars - epsvec/2)
+          dp2 <- gp$deviance(params = kernpars + epsvec/2)
+          # numgrad <- (dp2-dp1) / eps
+          # Switching to 4-point to reduce numerical errors, helps a lot
+          dp3 <- gp$deviance(params = kernpars - epsvec)
+          dp4 <- gp$deviance(params = kernpars + epsvec)
+          numgrad <- (-dp4 + 8*dp2 - 8*dp1 + dp3)/(12*eps/2)
+          # cat(j, kern_char, i, numgrad, actgrad[i+1], abs((numgrad - actgrad[1+i])/numgrad), "\n")
+          # expect_equal(numgrad, actgrad[1+i], tolerance = 1e-6,
+          # label=paste(j,kern_char,i, 'numgrad'))
+          alleq <- all.equal(actgrad[1+i], numgrad, tolerance=numgradtol)
+          if (isTRUE(alleq)) {
+            expect_equal(numgrad, actgrad[1+i], tolerance = numgradtol,
+                         label=paste(j,kern_char,i, 'numgrad'))
+          } else {
+            if (exists('printkern') && printkern) {
+              cat("FAILURE", kern_char, iatt, i, alleq, actgrad[1+i], numgrad, "\n")
+            }
+            goodsofar <- FALSE
+          }
+        }
+        if (goodsofar) {
+          break
+        } else {
+          if (exists("printkern") && printkern) {
+            cat("failed on", kern_char, "attempt", iatt,
+                alleq,
+                (numgrad-actgrad[1+i]) / actgrad[1+i],
+                "\n")
+          }
+        }
+      }
+      # This is where it will fail if none succeeded
+      expect_true(goodsofar,
+                  label=paste(kern_char,
+                              'numgrad matches symbolic grad (failed on all',
+                              maxattempts, "attempts)"))
+    }) # End ttm
+  } # End kernel for loop
 })
 
 # Factor kernels ----

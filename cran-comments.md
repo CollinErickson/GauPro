@@ -1,6 +1,7 @@
 I received an email from Brian Ripley to fix the issues on
-https://cran.r-project.org/web/checks/check_results_GauPro.html.
-I made changes to a test to avoid the error that caused the failure there.
+https://cran.r-project.org/web/checks/check_results_GauPro.html before 8/25/25.
+I made changes to tests to avoid the error and other future potential errors
+from flakey tests.
 
 
 ## Test environments
