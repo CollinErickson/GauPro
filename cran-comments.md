@@ -5,7 +5,7 @@ from flakey tests.
 
 
 ## Test environments
-* local Windows 11 install, R 4.4.3
+* local Windows 11 install, R 4.5.1
 * R-hub builder (multiple)
 * Ubuntu 24.04.2 via GitHub Actions
 * Win-builder (devel and release)
@@ -15,9 +15,9 @@ from flakey tests.
 
 (Note to self: check Rhub with rhub::rhub_check(), then 1,3,5,20,21)
 
-* local Windows 11 (4/6/25): no errors/warnings/notes
+* local Windows 11 (8/24/25): 0 errors/warnings/notes
 
-* local Windows 11, _R_CHECK_DEPENDS_ONLY_=TRUE (4/6/25): no errors/warnings/notes
+* local Windows 11, _R_CHECK_DEPENDS_ONLY_=TRUE (8/24/25): 0 errors/warnings/notes
 
 * Mac-builder (4/6/25): 1 NOTE
 1 NOTE for "sub-directories of 1Mb or more", but it is expected.
@@ -25,17 +25,14 @@ from flakey tests.
 * GitHub Actions, Ubuntu (4/6/25): 1 NOTE for large sub-directories, but no
 warnings/errors.
 
-* R-Hub mkl (4/6/25): OK
+* R-Hub
+  mkl (4/6/25): OK
+  linux (R-devel) (4/6/25): OK
+  macos (R-devel) (4/6/25): OK
+  windows (R-devel) (4/6/25): OK
+  intel (4/6/25): OK
 
-* R-Hub linux (R-devel) (4/6/25): OK
-
-* R-Hub macos (R-devel) (4/6/25): OK
-
-* R-Hub windows (R-devel) (4/6/25): OK
-
-* R-Hub intel (4/6/25): OK
-
-* Win-Builder, devel (4/6/25): OK
+* Win-Builder, devel (8/24/25): OK
 
 * Win-Builder, release (4/6/25): OK
 
