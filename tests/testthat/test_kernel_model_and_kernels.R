@@ -9,7 +9,7 @@ printkern <- interactive()
 if (printkern) {cat("seed =", seed, "\n")}
 
 if (requireNamespace('testthatmulti', quietly = TRUE)) {
-
+  library(testthatmulti)
 } else {
   ttm <- function(a, b) {b}
   ttm_expect_true <- testthat::expect_true
@@ -590,7 +590,7 @@ test_that("Cts kernels 2D", {
         }
         # Setting bar really low since I don't want this failing on CRAN,
         # and if it works in 1D then it should be fine.
-        expect_true(gpvmatches > npv/10,
+        ttm_expect_true(gpvmatches > npv/10,
                     label=paste(j, kern_char, 'gpvmatches', gpvmatches,'/',npv,
                                 "seed =", seed))
         # qplot(numpvs, actpvs)
