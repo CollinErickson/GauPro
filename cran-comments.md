@@ -7,13 +7,13 @@ from flakey tests.
 ## Test environments
 * local Windows 11 install, R 4.5.1
 * R-hub builder (multiple)
-* Ubuntu 24.04.2 via GitHub Actions
+* Ubuntu via GitHub Actions
 * Win-builder (devel and release)
 * Mac-builder
 
 ## R CMD check results
 
-(Note to self: check Rhub with rhub::rhub_check(), then 1,3,5,20,21)
+(Note to self: check Rhub with rhub::rhub_check(), then 1,3,5,20,21,29)
 
 * local Windows 11 (8/24/25): 0 errors/warnings/notes
 
@@ -26,15 +26,15 @@ from flakey tests.
 warnings/errors.
 
 * R-Hub
-  mkl (4/6/25): OK
-  linux (R-devel) (4/6/25): OK
-  macos (R-devel) (4/6/25): OK
-  windows (R-devel) (4/6/25): OK
-  intel (4/6/25): OK
+  intel (8/25/25): OK
+  mkl (8/25/25): OK
+  linux (R-devel) (8/25/25): OK
+  macos (R-devel) (8/25/25): OK
+  ubuntu-release (8/25/25): OK
 
 * Win-Builder, devel (8/24/25): OK
 
-* Win-Builder, release (4/6/25): OK
+* Win-Builder, release (8/24/25): OK
 
 ## Downstream dependencies
 
