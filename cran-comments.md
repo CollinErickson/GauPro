@@ -9,7 +9,6 @@ from flakey tests.
 * R-hub builder (multiple)
 * Ubuntu via GitHub Actions
 * Win-builder (devel and release)
-* Mac-builder
 
 ## R CMD check results
 
@@ -19,11 +18,7 @@ from flakey tests.
 
 * local Windows 11, _R_CHECK_DEPENDS_ONLY_=TRUE (8/24/25): 0 errors/warnings/notes
 
-* Mac-builder (4/6/25): 1 NOTE
-1 NOTE for "sub-directories of 1Mb or more", but it is expected.
-
-* GitHub Actions, Ubuntu (4/6/25): 1 NOTE for large sub-directories, but no
-warnings/errors.
+* GitHub Actions, Ubuntu (8/25/25): OK
 
 * R-Hub
   intel (8/25/25): OK
