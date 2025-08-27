@@ -1,6 +1,10 @@
+# GauPro 0.2.16.9000
+
 # GauPro 0.2.16
 
 Fixed a test that caused error on CRAN.
+
+Accepted to CRAN on 8/26/25.
 
 # GauPro 0.2.15
 
