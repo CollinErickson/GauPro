@@ -30,7 +30,7 @@ I made changes to tests to avoid the error.
   ubuntu-release (11/18/25): 1 NOTE for slow test
   windows (R-devel) (11/18/25): OK
 
-* Win-Builder, devel (8/24/25): 1 NOTE for HTML names. It seems to be caused
+* Win-Builder, devel (11/18/25): 1 NOTE for HTML names. It seems to be caused
 by the automated naming by roxygen, I'll look into this for a future fix,
 but it's inconsequential.
 
