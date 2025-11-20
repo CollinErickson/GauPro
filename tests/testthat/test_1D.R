@@ -6,15 +6,14 @@ test_that("GauPro_Gauss will give deprecation warning on first time", {
 })
 
 test_that("1D data works", {
-
   n <- 12
   x <- matrix(seq(0,1,length.out = n), ncol=1)
   y <- sin(2*pi*x) + rnorm(n,0,1e-1)
   gp <- GauPro(X=x, Z=y, parallel=FALSE)
-  expect_that(gp, is_a("GauPro"))
+  expect_that(gp, is_a("GauPro_base"))
   expect_that(gp, is_a("R6"))
+  expect_no_error(predict(gp, x))
 })
-
 
 test_that("corr works", {
   m1 <- outer(1:10, 1:10, Vectorize(function(i,j) {exp(-sum((1e-2) * (i-j-5)^2))}))

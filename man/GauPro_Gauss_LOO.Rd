@@ -22,7 +22,7 @@ y <- sin(2*pi*x) + rnorm(n,0,1e-1)
 gp <- GauPro_Gauss_LOO$new(X=x, Z=y, parallel=FALSE)
 }
 \section{Super classes}{
-\code{\link[GauPro:GauPro]{GauPro::GauPro}} -> \code{\link[GauPro:GauPro_Gauss]{GauPro::GauPro_Gauss}} -> \code{GauPro_Gauss_LOO}
+\code{\link[GauPro:GauPro_base]{GauPro::GauPro_base}} -> \code{\link[GauPro:GauPro_Gauss]{GauPro::GauPro_Gauss}} -> \code{GauPro_Gauss_LOO}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -45,29 +45,29 @@ gp <- GauPro_Gauss_LOO$new(X=x, Z=y, parallel=FALSE)
 \if{html}{\out{
 <details><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="cool1Dplot"><a href='../../GauPro/html/GauPro.html#method-GauPro-cool1Dplot'><code>GauPro::GauPro$cool1Dplot()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="deviance_searchnug"><a href='../../GauPro/html/GauPro.html#method-GauPro-deviance_searchnug'><code>GauPro::GauPro$deviance_searchnug()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="fit"><a href='../../GauPro/html/GauPro.html#method-GauPro-fit'><code>GauPro::GauPro$fit()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="grad_norm"><a href='../../GauPro/html/GauPro.html#method-GauPro-grad_norm'><code>GauPro::GauPro$grad_norm()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="initialize_GauPr"><a href='../../GauPro/html/GauPro.html#method-GauPro-initialize_GauPr'><code>GauPro::GauPro$initialize_GauPr()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="loglikelihood"><a href='../../GauPro/html/GauPro.html#method-GauPro-loglikelihood'><code>GauPro::GauPro$loglikelihood()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="nugget_update"><a href='../../GauPro/html/GauPro.html#method-GauPro-nugget_update'><code>GauPro::GauPro$nugget_update()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="optim"><a href='../../GauPro/html/GauPro.html#method-GauPro-optim'><code>GauPro::GauPro$optim()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="optimRestart"><a href='../../GauPro/html/GauPro.html#method-GauPro-optimRestart'><code>GauPro::GauPro$optimRestart()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="plot"><a href='../../GauPro/html/GauPro.html#method-GauPro-plot'><code>GauPro::GauPro$plot()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="plot1D"><a href='../../GauPro/html/GauPro.html#method-GauPro-plot1D'><code>GauPro::GauPro$plot1D()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="plot2D"><a href='../../GauPro/html/GauPro.html#method-GauPro-plot2D'><code>GauPro::GauPro$plot2D()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="pred"><a href='../../GauPro/html/GauPro.html#method-GauPro-pred'><code>GauPro::GauPro$pred()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="pred_LOO"><a href='../../GauPro/html/GauPro.html#method-GauPro-pred_LOO'><code>GauPro::GauPro$pred_LOO()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="pred_mean"><a href='../../GauPro/html/GauPro.html#method-GauPro-pred_mean'><code>GauPro::GauPro$pred_mean()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="pred_meanC"><a href='../../GauPro/html/GauPro.html#method-GauPro-pred_meanC'><code>GauPro::GauPro$pred_meanC()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="pred_var"><a href='../../GauPro/html/GauPro.html#method-GauPro-pred_var'><code>GauPro::GauPro$pred_var()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="predict"><a href='../../GauPro/html/GauPro.html#method-GauPro-predict'><code>GauPro::GauPro$predict()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="sample"><a href='../../GauPro/html/GauPro.html#method-GauPro-sample'><code>GauPro::GauPro$sample()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="update_K_and_estimates"><a href='../../GauPro/html/GauPro.html#method-GauPro-update_K_and_estimates'><code>GauPro::GauPro$update_K_and_estimates()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="update_corrparams"><a href='../../GauPro/html/GauPro.html#method-GauPro-update_corrparams'><code>GauPro::GauPro$update_corrparams()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="update_data"><a href='../../GauPro/html/GauPro.html#method-GauPro-update_data'><code>GauPro::GauPro$update_data()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro" data-id="update_nugget"><a href='../../GauPro/html/GauPro.html#method-GauPro-update_nugget'><code>GauPro::GauPro$update_nugget()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_base" data-id="cool1Dplot"><a href='../../GauPro/html/GauPro_base.html#method-GauPro_base-cool1Dplot'><code>GauPro::GauPro_base$cool1Dplot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_base" data-id="deviance_searchnug"><a href='../../GauPro/html/GauPro_base.html#method-GauPro_base-deviance_searchnug'><code>GauPro::GauPro_base$deviance_searchnug()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_base" data-id="fit"><a href='../../GauPro/html/GauPro_base.html#method-GauPro_base-fit'><code>GauPro::GauPro_base$fit()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_base" data-id="grad_norm"><a href='../../GauPro/html/GauPro_base.html#method-GauPro_base-grad_norm'><code>GauPro::GauPro_base$grad_norm()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_base" data-id="initialize_GauPr"><a href='../../GauPro/html/GauPro_base.html#method-GauPro_base-initialize_GauPr'><code>GauPro::GauPro_base$initialize_GauPr()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_base" data-id="loglikelihood"><a href='../../GauPro/html/GauPro_base.html#method-GauPro_base-loglikelihood'><code>GauPro::GauPro_base$loglikelihood()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_base" data-id="nugget_update"><a href='../../GauPro/html/GauPro_base.html#method-GauPro_base-nugget_update'><code>GauPro::GauPro_base$nugget_update()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_base" data-id="optim"><a href='../../GauPro/html/GauPro_base.html#method-GauPro_base-optim'><code>GauPro::GauPro_base$optim()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_base" data-id="optimRestart"><a href='../../GauPro/html/GauPro_base.html#method-GauPro_base-optimRestart'><code>GauPro::GauPro_base$optimRestart()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_base" data-id="plot"><a href='../../GauPro/html/GauPro_base.html#method-GauPro_base-plot'><code>GauPro::GauPro_base$plot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_base" data-id="plot1D"><a href='../../GauPro/html/GauPro_base.html#method-GauPro_base-plot1D'><code>GauPro::GauPro_base$plot1D()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_base" data-id="plot2D"><a href='../../GauPro/html/GauPro_base.html#method-GauPro_base-plot2D'><code>GauPro::GauPro_base$plot2D()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_base" data-id="pred"><a href='../../GauPro/html/GauPro_base.html#method-GauPro_base-pred'><code>GauPro::GauPro_base$pred()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_base" data-id="pred_LOO"><a href='../../GauPro/html/GauPro_base.html#method-GauPro_base-pred_LOO'><code>GauPro::GauPro_base$pred_LOO()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_base" data-id="pred_mean"><a href='../../GauPro/html/GauPro_base.html#method-GauPro_base-pred_mean'><code>GauPro::GauPro_base$pred_mean()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_base" data-id="pred_meanC"><a href='../../GauPro/html/GauPro_base.html#method-GauPro_base-pred_meanC'><code>GauPro::GauPro_base$pred_meanC()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_base" data-id="pred_var"><a href='../../GauPro/html/GauPro_base.html#method-GauPro_base-pred_var'><code>GauPro::GauPro_base$pred_var()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_base" data-id="predict"><a href='../../GauPro/html/GauPro_base.html#method-GauPro_base-predict'><code>GauPro::GauPro_base$predict()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_base" data-id="sample"><a href='../../GauPro/html/GauPro_base.html#method-GauPro_base-sample'><code>GauPro::GauPro_base$sample()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_base" data-id="update_K_and_estimates"><a href='../../GauPro/html/GauPro_base.html#method-GauPro_base-update_K_and_estimates'><code>GauPro::GauPro_base$update_K_and_estimates()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_base" data-id="update_corrparams"><a href='../../GauPro/html/GauPro_base.html#method-GauPro_base-update_corrparams'><code>GauPro::GauPro_base$update_corrparams()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_base" data-id="update_data"><a href='../../GauPro/html/GauPro_base.html#method-GauPro_base-update_data'><code>GauPro::GauPro_base$update_data()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_base" data-id="update_nugget"><a href='../../GauPro/html/GauPro_base.html#method-GauPro_base-update_nugget'><code>GauPro::GauPro_base$update_nugget()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_Gauss" data-id="corr_func"><a href='../../GauPro/html/GauPro_Gauss.html#method-GauPro_Gauss-corr_func'><code>GauPro::GauPro_Gauss$corr_func()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_Gauss" data-id="deviance"><a href='../../GauPro/html/GauPro_Gauss.html#method-GauPro_Gauss-deviance'><code>GauPro::GauPro_Gauss$deviance()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="GauPro" data-topic="GauPro_Gauss" data-id="deviance_fngr"><a href='../../GauPro/html/GauPro_Gauss.html#method-GauPro_Gauss-deviance_fngr'><code>GauPro::GauPro_Gauss$deviance_fngr()</code></a></span></li>

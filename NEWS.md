@@ -2,6 +2,9 @@
 
 Fixed a test that caused error on CRAN.
 
+Changed the class name of GauPro_base() from "GauPro"" to "GauPro_base" to avoid
+documentation error.
+
 # GauPro 0.2.16
 
 Fixed a test that caused error on CRAN.

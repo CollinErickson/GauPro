@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Collin Erickson" />
+
+<meta name="date" content="2025-11-19" />
+
+<title>Introduction to Gaussian Processes</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Introduction to Gaussian Processes</h1>
+<h4 class="author">Collin Erickson</h4>
+<h4 class="date">2025-11-19</h4>
+
+
+
+<p>A Gaussian process is a stochastic process that assumes that the
+outputs for any set of input points follows a multivariate normal
+distribution. To determine the normal distribution, we must select a
+mean function that gives a mean for each point and a covariance function
+that gives the covariance between any set of points.</p>
+<p>Thus if we have mean function <span class="math inline">\(\mu\)</span>, covariance function <span class="math inline">\(\Sigma\)</span>, and the <span class="math inline">\(n \times d\)</span> matrix X with the input
+vectors <span class="math inline">\(\mathbf{x_1}, ...,
+\mathbf{x_n}\)</span> in its rows, then distribution of the output at
+these points, <span class="math inline">\(\mathbf{y} = [y_1, \ldots,
+y_n]^T\)</span> is given by:</p>
+<p><span class="math display">\[ \mathbf{y} \sim  N(\mu(X),~ \Sigma(X))
+\]</span></p>
+<p>Or in full element notation:</p>
+<p><span class="math display">\[ \begin{bmatrix} y_1 \\ \vdots \\ y_n
+\end{bmatrix} \sim N(\begin{bmatrix} \mu(\mathbf{x_1}) \\ \vdots \\
+\mu(\mathbf{x_n}) \end{bmatrix}, \begin{bmatrix}
+\Sigma(\mathbf{x_1},\mathbf{x_1}) &amp;\cdots
+&amp;\Sigma(\mathbf{x_1},\mathbf{x_n}) \\ \vdots &amp;\ddots &amp;\vdots
+\\ \Sigma(\mathbf{x_n},\mathbf{x_1}) &amp;\cdots
+&amp;\Sigma(\mathbf{x_n},\mathbf{x_n}) \end{bmatrix})\]</span></p>
+<div id="mean-function-mu" class="section level2">
+<h2>Mean function <span class="math inline">\(\mu\)</span></h2>
+<p>The mean function can be any function mapping the input space to the
+real numbers. The most commonly used mean function is a constant, so
+<span class="math inline">\(\mu(\mathbf{x}) = \mu\)</span>. This means
+that over the entire space the predicted mean given no other information
+a constant. When fitting a GP model to data, <span class="math inline">\(\mu\)</span> is usually estimated using the data.
+Another commonly used mean function is zero. This works surprisingly
+well since the GP will interpolated between your data, meaning that the
+mean function work have much of an effect when there is enough data. A
+note on notation: for a vector <span class="math inline">\(u\)</span>,
+<span class="math inline">\(\mu(u)\)</span> is sometimes written as
+<span class="math inline">\(\mu_u\)</span> for simplicity. For a matrix
+<span class="math inline">\(X\)</span>, <span class="math inline">\(\mu(X)=\mu_X\)</span> is the vector obtained from
+applying <span class="math inline">\(\mu\)</span> to each row of <span class="math inline">\(X\)</span>.</p>
+<p>A more advanced choice of mean function is to use a linear model, so
+<span class="math display">\[\mu(\mathbf{x}) = \beta_0 + \sum_{i=1}^d
+\beta_i x_i\]</span>. Again these parameters must be estimated. This can
+be generalized to a linear combination of functions of the input data,
+<span class="math inline">\(f_1, \ldots, f_m\)</span> so the mean
+function is <span class="math display">\[\mu(\mathbf{x}) = \beta_0 +
+\sum_{i=1}^m \beta_i f_i(\mathbf{x})\]</span>.</p>
+<p>It is generally recommended to just use a constant mean since the
+data itself should provide enough information to fit the true function.
+Some researchers say that using a linear model can have negative effects
+on fitting a good model.</p>
+</div>
+<div id="covariance-function-sigma" class="section level2">
+<h2>Covariance function <span class="math inline">\(\Sigma\)</span></h2>
+<p>The covariance function determines how strong the correlation is
+between points. A note on notation: the covariance/correlation functions
+are heavily overloaded, meaning that their meaning depends on the
+context. For vectors <span class="math inline">\(u\)</span> and <span class="math inline">\(v\)</span>, <span class="math inline">\(\Sigma(u,v)\)</span> is the covariance between the
+points, which is also sometimes written as <span class="math inline">\(\Sigma_{u,v}\)</span> or <span class="math inline">\(\Sigma_{uv}\)</span>. <span class="math inline">\(\Sigma(u)\)</span> or <span class="math inline">\(\Sigma_u\)</span> is the same thing as the
+covariance of <span class="math inline">\(u\)</span> with itself, or
+<span class="math inline">\(\Sigma(u,u)\)</span>. For a matrix <span class="math inline">\(X\)</span>, <span class="math inline">\(\Sigma(X,u)\)</span> or <span class="math inline">\(\Sigma_{Xu}\)</span> is a column vector whose
+elements are the covariance of the rows of <span class="math inline">\(X\)</span> with <span class="math inline">\(u\)</span>. For another matrix <span class="math inline">\(W\)</span>, <span class="math inline">\(\Sigma(X,
+W)\)</span> is a matrix whose <span class="math inline">\((i,j)\)</span>
+element is the covariance of the <span class="math inline">\(i\)</span>
+row of <span class="math inline">\(X\)</span> and the <span class="math inline">\(j\)</span> row of <span class="math inline">\(W\)</span>. <span class="math inline">\(\Sigma(X)\)</span> or <span class="math inline">\(\Sigma_X\)</span> means the same thing as <span class="math inline">\(\Sigma(X,X)\)</span>.</p>
+<p>Often a correlation function, <span class="math inline">\(R\)</span>,
+is used instead of a covariance function. The correlation function
+should map any pair of points to <span class="math inline">\([0,1]\)</span>. The correlation for any point with
+itself should be 1, i.e. <span class="math inline">\(R(\mathbf{x},
+\mathbf{x}) = 1\)</span>. When a correlation function is used, a
+variance parameter <span class="math inline">\(\sigma^2\)</span> must be
+estimated to scale the correlation matrix into a covariance matrix. Thus
+the covariance matrix is <span class="math inline">\(C(X) =
+\hat{\sigma}^2 R(X)\)</span>. <span class="math inline">\(R\)</span> is
+overloaded similarly to <span class="math inline">\(\Sigma\)</span>.</p>
+<div id="gaussian-correlation" class="section level3">
+<h3>Gaussian correlation</h3>
+<p>The most commonly used correlation function is the Gaussian.</p>
+<p><span class="math display">\[ R(\mathbf{u}, \mathbf{v}) = \exp \left(
+-\sum_{i=1}^d \theta_i (u_i - v_i)^2 \right)\]</span></p>
+<p>The parameters <span class="math inline">\(\mathbf{\theta} =
+(\theta_1, \ldots, \theta_d)\)</span> are the correlation parameters for
+each dimensions. Generally they must be estimated from the data when
+fitting a Gaussian process model to data.</p>
+</div>
+</div>
+<div id="likelihood-function-and-parameter-estimation" class="section level2">
+<h2>Likelihood function and parameter estimation</h2>
+<p>The parameters are often estimated by finding the parameters that
+maximize the likelihood given a data set.</p>
+<p>The likelihood function is the usual multivariate normal pdf shown
+below, where <span class="math inline">\(\mathbf{\mu} = \mu(X)\)</span>,
+<span class="math inline">\(\Sigma = \Sigma(X)\)</span></p>
+<p><span class="math display">\[ f(\mathbf{\theta};~X,~\mathbf{y}) =
+f(X,~\mathbf{y};~\mathbf{\theta}) = \frac{1}{(2 \pi)^{n/2}
+|\Sigma|^{1/2} } \exp{(-\frac{1}{2} (\mathbf{y} - \mathbf{\mu})^T
+\Sigma^{-1} (\mathbf{y} - \mathbf{\mu}))}\]</span></p>
+<p>As usual, we use negative two times the log-likelihood for
+simplicity, ignoring the constant terms.</p>
+<p><span class="math display">\[ \ell(\theta) = \ln |\Sigma| +
+(\mathbf{y} - \mathbf{\mu})^T \Sigma^{-1} (\mathbf{y} -
+\mathbf{\mu})\]</span></p>
+<p>This equation is minimized as a function of the correlation
+parameters to find the parameters that give the greatest likelihood.
+Since there is a determinant and matrix solve, this is an expensive
+function to optimize, with each evaluation being <span class="math inline">\(O(n^3)\)</span></p>
+<div id="estimate-for-constant-mu" class="section level3">
+<h3>Estimate for constant <span class="math inline">\(\mu\)</span></h3>
+<p>If the mean is set to be constant, <span class="math inline">\(\mu(X)
+= \mu \mathbf{1_n}\)</span>, then there is a single parameter <span class="math inline">\(\mu\)</span> to estimate. Differentiating <span class="math inline">\(\ell\)</span> with respect to <span class="math inline">\(\mu\)</span> will then give <span class="math display">\[ \frac{d \ell}{d \mu} = \mathbf{1_n}^T
+\Sigma^{-1}(\mathbf{y} - \mu \mathbf{1_n})\]</span> Setting this equal
+to zero and solving for <span class="math inline">\(\mu\)</span> gives
+the maximum likelihood estimate <span class="math inline">\(\hat{\mu}\)</span> <span class="math display">\[
+\hat{\mu} = \frac{\mathbf{1_n}^T \Sigma^{-1}\mathbf{y}}{\mathbf{1_n}^T
+\Sigma^{-1}\mathbf{1_n}}\]</span></p>
+</div>
+<div id="estimate-for-sigma" class="section level3">
+<h3>Estimate for <span class="math inline">\(\sigma\)</span></h3>
+<p>When using a correlation matrix so that <span class="math inline">\(\Sigma = \sigma^2 R\)</span>, <span class="math inline">\(\sigma\)</span> must be estimated using maximum
+likelihood.</p>
+<p><span class="math display">\[ \frac{d \ell}{d \sigma^2} =
+\frac{n}{\sigma^2} - \frac{1}{\sigma^4}(\mathbf{y} - \mathbf{\mu})^T
+R^{-1} (\mathbf{y} - \mathbf{\mu})\]</span> Setting equal to zero and
+solving for <span class="math inline">\(\sigma^2\)</span> gives <span class="math display">\[ \hat{\sigma}^2 = \frac{1}{n} (\mathbf{y} -
+\mathbf{\mu})^T R^{-1} (\mathbf{y} - \mathbf{\mu})\]</span> When
+estimating <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma^2\)</span> simultaneously, these estimates
+are valid and the estimate can simply be plugged into the equation.</p>
+</div>
+</div>
+<div id="prediction-of-new-points" class="section level2">
+<h2>Prediction of new points</h2>
+<div id="conditional-distribution" class="section level3">
+<h3>Conditional distribution</h3>
+<p>Suppose there are vectors <span class="math inline">\(\mathbf{y_1}\)</span> and <span class="math inline">\(\mathbf{y_2}\)</span> that are jointly
+multivariate normal. The joint distribution is <span class="math display">\[ \begin{bmatrix} \mathbf{y_1} \\ \mathbf{y_2}
+\end{bmatrix} \sim N(
+\begin{bmatrix} \mathbf{\mu_1} \\ \mathbf{\mu_2} \end{bmatrix},
+~\begin{bmatrix} \Sigma_{11} \Sigma_{12} \\ \Sigma_{21} \Sigma_{22}
+\end{bmatrix} )
+\]</span></p>
+<p>The conditional distribution of <span class="math inline">\(\mathbf{y_1}\)</span> given <span class="math inline">\(\mathbf{y_2}\)</span> is</p>
+<p><span class="math display">\[\mathbf{y_1} ~|~\mathbf{y_2} \sim
+N(\mathbf{\mu_1} + \Sigma_{12} \Sigma_{22}^{-1}( \mathbf{y_2} -
+\mathbf{\mu_2})),
+~\Sigma_{11} - \Sigma_{12}\Sigma_{22}^{-1}\Sigma_{21})
+\]</span></p>
+</div>
+<div id="predicting" class="section level3">
+<h3>Predicting</h3>
+<p>Suppose there are two input matrices, <span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span>, whose rows are the input points,
+with corresponding output vectors <span class="math inline">\(\mathbf{y_1}\)</span> and <span class="math inline">\(\mathbf{y_2}\)</span>. Suppose we have the actual
+values for <span class="math inline">\(\mathbf{y_2}\)</span>, and want
+to estimate, or predict, <span class="math inline">\(\mathbf{y_1}\)</span>. We can use the conditional
+distribution above to get a posterior distribution for <span class="math inline">\(\mathbf{y_1}\)</span>.</p>
+<p>If we only want to predict for a single point, i.e. we want to
+predict the output <span class="math inline">\(y\)</span> at <span class="math inline">\(\mathbf{x}\)</span>, then this equation gives</p>
+<p><span class="math display">\[y ~|~\mathbf{y_2} \sim
+N(\hat{y},
+~\hat{\sigma}^2(y))
+\]</span> where <span class="math display">\[ \hat{y} = \hat{\mu} +
+R(\mathbf{x},~X_2) R(X_2)^{-1}( \mathbf{y_2} - \mu\mathbf{1_n}))
+\]</span> and <span class="math display">\[ \hat{\sigma}^2(y) =
+R(\mathbf{x}) - R(\mathbf{x},~X_2) R(X_2)^{-1} R(X_2,~\mathbf{x})
+\]</span></p>
+<p>Notice we get an estimate not only for the value of <span class="math inline">\(y\)</span>, but also the standard error. This can
+be useful when we need a way to judge the prediction accuracy of the
+model.</p>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

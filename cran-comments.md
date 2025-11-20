@@ -16,7 +16,7 @@ I made changes to tests to avoid the error.
 
 (Note to self: check Rhub with rhub::rhub_check(), then 1,3,5,20,22,30)
 
-* local Windows 11 (11/18/25): 0 errors/warnings/notes
+* local Windows 11 (11/19/25): 0 errors/warnings/notes
 
 * local Windows 11, _R_CHECK_DEPENDS_ONLY_=TRUE (11/18/25): 0 errors/warnings/notes
 

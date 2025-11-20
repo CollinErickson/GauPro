@@ -44,7 +44,7 @@
 #' param_update = T, nug.update = self$nug.est)}}{This method updates the model, adding new data if given, then running optimization again.}
 #'   }
 GauPro_base <- R6::R6Class(
-  classname = "GauPro",
+  classname = "GauPro_base",
   public = list(
     X = NULL,
     Z = NULL,
@@ -766,3 +766,20 @@ GauPro_base <- R6::R6Class(
 
   )
 )
+
+#' Predict for class GauPro_base
+#'
+#' @description Predict mean and se for given matrix
+#' @param object Object of class GauPro_base
+#' @param XX Points to predict at
+#' @param se.fit Should the se be returned?
+#' @param covmat Should the covariance matrix be returned?
+#' @param split_speed Should the predictions be split up for speed
+#' @param ... Additional parameters
+#'
+#' @return Prediction from object at XX
+#' @export
+predict.GauPro_base = function(object, XX, se.fit=F, covmat=F, split_speed=T,
+                               ...) {
+  object$pred(XX=XX, se.fit=se.fit, covmat=covmat, split_speed=split_speed)
+}

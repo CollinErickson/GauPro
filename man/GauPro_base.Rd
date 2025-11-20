@@ -78,40 +78,40 @@ do not set yourself.}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-GauPro-corr_func}{\code{GauPro_base$corr_func()}}
-\item \href{#method-GauPro-new}{\code{GauPro_base$new()}}
-\item \href{#method-GauPro-initialize_GauPr}{\code{GauPro_base$initialize_GauPr()}}
-\item \href{#method-GauPro-fit}{\code{GauPro_base$fit()}}
-\item \href{#method-GauPro-update_K_and_estimates}{\code{GauPro_base$update_K_and_estimates()}}
-\item \href{#method-GauPro-predict}{\code{GauPro_base$predict()}}
-\item \href{#method-GauPro-pred}{\code{GauPro_base$pred()}}
-\item \href{#method-GauPro-pred_one_matrix}{\code{GauPro_base$pred_one_matrix()}}
-\item \href{#method-GauPro-pred_mean}{\code{GauPro_base$pred_mean()}}
-\item \href{#method-GauPro-pred_meanC}{\code{GauPro_base$pred_meanC()}}
-\item \href{#method-GauPro-pred_var}{\code{GauPro_base$pred_var()}}
-\item \href{#method-GauPro-pred_LOO}{\code{GauPro_base$pred_LOO()}}
-\item \href{#method-GauPro-plot}{\code{GauPro_base$plot()}}
-\item \href{#method-GauPro-cool1Dplot}{\code{GauPro_base$cool1Dplot()}}
-\item \href{#method-GauPro-plot1D}{\code{GauPro_base$plot1D()}}
-\item \href{#method-GauPro-plot2D}{\code{GauPro_base$plot2D()}}
-\item \href{#method-GauPro-loglikelihood}{\code{GauPro_base$loglikelihood()}}
-\item \href{#method-GauPro-optim}{\code{GauPro_base$optim()}}
-\item \href{#method-GauPro-optimRestart}{\code{GauPro_base$optimRestart()}}
-\item \href{#method-GauPro-update}{\code{GauPro_base$update()}}
-\item \href{#method-GauPro-update_data}{\code{GauPro_base$update_data()}}
-\item \href{#method-GauPro-update_corrparams}{\code{GauPro_base$update_corrparams()}}
-\item \href{#method-GauPro-update_nugget}{\code{GauPro_base$update_nugget()}}
-\item \href{#method-GauPro-deviance_searchnug}{\code{GauPro_base$deviance_searchnug()}}
-\item \href{#method-GauPro-nugget_update}{\code{GauPro_base$nugget_update()}}
-\item \href{#method-GauPro-grad_norm}{\code{GauPro_base$grad_norm()}}
-\item \href{#method-GauPro-sample}{\code{GauPro_base$sample()}}
-\item \href{#method-GauPro-print}{\code{GauPro_base$print()}}
-\item \href{#method-GauPro-clone}{\code{GauPro_base$clone()}}
+\item \href{#method-GauPro_base-corr_func}{\code{GauPro_base$corr_func()}}
+\item \href{#method-GauPro_base-new}{\code{GauPro_base$new()}}
+\item \href{#method-GauPro_base-initialize_GauPr}{\code{GauPro_base$initialize_GauPr()}}
+\item \href{#method-GauPro_base-fit}{\code{GauPro_base$fit()}}
+\item \href{#method-GauPro_base-update_K_and_estimates}{\code{GauPro_base$update_K_and_estimates()}}
+\item \href{#method-GauPro_base-predict}{\code{GauPro_base$predict()}}
+\item \href{#method-GauPro_base-pred}{\code{GauPro_base$pred()}}
+\item \href{#method-GauPro_base-pred_one_matrix}{\code{GauPro_base$pred_one_matrix()}}
+\item \href{#method-GauPro_base-pred_mean}{\code{GauPro_base$pred_mean()}}
+\item \href{#method-GauPro_base-pred_meanC}{\code{GauPro_base$pred_meanC()}}
+\item \href{#method-GauPro_base-pred_var}{\code{GauPro_base$pred_var()}}
+\item \href{#method-GauPro_base-pred_LOO}{\code{GauPro_base$pred_LOO()}}
+\item \href{#method-GauPro_base-plot}{\code{GauPro_base$plot()}}
+\item \href{#method-GauPro_base-cool1Dplot}{\code{GauPro_base$cool1Dplot()}}
+\item \href{#method-GauPro_base-plot1D}{\code{GauPro_base$plot1D()}}
+\item \href{#method-GauPro_base-plot2D}{\code{GauPro_base$plot2D()}}
+\item \href{#method-GauPro_base-loglikelihood}{\code{GauPro_base$loglikelihood()}}
+\item \href{#method-GauPro_base-optim}{\code{GauPro_base$optim()}}
+\item \href{#method-GauPro_base-optimRestart}{\code{GauPro_base$optimRestart()}}
+\item \href{#method-GauPro_base-update}{\code{GauPro_base$update()}}
+\item \href{#method-GauPro_base-update_data}{\code{GauPro_base$update_data()}}
+\item \href{#method-GauPro_base-update_corrparams}{\code{GauPro_base$update_corrparams()}}
+\item \href{#method-GauPro_base-update_nugget}{\code{GauPro_base$update_nugget()}}
+\item \href{#method-GauPro_base-deviance_searchnug}{\code{GauPro_base$deviance_searchnug()}}
+\item \href{#method-GauPro_base-nugget_update}{\code{GauPro_base$nugget_update()}}
+\item \href{#method-GauPro_base-grad_norm}{\code{GauPro_base$grad_norm()}}
+\item \href{#method-GauPro_base-sample}{\code{GauPro_base$sample()}}
+\item \href{#method-GauPro_base-print}{\code{GauPro_base$print()}}
+\item \href{#method-GauPro_base-clone}{\code{GauPro_base$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro-corr_func"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro-corr_func}{}}}
+\if{html}{\out{<a id="method-GauPro_base-corr_func"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_base-corr_func}{}}}
 \subsection{Method \code{corr_func()}}{
 Correlation function
 \subsection{Usage}{
@@ -127,8 +127,8 @@ Correlation function
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro-new"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro-new}{}}}
+\if{html}{\out{<a id="method-GauPro_base-new"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_base-new}{}}}
 \subsection{Method \code{new()}}{
 Create GauPro object
 \subsection{Usage}{
@@ -177,8 +177,8 @@ faster but uses more computer resources.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro-initialize_GauPr"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro-initialize_GauPr}{}}}
+\if{html}{\out{<a id="method-GauPro_base-initialize_GauPr"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_base-initialize_GauPr}{}}}
 \subsection{Method \code{initialize_GauPr()}}{
 Not used
 \subsection{Usage}{
@@ -187,8 +187,8 @@ Not used
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro-fit"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro-fit}{}}}
+\if{html}{\out{<a id="method-GauPro_base-fit"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_base-fit}{}}}
 \subsection{Method \code{fit()}}{
 Fit the model, never use this function
 \subsection{Usage}{
@@ -206,8 +206,8 @@ Fit the model, never use this function
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro-update_K_and_estimates"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro-update_K_and_estimates}{}}}
+\if{html}{\out{<a id="method-GauPro_base-update_K_and_estimates"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_base-update_K_and_estimates}{}}}
 \subsection{Method \code{update_K_and_estimates()}}{
 Update Covariance matrix and estimated parameters
 \subsection{Usage}{
@@ -216,8 +216,8 @@ Update Covariance matrix and estimated parameters
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro-predict"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro-predict}{}}}
+\if{html}{\out{<a id="method-GauPro_base-predict"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_base-predict}{}}}
 \subsection{Method \code{predict()}}{
 Predict mean and se for given matrix
 \subsection{Usage}{
@@ -239,8 +239,8 @@ Predict mean and se for given matrix
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro-pred"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro-pred}{}}}
+\if{html}{\out{<a id="method-GauPro_base-pred"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_base-pred}{}}}
 \subsection{Method \code{pred()}}{
 Predict mean and se for given matrix
 \subsection{Usage}{
@@ -262,8 +262,8 @@ Predict mean and se for given matrix
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro-pred_one_matrix"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro-pred_one_matrix}{}}}
+\if{html}{\out{<a id="method-GauPro_base-pred_one_matrix"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_base-pred_one_matrix}{}}}
 \subsection{Method \code{pred_one_matrix()}}{
 Predict mean and se for given matrix
 \subsection{Usage}{
@@ -283,8 +283,8 @@ Predict mean and se for given matrix
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro-pred_mean"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro-pred_mean}{}}}
+\if{html}{\out{<a id="method-GauPro_base-pred_mean"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_base-pred_mean}{}}}
 \subsection{Method \code{pred_mean()}}{
 Predict mean
 \subsection{Usage}{
@@ -302,8 +302,8 @@ Predict mean
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro-pred_meanC"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro-pred_meanC}{}}}
+\if{html}{\out{<a id="method-GauPro_base-pred_meanC"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_base-pred_meanC}{}}}
 \subsection{Method \code{pred_meanC()}}{
 Predict mean using C code
 \subsection{Usage}{
@@ -321,8 +321,8 @@ Predict mean using C code
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro-pred_var"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro-pred_var}{}}}
+\if{html}{\out{<a id="method-GauPro_base-pred_var"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_base-pred_var}{}}}
 \subsection{Method \code{pred_var()}}{
 Predict variance
 \subsection{Usage}{
@@ -344,8 +344,8 @@ Predict variance
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro-pred_LOO"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro-pred_LOO}{}}}
+\if{html}{\out{<a id="method-GauPro_base-pred_LOO"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_base-pred_LOO}{}}}
 \subsection{Method \code{pred_LOO()}}{
 Predict at X using leave-one-out. Can use for diagnostics.
 \subsection{Usage}{
@@ -361,8 +361,8 @@ Predict at X using leave-one-out. Can use for diagnostics.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro-plot"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro-plot}{}}}
+\if{html}{\out{<a id="method-GauPro_base-plot"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_base-plot}{}}}
 \subsection{Method \code{plot()}}{
 Plot the object
 \subsection{Usage}{
@@ -378,8 +378,8 @@ Plot the object
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro-cool1Dplot"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro-cool1Dplot}{}}}
+\if{html}{\out{<a id="method-GauPro_base-cool1Dplot"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_base-cool1Dplot}{}}}
 \subsection{Method \code{cool1Dplot()}}{
 Make cool 1D plot
 \subsection{Usage}{
@@ -421,8 +421,8 @@ Make cool 1D plot
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro-plot1D"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro-plot1D}{}}}
+\if{html}{\out{<a id="method-GauPro_base-plot1D"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_base-plot1D}{}}}
 \subsection{Method \code{plot1D()}}{
 Make 1D plot
 \subsection{Usage}{
@@ -464,8 +464,8 @@ Make 1D plot
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro-plot2D"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro-plot2D}{}}}
+\if{html}{\out{<a id="method-GauPro_base-plot2D"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_base-plot2D}{}}}
 \subsection{Method \code{plot2D()}}{
 Make 2D plot
 \subsection{Usage}{
@@ -474,8 +474,8 @@ Make 2D plot
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro-loglikelihood"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro-loglikelihood}{}}}
+\if{html}{\out{<a id="method-GauPro_base-loglikelihood"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_base-loglikelihood}{}}}
 \subsection{Method \code{loglikelihood()}}{
 Calculate the log likelihood, don't use this
 \subsection{Usage}{
@@ -493,8 +493,8 @@ Calculate the log likelihood, don't use this
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro-optim"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro-optim}{}}}
+\if{html}{\out{<a id="method-GauPro_base-optim"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_base-optim}{}}}
 \subsection{Method \code{optim()}}{
 Optimize parameters
 \subsection{Usage}{
@@ -524,8 +524,8 @@ Optimize parameters
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro-optimRestart"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro-optimRestart}{}}}
+\if{html}{\out{<a id="method-GauPro_base-optimRestart"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_base-optimRestart}{}}}
 \subsection{Method \code{optimRestart()}}{
 Run a single optimization restart.
 \subsection{Usage}{
@@ -571,8 +571,8 @@ and its gradient.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro-update"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro-update}{}}}
+\if{html}{\out{<a id="method-GauPro_base-update"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_base-update}{}}}
 \subsection{Method \code{update()}}{
 Update the model, can be data and parameters
 \subsection{Usage}{
@@ -611,8 +611,8 @@ Update the model, can be data and parameters
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro-update_data"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro-update_data}{}}}
+\if{html}{\out{<a id="method-GauPro_base-update_data"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_base-update_data}{}}}
 \subsection{Method \code{update_data()}}{
 Update the data
 \subsection{Usage}{
@@ -634,8 +634,8 @@ Update the data
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro-update_corrparams"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro-update_corrparams}{}}}
+\if{html}{\out{<a id="method-GauPro_base-update_corrparams"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_base-update_corrparams}{}}}
 \subsection{Method \code{update_corrparams()}}{
 Update the correlation parameters
 \subsection{Usage}{
@@ -651,8 +651,8 @@ Update the correlation parameters
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro-update_nugget"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro-update_nugget}{}}}
+\if{html}{\out{<a id="method-GauPro_base-update_nugget"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_base-update_nugget}{}}}
 \subsection{Method \code{update_nugget()}}{
 Update the nugget
 \subsection{Usage}{
@@ -668,8 +668,8 @@ Update the nugget
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro-deviance_searchnug"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro-deviance_searchnug}{}}}
+\if{html}{\out{<a id="method-GauPro_base-deviance_searchnug"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_base-deviance_searchnug}{}}}
 \subsection{Method \code{deviance_searchnug()}}{
 Optimize deviance for nugget
 \subsection{Usage}{
@@ -678,8 +678,8 @@ Optimize deviance for nugget
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro-nugget_update"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro-nugget_update}{}}}
+\if{html}{\out{<a id="method-GauPro_base-nugget_update"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_base-nugget_update}{}}}
 \subsection{Method \code{nugget_update()}}{
 Update the nugget
 \subsection{Usage}{
@@ -688,8 +688,8 @@ Update the nugget
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro-grad_norm"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro-grad_norm}{}}}
+\if{html}{\out{<a id="method-GauPro_base-grad_norm"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_base-grad_norm}{}}}
 \subsection{Method \code{grad_norm()}}{
 Calculate the norm of the gradient at XX
 \subsection{Usage}{
@@ -705,8 +705,8 @@ Calculate the norm of the gradient at XX
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro-sample"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro-sample}{}}}
+\if{html}{\out{<a id="method-GauPro_base-sample"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_base-sample}{}}}
 \subsection{Method \code{sample()}}{
 Sample at XX
 \subsection{Usage}{
@@ -724,8 +724,8 @@ Sample at XX
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro-print"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro-print}{}}}
+\if{html}{\out{<a id="method-GauPro_base-print"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_base-print}{}}}
 \subsection{Method \code{print()}}{
 Print object
 \subsection{Usage}{
@@ -734,8 +734,8 @@ Print object
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GauPro-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-GauPro-clone}{}}}
+\if{html}{\out{<a id="method-GauPro_base-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-GauPro_base-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{
