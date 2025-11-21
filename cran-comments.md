@@ -4,6 +4,9 @@ https://cran.r-project.org/web/checks/check_results_GauPro.html before
 It was one test that failed on multiple systems.
 I made changes to tests to avoid the error.
 
+I submitted a version on 2025-11-18 that was rejected due to a documentation
+error. I have fixed it.
+
 
 ## Test environments
 * local Windows 11 install, R 4.5.2
@@ -18,25 +21,23 @@ I made changes to tests to avoid the error.
 
 * local Windows 11 (11/19/25): 0 errors/warnings/notes
 
-* local Windows 11, _R_CHECK_DEPENDS_ONLY_=TRUE (11/18/25): 0 errors/warnings/notes
+* local Windows 11, _R_CHECK_DEPENDS_ONLY_=TRUE (11/19/25): 0 errors/warnings/notes
 
-* GitHub Actions, Ubuntu (11/18/25): OK
+* GitHub Actions, Ubuntu (11/19/25): OK
 
 * R-Hub
-  intel (11/18/25): OK
-  mkl (11/18/25): OK
-  linux (R-devel) (11/18/25): OK
-  macos (R-devel) (11/18/25): OK
-  ubuntu-release (11/18/25): 1 NOTE for slow test
-  windows (R-devel) (11/18/25): OK
+  intel (11/19/25): OK
+  mkl (11/19/25): OK
+  linux (R-devel) (11/19/25): OK
+  macos (R-devel) (11/19/25): OK
+  ubuntu-release (11/19/25): 1 NOTE for slow test
+  windows (R-devel) (11/19/25): OK
 
-* Win-Builder, devel (11/18/25): 1 NOTE for HTML names. It seems to be caused
-by the automated naming by roxygen, I'll look into this for a future fix,
-but it's inconsequential.
+* Win-Builder, devel (11/19/25): OK
 
-* Win-Builder, release (11/18/25): OK
+* Win-Builder, release (11/19/25): OK
 
-* macOS builder (11/18/25): OK
+* macOS builder (11/19/25): OK
 
 ## Downstream dependencies
 
