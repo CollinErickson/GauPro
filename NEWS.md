@@ -1,9 +1,13 @@
+# GauPro 0.2.17.9000
+
 # GauPro 0.2.17
 
 Fixed a test that caused error on CRAN.
 
 Changed the class name of GauPro_base() from "GauPro"" to "GauPro_base" to avoid
 documentation error.
+
+Accepted to CRAN on 11/21/25.
 
 # GauPro 0.2.16
 
