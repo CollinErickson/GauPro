@@ -794,9 +794,13 @@ in the order they were evaluated.
 \if{html}{\out{<a id="method-GauPro-loglikelihood"></a>}}
 \if{latex}{\out{\hypertarget{method-GauPro-loglikelihood}{}}}
 \subsection{Method \code{loglikelihood()}}{
-Calculate loglikelihood of parameters
+Calculate loglikelihood of Z given parameters
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$loglikelihood(mu = self$mu_hatX, s2 = self$s2_hat)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$loglikelihood(
+  mu = self$mu_hatX,
+  s2 = self$s2_hat,
+  Z = self$Z
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -805,6 +809,8 @@ Calculate loglikelihood of parameters
 \item{\code{mu}}{Mean parameters}
 
 \item{\code{s2}}{Variance parameter}
+
+\item{\code{Z}}{Z values}
 }
 \if{html}{\out{</div>}}
 }
@@ -1162,7 +1168,8 @@ Update nugget Not the correlation parameters.
 \if{html}{\out{<a id="method-GauPro-deviance"></a>}}
 \if{latex}{\out{\hypertarget{method-GauPro-deviance}{}}}
 \subsection{Method \code{deviance()}}{
-Calculate the deviance.
+Calculate the deviance. The deviance is -2 times the
+loglikelihood, excluding the constant term.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GauPro_kernel_model$deviance(
   params = NULL,

@@ -1633,14 +1633,15 @@ GauPro_kernel_model <- R6::R6Class(
         ggplot2::geom_line() +
         ggplot2::facet_wrap(.~name, scales='free_y')
     },
-    #' @description Calculate loglikelihood of parameters
+    #' @description Calculate loglikelihood of Z given parameters
     #' @param mu Mean parameters
     #' @param s2 Variance parameter
-    loglikelihood = function(mu=self$mu_hatX, s2=self$s2_hat) {
+    #' @param Z Z values
+    loglikelihood = function(mu=self$mu_hatX, s2=self$s2_hat, Z=self$Z) {
       # Last two terms are -2*deviance
       -self$N/2*log(2*pi) +
         -.5*as.numeric(determinant(self$K,logarithm=TRUE)$modulus) +
-        -.5*c(t(self$Z - self$mu_hatX)%*%self$Kinv%*%(self$Z - self$mu_hatX))
+        -.5*c(t(Z - mu)%*%self$Kinv%*%(Z - mu))
     },
     #' @description AIC (Akaike information criterion)
     AIC = function() {
@@ -2368,7 +2369,8 @@ GauPro_kernel_model <- R6::R6Class(
     #   self$nug <- nug
     #   self$update_K_and_estimates()
     # },
-    #' @description Calculate the deviance.
+    #' @description Calculate the deviance. The deviance is -2 times the
+    #' loglikelihood, excluding the constant term.
     #' @param params Kernel parameters
     #' @param nug Nugget
     #' @param nuglog Log of nugget. Only give in nug or nuglog.

@@ -239,11 +239,15 @@ test_that("Cts kernels 1D", {
     expect_error({kernprint <- capture_output(print(gp$kernel))}, NA)
     expect_is(kernprint, 'character')
 
+    # Check deviance functions
     df <- gp$deviance()
     dg <- gp$deviance_grad(nug.update = T)
     dfg <- gp$deviance_fngr(nug.update = T)
     expect_equal(df, dfg$fn)
     expect_equal(dg, dfg$gr, tolerance = 1e-4)
+    llh <- gp$loglikelihood()
+    expect_equal(-2*llh, (df + gp$N*log(2*pi)))
+
     # Now check numeric gradient
     # Nugget gradient
     eps <- 1e-6 # 1e-8 was too small, caused errors
