@@ -2,6 +2,8 @@
 
 * EI/CorEI/AugEI/qEI: nopt, test, doc
   * Use t-dist
+  
+* Fix loglikelihood function. Doesn't use either param.
 
 * Add documentation for kernels, esp. factor ones
 
